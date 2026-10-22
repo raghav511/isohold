@@ -269,6 +269,16 @@ ol.steps .sf span { width: auto; min-width: 24px; padding: 0 7px; border-radius:
 .ring b.long { font-size: 40px; }
 .p-phase.easy, .stage.easy { background: var(--k24); color: #fff; }
 
+.bk { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.bk-card { background: var(--surface); border-radius: 12px; padding: 14px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.bk textarea { width: 100%; font: 12.5px/1.4 var(--f-mono); padding: 8px 10px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); resize: vertical; word-break: break-all; }
+.bk-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.bk-msg { font-size: 13.5px; color: var(--muted); }
+.bk-msg.ok { color: var(--k24); } .bk-msg.err { color: var(--accent); }
+.bk-confirm { display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: 8px; }
+.bk-confirm p { margin: 0; }
+@media (max-width: 700px) { .bk { grid-template-columns: minmax(0, 1fr); } }
+
 @keyframes pulse { 0%, 100% { opacity: .55 } 50% { opacity: 1 } }
 .holding [data-glow] { animation: pulse 1.2s ease-in-out infinite; }
 
@@ -342,6 +352,26 @@ ol.steps .sf span { width: auto; min-width: 24px; padding: 0 7px; border-radius:
       <h2>Max-hold test</h2>
       <p>In week 1 and week 12, use the same load and hold until your form breaks. Record the seconds. Your numbers stay in this browser only.</p>
       <div class="tests" id="tests"></div>
+    </div>
+    <div class="panel" id="backup">
+      <h2>Backup &amp; restore</h2>
+      <p>Your progress is stored only on this phone. Copy a backup code now and then and keep it in Notes. To move to a new phone or after reinstalling, paste the code here and tap Restore.</p>
+      <div class="bk">
+        <div class="bk-card">
+          <span class="label">Your backup code</span>
+          <textarea id="bkOut" readonly rows="3" aria-label="Backup code"></textarea>
+          <div class="bk-row"><button class="btn" id="bkCopy">Copy backup code</button><span class="bk-msg" id="bkCopyMsg" role="status"></span></div>
+        </div>
+        <div class="bk-card">
+          <span class="label">Restore from a code</span>
+          <textarea id="bkIn" rows="3" placeholder="Paste a code starting with ISOHOLD1:" aria-label="Paste backup code"></textarea>
+          <div class="bk-row"><button class="btn ghost" id="bkRestore">Restore</button><span class="bk-msg" id="bkMsg" role="status"></span></div>
+          <div class="bk-confirm" id="bkConfirm" hidden>
+            <p id="bkConfirmTxt"></p>
+            <div class="bk-row"><button class="btn" id="bkYes">Replace my progress</button><button class="btn ghost" id="bkNo">Cancel</button></div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1586,7 +1616,50 @@ var CARDIO_DAYS = [
   });
 
   // ---------- boot ----------
+  // ---------- backup & restore ----------
+  function b64enc(t) { return btoa(unescape(encodeURIComponent(t))); }
+  function b64dec(t) { return decodeURIComponent(escape(atob(t))); }
+  function backupCode() { return 'ISOHOLD1:' + b64enc(JSON.stringify({ week: store.week, done: store.done, tests: store.tests })); }
+  function refreshBackup() { $('bkOut').value = backupCode(); }
+  function parseCode(raw) {
+    var m = String(raw || '').match(/ISOHOLD1:\s*([A-Za-z0-9+/=]+)/);
+    if (!m) throw new Error('That does not look like an Isohold code. It should start with ISOHOLD1:');
+    var o; try { o = JSON.parse(b64dec(m[1])); } catch (e) { throw new Error('The code is incomplete or damaged. Copy the whole code and try again.'); }
+    if (!o || typeof o !== 'object' || !(o.week >= 1 && o.week <= 12) || typeof o.done !== 'object' || typeof o.tests !== 'object') throw new Error('The code is incomplete or damaged. Copy the whole code and try again.');
+    return { week: Math.round(o.week), done: o.done || {}, tests: o.tests || {} };
+  }
+  function countDone(d) { var n = Object.keys(d).filter(function (k) { return d[k]; }).length; return n + (n === 1 ? ' session' : ' sessions'); }
+  var pending = null;
+  function msg(id, txt, cls) { $(id).textContent = txt; $(id).className = 'bk-msg' + (cls ? ' ' + cls : ''); }
+  $('bkCopy').addEventListener('click', function () {
+    refreshBackup();
+    var txt = $('bkOut').value;
+    function fallback() { $('bkOut').focus(); $('bkOut').select(); try { $('bkOut').setSelectionRange(0, txt.length); } catch (e) { } msg('bkCopyMsg', 'Code selected. Tap Copy to copy it.', ''); }
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(function () { msg('bkCopyMsg', 'Copied. Paste it into Notes.', 'ok'); }, fallback);
+      else fallback();
+    } catch (e) { fallback(); }
+  });
+  $('bkRestore').addEventListener('click', function () {
+    $('bkConfirm').hidden = true; pending = null;
+    try { pending = parseCode($('bkIn').value); } catch (e) { msg('bkMsg', e.message, 'err'); return; }
+    msg('bkMsg', '', '');
+    $('bkConfirmTxt').textContent = 'This backup is on week ' + pending.week + ' with ' + countDone(pending.done) + ' done. It will replace the progress on this phone (week ' + store.week + ', ' + countDone(store.done) + ' done).';
+    $('bkConfirm').hidden = false;
+  });
+  $('bkNo').addEventListener('click', function () { pending = null; $('bkConfirm').hidden = true; msg('bkMsg', 'Restore cancelled.', ''); });
+  $('bkYes').addEventListener('click', function () {
+    if (!pending) return;
+    store.week = pending.week; store.done = pending.done; store.tests = pending.tests; pending = null;
+    save(); renderProgram(); renderTests(); refreshBackup();
+    $('bkConfirm').hidden = true; $('bkIn').value = '';
+    msg('bkMsg', 'Progress restored.', 'ok');
+  });
+  var _save = save;
+  save = function () { _save(); try { refreshBackup(); } catch (e) { } };
+
   renderChips(); renderLib(); applyFilter(); renderProgram(); renderTests();
+  refreshBackup();
   var h = (location.hash || '').slice(1);
   if (TABS.indexOf(h) > -1) show(h, true);
   requestAnimationFrame(frame);
