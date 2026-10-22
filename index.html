@@ -339,6 +339,77 @@ table.cov td small { color: var(--muted); }
 .coach .app-pad { height: 8px; }
 @media (prefers-reduced-motion: reduce) { .typing i { animation: none; opacity: .6; } }
 
+/* ---------- additions: progress, equipment, weights, research ---------- */
+.overall { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; font-size: 14px; }
+.overall .ov-t { display: flex; gap: 6px; align-items: baseline; font-weight: 700; color: var(--muted); }
+.overall .ov-t b { color: var(--ink); }
+.ov-bar { height: 8px; border-radius: 4px; background: var(--sunk); overflow: hidden; }
+.ov-bar i { display: block; height: 100%; background: var(--ok); border-radius: 4px; }
+.ov-bar.big { height: 12px; border-radius: 6px; }
+.ov-s { color: var(--muted); font-weight: 700; }
+.strip { grid-template-columns: repeat(6, 1fr) !important; }
+.strip .n { font-size: 24px; }
+.strip .d { font-size: 11.5px; }
+.row .s.miss { color: var(--hold); font-weight: 700; }
+.row .s.m { color: var(--muted); font-size: 13.5px; }
+.ev-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-left: 4px; vertical-align: middle; }
+.ev { display: inline-block; font-size: 12.5px; font-weight: 700; padding: 2px 9px; border-radius: 999px; }
+.ev-strong { background: color-mix(in srgb, var(--ok) 18%, var(--surface)); color: var(--ok); } .ev-dot.ev-strong { background: var(--ok); }
+.ev-moderate { background: color-mix(in srgb, var(--rep) 15%, var(--surface)); color: var(--rep); } .ev-dot.ev-moderate { background: var(--rep); }
+.ev-limited { background: var(--sunk); color: var(--muted); } .ev-dot.ev-limited { background: var(--muted); }
+.d-top { display: flex; align-items: flex-start; gap: 10px; }
+.d-top h3 { margin-right: auto; }
+.infobtn { width: 34px; height: 34px; border-radius: 50%; border: 0; background: var(--sunk); color: var(--muted); display: grid; place-items: center; padding: 0; flex: none; }
+.infobtn svg { width: 20px; height: 20px; }
+.infobtn[aria-expanded="true"] { background: var(--ink); color: var(--bg); }
+.infobtn.static { width: 28px; height: 28px; }
+.r-head { display: flex; align-items: center; gap: 8px; }
+.evbox { background: var(--surface); border-radius: var(--r-md); padding: 12px 14px; display: grid; gap: 10px; font-size: 15px; }
+.refs { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.refs li { display: grid; gap: 2px; font-size: 14px; }
+.refs a { color: var(--rep); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+.refs span { color: var(--muted); }
+.eqtabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.eqtabs button { border: 1.5px solid var(--line); background: var(--surface); border-radius: 999px; min-height: 38px; padding: 0 14px; font-weight: 700; font-size: 14px; }
+.eqtabs button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.eqs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.eq { position: relative; border: 2px solid var(--line); background: var(--surface); border-radius: 16px; min-height: 104px; display: grid; justify-items: center; align-content: center; gap: 6px; padding: 10px 6px; font-size: 14px; }
+.eq svg:not(.tick) { width: 40px; height: 40px; color: var(--muted); }
+.eq .tick { position: absolute; top: 8px; right: 8px; width: 18px; height: 18px; opacity: 0; }
+.eq[aria-pressed="true"] { border-color: var(--ink); }
+.eq[aria-pressed="true"] svg:not(.tick) { color: var(--ink); }
+.eq[aria-pressed="true"] .tick { opacity: 1; color: var(--ok); }
+.eq-prev { background: var(--surface); border-radius: var(--r-md); padding: 12px 14px; display: grid; gap: 6px; }
+.eq-prev ul { margin: 0; padding-left: 18px; display: grid; gap: 2px; font-size: 15px; }
+.eq-prev li.miss span { color: var(--hold); font-weight: 700; }
+.wtbox { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--surface); border-radius: var(--r-md); padding: 10px 12px; }
+.wtbox label { font-weight: 700; }
+.stepper { display: inline-grid; grid-template-columns: 44px 72px auto 44px; align-items: center; gap: 4px; }
+.stepper button { width: 44px; height: 44px; border-radius: 12px; border: 0; background: var(--sunk); font-size: 22px; font-weight: 700; padding: 0; }
+.stepper input { text-align: center; padding: 8px 4px; font-weight: 700; font-size: 18px; }
+.stepper span { font-weight: 700; color: var(--muted); padding: 0 2px; }
+.pwt { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--surface); border-radius: 14px; padding: 8px 10px 8px 14px; }
+.pwt > span { font-weight: 700; font-size: 15px; }
+.plog { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-weight: 700; color: var(--ok); margin: 0; }
+.plog-b { display: flex; gap: 6px; }
+.plog-b button { width: 40px; height: 36px; border-radius: 10px; border: 1.5px solid var(--line); background: transparent; font-weight: 700; font-size: 18px; padding: 0; }
+.p-confirm { position: fixed; inset: 0; z-index: 50; background: rgba(10, 12, 14, .5); display: grid; place-items: end center; padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.p-confirm[hidden] { display: none !important; }
+.pc-card { background: var(--bg); border-radius: 20px; padding: 18px; display: grid; gap: 10px; width: 100%; max-width: 520px; }
+.pc-card b { font-family: var(--f-display); font-size: 28px; font-weight: 800; }
+.pc-card p { color: var(--muted); }
+.pc-b { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--bar-h) + env(safe-area-inset-bottom, 0px) + 14px); z-index: 60; background: var(--ink); color: var(--bg); padding: 12px 16px; border-radius: 14px; font-weight: 700; font-size: 15px; max-width: calc(100% - 32px); width: max-content; box-shadow: 0 8px 24px rgba(0, 0, 0, .25); }
+.chart-t { font-size: 13px; font-weight: 700; color: var(--muted); margin-top: 4px; }
+svg.wchart, svg.schart { width: 100%; height: auto; display: block; overflow: visible; }
+svg .gl { stroke: var(--line); stroke-width: 1; }
+svg .ax { fill: var(--muted); font: 700 11px var(--f-body); }
+svg .ax.cur { fill: var(--ink); }
+svg .val { fill: var(--ink); font: 700 11.5px var(--f-body); }
+#strCard select { font: inherit; font-size: 16px; padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); width: 100%; }
+.str-sum { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+.str-sum .up { color: var(--ok); font-weight: 700; } .str-sum .down { color: var(--hold); font-weight: 700; }
+
 @keyframes pulse { 0%, 100% { opacity: .55 } 50% { opacity: 1 } }
 .holding [data-glow] { animation: pulse 1.2s ease-in-out infinite; }
 
@@ -362,6 +433,7 @@ table.cov td small { color: var(--muted); }
   <section class="view" id="train" aria-labelledby="tab-train">
     <div class="view-head"><h1>Train</h1><button class="weekbtn" id="weekBtn" aria-haspopup="dialog"></button></div>
     <div class="band" id="band"></div>
+    <div class="overall" id="overall"></div>
     <div class="strip" id="strip" role="group" aria-label="Day of the week"></div>
     <div id="sessions" class="view" style="gap:12px"></div>
   </section>
@@ -376,7 +448,8 @@ table.cov td small { color: var(--muted); }
   <!-- PROGRESS -->
   <section class="view" id="progress" aria-labelledby="tab-progress" hidden>
     <div class="view-head"><h1>Progress</h1></div>
-    <div class="card" id="wkCard"></div>
+    <div class="card" id="allCard"></div>
+    <div class="card" id="strCard"></div>
     <div class="card">
       <h2>Max-hold test</h2>
       <p>In week 1 and week 12, use the same weight and hold until your form breaks. Enter the seconds.</p>
@@ -434,7 +507,7 @@ table.cov td small { color: var(--muted); }
     <div class="view-head"><h1>Guide</h1></div>
     <p class="guide-intro">Each hold is followed by a rep exercise for the same muscles. The hold strengthens the tendon; the reps, taken close to failure, build muscle. Every day is split into a short morning and evening session of 20 to 30 minutes.</p>
     <div class="gl" id="gl">
-      <details><summary><span class="gb">30–45 s</span><span class="gh">Tendons like long, heavy tension</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Tendons adapt to how hard and how long they are strained. Holds of 30–45 seconds at about 70% of your best effort raise tendon stiffness more than quick reps. A widely cited study on painful patellar tendons used 5 × 45 s holds and found pain dropped right away and stayed lower.</p></div></details>
+      <details><summary><span class="gb">30–45 s</span><span class="gh">Tendons like long, heavy tension</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Tendons adapt to how hard and how long they are strained. Holds of 30–45 seconds at about 70% of your best effort raise tendon stiffness more than quick reps. Reviews of training studies find that holds at 70% effort or more make tendons stiffer and stronger, and holds at long muscle lengths build the most muscle. An early 6-person study suggested holds also relieve tendon pain instantly, but larger trials since then found ordinary reps work just as well for pain.</p></div></details>
       <details><summary><span class="gb">AM + PM</span><span class="gh">Why two short sessions</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Tendon collagen responds strongly to a short bout of loading, then goes quiet for several hours. Two sessions 6 or more hours apart give it two signals instead of one, and each session stays short enough to fit around a workday. The morning starts with a 5-minute treadmill walk as a warm-up; the evening ends on the rower.</p></div></details>
       <details><summary><span class="gb">Alternate</span><span class="gh">Why exercises are grouped</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Exercises in a group work different muscles, so you go from one to the next with only about 15 seconds to set up. Each muscle still gets about a minute of rest while you work the others. This saves around a third of the session time compared with resting between every set. Each exercise's holds still come right before its rep sets.</p></div></details>
       <details><summary><span class="gb">~150 min</span><span class="gh">Cardio across the week</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>The warm-up walks, rowing finishers, and the Wednesday and Saturday cardio days add up to roughly 150 minutes a week, the common health guideline. Most of it is "zone 2": you can still talk in full sentences. The short hard rowing intervals in the Build and Heavy phases build fitness without taking time from the strength work. The rower also trains the legs, back and grip, so keep easy days genuinely easy.</p></div></details>
@@ -447,13 +520,19 @@ table.cov td small { color: var(--muted); }
       <details><summary><span class="gb">48–72 h</span><span class="gh">Recovery between the same region</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Collagen building in a tendon stays raised for about two to three days after a heavy session. The four days hit each region once, with arms, shoulders and core getting a second dose from a different angle. Wednesday is a cardio-only day, so there is a break from heavy loading between day 2 and day 3.</p></div></details>
       <details><summary><span class="gb">Breathe</span><span class="gh">Never hold your breath</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Holding your breath during a long hold spikes blood pressure. Breathe in through the nose and out through pursed lips, keeping the brace. If you have high blood pressure or a heart condition, check with your doctor before heavy isometrics.</p></div></details>
       <details><summary><span class="gb">≤ 3/10</span><span class="gh">The pain rule</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Mild tendon discomfort up to 3 out of 10 that settles by the next morning is acceptable. Sharp pain, pain that grows during the hold, or pain worse the next day means go lighter or shorter. For an existing injury, work with a physiotherapist.</p></div></details>
-      <details><summary><span class="gb">Single</span><span class="gh">Isolating a stubborn tendon</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>If one tendon bothers you (knee, Achilles, elbow), use the 5 × 45 s, 2-minute-rest protocol for its exercise only: wall sit for the knee, seated calf hold for the Achilles, wrist extension for the elbow. Do it up to daily while pain is high.</p></div></details>
+      <details><summary><span class="gb">Single</span><span class="gh">Isolating a stubborn tendon</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>If one tendon bothers you (knee, Achilles, elbow), keep loading it at a level that stays within the pain rule: wall sit for the knee, seated calf hold for the Achilles, wrist extension for the elbow. Holds and slow reps both work; pick whichever you tolerate better. Holds are not a quick fix for pain, so for pain that lasts more than a few weeks, see a physiotherapist.</p></div></details>
       <details><summary><span class="gb">Colors</span><span class="gh">The phase colors</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Phases borrow the competition kettlebell color code: 16 kg yellow, 20 kg purple, 24 kg green, 28 kg orange, 32 kg red. The weights are a reminder that load climbs through the 12 weeks, not a prescription. Use what fits your RPE.</p></div></details>
+    </div>
+    <div class="card" id="researchCard">
+      <div class="r-head"><h2>Research</h2><span class="infobtn static" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="7.5" r="1.4" fill="currentColor"/></svg></span></div>
+      <p>The studies behind the program. Each exercise also has an info button with the papers for that exercise.</p>
+      <div id="research"></div>
     </div>
     <p class="fine">General training guidance, not medical advice. In the figures, red marks the working muscles and joints; the lighter limb is the far side of the body.</p>
   </section>
 </main>
 
+<div class="toast" id="toast" role="status" hidden></div>
 <nav class="tabbar" aria-label="Sections">
   <div class="tabbar-in" role="tablist">
     <button role="tab" id="tab-train" aria-controls="train" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="fillme" d="M8 10V7.5a4 4 0 0 1 8 0V10" fill="none" stroke="currentColor" stroke-width="2"/><circle class="fillme" cx="12" cy="15" r="6" fill="none" stroke="currentColor" stroke-width="2"/></svg>Train</button>
@@ -491,12 +570,17 @@ table.cov td small { color: var(--muted); }
           <span id="pRx"></span>
         </div>
       </div>
+      <div class="pwt" id="pWtRow"><span id="pWtLab">Weight</span><div class="stepper"><button id="pWtMinus" aria-label="Less weight">−</button><input id="pWt" type="number" inputmode="decimal" step="0.5" min="0" placeholder="0" aria-label="Weight in kilograms"><span>kg</span><button id="pWtPlus" aria-label="More weight">+</button></div></div>
+      <p class="plog" id="pLog" hidden><span id="pLogTxt"></span><span class="plog-b"><button id="pLogMinus" aria-label="Logged less">−</button><button id="pLogPlus" aria-label="Logged more">+</button></span></p>
       <ul id="pCues"></ul>
       <p id="pNext"></p>
     </div>
   </div>
+  <div class="p-confirm" id="pConfirm" hidden role="alertdialog" aria-labelledby="pEndT">
+    <div class="pc-card"><b id="pEndT">End this session?</b><p>The sets you’ve done so far are saved. The session is only marked done if you finish it.</p><div class="pc-b"><button class="btn go" id="pEndYes">End session</button><button class="btn quiet" id="pEndNo">Keep going</button></div></div>
+  </div>
   <div class="p-ctrl">
-    <button class="btn quiet" id="pPrev">Back</button>
+    <button class="btn quiet" id="pPrev">Previous</button>
     <button class="btn go" id="pPause">Pause</button>
     <button class="btn quiet" id="pSkip">Skip</button>
     <button class="btn line sm" id="pMore">Add 15 s rest</button>
@@ -641,6 +725,10 @@ var FIG = (function () {
     } else if (type === 'kbu') {
       var cu = add(hand, u, 12);
       s += seg(hand, add(hand, u, 4), 5, col) + circ(cu, 9.5, col) + circ(add(cu, u, 6), 3, C.hub);
+    } else if (type === 'plate') {
+      s += circ(hand, 10, col) + circ(hand, 3.2, C.hub);
+    } else if (type === 'bar') {
+      s += circ(hand, 15, col) + circ(hand, 11, 'none', ' stroke="' + C.hub + '" stroke-width="1.2" opacity=".6"') + circ(hand, 3.6, C.hub);
     } else if (type === 'handle') {
       s += seg([hand[0], hand[1] - 6], [hand[0], hand[1] + 6], 4, col);
     } else if (type === 'kbr') {
@@ -697,7 +785,7 @@ var FIG = (function () {
     if (r.w.knee) s += weight(r.w.knee, add(o.Kn, [0, -8]), o.Kn, true);
     s += N.leg + N.arm + weight(r.w.n, o.Pn, o.Wn, true);
     if (prone) s += headS;
-    if (r.w.toe) s += weight('dbp', add(o.Tn, [3, -26]), o.Tn, true);
+    if (r.w.toe) { var tt = r.w.toe === 'db' ? 'dbp' : r.w.toe; s += weight(tt, add(o.Tn, [3, tt === 'dbp' ? -26 : -14]), o.Tn, true); }
     return s;
   }
   function drawFront(r, o, hl) {
@@ -717,8 +805,14 @@ var FIG = (function () {
       var S = k === 'r' ? o.SR : o.SL;
       var ca = (isHL(hl, 'ua') || isHL(hl, 'ua.' + k)) ? C.hl : C.ink, cf = (isHL(hl, 'fa') || isHL(hl, 'fa.' + k)) ? C.hl : C.ink;
       s += seg(S, o['E' + k], 6.5, ca) + seg(o['E' + k], o['W' + k], 5.5, cf) + seg(o['W' + k], o['P' + k], 4, cf);
-      s += weight(r.w[k], o['P' + k], o['W' + k], true);
+      if (!r.w.bar && r.w.barone !== k) s += weight(r.w[k], o['P' + k], o['W' + k], true);
     });
+    function barAcross(a, b) {
+      var y = (a[1] + b[1]) / 2, x0 = Math.min(a[0], b[0]) - 18, x1 = Math.max(a[0], b[0]) + 18;
+      return seg([x0, y], [x1, y], 3.2, C.iron) + '<rect x="' + (x0 - 5).toFixed(1) + '" y="' + (y - 13).toFixed(1) + '" width="7" height="26" rx="2" fill="' + C.iron + '"/>' + '<rect x="' + (x1 - 2).toFixed(1) + '" y="' + (y - 13).toFixed(1) + '" width="7" height="26" rx="2" fill="' + C.iron + '"/>';
+    }
+    if (r.w.bar) s += barAcross(o.Pr, o.Pl);
+    if (r.w.barone) { var P1 = o['P' + r.w.barone]; s += barAcross([P1[0] - 28, P1[1]], [P1[0] + 28, P1[1]]); }
     return s;
   }
 
@@ -809,15 +903,14 @@ var EX = [
     avoid: 'Letting the arm drift forward of the head.',
     why: 'Full overhead lockout trains the rotator cuff, serratus and lower traps to stabilise under load.' },
 
-  { id: 'bottoms-up', name: 'Bottoms-Up Kettlebell Hold', equip: 'One light kettlebell', uni: true, tags: ['Front delts', 'Grip', 'Forearms'], hl: ['J_sh', 'fa.n', 'hand.n'],
+  { id: 'ext-rot', name: 'Side-Lying External Rotation Hold', equip: 'One light dumbbell', uni: true, tags: ['Rear delts', 'Upper back'], hl: ['ua', 'fa.l'],
     steps: [
-      { p: { an: [3, 3], af: [3, 3], w: { n: 'kb' } }, txt: 'Hold the kettlebell by the handle at your side.' },
-      { p: { an: [12, 166], af: [3, 3], w: { n: 'kbu' } }, txt: 'Crush the handle and curl it up so the bell points to the ceiling.' },
-      { p: { an: [90, 180], af: [3, 3], w: { n: 'kbu' } }, txt: 'Raise the elbow to shoulder height in front, forearm vertical. Hold the bell balanced.' }],
-    cues: ['Crush grip, white knuckles', 'Forearm perfectly vertical', 'Slow breathing to stay steady'],
-    avoid: 'A heavy bell. If it tips over, it is too heavy.',
-    why: 'The wobble forces the rotator cuff and grip to fire reflexively, one of the best shoulder "joint health" holds.' },
-
+      { p: { v: 'f', t: 90, aL: [90, 72], aR: [90, 90], lR: [-90, -90], lL: [90, 90], w: { l: 'db' } }, txt: 'Lie on your side, head resting on your lower arm. Top elbow bent to 90° and pinned to your side, dumbbell resting near your belly.' },
+      { p: { v: 'f', t: 90, aL: [90, 90], aR: [90, 90], lR: [-90, -90], lL: [90, 90], w: { l: 'db' } }, txt: 'Keep the elbow glued to your ribs (a rolled towel under it helps) and rotate the forearm up.' },
+      { p: { v: 'f', t: 90, aL: [90, 160], aR: [90, 90], lR: [-90, -90], lL: [90, 90], w: { l: 'db' } }, txt: 'Stop just short of vertical. Hold, then switch sides.' }],
+    cues: ['Elbow stays on your side', 'Move only the forearm', 'Light weight: 1\u20135 kg is plenty'],
+    avoid: 'Rolling the body backwards to lift the weight.',
+    why: 'In EMG studies this is the exercise that works the rear rotator cuff (infraspinatus and teres minor) hardest. Those muscles keep the shoulder joint centred under load.' },
   { id: 'oh-triceps', name: 'Overhead Triceps Hold', equip: 'One kettlebell (held by the horns)', tags: ['Triceps', 'Lats'], hl: ['ua'],
     steps: [
       { p: { an: { ikt: [38, 12], b: -1 }, w: { n: 'kbu' } }, txt: 'Hold the kettlebell by the horns at your chest, bell up.' },
@@ -946,15 +1039,14 @@ var EX = [
     avoid: 'Cranking the neck up.',
     why: 'Targets the lower traps, the muscle that keeps overhead shoulders healthy.' },
 
-  { id: 'pullover', name: 'Kettlebell Pullover Hold', equip: 'One kettlebell', tags: ['Lats', 'Triceps', 'Mid abs'], hl: ['tn', 'ua'],
+  { id: 'floor-press', name: 'Floor Press Hold', equip: 'Two dumbbells or kettlebells, or a barbell', tags: ['Triceps', 'Front delts'], hl: ['ua', 'J_elb'],
     steps: [
-      { p: { t: -90, an: [180, 180], ln: { ik: [41, 0], b: 1 }, w: { n: 'kbu' } }, txt: 'Lie on your back, knees bent, holding the kettlebell by the horns over your chest.' },
-      { p: { t: -90, an: [-135, -135], ln: { ik: [41, 0], b: 1 }, w: { n: 'kbu' } }, txt: 'Keep the arms straight and lower the bell back over your head.' },
-      { p: { t: -90, an: [-100, -100], ln: { ik: [41, 0], b: 1 }, w: { n: 'kbu' } }, txt: 'Stop just above the floor with the ribs still down. Hold the stretch.' }],
-    cues: ['Ribs stay down', 'Arms nearly straight', 'Feel it along the sides of your back'],
-    avoid: 'Arching the back to reach further.',
-    why: 'Lengthened lat holds build strength and mobility for overhead positions.' },
-
+      { p: { t: -90, ln: { ik: [41, 0], b: 1 }, an: [180, 180], w: { n: 'db', f: 'db' } }, txt: 'Lie on your back, knees bent, weights pressed straight up over your chest.' },
+      { p: { t: -90, ln: { ik: [41, 0], b: 1 }, an: [140, -165], w: { n: 'db', f: 'db' } }, txt: 'Lower slowly, elbows about 45° from your body.' },
+      { p: { t: -90, ln: { ik: [41, 0], b: 1 }, an: [110, -178], w: { n: 'db', f: 'db' } }, txt: 'Stop with the upper arms just above the floor. Hold there, forearms vertical.' }],
+    cues: ['Elbows hover, do not rest them', 'Wrists stacked over elbows', 'Shoulder blades pinned down'],
+    avoid: 'Letting the elbows sink and rest on the floor.',
+    why: 'A heavy pressing hold for the triceps and front delts. The floor sets a safe depth, so you can go heavy without a spotter.' },
   { id: 'sa-row', name: 'Single-Arm Row Hold', equip: 'One dumbbell', uni: true, tags: ['Lats', 'Mid back', 'Biceps'], hl: ['ua.n', 'tn'],
     steps: [
       { p: { t: 60, ln: [22, -8], lf: [-14, -14], af: { ik: [16, 31], b: 1 }, an: [0, 0], w: { n: 'dbb' } }, txt: 'Staggered stance, hinge forward, free hand braced on the front knee, dumbbell hanging.' },
@@ -1037,15 +1129,14 @@ var EX = [
     avoid: 'Cramping? Bend the knees slightly more.',
     why: 'Loads the hamstrings at the knee, which RDLs miss. Good protection against strains.' },
 
-  { id: 'superman', name: 'Superman Hold', equip: 'One light dumbbell', tags: ['Lower back', 'Glutes', 'Upper back'], hl: ['tn', 'J_hip'],
+  { id: 'bird-dog', name: 'Bird Dog Hold', equip: 'One light dumbbell', uni: true, tags: ['Lower back', 'Glutes', 'Mid abs'], hl: ['tn', 'th.f', 'J_hip'],
     steps: [
-      { p: { t: 90, an: [90, 90], ln: [-90, -90, -90], w: { n: 'dbb' } }, txt: 'Lie face down, arms overhead holding a light dumbbell.' },
-      { p: { t: 83, an: [100, 100], ln: [-97, -97, -92], w: { n: 'dbb' } }, txt: 'Squeeze the glutes and lift the arms, chest and legs together.' },
-      { p: { t: 77, an: [108, 108], ln: [-103, -103, -95], w: { n: 'dbb' } }, txt: 'Lift until only your stomach and hips touch the floor. Hold.' }],
-    cues: ['Glutes squeezed', 'Gaze at the floor', 'Long reach both ends'],
-    avoid: 'Cranking the head up or lifting too high.',
-    why: 'Builds endurance in the spinal erectors, which protects the lower back.' },
-
+      { p: { t: 68, an: [0, 0], af: [0, 0], ln: [0, -90, -90], lf: [0, -90, -90], w: { n: 'db' } }, txt: 'Kneel on all fours, hands under shoulders, knees under hips, a light dumbbell in one hand.' },
+      { p: { t: 68, an: [45, 50], af: [0, 0], ln: [0, -90, -90], lf: [-45, -60, -90], w: { n: 'db' } }, txt: 'Brace your abs. Slide the opposite leg back and start to lift the dumbbell arm.' },
+      { p: { t: 70, an: [92, 92], af: [0, 0], ln: [0, -90, -90], lf: [-94, -94, -100], w: { n: 'db' } }, txt: 'Reach the arm forward and the leg back until both are level with your back. Hold, then switch sides.' }],
+    cues: ['Back flat, no twisting', 'Push the heel back, not up', 'Squeeze the glute of the lifted leg'],
+    avoid: 'Arching the lower back to lift the leg higher.',
+    why: 'Works the back extensors and glutes with far less spine compression than the superman, which is why it is a staple of back-health programs.' },
   { id: 'farmer', name: "Farmer's Hold", equip: 'Two heavy kettlebells', tags: ['Grip', 'Forearms', 'Traps', 'Mid abs'], hl: ['fa', 'hand', 'neck'],
     steps: [
       { p: { t: 40, ln: [62, -32], an: [0, 0], w: { n: 'kb', f: 'kb' } }, txt: 'Squat between the kettlebells and grip the handles in the middle.' },
@@ -1084,10 +1175,10 @@ var EX = [
 ];
 
 var DAYS = [
-  { id: 'd1', name: 'Shoulders & Arms', when: 'Mon', am: [['front-raise', 'kickback', 'hollow'], ['overhead-hold', 'rear-fly']], pm: [['lateral-raise', 'oh-triceps', 'plank-db'], ['bottoms-up']] },
+  { id: 'd1', name: 'Shoulders & Arms', when: 'Mon', am: [['front-raise', 'kickback', 'hollow'], ['overhead-hold', 'rear-fly']], pm: [['lateral-raise', 'oh-triceps', 'plank-db'], ['ext-rot']] },
   { id: 'd2', name: 'Legs, Knees & Ankles', when: 'Tue', am: [['goblet-squat', 'calf-raise', 'dead-bug'], ['split-squat']], pm: [['wall-sit', 'tib-hold', 'glute-bridge'], ['seated-calf']] },
-  { id: 'd3', name: 'Back & Pull', when: 'Thu', am: [['shrug', 'pullover', 'curl'], ['sa-row', 'crunch']], pm: [['prone-y', 'hammer'], ['bo-row', 'suitcase']] },
-  { id: 'd4', name: 'Posterior Chain & Grip', when: 'Fri', am: [['rdl', 'pinch'], ['sl-rdl', 'superman']], pm: [['ham-bridge', 'farmer', 'wrist'], ['sl-balance']] }
+  { id: 'd3', name: 'Back & Pull', when: 'Thu', am: [['shrug', 'floor-press', 'curl'], ['sa-row', 'crunch']], pm: [['prone-y', 'hammer'], ['bo-row', 'suitcase']] },
+  { id: 'd4', name: 'Posterior Chain & Grip', when: 'Fri', am: [['rdl', 'pinch'], ['sl-rdl', 'bird-dog']], pm: [['ham-bridge', 'farmer', 'wrist'], ['sl-balance']] }
 ];
 DAYS.forEach(function (d) { d.ex = [].concat.apply([], d.am.concat(d.pm)); });
 
@@ -1109,8 +1200,7 @@ var GROW = {
   'lateral-raise': { name: 'Lateral Raise', tempo: UP, steps: [{ i: 0, txt: 'Dumbbells at your sides, slight bend in the elbows.' }, { i: 2, txt: 'Raise out to shoulder height, pause, lower slowly over 2–3 s.' }], cues: ['Lead with the elbows', 'Do not let the weights touch at the bottom'] },
   'rear-fly': { name: 'Bent-Over Rear Delt Fly', tempo: UP, steps: [{ i: 0, txt: 'Hinge to about 45°, dumbbells hanging under your shoulders.' }, { i: 2, txt: 'Sweep the arms out to a T, pause, lower over 2–3 s.' }], cues: ['Keep the hinge angle', 'Arms move, torso stays still'] },
   'overhead-hold': { name: 'Kettlebell Overhead Press', uni: true, tempo: UP, steps: [{ i: 0, txt: 'Bell in the rack position, wrist straight, glutes squeezed.' }, { i: 2, txt: 'Press to lockout, bicep by the ear. Lower back to the rack over 2–3 s.' }], cues: ['No leaning back', 'Full lockout every rep'] },
-  'bottoms-up': { name: 'Bottoms-Up Press', uni: true, tempo: UP, tags: ['Front delts', 'Side delts', 'Grip', 'Forearms', 'Triceps'],
-    steps: [{ p: { an: [12, 166], af: [3, 3], w: { n: 'kbu' } }, txt: 'Hold the bell upside down at your shoulder, crushing the handle.' }, { p: { an: [178, 180], af: [3, 3], w: { n: 'kbu' } }, txt: 'Press it straight up without letting it tip. Lower over 2–3 s.' }], cues: ['Crush grip the whole set', 'Forearm vertical throughout'] },
+  'ext-rot': { name: 'Side-Lying External Rotation', tempo: UP, steps: [{ i: 0, txt: 'On your side, elbow pinned, forearm across your belly.' }, { i: 2, txt: 'Rotate the forearm up, pause, lower over 2–3 s.' }], cues: ['Elbow never leaves your side', 'Slow and smooth'] },
   'oh-triceps': { name: 'Overhead Triceps Extension', tempo: DN, steps: [{ i: 1, txt: 'Hold the kettlebell by the horns, arms straight overhead.' }, { i: 2, txt: 'Lower behind your head over 2–3 s, pause in the stretch, extend back up.' }], cues: ['Elbows point up', 'Deep stretch each rep'] },
   'kickback': { name: 'Triceps Kickback', tempo: UP, steps: [{ i: 1, txt: 'Hinged forward, upper arms pinned parallel to the floor.' }, { i: 2, txt: 'Straighten the elbows, squeeze 1 s, bend back over 2–3 s.' }], cues: ['Upper arm does not move', 'Full lockout'] },
   'hollow': { name: 'Lying Leg Raise', tempo: UP, tags: ['Lower abs', 'Mid abs'],
@@ -1130,7 +1220,7 @@ var GROW = {
 
   'shrug': { name: 'Shrug', tempo: UP, steps: [{ i: 0, txt: 'Heavy dumbbells at your sides, arms straight.' }, { i: 2, txt: 'Shrug straight up, hold 1 s, lower over 2–3 s to a full stretch.' }], cues: ['Straight up and down', 'Neck stays long'] },
   'prone-y': { name: 'Prone Y Raise', tempo: UP, steps: [{ i: 0, txt: 'Face down, arms overhead in a Y, thumbs up.' }, { i: 2, txt: 'Lift the arms and chest slightly, pause 1 s, lower over 2–3 s.' }], cues: ['Shoulder blades down', 'Light weight is plenty'] },
-  'pullover': { name: 'Kettlebell Pullover', tempo: DN, steps: [{ i: 0, txt: 'On your back, bell held by the horns over your chest.' }, { i: 2, txt: 'Lower behind your head over 2–3 s, pause in the stretch, pull back over the chest.' }], cues: ['Ribs down', 'Feel it in the lats, not the low back'] },
+  'floor-press': { name: 'Floor Press', tempo: DN, steps: [{ i: 0, txt: 'Weights pressed up over your chest, knees bent.' }, { i: 2, txt: 'Lower over 2–3 s until the upper arms touch the floor lightly, then press up.' }], cues: ['Touch, do not bounce', 'Press up and slightly back'] },
   'sa-row': { name: 'Single-Arm Row', uni: true, tempo: UP, steps: [{ i: 0, txt: 'Hinged, braced on the front knee, dumbbell hanging in a full stretch.' }, { i: 2, txt: 'Row to the hip, squeeze 1 s, lower over 2–3 s.' }], cues: ['Let the shoulder stretch down at the bottom', 'No torso twist'] },
   'bo-row': { name: 'Bent-Over Row', tempo: UP, steps: [{ i: 0, txt: 'Hinged to 45°, weights hanging, back flat.' }, { i: 2, txt: 'Row to the ribs, squeeze 1 s, lower over 2–3 s.' }], cues: ['Hinge angle stays fixed', 'Pinch the shoulder blades'] },
   'curl': { name: 'Biceps Curl', tempo: UP, steps: [{ i: 0, txt: 'Dumbbells at your sides, palms forward, arms fully straight.' }, { p: { an: [10, 150], af: [9, 148], w: { n: 'db', f: 'db' } }, txt: 'Curl all the way up, squeeze 1 s, lower over 2–3 s to full extension.' }], cues: ['Elbows stay at your sides', 'Full straight arm at the bottom'] },
@@ -1141,7 +1231,7 @@ var GROW = {
   'rdl': { name: 'Romanian Deadlift', tempo: DN, steps: [{ i: 0, txt: 'Stand tall, weights in front of the thighs, knees soft.' }, { i: 2, txt: 'Push the hips back over 2–3 s to mid-shin, pause, drive the hips forward to stand.' }], cues: ['Back flat', 'Weights brush the legs'] },
   'sl-rdl': { name: 'Single-Leg RDL', uni: true, tempo: DN, steps: [{ i: 0, txt: 'Balance on one leg, bell in the opposite hand.' }, { i: 2, txt: 'Hinge over 2–3 s until level, pause, return to standing.' }], cues: ['Hips square to the floor', 'Slow and controlled'] },
   'ham-bridge': { name: 'Long-Lever Bridge', tempo: UP, steps: [{ i: 0, txt: 'Heels far out, knees slightly bent, dumbbell on the hips.' }, { i: 2, txt: 'Lift the hips by digging the heels down, pause, lower over 2–3 s.' }], cues: ['Heels only', 'Pull the heels toward you without moving them'] },
-  'superman': { name: 'Kettlebell Swing', fixed: 15, tempo: [0.55, 0.3, 0.6, 0.15], tags: ['Glutes', 'Hamstrings', 'Lower back', 'Grip'],
+  'bird-dog': { name: 'Kettlebell Swing', fixed: 15, tempo: [0.55, 0.3, 0.6, 0.15], tags: ['Glutes', 'Hamstrings', 'Lower back', 'Grip'],
     steps: [{ p: { t: 64, ln: [20, -10], an: [-24, -24], w: { n: 'kbu' } }, txt: 'Hike the bell back between your legs, back flat, hips high.' }, { p: { t: -2, an: [86, 86], w: { n: 'kbu' } }, txt: 'Snap the hips forward so the bell floats to chest height. Let it fall and hinge again.' }], cues: ['It is a hinge, not a squat', 'Arms are ropes; the hips do the work'] },
   'farmer': { name: "Farmer's Carry", mode: 'time', tempo: [0.5, 0, 0.5, 0], anchor: 'H', tags: ['Grip', 'Forearms', 'Traps', 'Mid abs', 'Calves'],
     steps: [{ p: { an: [1, 1], ln: [20, 8], lf: [-14, -20, 72], w: { n: 'kb', f: 'kb' } }, txt: 'Heavy kettlebells in each hand, stand tall.' }, { p: { an: [1, 1], ln: [-14, -20, 72], lf: [20, 8], w: { n: 'kb', f: 'kb' } }, txt: 'Walk with short, quick steps for the whole set. Turn around with control.' }], cues: ['Tall posture', 'Crush the handles'] },
@@ -1194,7 +1284,157 @@ var CARDIO_DAYS = [
     pm: function () { return [['walk', 1800, 'Zone 2', 'Easy-to-brisk walk, 4.5–5.5 km/h']]; } }
 ];
 
-var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"rear-fly":["H",[-96.8,-135.2,193.6,145.2]],"overhead-hold":["An",[-130.6,-208,290.6,218]],"bottoms-up":["An",[-110.4,-180,253.3,190]],"oh-triceps":["An",[-150.4,-207.7,290.3,217.7]],"kickback":["An",[-69.1,-122.6,176.8,132.6]],"hollow":["H",[-130,-161.8,229.1,171.8]],"plank-db":["An",[-33,-124,178.7,134]],"goblet-squat":["An",[-115.9,-161.9,229.2,171.9]],"wall-sit":["An",[-122.1,-152,215.9,162]],"split-squat":["An",[-151.4,-160.2,227,170.2]],"glute-bridge":["H",[-84.5,-109.1,158.8,119.1]],"calf-raise":["An",[-115.1,-168.6,238.2,178.6]],"seated-calf":["H",[-64.7,-124,178.7,134]],"tib-hold":["H",[-61.3,-124,178.7,134]],"dead-bug":["H",[-84,-124.9,179.9,134.9]],"shrug":["H",[-114.6,-161.9,229.2,171.9]],"prone-y":["H",[-108,-168,237.4,178]],"pullover":["H",[-129.1,-142.3,203.1,152.3]],"sa-row":["An",[-82.7,-127.9,183.9,137.9]],"bo-row":["An",[-71.1,-132.1,189.4,142.1]],"curl":["An",[-99.2,-162,229.3,172]],"hammer":["An",[-98.6,-162,229.3,172]],"suitcase":["H",[-114.6,-161.9,229.2,171.9]],"crunch":["H",[-84,-108.5,158,118.5]],"rdl":["An",[-87.6,-161.9,229.2,171.9]],"sl-rdl":["An",[-126.4,-162.4,229.8,172.4]],"ham-bridge":["H",[-84.5,-121.5,175.4,131.5]],"superman":["H",[-108,-168.5,238,178.5]],"farmer":["An",[-105.6,-162,229.3,172]],"pinch":["An",[-97.1,-162,229.3,172]],"wrist":["H",[-60.7,-117.8,170.4,127.8]],"sl-balance":["An",[-92.4,-162,229.3,172]],"g-front-raise":["An",[-86.2,-162,229.3,172]],"g-lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"g-rear-fly":["H",[-96.8,-135.2,193.6,145.2]],"g-overhead-hold":["An",[-131.8,-208,290.6,218]],"g-bottoms-up":["An",[-130.9,-208,290.6,218]],"g-oh-triceps":["An",[-152.1,-207.7,290.3,217.7]],"g-kickback":["An",[-69.1,-122.6,176.8,132.6]],"g-hollow":["H",[-130,-161.1,228.2,171.1]],"g-plank-db":["An",[-22.8,-116.4,168.5,126.4]],"g-goblet-squat":["An",[-116.5,-161.9,229.2,171.9]],"g-wall-sit":["Kn",[-112.1,-126,181.3,136]],"g-split-squat":["An",[-152.8,-160.2,227,170.2]],"g-glute-bridge":["H",[-84.5,-109.7,159.7,119.7]],"g-calf-raise":["An",[-115.1,-168.6,238.2,178.6]],"g-seated-calf":["H",[-64.4,-124,178.7,134]],"g-tib-hold":["H",[-61.3,-124,178.7,134]],"g-dead-bug":["H",[-84,-124.9,179.9,134.9]],"g-shrug":["H",[-114.6,-161.9,229.2,171.9]],"g-prone-y":["H",[-108,-168,237.4,178]],"g-pullover":["H",[-129.1,-142.3,203.1,152.3]],"g-sa-row":["An",[-82.7,-127.9,183.9,137.9]],"g-bo-row":["An",[-71.1,-132.1,189.4,142.1]],"g-curl":["An",[-99,-162,229.3,172]],"g-hammer":["An",[-98.6,-162,229.3,172]],"g-suitcase":["H",[-114.6,-161.9,229.2,171.9]],"g-crunch":["H",[-84,-108.5,158,118.5]],"g-rdl":["An",[-87.6,-161.9,229.2,171.9]],"g-sl-rdl":["An",[-126.2,-162,229.3,172]],"g-ham-bridge":["H",[-84.5,-121.5,175.3,131.5]],"g-superman":["An",[-87.4,-162.2,229.7,172.2]],"g-farmer":["H",[-112.8,-162.5,230,172.5]],"g-pinch":["H",[-112.8,-162.5,230,172.5]],"g-wrist":["H",[-60.7,-117.8,170.4,127.8]],"g-sl-balance":["An",[-127.2,-168.4,237.8,178.4]],"c-walk":["H",[-112.8,-162.5,230,172.5]],"c-row":["Tn",[-129.6,-129.5,186,139.5]]};
+// ---- Equipment versions of each exercise ----
+// k = kettlebell, d = dumbbell, b = barbell (bar) or its plates (plate), w = bodyweight.
+// Listed in order of preference; the session uses the first one the user selected.
+// n: name overrides per version. both: barbell version uses both hands.
+var EQ_LABEL = { k: 'Kettlebell', d: 'Dumbbell', b: 'Barbell', w: 'Bodyweight' };
+var EQ_STEP = { k: 4, d: 2, b: 2.5, w: 0 };
+var EQV = {
+  'front-raise': { h: 'd k b:plate', g: 'd k b:plate' },
+  'lateral-raise': { h: 'd k b:plate', g: 'd k b:plate' },
+  'rear-fly': { h: 'd k b:plate', g: 'd k b:plate' },
+  'overhead-hold': { h: 'k d b:bar', g: 'k d b:bar', both: 'b', n: { b: 'Barbell Overhead Hold' }, gn: { b: 'Barbell Overhead Press' } },
+  'ext-rot': { h: 'd k b:plate', g: 'd k b:plate' },
+  'oh-triceps': { h: 'k d b:bar', g: 'k d b:bar' },
+  'kickback': { h: 'd k b:plate', g: 'd k b:plate' },
+  'hollow': { h: 'd k b:plate w', g: 'd k b:plate w' },
+  'plank-db': { h: 'd k w', g: 'd k w', n: { k: 'High Plank on Kettlebells', w: 'High Plank' }, gn: { w: 'Plank Shoulder Tap' } },
+  'goblet-squat': { h: 'k d b:bar', g: 'k d b:bar', n: { b: 'Zercher Squat Hold' }, gn: { b: 'Zercher Squat' } },
+  'wall-sit': { h: 'd k b:plate w', g: 'd k b:plate w' },
+  'split-squat': { h: 'd k b:plate w', g: 'd k b:plate w' },
+  'glute-bridge': { h: 'd k b:bar w', g: 'd k b:bar w' },
+  'calf-raise': { h: 'd k b:bar w', g: 'd k b:bar w' },
+  'seated-calf': { h: 'd k b:bar', g: 'd k b:bar' },
+  'tib-hold': { h: 'd k b:plate w', g: 'd k b:plate w' },
+  'dead-bug': { h: 'k d b:plate w', g: 'k d b:plate w' },
+  'shrug': { h: 'd k b:bar', g: 'd k b:bar' },
+  'prone-y': { h: 'd b:plate k w', g: 'd b:plate k w' },
+  'floor-press': { h: 'd k b:bar', g: 'd k b:bar' },
+  'sa-row': { h: 'd k b:bar', g: 'd k b:bar', both: 'b', n: { b: 'Close-Grip Barbell Row Hold' }, gn: { b: 'Close-Grip Barbell Row' } },
+  'bo-row': { h: 'b:bar d k', g: 'b:bar d k', n: { b: 'Wide-Grip Barbell Row Hold' }, gn: { b: 'Wide-Grip Barbell Row' } },
+  'curl': { h: 'd k b:bar', g: 'd k b:bar' },
+  'hammer': { h: 'd k b:bar', g: 'd k b:bar', n: { b: 'Barbell Reverse Curl Hold' }, gn: { b: 'Barbell Reverse Curl' } },
+  'suitcase': { h: 'k d b:bar', g: 'k d b:bar' },
+  'crunch': { h: 'd k b:plate w', g: 'd k b:plate w' },
+  'rdl': { h: 'b:bar k d', g: 'b:bar k d' },
+  'sl-rdl': { h: 'k d b:bar', g: 'k d b:bar', both: 'b' },
+  'ham-bridge': { h: 'd k b:bar w', g: 'd k b:bar w' },
+  'bird-dog': { h: 'd k b:plate w', g: 'k d b:bar', gn: { d: 'Dumbbell Swing', b: 'Barbell Speed RDL' } },
+  'farmer': { h: 'k d b:bar', g: 'k d b:bar', n: { b: 'Deadlift Lockout Hold' }, gn: { b: 'Barbell Hold March' } },
+  'pinch': { h: 'd b:plate', g: 'd b:plate', n: { d: 'Dumbbell Pinch Hold', b: 'Plate Pinch Hold' }, gn: { d: 'Dumbbell Pinch Carry', b: 'Plate Pinch Carry' } },
+  'wrist': { h: 'd k b:bar', g: 'd k b:bar', both: 'b' },
+  'sl-balance': { h: 'k d b:plate w', g: 'k d b:plate w' }
+};
+function parseEq(s) { return s.split(' ').map(function (x) { var p = x.split(':'); return { eq: p[0], style: p[1] || '' }; }); }
+function baseName(n) { return n.replace(/\b(Kettlebell|Dumbbell|Barbell|Weighted|Plate)\s+/g, '').replace(/ on Dumbbells$/, ''); }
+function mapW(w, eq, style, front) {
+  var o = {}, k;
+  if (eq === 'w') return o;
+  if (eq === 'b' && style === 'bar' && front) {
+    if (w.r && w.l) return { bar: 1 };
+    if (w.r) return { barone: 'r', r: 'bar' };
+    if (w.l) return { barone: 'l', l: 'bar' };
+    return o;
+  }
+  for (k in w) {
+    var t = w[k];
+    if (eq === 'd') t = { kb: 'db', kbu: 'dbp', kbr: 'db' }[t] || t;
+    else if (eq === 'k') t = { db: 'kb', dbb: 'kb', dbp: 'kbu', dbbig: 'kb' }[t] || t;
+    else if (eq === 'b') t = style === 'plate' || k === 'toe' ? 'plate' : 'bar';
+    o[k] = t;
+  }
+  if (eq === 'b' && style === 'bar' && o.n && o.f) delete o.f;
+  return o;
+}
+var VPREFIX = { k: 'Kettlebell ', d: 'Dumbbell ', bar: 'Barbell ', plate: 'Plate ', w: 'Bodyweight ' };
+function makeVariant(base, id, kind, opt) {
+  var spec = EQV[id] || {}, eq = opt.eq, style = opt.style;
+  var names = kind === 'h' ? spec.n : spec.gn, both = spec.both && spec.both.indexOf(eq) > -1;
+  var v = Object.create(base);
+  v.eq = eq; v.style = style; v.vid = id + '|' + eq + '|' + kind; v.missing = !!opt.missing;
+  v.name = (names && names[eq]) || (VPREFIX[eq === 'b' ? style : eq] + baseName(base.name));
+  v.equipLabel = eq === 'b' ? (style === 'plate' ? 'Barbell plate' : 'Barbell') : EQ_LABEL[eq];
+  v.uni = both ? false : base.uni;
+  v._r = base._r.map(function (r) {
+    var c = {}, key; for (key in r) c[key] = r[key];
+    c.w = mapW(r.w || {}, eq, style, r.v === 'f');
+    if (both && r.v !== 'f') { c.af = r.an.slice(); }
+    return c;
+  });
+  return v;
+}
+function chooseEq(id, kind, sel) {
+  var spec = EQV[id]; if (!spec) return { eq: 'd', style: '' };
+  var list = parseEq(spec[kind]);
+  for (var i = 0; i < list.length; i++) if (list[i].eq === 'w' || sel.indexOf(list[i].eq) > -1) return list[i];
+  return { eq: list[0].eq, style: list[0].style, missing: true };
+}
+
+// ---- Research behind the program ----
+var REFS = {
+  oranchuk2019: { a: 'Oranchuk et al., 2019', j: 'Scand J Med Sci Sports', t: 'Isometric training and long-term adaptations: effects of muscle length, intensity, and intent (systematic review)', k: 'Holds at long muscle lengths build more muscle and carry over better to full movements. Holds at 70% effort or more are needed to change tendons.', u: 'https://pubmed.ncbi.nlm.nih.gov/30580468/' },
+  lazarczuk2022: { a: 'Lazarczuk et al., 2022', j: 'Sports Medicine', t: 'Mechanical, material and morphological adaptations of healthy lower limb tendons to mechanical loading (meta-analysis)', k: 'Resistance training, including isometric training, makes tendons stiffer and thicker; heavier, higher-strain training changes tendon material more.', u: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9474511/' },
+  bohm2015: { a: 'Bohm, Mersmann & Arampatzis, 2015', j: 'Sports Medicine Open', t: 'Human tendon adaptation in response to mechanical loading (systematic review and meta-analysis)', k: 'Tendons adapt to high loads held for a few seconds at a time; the type of contraction matters less than the load.', u: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4532714/' },
+  kubo2001: { a: 'Kubo et al., 2001', j: 'J Applied Physiology', t: 'Effects of isometric training on the elasticity of human tendon structures in vivo', k: 'Twelve weeks of isometric knee-extension training made the tendon structures stiffer.', u: 'https://pubmed.ncbi.nlm.nih.gov/11408409/' },
+  rio2015: { a: 'Rio et al., 2015', j: 'Br J Sports Med', t: 'Isometric exercise induces analgesia and reduces inhibition in patellar tendinopathy', k: 'In 6 athletes, 5 × 45 s heavy holds reduced knee tendon pain right away. A small, early study.', u: 'https://pubmed.ncbi.nlm.nih.gov/25979840/' },
+  holden2020: { a: 'Holden et al., 2020', j: 'J Sci Med Sport', t: 'Isometric exercise and pain in patellar tendinopathy: a randomized crossover trial', k: 'Holds and normal reps relieved knee tendon pain equally; holds were not special.', u: 'https://doi.org/10.1016/j.jsams.2019.09.015' },
+  oneill2019: { a: "O'Neill et al., 2019", j: 'Knee Surg Sports Traumatol Arthrosc', t: 'Acute sensory and motor response to 45-s heavy isometric holds for the plantar flexors in patients with Achilles tendinopathy', k: '45 s heavy calf holds did not give immediate pain relief for Achilles tendon pain.', u: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC6706360/' },
+  maeo2023: { a: 'Maeo et al., 2023', j: 'Eur J Sport Sci', t: 'Triceps brachii hypertrophy is substantially greater after elbow extension training performed in the overhead versus neutral arm position', k: 'Overhead (stretched) triceps work grew the triceps about 1.4× more than pushdowns.', u: 'https://pubmed.ncbi.nlm.nih.gov/35819335/' },
+  maeo2021: { a: 'Maeo et al., 2021', j: 'Med Sci Sports Exerc', t: 'Greater hamstrings muscle hypertrophy but similar damage protection after training at long versus short muscle lengths', k: 'Training the hamstrings in a stretched position built more muscle.', u: 'https://pubmed.ncbi.nlm.nih.gov/33009197/' },
+  refalo2023: { a: 'Refalo et al., 2023', j: 'Sports Medicine', t: 'Influence of resistance training proximity-to-failure on skeletal muscle hypertrophy (meta-analysis)', k: 'Sets taken closer to failure build more muscle, with diminishing returns near failure.', u: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9935748/' },
+  schoenfeld2017: { a: 'Schoenfeld, Ogborn & Krieger, 2017', j: 'J Sports Sciences', t: 'Dose-response relationship between weekly resistance training volume and increases in muscle mass (meta-analysis)', k: 'About 10 or more hard sets per muscle per week builds more muscle than fewer.', u: 'https://doi.org/10.1080/02640414.2016.1210197' },
+  reinold2004: { a: 'Reinold et al., 2004', j: 'J Orthop Sports Phys Ther', t: 'Electromyographic analysis of the rotator cuff and deltoid musculature during common shoulder external rotation exercises', k: 'Side-lying external rotation produced the highest infraspinatus and teres minor activity of the exercises tested.', u: 'https://pubmed.ncbi.nlm.nih.gov/15296366/' },
+  ekstrom2003: { a: 'Ekstrom, Donatelli & Soderberg, 2003', j: 'J Orthop Sports Phys Ther', t: 'Surface electromyographic analysis of exercises for the trapezius and serratus anterior muscles', k: 'Prone arm raises overhead in line with the lower trapezius (the Y position) strongly activated the lower trapezius.', u: 'https://pubmed.ncbi.nlm.nih.gov/12774999/' },
+  fenwick2009: { a: 'Fenwick, Brown & McGill, 2009', j: 'J Strength Cond Res', t: 'Comparison of different rowing exercises: trunk muscle activation and lumbar spine motion, load, and stiffness', k: 'Bent-over and one-arm rows strongly load the back muscles; bent-over rows also load the lower back.', u: 'https://pubmed.ncbi.nlm.nih.gov/19197209/' },
+  mcgill2009carry: { a: 'McGill, McDermott & Fenwick, 2009', j: 'J Strength Cond Res', t: 'Comparison of different strongman events: trunk muscle activation and lumbar spine motion, load, and stiffness', k: 'Carries, especially one-sided (suitcase) carries, strongly challenge the side core muscles.', u: 'https://pubmed.ncbi.nlm.nih.gov/19528856/' },
+  mcgill2009stab: { a: 'McGill & Karpowicz, 2009', j: 'Arch Phys Med Rehabil', t: 'Exercises for spine stabilization: motion/motor patterns, stability progressions, and clinical technique', k: 'The bird dog and plank train the trunk muscles while keeping spine load low.', u: 'https://pubmed.ncbi.nlm.nih.gov/19154838/' },
+  mcgill2012: { a: 'McGill & Marshall, 2012', j: 'J Strength Cond Res', t: 'Kettlebell swing, snatch, and bottoms-up carry: back and hip muscle activation, motion, and low back loads', k: 'The swing gives high glute and back-extensor activation with a fast hip snap.', u: 'https://pubmed.ncbi.nlm.nih.gov/21997449/' },
+  hubscher2010: { a: 'Hübscher et al., 2010', j: 'Med Sci Sports Exerc', t: 'Neuromuscular training for sports injury prevention: a systematic review', k: 'Balance training reduces ankle sprains, especially in people who have sprained an ankle before.', u: 'https://pubmed.ncbi.nlm.nih.gov/19952811/' },
+  stasinopoulos2023: { a: 'Stasinopoulos, 2023', j: 'J Clin Med', t: 'Isometric exercise for the management of lateral elbow tendinopathy', k: 'Evidence for wrist holds alone in tennis elbow is mixed and low certainty; they fit best inside a progressive loading program.', u: 'https://www.mdpi.com/2077-0383/12/1/94' }
+};
+// Evidence per exercise: r = how strong the support is, s = what it supports, refs = papers.
+var EVID = {
+  'front-raise': { r: 'Moderate', s: 'Isometric holds build strength around the trained angle; shoulder height is where the front delt is weakest.', refs: ['oranchuk2019'] },
+  'lateral-raise': { r: 'Moderate', s: 'Strength from holds is angle-specific; holding at shoulder height loads the side delt and supraspinatus where raises are hardest.', refs: ['oranchuk2019'] },
+  'rear-fly': { r: 'Moderate', s: 'Bent-over arm raises strongly work the middle trapezius and rear delts.', refs: ['ekstrom2003'] },
+  'overhead-hold': { r: 'Moderate', s: 'Heavy overhead holds build lockout strength; holds of 70% effort or more also load the tendons.', refs: ['oranchuk2019', 'bohm2015'] },
+  'ext-rot': { r: 'Strong', s: 'The highest rotator-cuff activity of common external rotation exercises in EMG testing.', refs: ['reinold2004'] },
+  'oh-triceps': { r: 'Strong', s: 'Stretched overhead triceps work grew about 1.4× more muscle than pushdowns; long-length holds also grow more muscle.', refs: ['maeo2023', 'oranchuk2019'] },
+  'kickback': { r: 'Moderate', s: 'Short-length holds build strength near lockout but grow less muscle, so this is paired with the overhead stretch work.', refs: ['oranchuk2019'] },
+  'hollow': { r: 'Moderate', s: 'Trunk holds build endurance of the abs that resist back arching.', refs: ['mcgill2009stab'] },
+  'plank-db': { r: 'Moderate', s: 'Plank-type holds train the trunk with low spine load.', refs: ['mcgill2009stab'] },
+  'goblet-squat': { r: 'Strong', s: 'Deep squat holds train the quads at long length, which builds more muscle; heavy holds stiffen the knee tendons.', refs: ['oranchuk2019', 'lazarczuk2022'] },
+  'wall-sit': { r: 'Moderate', s: 'Heavy wall-sit holds load the patellar tendon well. Early claims of special pain relief were not confirmed: normal reps relieve pain just as much.', refs: ['rio2015', 'holden2020', 'lazarczuk2022'] },
+  'split-squat': { r: 'Strong', s: 'Long-length single-leg holds build quad and glute strength that carries over to full movements.', refs: ['oranchuk2019'] },
+  'glute-bridge': { r: 'Moderate', s: 'Holds build strength at the top of hip extension, the hardest point for the glutes.', refs: ['oranchuk2019'] },
+  'calf-raise': { r: 'Strong', s: 'Heavy calf loading stiffens the Achilles tendon; high load matters more than contraction type.', refs: ['bohm2015', 'lazarczuk2022'] },
+  'seated-calf': { r: 'Moderate', s: 'Bent-knee holds load the soleus and Achilles. They strengthen the tendon but do not give instant pain relief.', refs: ['bohm2015', 'oneill2019'] },
+  'tib-hold': { r: 'Limited', s: 'Strengthens the shin muscle like any loaded hold, but there is little direct evidence that it prevents shin or ankle problems.', refs: ['oranchuk2019'] },
+  'dead-bug': { r: 'Moderate', s: 'A low-spine-load trunk exercise that trains the abs to control the pelvis.', refs: ['mcgill2009stab'] },
+  'shrug': { r: 'Moderate', s: 'Heavy holds build upper-trap strength and grip at the same time.', refs: ['oranchuk2019'] },
+  'prone-y': { r: 'Strong', s: 'The Y position strongly activates the lower trapezius, a key overhead shoulder stabiliser.', refs: ['ekstrom2003'] },
+  'floor-press': { r: 'Moderate', s: 'A heavy pressing hold for triceps and front delts; heavy holds also load the elbow tendons.', refs: ['oranchuk2019', 'bohm2015'] },
+  'sa-row': { r: 'Moderate', s: 'One-arm rows strongly load the back muscles while sparing the lower back.', refs: ['fenwick2009'] },
+  'bo-row': { r: 'Moderate', s: 'Bent-over rows load the upper and middle back and also train the lower back to hold the hinge.', refs: ['fenwick2009'] },
+  'curl': { r: 'Moderate', s: 'Holds at 90° build biceps strength around that angle; heavy holds load the elbow tendons.', refs: ['oranchuk2019'] },
+  'hammer': { r: 'Moderate', s: 'Neutral-grip holds shift work to the brachialis and forearm.', refs: ['oranchuk2019'] },
+  'suitcase': { r: 'Strong', s: 'One-sided loads strongly challenge the side core muscles.', refs: ['mcgill2009carry'] },
+  'crunch': { r: 'Moderate', s: 'Holds build strength of the upper abs in their shortest position.', refs: ['oranchuk2019'] },
+  'rdl': { r: 'Strong', s: 'Training the hamstrings in a stretched position builds more muscle.', refs: ['maeo2021', 'oranchuk2019'] },
+  'sl-rdl': { r: 'Moderate', s: 'Stretched-position hamstring work plus single-leg balance, which lowers ankle sprain risk.', refs: ['maeo2021', 'hubscher2010'] },
+  'ham-bridge': { r: 'Moderate', s: 'Loads the hamstrings at the knee, which hinges miss.', refs: ['oranchuk2019'] },
+  'bird-dog': { r: 'Strong', s: 'Works the back extensors and glutes with low spine compression.', refs: ['mcgill2009stab'] },
+  'farmer': { r: 'Strong', s: 'Heavy carries and holds train grip, traps and the trunk together.', refs: ['mcgill2009carry'] },
+  'pinch': { r: 'Limited', s: 'Builds thumb and pinch strength like any loaded hold; little direct research on pinch training.', refs: ['oranchuk2019'] },
+  'wrist': { r: 'Limited', s: 'Wrist holds are commonly used for tennis elbow, but evidence that holds alone help is mixed. Here they build forearm strength as part of progressive loading.', refs: ['stasinopoulos2023'] },
+  'sl-balance': { r: 'Strong', s: 'Balance training reduces ankle sprains.', refs: ['hubscher2010'] }
+};
+// Paired rep exercises draw on these program-wide findings.
+var GROW_REFS = ['refalo2023', 'schoenfeld2017', 'maeo2023'];
+var PROGRAM_REFS = ['oranchuk2019', 'lazarczuk2022', 'bohm2015', 'kubo2001', 'rio2015', 'holden2020', 'oneill2019', 'refalo2023', 'schoenfeld2017', 'maeo2023', 'maeo2021'];
+
+var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"rear-fly":["H",[-96.8,-135.2,193.6,145.2]],"overhead-hold":["An",[-130.6,-208,290.6,218]],"ext-rot":["H",[-104,-163.2,231,173.3]],"oh-triceps":["An",[-150.4,-207.7,290.3,217.7]],"kickback":["An",[-69.1,-122.6,176.8,132.6]],"hollow":["H",[-130,-161.8,229.1,171.8]],"plank-db":["An",[-33,-124,178.7,134]],"goblet-squat":["An",[-115.9,-161.9,229.2,171.9]],"wall-sit":["An",[-122.1,-152,215.9,162]],"split-squat":["An",[-151.4,-160.2,227,170.2]],"glute-bridge":["H",[-84.5,-109.1,158.8,119.1]],"calf-raise":["An",[-115.1,-168.6,238.2,178.6]],"seated-calf":["H",[-64.7,-124,178.7,134]],"tib-hold":["H",[-61.3,-124,178.7,134]],"dead-bug":["H",[-84,-124.9,179.9,134.9]],"shrug":["H",[-114.6,-161.9,229.2,171.9]],"prone-y":["H",[-108,-168,237.4,178]],"floor-press":["H",[-84,-108.5,158,118.5]],"sa-row":["An",[-82.7,-127.9,183.9,137.9]],"bo-row":["An",[-71.1,-132.1,189.4,142.1]],"curl":["An",[-99.2,-162,229.3,172]],"hammer":["An",[-98.6,-162,229.3,172]],"suitcase":["H",[-114.6,-161.9,229.2,171.9]],"crunch":["H",[-84,-108.5,158,118.5]],"rdl":["An",[-87.6,-161.9,229.2,171.9]],"sl-rdl":["An",[-126.4,-162.4,229.8,172.4]],"ham-bridge":["H",[-84.5,-121.5,175.4,131.5]],"bird-dog":["H",[-107.7,-166,234.7,176]],"farmer":["An",[-105.6,-162,229.3,172]],"pinch":["An",[-97.1,-162,229.3,172]],"wrist":["H",[-60.7,-117.8,170.4,127.8]],"sl-balance":["An",[-92.4,-162,229.3,172]],"g-front-raise":["An",[-86.2,-162,229.3,172]],"g-lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"g-rear-fly":["H",[-96.8,-135.2,193.6,145.2]],"g-overhead-hold":["An",[-131.8,-208,290.6,218]],"g-ext-rot":["H",[-104,-163.2,231,173.3]],"g-oh-triceps":["An",[-152.1,-207.7,290.3,217.7]],"g-kickback":["An",[-69.1,-122.6,176.8,132.6]],"g-hollow":["H",[-130,-161.1,228.2,171.1]],"g-plank-db":["An",[-22.8,-116.4,168.5,126.4]],"g-goblet-squat":["An",[-116.5,-161.9,229.2,171.9]],"g-wall-sit":["Kn",[-112.1,-126,181.3,136]],"g-split-squat":["An",[-152.8,-160.2,227,170.2]],"g-glute-bridge":["H",[-84.5,-109.7,159.7,119.7]],"g-calf-raise":["An",[-115.1,-168.6,238.2,178.6]],"g-seated-calf":["H",[-64.4,-124,178.7,134]],"g-tib-hold":["H",[-61.3,-124,178.7,134]],"g-dead-bug":["H",[-84,-124.9,179.9,134.9]],"g-shrug":["H",[-114.6,-161.9,229.2,171.9]],"g-prone-y":["H",[-108,-168,237.4,178]],"g-floor-press":["H",[-84,-108.5,158,118.5]],"g-sa-row":["An",[-82.7,-127.9,183.9,137.9]],"g-bo-row":["An",[-71.1,-132.1,189.4,142.1]],"g-curl":["An",[-99,-162,229.3,172]],"g-hammer":["An",[-98.6,-162,229.3,172]],"g-suitcase":["H",[-114.6,-161.9,229.2,171.9]],"g-crunch":["H",[-84,-108.5,158,118.5]],"g-rdl":["An",[-87.6,-161.9,229.2,171.9]],"g-sl-rdl":["An",[-126.2,-162,229.3,172]],"g-ham-bridge":["H",[-84.5,-121.5,175.3,131.5]],"g-bird-dog":["An",[-87.4,-162.2,229.7,172.2]],"g-farmer":["H",[-112.8,-162.5,230,172.5]],"g-pinch":["H",[-112.8,-162.5,230,172.5]],"g-wrist":["H",[-60.7,-117.8,170.4,127.8]],"g-sl-balance":["An",[-127.2,-168.4,237.8,178.4]],"c-walk":["H",[-112.8,-162.5,230,172.5]],"c-row":["Tn",[-129.6,-129.5,186,139.5]]};
 
 (function () {
   var BY = {}, ALL = {}, G = buildGrow(EX);
@@ -1204,12 +1444,22 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
   Object.keys(G).forEach(function (k) { FIG.prep(G[k]); ALL[G[k].id] = G[k]; });
   Object.keys(CARDIO_FIG).forEach(function (k) { FIG.prep(CARDIO_FIG[k]); ALL[CARDIO_FIG[k].id] = CARDIO_FIG[k]; });
   var $ = function (id) { return document.getElementById(id); };
+  var VC = {};
+  function V(id, kind, eqOpt) {
+    var o = eqOpt || chooseEq(id, kind, store.eq), key = id + kind + o.eq + o.style + (o.missing ? '!' : '');
+    if (!VC[key]) VC[key] = makeVariant(kind === 'h' ? BY[id] : G[id], id, kind, o);
+    return VC[key];
+  }
+  function eqOptions(id, kind) { return parseEq(EQV[id][kind]); }
+  function wkey(id, ex, kind) { return id + '|' + ex.eq + '|' + kind; }
+  function getWt(id, ex, kind) { var v = store.wt[wkey(id, ex, kind)]; return v == null ? null : v; }
+  function kg(v) { return v == null ? '' : (Math.round(v * 10) / 10) + ' kg'; }
   var KC = { 16: 'var(--k16)', 20: 'var(--k20)', 24: 'var(--k24)', 28: 'var(--k28)', 32: 'var(--k32)' };
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
 
   // ---------- storage ----------
-  var store = { week: 1, done: {}, tests: {} };
+  var store = { week: 1, done: {}, tests: {}, wt: {}, log: [], eq: ['k', 'd'] };
   var NATIVE = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.isohold;
   function native(msg) { try { if (NATIVE) NATIVE.postMessage(msg); } catch (e) { } }
   try { var s0 = JSON.parse(localStorage.getItem('isohold.v1') || 'null'); if (s0) store = Object.assign(store, s0); } catch (e) { }
@@ -1219,6 +1469,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     try { localStorage.setItem('isohold.v1', txt); } catch (e) { }
     native({ type: 'save', data: txt });
   }
+  store.wt = store.wt || {}; store.log = store.log || []; store.eq = (store.eq && store.eq.length) ? store.eq : ['k', 'd'];
   function phaseOf(w) { for (var i = 0; i < PHASES.length; i++) if (PHASES[i].weeks.indexOf(w) > -1) return PHASES[i]; return PHASES[0]; }
 
   // ---------- dosing helpers ----------
@@ -1237,6 +1488,11 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     var liftFirst = g.tempo[0] < g.tempo[2];
     return liftFirst ? 'Lift for 1 s, squeeze, lower over 2–3 s' : 'Lower over 2–3 s, pause in the stretch, drive up';
   }
+  function tempoShort(g) {
+    if (g.mode === 'time') return 'Steady walk';
+    if (g.fixed) return 'Explosive';
+    return g.tempo[0] < g.tempo[2] ? 'Lift 1 s, lower 3 s' : 'Lower 3 s, drive up';
+  }
   function rirTxt(ph) { return ph.rir >= 3 ? 'Stop with ~' + ph.rir + ' reps left' : 'Stop ' + ph.rir + (ph.rir === 1 ? '–2' : '') + ' reps short of failure'; }
   // ---------- session queues (shared by timer and time estimates) ----------
   var MOVE = 12, SWITCH = 5, SOLO = 35, BLOCK = 20;
@@ -1248,9 +1504,9 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     function run(kind, rounds) {
       for (var r = 1; r <= rounds; r++) {
         b.forEach(function (id, bi) {
-          var ex = kind === 'hold' ? BY[id] : G[id], sides = ex.uni ? (ex.mode === 'time' ? ['Hand 1', 'Hand 2'] : ['Side 1', 'Side 2']) : [''];
+          var ex = V(id, kind === 'hold' ? 'h' : 'g'), sides = ex.uni ? (ex.mode === 'time' ? ['Hand 1', 'Hand 2'] : ['Side 1', 'Side 2']) : [''];
           sides.forEach(function (sd, j) {
-            var it = { ex: ex, kind: kind === 'hold' ? 'hold' : (ex.mode === 'time' ? 'time' : 'reps'), sets: kind === 'hold' ? ph.sets : ph.gs, set: r, side: sd, first: r === 1 && j === 0 && (kind === 'hold' ? bi === 0 : false) };
+            var it = { id: id, wk: kind === 'hold' ? 'h' : 'r', ex: ex, kind: kind === 'hold' ? 'hold' : (ex.mode === 'time' ? 'time' : 'reps'), sets: kind === 'hold' ? ph.sets : ph.gs, set: r, side: sd, first: r === 1 && j === 0 && (kind === 'hold' ? bi === 0 : false) };
             if (it.kind === 'hold') { it.angle = ph.alt && r % 2 === 0 ? 'mid' : 'end'; it.dur = ph.hold; }
             else if (it.kind === 'reps') { it.reps = repsFor(ex, ph); it.dur = it.reps * repDur(ex) + 1; }
             else it.dur = ph.gt;
@@ -1259,7 +1515,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
             q.push(it);
           });
         });
-        var solo = b.length === 1 && !(kind === 'hold' ? BY[b[0]] : G[b[0]]).uni;
+        var solo = b.length === 1 && !V(b[0], kind === 'hold' ? 'h' : 'g').uni;
         if (solo && r < rounds) q[q.length - 1].after += SOLO;
       }
     }
@@ -1287,22 +1543,27 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     if (hard.length) { var easy = segs[segs.indexOf(hard[0]) + 1]; return [m, Math.round(tot / 60) + ' min, ' + hard.length + ' × ' + hard[0][1] + ' s hard / ' + easy[1] + ' s easy']; }
     return [m, Math.round(tot / 60) + ' min, ' + segs.map(function (x) { return x[2].toLowerCase(); }).filter(function (v, i, ar) { return ar.indexOf(v) === i; }).join(' then ')];
   }
-  // ---------- icons ----------
-  var I_CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  var I_CHEV = '<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-
-  // ---------- week plan ----------
-  var WEEK = [
-    { k: 'mon', d: 'Mon', full: 'Monday', day: DAYS[0] }, { k: 'tue', d: 'Tue', full: 'Tuesday', day: DAYS[1] },
-    { k: 'wed', d: 'Wed', full: 'Wednesday', day: CARDIO_DAYS[0] }, { k: 'thu', d: 'Thu', full: 'Thursday', day: DAYS[2] },
-    { k: 'fri', d: 'Fri', full: 'Friday', day: DAYS[3] }, { k: 'sat', d: 'Sat', full: 'Saturday', day: CARDIO_DAYS[1] },
-    { k: 'sun', d: 'Sun', full: 'Sunday', day: null }
-  ];
+  // ---------- program days ----------
   function allDays() { return [DAYS[0], DAYS[1], CARDIO_DAYS[0], DAYS[2], DAYS[3], CARDIO_DAYS[1]]; }
-  var todayIdx = (new Date().getDay() + 6) % 7, selDay = todayIdx;
+  var SHORT = ['Shoulders', 'Legs', 'Cardio', 'Back', 'Hips', 'Cardio'];
   function doneKey(day, part) { return 'w' + store.week + day.id + part; }
   function weekDone(w) { var n = 0; allDays().forEach(function (d) { ['am', 'pm'].forEach(function (p) { if (store.done['w' + w + d.id + p]) n++; }); }); return n; }
+  function totalDone() { var n = 0; for (var w = 1; w <= 12; w++) n += weekDone(w); return n; }
+  function nextDayIdx() { var D = allDays(); for (var i = 0; i < D.length; i++) if (!store.done[doneKey(D[i], 'am')] || !store.done[doneKey(D[i], 'pm')]) return i; return 0; }
+  var selDay = nextDayIdx();
   var LIGHT_INK = { 20: 1, 24: 1, 32: 1 };
+  var I_CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var I_CHEV = '<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var I_INFO = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="7.5" r="1.4" fill="currentColor"/></svg>';
+
+  var toastT = null;
+  function toast(t) { var el = $('toast'); el.textContent = t; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { el.hidden = true; }, 4200); }
+  // Move on to the next week as soon as every session of the current one is done, whatever the calendar day.
+  function checkWeek() {
+    if (weekDone(store.week) < 12) return;
+    if (store.week < 12) { var w = store.week; store.week++; save(); selDay = 0; toast('Week ' + w + ' complete. You’re on week ' + store.week + ' now.'); }
+    else toast('All 12 weeks complete. Retest your max holds on the Progress tab.');
+  }
 
   // ---------- tabs ----------
   var TABS = ['train', 'exercises', 'coach', 'progress', 'guide'];
@@ -1312,49 +1573,45 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     if (TABS.indexOf(id) < 0) id = 'train';
     current = id;
     TABS.forEach(function (t) { $(t).hidden = t !== id; $('tab-' + t).setAttribute('aria-selected', String(t === id)); });
-    try { history.replaceState(null, '', '#' + id); } catch (e) { }
+    try { history.replaceState(history.state, '', '#' + id); } catch (e) { }
     if (!keepScroll) window.scrollTo(0, 0);
     if (id === 'exercises') ensureLib();
     if (id === 'progress') renderProgress();
     if (id === 'coach') renderCoach();
+    if (id === 'guide') renderResearch();
   }
   TABS.forEach(function (t) { $('tab-' + t).addEventListener('click', function () { show(t); }); });
 
   // ---------- train ----------
   function renderTrain() {
-    var ph = phaseOf(store.week), w = WEEK[selDay];
+    var ph = phaseOf(store.week), D = allDays(), day = D[selDay], nx = nextDayIdx();
     $('weekBtn').innerHTML = '<i style="--c:' + KC[ph.kg] + '"></i>Week ' + store.week + ' of 12';
     $('weekBtn').setAttribute('aria-label', 'Program week ' + store.week + ' of 12, ' + ph.name + ' phase. Change week');
+    var td = totalDone();
+    $('overall').innerHTML = '<div class="ov-t"><span>Program</span><b class="num">' + Math.round(td / 72 * 100) + '%</b></div><div class="ov-bar" role="progressbar" aria-valuemin="0" aria-valuemax="72" aria-valuenow="' + td + '" aria-label="Program progress"><i style="width:' + (td / 72 * 100).toFixed(1) + '%"></i></div><span class="ov-s num">' + td + ' of 72 sessions</span>';
     var band = $('band');
     band.style.setProperty('--c', KC[ph.kg]);
     band.className = 'band' + (LIGHT_INK[ph.kg] ? ' lightink' : '');
-    var when = selDay === todayIdx ? 'Today, ' + w.full : w.full;
-    var title = w.day ? w.day.name : 'Rest';
-    var dose = !w.day ? 'Full rest. An easy 20 to 30 minute walk is fine if you feel like moving.'
-      : w.day.cardio ? ph.name + ' phase. Treadmill and rower, about ' + (mins(w.day, 'am', ph) + mins(w.day, 'pm', ph)) + ' minutes across the day.'
+    var dose = day.cardio ? ph.name + ' phase. Treadmill and rower, about ' + (mins(day, 'am', ph) + mins(day, 'pm', ph)) + ' minutes across the day.'
       : ph.name + ' phase. Hold <b>' + ph.sets + ' × ' + ph.hold + ' s</b>, then <b>' + ph.gs + ' × ' + ph.grt + ' reps</b> per exercise.';
-    band.innerHTML = '<span class="when">' + when + '</span><h2>' + esc(title) + '</h2><p class="dose">' + dose + '</p>';
-
-    // day strip with dates of the current calendar week
-    var now = new Date(), monday = new Date(now); monday.setDate(now.getDate() - todayIdx);
-    $('strip').innerHTML = WEEK.map(function (x, i) {
-      var dt = new Date(monday); dt.setDate(monday.getDate() + i);
-      var dots = x.day ? '<i class="' + (store.done[doneKey(x.day, 'am')] ? 'on' : '') + '"></i><i class="' + (store.done[doneKey(x.day, 'pm')] ? 'on' : '') + '"></i>' : '';
-      return '<button data-i="' + i + '" aria-pressed="' + (i === selDay) + '" class="' + (i === todayIdx ? 'today' : '') + '" aria-label="' + x.full + (i === todayIdx ? ', today' : '') + '"><span class="d">' + x.d + '</span><span class="n">' + dt.getDate() + '</span><span class="dots">' + dots + '</span></button>';
+    band.innerHTML = '<span class="when">' + (selDay === nx ? 'Up next, day ' + (selDay + 1) + ' of 6' : 'Day ' + (selDay + 1) + ' of 6') + '</span><h2>' + esc(day.name) + '</h2><p class="dose">' + dose + '</p>';
+    $('strip').innerHTML = D.map(function (d, i) {
+      var dots = '<i class="' + (store.done[doneKey(d, 'am')] ? 'on' : '') + '"></i><i class="' + (store.done[doneKey(d, 'pm')] ? 'on' : '') + '"></i>';
+      return '<button data-i="' + i + '" aria-pressed="' + (i === selDay) + '" class="' + (i === nx ? 'today' : '') + '" aria-label="Day ' + (i + 1) + ', ' + d.name + (i === nx ? ', up next' : '') + '"><span class="n">' + (i + 1) + '</span><span class="d">' + SHORT[i] + '</span><span class="dots">' + dots + '</span></button>';
     }).join('');
-
-    if (!w.day) { $('sessions').innerHTML = '<div class="rest-card"><b>Nothing scheduled</b><p class="muted">Rest lets tendons and muscles rebuild. Tomorrow starts the next training week.</p></div>'; return; }
-    $('sessions').innerHTML = sessionCard(w.day, 'am', ph) + sessionCard(w.day, 'pm', ph);
+    $('sessions').innerHTML = sessionCard(day, 'am', ph) + sessionCard(day, 'pm', ph);
   }
-  function holdLine(ex, ph) { return '<span class="h">' + rx(ex, ph) + '</span>'; }
   function exRow(id, ph) {
-    var ex = BY[id], g = G[id];
-    return '<button class="row" data-ex="' + id + '">' + figSvg(ex, 2) + '<span><span class="t">' + esc(ex.name) + '</span><span class="s">' + holdLine(ex, ph) + ', then <b>' + esc(g.name) + ' ' + grx(g, ph) + '</b></span></span></button>';
+    var h = V(id, 'h'), g = V(id, 'g'), wh = getWt(id, h, 'h'), wg = getWt(id, g, 'r');
+    return '<button class="row" data-ex="' + id + '">' + figSvg(h, 2) + '<span><span class="t">' + esc(h.name) + '</span>' +
+      '<span class="s"><span class="h">' + rx(h, ph) + (wh != null ? ' at ' + kg(wh) : '') + '</span></span>' +
+      '<span class="s">Then <b>' + esc(g.name) + ' ' + grx(g, ph) + (wg != null ? ' at ' + kg(wg) : '') + '</b></span>' + (h.missing ? '<span class="s miss">Needs a ' + esc(h.equipLabel.toLowerCase()) + '</span>' : '') + '</span></button>';
   }
   function cardioRow(segs, label) {
     var s = segSummary(segs), fig = CARDIO_FIG[segs[0][0]];
     return '<li><div class="row cardio">' + figSvg(fig, 0) + '<span><span class="t">' + esc(label) + '</span><span class="s">' + esc(s[0]) + ', <b>' + esc(s[1]) + '</b></span></span></div></li>';
   }
+  function eqSummary() { return store.eq.map(function (e) { return EQ_LABEL[e].toLowerCase() + 's'; }).join(', ').replace(/, ([^,]*)$/, ' and $1'); }
   function sessionCard(day, part, ph) {
     var key = doneKey(day, part), done = !!store.done[key], m = mins(day, part, ph), name = part === 'am' ? 'Morning' : 'Evening';
     var list = '', count = 0;
@@ -1367,7 +1624,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
       });
       if (part === 'pm') list += cardioRow(FINISHER[ph.n], 'Rowing finisher');
     }
-    var sum = day.cardio ? segSummary(day[part](ph))[1] : (part === 'am' ? 'Treadmill warm-up, then ' : '') + count + ' hold and rep pairs' + (part === 'pm' ? ', then rowing' : '');
+    var sum = day.cardio ? segSummary(day[part](ph))[1] : (part === 'am' ? 'Treadmill warm-up, then ' : '') + count + ' hold and rep pairs' + (part === 'pm' ? ', then rowing' : '') + '. Using ' + eqSummary() + '.';
     return '<article class="sess' + (done ? ' done' : '') + '">' +
       '<div class="sess-top"><h3>' + name + '</h3>' + (done ? '<span class="donechip">' + I_CHECK.replace('<svg', '<svg width="18" height="18"') + 'Done</span>' : '<span class="mins num">' + m + ' min</span>') + '</div>' +
       '<p class="sum">' + esc(sum) + '</p>' +
@@ -1379,70 +1636,141 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
   $('sessions').addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
     if (b.dataset.ex) openExercise(b.dataset.ex, 'hold', b);
-    else if (b.dataset.done) { store.done[b.dataset.done] = !store.done[b.dataset.done]; save(); renderTrain(); }
-    else if (b.dataset.start) startSession(b.dataset.start, b.dataset.part);
+    else if (b.dataset.done) { store.done[b.dataset.done] = !store.done[b.dataset.done]; save(); if (store.done[b.dataset.done]) { var w0 = store.week; checkWeek(); if (store.week === w0) selDay = nextDayIdx(); } renderTrain(); }
+    else if (b.dataset.start) {
+      var day = allDays().filter(function (d) { return d.id === b.dataset.start; })[0];
+      if (day.cardio) startSession(day.id, b.dataset.part); else openEquip(day, b.dataset.part, b);
+    }
   });
   $('weekBtn').addEventListener('click', function () { openWeeks(this); });
 
-  // ---------- sheets ----------
-  var sheetReturn = null, sheetAnim = null;
+  // ---------- sheets (phone back gesture closes them) ----------
+  var sheetReturn = null, sheetAnim = null, sheetHist = false;
   function openSheet(title, html, full, from) {
     sheetReturn = from || document.activeElement;
     $('sheetTitle').textContent = title; $('sheetBody').innerHTML = html; $('sheetBody').scrollTop = 0;
     $('sheet').className = 'sheet' + (full ? ' full' : '');
+    var wasOpen = !$('sheetWrap').hidden;
     $('sheetWrap').hidden = false; document.body.style.overflow = 'hidden';
+    if (!wasOpen) { try { history.pushState({ sheet: 1 }, ''); sheetHist = true; } catch (e) { sheetHist = false; } }
     $('sheetClose').focus();
+  }
+  function hideSheet() {
+    if ($('sheetWrap').hidden) return;
+    $('sheetWrap').hidden = true; document.body.style.overflow = P ? 'hidden' : ''; sheetAnim = null;
+    try { if (sheetReturn && sheetReturn.focus) sheetReturn.focus(); } catch (e) { }
   }
   function closeSheet() {
     if ($('sheetWrap').hidden) return;
-    $('sheetWrap').hidden = true; document.body.style.overflow = ''; sheetAnim = null;
-    try { if (sheetReturn && sheetReturn.focus) sheetReturn.focus(); } catch (e) { }
+    if (sheetHist) { sheetHist = false; try { history.back(); return; } catch (e) { } }
+    hideSheet();
   }
   $('sheetClose').addEventListener('click', closeSheet);
   $('scrim').addEventListener('click', closeSheet);
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !P) closeSheet(); });
+  window.addEventListener('popstate', function () {
+    if (!$('sheetWrap').hidden) { sheetHist = false; hideSheet(); return; }
+    if (P && P.stage !== 'done') { try { history.pushState({ player: 1 }, ''); } catch (e) { } askEnd(); return; }
+    if (P) closePlayer(true);
+  });
 
   function openWeeks(from) {
     var h = '<div class="weeks">';
-    for (var w = 1; w <= 12; w++) { var ph = phaseOf(w); h += '<button data-w="' + w + '" style="--c:' + KC[ph.kg] + '" aria-pressed="' + (w === store.week) + '"><span class="n">' + w + '</span><span class="p">' + ph.name.replace(' & Test', '') + '</span></button>'; }
-    h += '</div><div class="phases">' + PHASES.map(function (p) {
+    for (var w = 1; w <= 12; w++) { var ph = phaseOf(w), c = weekDone(w); h += '<button data-w="' + w + '" style="--c:' + KC[ph.kg] + '" aria-pressed="' + (w === store.week) + '"><span class="n">' + w + '</span><span class="p">' + ph.name.replace(' & Test', '') + (c ? ', ' + c + '/12' : '') + '</span></button>'; }
+    h += '</div><p class="fine">The program moves to the next week by itself once all 12 sessions of a week are done, whichever days you do them on. Pick a week here to jump ahead or go back.</p><div class="phases">' + PHASES.map(function (p) {
       var wk = p.weeks.length > 1 ? 'Weeks ' + p.weeks[0] + ' to ' + p.weeks[p.weeks.length - 1] : 'Week ' + p.weeks[0];
       return '<div class="phase" style="--c:' + KC[p.kg] + '"><b>' + p.name + '</b><span class="muted" style="font-size:14px;font-weight:700">' + wk + '. Holds ' + p.sets + ' × ' + p.hold + ' s, reps ' + p.gs + ' × ' + p.grt + '.</span><p>' + esc(p.focus) + '</p></div>';
     }).join('') + '</div>';
     openSheet('Program week', h, false, from);
     $('sheetBody').querySelector('.weeks').addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b) return;
-      store.week = +b.dataset.w; save(); closeSheet(); renderAll();
+      store.week = +b.dataset.w; save(); selDay = nextDayIdx(); closeSheet(); renderAll();
     });
   }
 
+  // ---------- equipment picker before a session ----------
+  var EQ_ICON = {
+    k: '<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M13 18v-5a7 7 0 0 1 14 0v5" fill="none" stroke="currentColor" stroke-width="3.4"/><circle cx="20" cy="25" r="10" fill="currentColor"/></svg>',
+    d: '<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="5" y="12" width="7" height="16" rx="2" fill="currentColor"/><rect x="28" y="12" width="7" height="16" rx="2" fill="currentColor"/><rect x="11" y="18" width="18" height="4" rx="2" fill="currentColor"/></svg>',
+    b: '<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="2" y="18.5" width="36" height="3" rx="1.5" fill="currentColor"/><rect x="7" y="9" width="5" height="22" rx="1.5" fill="currentColor"/><rect x="28" y="9" width="5" height="22" rx="1.5" fill="currentColor"/></svg>'
+  };
+  function openEquip(day, part, from) {
+    var sel = store.eq.slice();
+    function preview() {
+      var keep = store.eq; store.eq = sel.length ? sel : keep;
+      var names = day[part].map(function (b) { return b.map(function (id) { var v = V(id, 'h'); return '<li class="' + (v.missing ? 'miss' : '') + '">' + esc(v.name) + (v.missing ? ' <span>(needs a ' + esc(v.equipLabel.toLowerCase()) + ')</span>' : '') + '</li>'; }).join(''); }).join('');
+      store.eq = keep;
+      return names;
+    }
+    function render() {
+      var h = '<p class="muted">Pick everything you have with you. Each exercise uses the best fit from your choice.</p><div class="eqs">' + ['k', 'd', 'b'].map(function (e) {
+        return '<button class="eq" data-e="' + e + '" aria-pressed="' + (sel.indexOf(e) > -1) + '">' + EQ_ICON[e] + '<b>' + (e === 'b' ? 'Barbell & plates' : EQ_LABEL[e] + 's') + '</b>' + I_CHECK.replace('<svg', '<svg class="tick"') + '</button>';
+      }).join('') + '</div>' + (sel.length ? '<div class="eq-prev"><b>Today’s holds</b><ul>' + preview() + '</ul></div>' : '<p class="bk-msg err">Pick at least one.</p>') +
+        '<button class="btn go block" id="eqGo"' + (sel.length ? '' : ' disabled') + '>Start ' + (part === 'am' ? 'morning' : 'evening') + '</button>';
+      $('sheetBody').innerHTML = h;
+      $('sheetBody').querySelector('.eqs').addEventListener('click', function (e) {
+        var b = e.target.closest('button'); if (!b) return; var k = b.dataset.e, i = sel.indexOf(k);
+        if (i > -1) sel.splice(i, 1); else sel.push(k);
+        sel.sort(function (x, y) { return 'kdb'.indexOf(x) - 'kdb'.indexOf(y); });
+        render();
+      });
+      $('eqGo').addEventListener('click', function () { store.eq = sel; save(); sheetHist = false; hideSheet(); startSession(day.id, part, true); });
+    }
+    openSheet('What are you using today?', '', false, from);
+    render();
+  }
+
+  // ---------- exercise guide ----------
+  function evidenceHtml(id, part) {
+    var e = EVID[id], refs = part === 'hold' ? (e ? e.refs : []) : (id === 'bird-dog' ? ['mcgill2012'] : []).concat(GROW_REFS);
+    var head = part === 'hold' && e ? '<p><span class="ev ev-' + e.r.toLowerCase() + '">' + e.r + ' evidence</span> ' + esc(e.s) + '</p>' : '<p>Rep sets taken close to failure, with enough weekly sets, and stretched-position work build the most muscle.</p>';
+    return head + '<ul class="refs">' + refs.map(function (k) { var r = REFS[k]; return '<li><a href="' + r.u + '" target="_blank" rel="noopener">' + esc(r.t) + '</a><span>' + esc(r.a) + ', ' + esc(r.j) + '. ' + esc(r.k) + '</span></li>'; }).join('') + '</ul>';
+  }
   function openExercise(id, part, from) {
-    var ex = BY[id], g = G[id], ph = phaseOf(store.week);
-    function body(p) {
-      var isH = p === 'hold', x = isH ? ex : g;
+    var ph = phaseOf(store.week), state = { part: part, eq: {} };
+    function cur() { var kind = state.part === 'hold' ? 'h' : 'g'; var o = state.eq[kind] || chooseEq(id, kind, store.eq); return V(id, kind, o); }
+    function body() {
+      var isH = state.part === 'hold', x = cur(), kind = isH ? 'h' : 'r', w = getWt(id, x, kind);
+      var opts = eqOptions(id, isH ? 'h' : 'g');
+      var eqTabs = '<div class="eqtabs" role="group" aria-label="Equipment">' + opts.map(function (o) {
+        var on = o.eq === x.eq; return '<button data-eq="' + o.eq + '" data-st="' + o.style + '" aria-pressed="' + on + '">' + (o.eq === 'b' ? (o.style === 'plate' ? 'Plate' : 'Barbell') : EQ_LABEL[o.eq]) + '</button>';
+      }).join('') + '</div>';
       var steps = x.steps.map(function (st, i) {
         var last = i === x.steps.length - 1, lab = isH ? (last ? 'Hold' : String(i + 1)) : (i ? 'End' : 'Start');
-        return '<li class="' + (last ? 'final' : '') + '"><div class="sf">' + figSvg(x, i, ', ' + lab) + '<span>' + lab + '</span></div><p>' + esc(st.txt) + '</p></li>';
+        return '<li class="' + (last ? 'final' : '') + '"><div class="sf">' + FIG.svgFor(x, x._r[i], { label: x.name + ', ' + lab }) + '<span>' + lab + '</span></div><p>' + esc(st.txt) + '</p></li>';
       }).join('');
-      var rxTxt = isH ? 'Week ' + store.week + ': ' + rx(ex, ph) + ' at RPE ' + ph.rpe : 'Week ' + store.week + ': ' + grx(g, ph) + (g.mode === 'time' ? '' : ', ' + rirTxt(ph).toLowerCase());
+      var rxTxt = isH ? 'Week ' + store.week + ': ' + rx(x, ph) + ' at RPE ' + ph.rpe : 'Week ' + store.week + ': ' + grx(x, ph) + (x.mode === 'time' ? '' : ', ' + rirTxt(ph).toLowerCase());
+      var wtBox = x.eq === 'w' ? '' : '<div class="wtbox"><label for="dWt">Your weight' + (x.uni ? ' (each side)' : '') + '</label><div class="stepper"><button data-d="-1" aria-label="Less weight">−</button><input id="dWt" type="number" inputmode="decimal" step="0.5" min="0" placeholder="0" value="' + (w == null ? '' : w) + '"><span>kg</span><button data-d="1" aria-label="More weight">+</button></div></div>';
       var notes = '<div class="notes"><span class="k">Cues</span><ul>' + x.cues.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('') + '</ul>' +
-        (isH ? '<p><span class="k">Avoid: </span>' + esc(ex.avoid) + '</p><p><span class="k">Why: </span>' + esc(ex.why) + '</p>' : '<p><span class="k">Tempo: </span>' + esc(tempoTxt(g)) + '</p>') + '</div>';
-      return '<div class="dfig" id="dFig">' + figSvg(x, isH ? 2 : 1, ', animated') + '<span class="stage" id="dStage"></span></div>' +
-        '<div class="d-meta"><h3>' + esc(x.name) + '</h3><span class="d-rx ' + (isH ? 'h' : 'r') + '">' + esc(rxTxt) + '</span><span class="muted">' + esc(ex.equip) + (x.uni ? ', each side' : '') + '</span></div>' +
+        (isH ? '<p><span class="k">Avoid: </span>' + esc(BY[id].avoid) + '</p><p><span class="k">Why: </span>' + esc(BY[id].why) + '</p>' : '<p><span class="k">Tempo: </span>' + esc(tempoTxt(x)) + '</p>') + '</div>';
+      var ev = EVID[id];
+      return eqTabs + '<div class="dfig" id="dFig">' + FIG.svgFor(x, x._r[isH ? 2 : 1], { label: x.name + ', animated' }) + '<span class="stage" id="dStage"></span></div>' +
+        '<div class="d-meta"><div class="d-top"><h3>' + esc(x.name) + '</h3><button class="infobtn" id="dInfo" aria-expanded="false" aria-controls="dEv" aria-label="Research behind this exercise">' + I_INFO + '</button></div><span class="d-rx ' + (isH ? 'h' : 'r') + '">' + esc(rxTxt) + '</span>' +
+        (isH && ev ? '<span class="ev ev-' + ev.r.toLowerCase() + '">' + ev.r + ' evidence</span>' : '') + '</div>' +
+        '<div class="evbox" id="dEv" hidden>' + evidenceHtml(id, state.part) + '</div>' + wtBox +
         '<div class="tags">' + x.tags.map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') + '</div>' +
         '<ol class="steps' + (isH ? '' : ' r') + '">' + steps + '</ol>' + notes;
     }
-    var html = '<div class="seg" role="tablist"><button role="tab" class="h" data-p="hold" aria-selected="' + (part === 'hold') + '">1. Tendon hold</button><button role="tab" class="r" data-p="rep" aria-selected="' + (part !== 'hold') + '">2. Growth reps</button></div><div id="dBody" style="display:grid;gap:16px">' + body(part) + '</div>';
+    var html = '<div class="seg" role="tablist"><button role="tab" class="h" data-p="hold" aria-selected="' + (part === 'hold') + '">1. Tendon hold</button><button role="tab" class="r" data-p="rep" aria-selected="' + (part !== 'hold') + '">2. Growth reps</button></div><div id="dBody" style="display:grid;gap:14px"></div>';
     var dd = DAYS.filter(function (d) { return d.ex.indexOf(id) > -1; })[0];
-    openSheet(dd ? 'Day ' + (DAYS.indexOf(dd) + 1) + ', ' + dd.name : ex.name, html, true, from);
-    function anim(p) { sheetAnim = { ex: p === 'hold' ? ex : g, svg: $('dFig').querySelector('svg'), stage: $('dStage'), t0: performance.now(), lab: null }; if (reduce) { sheetAnim.stage.textContent = p === 'hold' ? 'Hold position' : 'End position'; sheetAnim.stage.className = 'stage ' + (p === 'hold' ? 'hold' : 'rep'); sheetAnim = null; } }
-    anim(part);
-    $('sheetBody').querySelector('.seg').addEventListener('click', function (e) {
+    openSheet(dd ? 'Day ' + (allDays().indexOf(dd) + 1) + ', ' + dd.name : BY[id].name, html, true, from);
+    function paintBody() {
+      $('dBody').innerHTML = body();
+      var x = cur();
+      sheetAnim = { ex: x, svg: $('dFig').querySelector('svg'), stage: $('dStage'), t0: performance.now(), lab: null };
+      if (reduce) { sheetAnim.stage.textContent = state.part === 'hold' ? 'Hold position' : 'End position'; sheetAnim.stage.className = 'stage ' + (state.part === 'hold' ? 'hold' : 'rep'); sheetAnim = null; }
+    }
+    paintBody();
+    $('sheetBody').addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b) return;
-      this.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-selected', String(x === b)); });
-      $('dBody').innerHTML = body(b.dataset.p); anim(b.dataset.p);
+      if (b.dataset.p) { this.querySelectorAll('.seg button').forEach(function (x) { x.setAttribute('aria-selected', String(x === b)); }); state.part = b.dataset.p; paintBody(); }
+      else if (b.dataset.eq) { state.eq[state.part === 'hold' ? 'h' : 'g'] = { eq: b.dataset.eq, style: b.dataset.st }; paintBody(); }
+      else if (b.id === 'dInfo') { var box = $('dEv'), open = box.hidden; box.hidden = !open; b.setAttribute('aria-expanded', String(open)); }
+      else if (b.dataset.d) { var x = cur(), inp = $('dWt'), step = EQ_STEP[x.eq] || 2, v = parseFloat(inp.value) || 0; v = Math.max(0, Math.round((v + step * (+b.dataset.d)) * 10) / 10); inp.value = v; setWt(id, x, state.part === 'hold' ? 'h' : 'r', v); }
     });
+    $('sheetBody').addEventListener('input', function (e) { if (e.target.id === 'dWt') { var v = parseFloat(e.target.value); setWt(id, cur(), state.part === 'hold' ? 'h' : 'r', isNaN(v) ? null : v); } });
   }
+  function setWt(id, ex, kind, v) { var k = wkey(id, ex, kind); if (v == null) delete store.wt[k]; else store.wt[k] = v; save(); }
 
   // ---------- exercises ----------
   var filter = 'All';
@@ -1452,13 +1780,13 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     $('chips').innerHTML = AREAS.map(function (t) { return '<button class="chip" aria-pressed="' + (filter === t) + '" data-f="' + t + '">' + t + '</button>'; }).join('');
   }
   $('chips').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; filter = b.dataset.f; renderChips(); applyFilter(); });
-  var libBuilt = false;
-  function ensureLib() { if (libBuilt) return; libBuilt = true; renderChips(); renderLib(); applyFilter(); }
+  var libBuilt = false, libEq = '';
+  function ensureLib() { if (libBuilt && libEq === store.eq.join('')) return; libBuilt = true; libEq = store.eq.join(''); renderChips(); renderLib(); applyFilter(); }
   function renderLib() {
-    $('lib').innerHTML = DAYS.map(function (d, i) {
-      return '<div class="lib-group" data-g="' + d.id + '"><h2>Day ' + (i + 1) + ', ' + esc(d.name) + '</h2><div class="lib-list">' + d.ex.map(function (id) {
-        var ex = BY[id], g = G[id];
-        return '<button class="row" data-ex="' + id + '">' + figSvg(ex, 2) + '<span><span class="t">' + esc(ex.name) + '</span><span class="s">Then <b>' + esc(g.name) + '</b>. ' + esc(ex.tags.slice(0, 3).join(', ')) + '</span></span>' + I_CHEV + '</button>';
+    $('lib').innerHTML = DAYS.map(function (d) {
+      return '<div class="lib-group" data-g="' + d.id + '"><h2>Day ' + (allDays().indexOf(d) + 1) + ', ' + esc(d.name) + '</h2><div class="lib-list">' + d.ex.map(function (id) {
+        var h = V(id, 'h'), g = V(id, 'g'), ev = EVID[id];
+        return '<button class="row" data-ex="' + id + '">' + figSvg(h, 2) + '<span><span class="t">' + esc(h.name) + '</span><span class="s">Then <b>' + esc(g.name) + '</b></span><span class="s m">' + esc(h.tags.slice(0, 3).join(', ')) + (ev ? ' <i class="ev-dot ev-' + ev.r.toLowerCase() + '" title="' + ev.r + ' evidence"></i>' : '') + '</span></span>' + I_CHEV + '</button>';
       }).join('') + '</div></div>';
     }).join('');
   }
@@ -1472,6 +1800,14 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
   }
   $('lib').addEventListener('click', function (e) { var b = e.target.closest('button[data-ex]'); if (b) openExercise(b.dataset.ex, 'hold', b); });
 
+  // ---------- research list (Guide) ----------
+  var researchBuilt = false;
+  function renderResearch() {
+    if (researchBuilt) return; researchBuilt = true;
+    var keys = Object.keys(REFS).sort(function (x, y) { return REFS[x].a.localeCompare(REFS[y].a); });
+    $('research').innerHTML = '<ul class="refs">' + keys.map(function (k) { var r = REFS[k]; return '<li><a href="' + r.u + '" target="_blank" rel="noopener">' + esc(r.t) + '</a><span>' + esc(r.a) + ', ' + esc(r.j) + '. ' + esc(r.k) + '</span></li>'; }).join('') + '</ul>';
+  }
+
   // ---------- progress ----------
   var GROUPS = [
     ['Shoulders', ['Front delts', 'Side delts', 'Rear delts']],
@@ -1482,20 +1818,66 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     ['Core', ['Lower abs', 'Mid abs', 'Upper abs']]
   ];
   function renderProgress() {
-    var n = weekDone(store.week), max = 12, bars = '', xs = '';
-    for (var w = 1; w <= 12; w++) {
-      var c = weekDone(w), ph = phaseOf(w);
-      bars += '<i class="' + (c ? '' : 'empty') + '" style="--c:' + KC[ph.kg] + ';height:' + Math.max(6, Math.round(c / max * 100)) + '%" title="Week ' + w + ': ' + c + ' of 12 sessions"></i>';
-      xs += '<span class="' + (w === store.week ? 'cur' : '') + '">' + w + '</span>';
-    }
-    $('wkCard').innerHTML = '<h2>Week ' + store.week + '</h2><div class="wkprog"><span class="big num">' + n + '<small>/12</small></span><p class="muted">sessions done this week. Each training and cardio day has a morning and an evening session.</p></div>' +
-      '<div class="bars" aria-hidden="true">' + bars + '</div><div class="bars-x">' + xs + '</div>';
-    renderCov(); renderTests();
+    var td = totalDone(), n = weekDone(store.week);
+    $('allCard').innerHTML = '<h2>Program</h2><div class="wkprog"><span class="big num">' + Math.round(td / 72 * 100) + '<small>%</small></span><p class="muted">' + td + ' of 72 sessions done. You’re on week ' + store.week + ' with ' + n + ' of 12 sessions done this week.</p></div>' +
+      '<div class="ov-bar big" aria-hidden="true"><i style="width:' + (td / 72 * 100).toFixed(1) + '%"></i></div>' + weekChart();
+    renderStrength(); renderCov(); renderTests();
   }
+  function weekChart() {
+    var W = 336, H = 150, L = 22, B = 22, T = 14, bw = (W - L) / 12, s = '<svg class="wchart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Sessions done each week">';
+    [0, 6, 12].forEach(function (v) { var y = H - B - v / 12 * (H - B - T); s += '<line x1="' + L + '" x2="' + W + '" y1="' + y + '" y2="' + y + '" class="gl"/><text x="' + (L - 6) + '" y="' + (y + 4) + '" class="ax" text-anchor="end">' + v + '</text>'; });
+    for (var w = 1; w <= 12; w++) {
+      var c = weekDone(w), ph = phaseOf(w), x = L + (w - 1) * bw + 3, h = c / 12 * (H - B - T), y = H - B - h;
+      if (c) s += '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + (bw - 6).toFixed(1) + '" height="' + h.toFixed(1) + '" rx="3" fill="' + KC[ph.kg] + '"/><text x="' + (x + (bw - 6) / 2).toFixed(1) + '" y="' + (y - 4).toFixed(1) + '" class="val" text-anchor="middle">' + c + '</text>';
+      s += '<text x="' + (x + (bw - 6) / 2).toFixed(1) + '" y="' + (H - 6) + '" class="ax' + (w === store.week ? ' cur' : '') + '" text-anchor="middle">' + w + '</text>';
+    }
+    return '<p class="chart-t">Sessions done per week, out of 12</p>' + s + '</svg>';
+  }
+  var strSel = null, strKind = 'h';
+  function renderStrength() {
+    var logged = {}; store.log.forEach(function (l) { logged[l.id] = 1; });
+    var ids = EX.map(function (e) { return e.id; }).filter(function (id) { return logged[id]; });
+    if (!ids.length) { $('strCard').innerHTML = '<h2>Strength</h2><p>Enter your weight in the timer or on an exercise. After your first session, this chart shows how much you lift and for how long or how many reps.</p>'; return; }
+    if (!strSel || ids.indexOf(strSel) < 0) { var last = store.log[store.log.length - 1]; strSel = last ? last.id : ids[0]; if (last) strKind = last.k; }
+    var rows = store.log.filter(function (l) { return l.id === strSel && l.k === strKind; });
+    var h = '<h2>Strength</h2><select id="strSel" aria-label="Exercise">' + ids.map(function (id) { return '<option value="' + id + '"' + (id === strSel ? ' selected' : '') + '>' + esc(baseName(BY[id].name)) + '</option>'; }).join('') + '</select>' +
+      '<div class="seg"><button class="h" data-k="h" aria-selected="' + (strKind === 'h') + '">Hold</button><button class="r" data-k="r" aria-selected="' + (strKind === 'r') + '">Reps</button></div>';
+    if (!rows.length) h += '<p class="muted">No ' + (strKind === 'h' ? 'holds' : 'rep sets') + ' logged for this exercise yet.</p>';
+    else {
+      // best set per session day
+      var byDay = {}, order = [];
+      rows.forEach(function (l) { var d = new Date(l.t).toDateString(); var sc = (l.kg || 0) * 1000 + l.v; if (!byDay[d]) { byDay[d] = l; order.push(d); } else if (sc > (byDay[d].kg || 0) * 1000 + byDay[d].v) byDay[d] = l; });
+      var pts = order.slice(-12).map(function (d) { return byDay[d]; });
+      var best = rows.reduce(function (b, l) { return (l.kg || 0) > (b.kg || 0) || ((l.kg || 0) === (b.kg || 0) && l.v > b.v) ? l : b; }, rows[0]);
+      var unit = strKind === 'h' ? ' s' : ' reps';
+      var first = pts[0], lastP = pts[pts.length - 1], ch = first.kg ? Math.round(((lastP.kg || 0) - first.kg) / first.kg * 100) : null;
+      h += '<p class="str-sum"><b>Best: ' + (best.kg ? kg(best.kg) + ' for ' : '') + best.v + (best.v === 1 && unit === ' reps' ? ' rep' : unit) + '</b>' + (pts.length > 1 && ch != null ? '<span class="' + (ch >= 0 ? 'up' : 'down') + '">' + (ch >= 0 ? '+' : '') + ch + '% weight since ' + new Date(first.t).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + '</span>' : '') + '</p>' + strChart(pts, unit);
+    }
+    $('strCard').innerHTML = h;
+  }
+  function strChart(pts, unit) {
+    var W = 336, H1 = 120, H2 = 70, L = 30, R = 8, gap = 18, n = pts.length;
+    var maxKg = Math.max.apply(null, pts.map(function (p) { return p.kg || 0; })) || 1, minKg = Math.min.apply(null, pts.map(function (p) { return p.kg || 0; }));
+    var lo = Math.max(0, Math.floor((minKg - (maxKg - minKg) * .3 - 1))), hi = Math.ceil(maxKg + (maxKg - lo) * .15 + .5);
+    var maxV = Math.max.apply(null, pts.map(function (p) { return p.v; })) || 1;
+    var xs = function (i) { return n === 1 ? (L + W - R) / 2 : L + 14 + i * (W - L - R - 28) / (n - 1); };
+    var y1 = function (v) { return 12 + (1 - (v - lo) / (hi - lo || 1)) * (H1 - 28); };
+    var s = '<p class="chart-t">Weight (kg)</p><svg class="schart" viewBox="0 0 ' + W + ' ' + H1 + '" role="img" aria-label="Weight lifted per session">';
+    [lo, (lo + hi) / 2, hi].forEach(function (v) { var y = y1(v); s += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y + '" y2="' + y + '" class="gl"/><text x="' + (L - 5) + '" y="' + (y + 4) + '" class="ax" text-anchor="end">' + (Math.round(v * 10) / 10) + '</text>'; });
+    if (n > 1) s += '<polyline fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round" points="' + pts.map(function (p, i) { return xs(i).toFixed(1) + ',' + y1(p.kg || 0).toFixed(1); }).join(' ') + '"/>';
+    pts.forEach(function (p, i) { s += '<circle cx="' + xs(i).toFixed(1) + '" cy="' + y1(p.kg || 0).toFixed(1) + '" r="' + (i === n - 1 ? 5 : 3.5) + '" fill="var(--ink)"/>'; });
+    var lp = pts[n - 1]; s += '<text x="' + Math.min(W - R, xs(n - 1) + 2).toFixed(1) + '" y="' + (y1(lp.kg || 0) - 10).toFixed(1) + '" class="val" text-anchor="end">' + (lp.kg ? Math.round(lp.kg * 10) / 10 : 0) + ' kg</text></svg>';
+    s += '<p class="chart-t">' + (unit === ' s' ? 'Seconds held' : 'Reps done') + '</p><svg class="schart" viewBox="0 0 ' + W + ' ' + H2 + '" role="img" aria-label="' + (unit === ' s' ? 'Seconds held' : 'Reps') + ' per session">';
+    var bw = Math.min(26, (W - L - R) / n - 6);
+    pts.forEach(function (p, i) { var h = p.v / maxV * (H2 - 30), x = xs(i) - bw / 2, y = H2 - 16 - h; s += '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="3" fill="' + (unit === ' s' ? 'var(--hold)' : 'var(--rep)') + '"/><text x="' + xs(i).toFixed(1) + '" y="' + (y - 3).toFixed(1) + '" class="val" text-anchor="middle">' + p.v + '</text><text x="' + xs(i).toFixed(1) + '" y="' + (H2 - 3) + '" class="ax" text-anchor="middle">' + new Date(p.t).getDate() + '</text>'; });
+    return s + '</svg>';
+  }
+  $('strCard').addEventListener('change', function (e) { if (e.target.id === 'strSel') { strSel = e.target.value; renderStrength(); } });
+  $('strCard').addEventListener('click', function (e) { var b = e.target.closest('button[data-k]'); if (b) { strKind = b.dataset.k; renderStrength(); } });
   function renderCov() {
     var ph = phaseOf(store.week);
     $('covNote').textContent = 'Hard sets per week for each area in week ' + store.week + '. Around 10 or more is the range linked with steady growth for most muscles.';
-    var h = '<thead><tr><th>Area</th>' + DAYS.map(function (d, i) { return '<th class="c">Day ' + (i + 1) + '</th>'; }).join('') + '<th class="c">Sets</th></tr></thead><tbody>';
+    var h = '<thead><tr><th>Area</th>' + DAYS.map(function (d) { return '<th class="c">Day ' + (allDays().indexOf(d) + 1) + '</th>'; }).join('') + '<th class="c">Sets</th></tr></thead><tbody>';
     GROUPS.forEach(function (g) {
       h += '<tr><td class="grp" colspan="6">' + g[0] + '</td></tr>';
       g[1].forEach(function (tag) {
@@ -1514,7 +1896,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
   function renderTests() {
     $('tests').innerHTML = TESTS.map(function (id) {
       var t = store.tests[id] || {};
-      return '<div class="test"><h3>' + esc(BY[id].name) + '<span class="delta" id="d-' + id + '"></span></h3><div class="fields">' +
+      return '<div class="test"><h3>' + esc(baseName(BY[id].name)) + '<span class="delta" id="d-' + id + '"></span></h3><div class="fields">' +
         '<label>Weight<input id="t-' + id + '-load" data-t="' + id + '" data-k="load" value="' + esc(t.load || '') + '" placeholder="2 × 16 kg" autocomplete="off"></label>' +
         '<label>Week 1 (s)<input id="t-' + id + '-a" type="number" inputmode="numeric" min="0" data-t="' + id + '" data-k="a" value="' + esc(t.a || '') + '" placeholder="0"></label>' +
         '<label>Week 12 (s)<input id="t-' + id + '-b" type="number" inputmode="numeric" min="0" data-t="' + id + '" data-k="b" value="' + esc(t.b || '') + '" placeholder="0"></label></div></div>';
@@ -1530,7 +1912,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     var i = e.target; if (!i.dataset.t) return;
     store.tests[i.dataset.t] = store.tests[i.dataset.t] || {}; store.tests[i.dataset.t][i.dataset.k] = i.value; save(); delta(i.dataset.t);
   });
-  function renderAll() { renderTrain(); if (current === 'progress') renderProgress(); }
+  function renderAll() { renderTrain(); if (current === 'progress') renderProgress(); if (libBuilt && current === 'exercises') ensureLib(); }
 
   // ---------- coach (Gemini) ----------
   var GEM = 'https://generativelanguage.googleapis.com/v1beta';
@@ -1540,16 +1922,17 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
   var coach = { key: cget('key', ''), model: cget('model', PREFERRED[0]), models: cget('models', []), chat: cget('chat', []), busy: false, ctl: null };
 
   function planContext() {
-    var ph = phaseOf(store.week), w = WEEK[todayIdx], lines = [];
-    lines.push('Today is ' + w.full + ', ' + new Date().toDateString() + '.');
-    lines.push('Program: 12 weeks, 4 strength days (Mon, Tue, Thu, Fri) and 2 cardio days (Wed, Sat), Sunday rest. Each day has a morning and an evening session, max 60 minutes per day. Equipment: kettlebells, dumbbells, a bench, a walking treadmill and a rowing machine at home.');
+    var ph = phaseOf(store.week), di = nextDayIdx(), w = { full: 'Day ' + (di + 1) + ' of the week (the next session to do)', day: allDays()[di] }, lines = [];
+    lines.push('Today is ' + new Date().toDateString() + '. The user does the program days in order, whatever the weekday; next up is ' + w.full + '.');
+    lines.push('Equipment chosen for sessions: ' + eqSummary() + '.');
+    lines.push('Program: 12 weeks; each week has 6 days done in order (4 strength days and 2 cardio days) and moves on once all 12 sessions are done. Each day has a morning and an evening session, max 60 minutes per day. Equipment: kettlebells, dumbbells, a barbell with plates (no rack), a bench, a walking treadmill and a rowing machine at home.');
     lines.push('Every exercise is a pair: an isometric hold for tendon strength, then a rep exercise for the same muscles taken close to failure for muscle growth. Exercises in a group are alternated with about 15 s to move between them.');
     lines.push('Phases: ' + PHASES.map(function (p) { return p.name + ' (weeks ' + p.weeks.join(', ') + '): holds ' + p.sets + 'x' + p.hold + 's at RPE ' + p.rpe + ', reps ' + p.gs + 'x' + p.grt + ' with about ' + p.rir + ' reps in reserve. ' + p.focus; }).join(' | '));
     lines.push('The user is in week ' + store.week + ', the ' + ph.name + ' phase. This week they have completed ' + weekDone(store.week) + ' of 12 sessions.');
     if (w.day && !w.day.cardio) {
       ['am', 'pm'].forEach(function (p) {
         lines.push("Today's " + (p === 'am' ? 'morning (starts with a 5 min treadmill warm-up)' : 'evening (ends with a rowing finisher)') + ' session' + (store.done[doneKey(w.day, p)] ? ' (already done)' : '') + ': ' +
-          w.day[p].map(function (b) { return (b.length > 1 ? 'alternate ' : '') + b.map(function (id) { return BY[id].name + ' then ' + G[id].name; }).join(' / '); }).join('; ') + '.');
+          w.day[p].map(function (b) { return (b.length > 1 ? 'alternate ' : '') + b.map(function (id) { var h = V(id, 'h'), g = V(id, 'g'), wh = getWt(id, h, 'h'), wg = getWt(id, g, 'r'); return h.name + (wh != null ? ' (' + wh + ' kg)' : '') + ' then ' + g.name + (wg != null ? ' (' + wg + ' kg)' : ''); }).join(' / '); }).join('; ') + '.');
       });
     } else if (w.day) lines.push('Today is a cardio day: ' + w.day.name + ', treadmill walking and easy rowing.');
     else lines.push('Today is a rest day.');
@@ -1557,6 +1940,8 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     lines.push('Exercise pairs (hold -> reps; muscles; equipment): ' + EX.map(function (e) { return e.name + ' -> ' + G[e.id].name + ' (' + e.tags.join(', ') + '; ' + e.equip + ')'; }).join('; ') + '.');
     var t = Object.keys(store.tests).filter(function (k) { return store.tests[k] && (store.tests[k].a || store.tests[k].b); }).map(function (k) { var x = store.tests[k]; return BY[k].name + ': week 1 ' + (x.a || '?') + ' s, week 12 ' + (x.b || 'not yet') + ' s, load ' + (x.load || 'not given'); });
     if (t.length) lines.push('Max-hold test results: ' + t.join('; ') + '.');
+    var recent = store.log.slice(-30).map(function (l) { return new Date(l.t).toLocaleDateString() + ' ' + baseName(BY[l.id].name) + (l.k === 'h' ? ' hold ' : ' reps ') + (l.kg ? l.kg + ' kg x ' : '') + l.v + (l.k === 'h' ? ' s' : ''); });
+    if (recent.length) lines.push('Recent logged sets: ' + recent.join('; ') + '.');
     return lines.join('\n');
   }
   function systemText() {
@@ -1774,10 +2159,12 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     } catch (e) { }
   }
   function fmt(s) { s = Math.max(0, Math.ceil(s)); return s >= 100 ? Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2) : String(s); }
-  function startSession(dayId, part) {
+  function startSession(dayId, part, replaceHist) {
     var day = allDays().filter(function (d) { return d.id === dayId; })[0], ph = phaseOf(store.week);
     var q = buildQueue(day, part, ph);
     P = { day: day, part: part, ph: ph, q: q, i: 0, stage: 'ready', paused: false };
+    try { if (replaceHist && history.state && history.state.sheet) history.replaceState({ player: 1 }, ''); else history.pushState({ player: 1 }, ''); } catch (e) { }
+    $('pConfirm').hidden = true;
     try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) { }
     // iPhone: let beeps play with the silent switch on (Safari 17+), keep the screen on
     try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { }
@@ -1802,13 +2189,28 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     var it = P.q[P.i];
     if (P.stage === 'ready') return enter('work');
     if (P.stage === 'work') {
+      logSet(it);
       if (P.i === P.q.length - 1) return finish();
       if (it.after > 0) return enter(it.afterKind);
     }
     P.i++; enter('ready');
   }
+  function logSet(it) {
+    if (it.kind === 'cardio') return;
+    var el = Math.max(0, (performance.now() - P.t0) / 1000), v;
+    if (it.kind === 'reps') v = el >= it.dur - 1.2 ? it.reps : Math.min(it.reps, Math.floor(el / repDur(it.ex)));
+    else v = Math.round(Math.min(el, it.dur));
+    if (v <= 0) return;
+    var w = getWt(it.id, it.ex, it.wk);
+    var e = { t: Date.now(), w: store.week, id: it.id, eq: it.ex.eq, k: it.wk, kg: it.ex.eq === 'w' ? 0 : w, v: v };
+    unlog(it); store.log.push(e); it.logged = e;
+    if (store.log.length > 4000) store.log.splice(0, store.log.length - 4000);
+    save();
+  }
+  function unlog(it) { if (it && it.logged) { var i = store.log.indexOf(it.logged); if (i > -1) store.log.splice(i, 1); it.logged = null; save(); } }
   function finish() {
     store.done['w' + store.week + P.day.id + P.part] = true; save();
+    var wk0 = store.week; checkWeek(); if (store.week === wk0) selDay = nextDayIdx();
     P.stage = 'done'; beep(523, .2); setTimeout(function () { beep(784, .4); }, 220);
     $('pPhase').textContent = 'Done'; $('pPhase').className = 'p-phase rest';
     $('pName').textContent = (P.part === 'am' ? 'Morning' : 'Evening') + ' session complete';
@@ -1818,17 +2220,25 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     $('pSetLabel').textContent = P.day.cardio ? cm + ' min of cardio' : holds + ' holds, ' + reps + ' rep sets and ' + cm + ' min of cardio'; $('pSets').innerHTML = ''; $('pRx').textContent = 'Logged for week ' + store.week + '.';
     $('pCues').innerHTML = ''; $('pNext').textContent = P.part === 'am' && !P.day.cardio ? 'Evening session later today. Leave at least 6 hours between the two if you can.' : 'Rate how your tendons feel tomorrow morning. Above 3/10 means go lighter next time. Muscle soreness is normal.';
     $('pDay').textContent = P.head;
-    $('pAngle').hidden = true; $('pPause').hidden = true; $('pSkip').hidden = true; $('pMore').hidden = true; $('pPrev').hidden = true;
+    $('pAngle').hidden = true; $('pPause').hidden = true; $('pSkip').hidden = true; $('pMore').hidden = true; $('pPrev').hidden = true; $('pWtRow').hidden = true; $('pLog').hidden = true;
     $('pClose').setAttribute('aria-label', 'Close');
     renderAll();
   }
   function keepAwake() {
     try { if (navigator.wakeLock && !NATIVE) navigator.wakeLock.request('screen').then(function (l) { WL = l; }).catch(function () { }); } catch (e) { }
   }
-  function closePlayer() {
-    P = null; $('player').hidden = true; document.body.style.overflow = '';
+  function askEnd() {
+    if (!P) return;
+    P.wasPaused = P.paused; if (!P.paused) { P.paused = true; P.pt = performance.now(); paint(); }
+    $('pConfirm').hidden = false; $('pEndYes').focus();
+  }
+  function closePlayer(fromPop) {
+    var hadHist = history.state && history.state.player;
+    P = null; $('player').hidden = true; document.body.style.overflow = ''; $('pConfirm').hidden = true;
+    if (!fromPop && hadHist) { try { history.back(); } catch (e) { } }
+    renderTrain();
     native({ type: 'awake', on: false });
-    ['pPause', 'pSkip', 'pMore', 'pPrev'].forEach(function (id) { $(id).hidden = false; });
+    ['pPause', 'pSkip', 'pMore', 'pPrev', 'pWtRow'].forEach(function (id) { $(id).hidden = false; });
     $('pClose').setAttribute('aria-label', 'End session'); $('pAngle').hidden = false;
     try { if (WL) WL.release(); } catch (e) { } WL = null;
   }
@@ -1854,10 +2264,17 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
       $('pSets').innerHTML = d;
       $('pRx').textContent = showIt.kind === 'hold' ? rx(ex, ph) + ' at RPE ' + ph.rpe : grx(ex, ph) + (showIt.kind === 'reps' ? ', ' + rirTxt(ph).toLowerCase() : '');
       var ang = $('pAngle');
-      if (showIt.kind === 'hold') { ang.textContent = showIt.angle === 'mid' ? 'Mid-range (step 2)' : 'End position (step 3)'; ang.className = 'stage angle' + (showIt.angle === 'mid' ? '' : ' hold'); }
-      else { ang.textContent = tempoTxt(ex); ang.className = 'stage angle rep'; }
+      if (showIt.kind === 'hold') { ang.textContent = showIt.angle === 'mid' ? 'Mid-range hold' : 'Hold here'; ang.className = 'stage angle' + (showIt.angle === 'mid' ? '' : ' hold'); }
+      else { ang.textContent = tempoShort(ex); ang.className = 'stage angle rep'; }
     }
     $('pCues').innerHTML = ex.cues.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('');
+    // weight for the set shown (during rest this is the next set, so you can load it now)
+    var showWt = !cardio && ex.eq !== 'w' && P.stage !== 'done';
+    $('pWtRow').hidden = !showWt;
+    if (showWt) { var wv = getWt(showIt.id, ex, showIt.wk); $('pWt').value = wv == null ? '' : wv; $('pWtLab').textContent = (showIt.kind === 'hold' ? 'Hold weight' : 'Rep weight') + (ex.uni ? ', each side' : ''); }
+    var lg = (P.stage === 'rest' || P.stage === 'switch') && it.logged;
+    $('pLog').hidden = !lg;
+    if (lg) $('pLogTxt').textContent = 'Logged ' + (it.logged.kg ? kg(it.logged.kg) + ' × ' : '') + it.logged.v + (it.logged.k === 'h' ? ' s' : it.logged.v === 1 ? ' rep' : ' reps');
     var after = '';
     if (P.stage === 'work' && it.kind !== 'cardio') after = nxt ? (it.afterKind === 'switch' ? 'Then switch sides' : it.after > MOVE + 5 ? 'Then rest ' + it.after + ' s' : 'Then move straight to the next exercise') : 'Last set of the session';
     if (P.stage === 'work' && it.kind === 'reps') after = 'Tap “Set done” if you hit your limit early. ' + after;
@@ -1917,28 +2334,53 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
   $('pPause').addEventListener('click', function () { if (!P) return; P.paused = !P.paused; P.pt = performance.now(); paint(); });
   $('pSkip').addEventListener('click', function () { if (P && P.stage !== 'done') advance(); });
   $('pMore').addEventListener('click', function () { if (P && (P.stage === 'rest' || P.stage === 'switch')) { P.dur += 15; } });
-  $('pPrev').addEventListener('click', function () { if (!P || P.stage === 'done') return; if (P.stage === 'ready' && P.i > 0) P.i--; enter('ready'); });
-  $('pClose').addEventListener('click', closePlayer);
+  // Previous: during a rest, redo the set you just did; otherwise go back one set.
+  $('pPrev').addEventListener('click', function () {
+    if (!P || P.stage === 'done') return;
+    if (P.stage === 'rest' || P.stage === 'switch') { unlog(P.q[P.i]); return enter('ready'); }
+    if (P.i > 0) { P.i--; unlog(P.q[P.i]); }
+    enter('ready');
+  });
+  function wtStep(d) {
+    if (!P) return; var nxt = P.q[P.i + 1], it = (P.stage === 'rest' && nxt) ? nxt : P.q[P.i]; if (!it || it.kind === 'cardio') return;
+    var step = EQ_STEP[it.ex.eq] || 2, v = parseFloat($('pWt').value); v = isNaN(v) ? 0 : v; v = Math.max(0, Math.round((v + d * step) * 10) / 10);
+    $('pWt').value = v; setWt(it.id, it.ex, it.wk, v);
+  }
+  $('pWtMinus').addEventListener('click', function () { wtStep(-1); });
+  $('pWtPlus').addEventListener('click', function () { wtStep(1); });
+  $('pWt').addEventListener('input', function () {
+    if (!P) return; var nxt = P.q[P.i + 1], it = (P.stage === 'rest' && nxt) ? nxt : P.q[P.i]; if (!it || it.kind === 'cardio') return;
+    var v = parseFloat(this.value); setWt(it.id, it.ex, it.wk, isNaN(v) ? null : v);
+  });
+  function logAdj(d) {
+    if (!P) return; var it = P.q[P.i]; if (!it || !it.logged) return;
+    it.logged.v = Math.max(1, it.logged.v + d * (it.logged.k === 'h' ? 5 : 1)); save(); paint();
+  }
+  $('pLogMinus').addEventListener('click', function () { logAdj(-1); });
+  $('pLogPlus').addEventListener('click', function () { logAdj(1); });
+  $('pEndYes').addEventListener('click', function () { closePlayer(); });
+  $('pEndNo').addEventListener('click', function () { $('pConfirm').hidden = true; if (P && !P.wasPaused) { P.paused = false; P.pt = performance.now(); paint(); } });
+  $('pClose').addEventListener('click', function () { if (P && P.stage !== 'done') askEnd(); else closePlayer(); });
   document.addEventListener('visibilitychange', function () {
     if (!document.hidden && P && P.stage !== 'done') keepAwake();
     if (document.hidden && P && P.stage !== 'done' && !P.paused) { P.paused = true; P.pt = performance.now(); paint(); }
   });
   document.addEventListener('keydown', function (e) {
     if (!P) return;
-    if (e.key === 'Escape') closePlayer();
+    if (e.key === 'Escape') { if (!$('pConfirm').hidden) $('pEndNo').click(); else if (P.stage === 'done') closePlayer(); else askEnd(); }
     else if (e.key === ' ' && e.target.tagName !== 'BUTTON') { e.preventDefault(); $('pPause').click(); }
   });
 
   function b64enc(t) { return btoa(unescape(encodeURIComponent(t))); }
   function b64dec(t) { return decodeURIComponent(escape(atob(t))); }
-  function backupCode() { return 'ISOHOLD1:' + b64enc(JSON.stringify({ week: store.week, done: store.done, tests: store.tests })); }
+  function backupCode() { return 'ISOHOLD1:' + b64enc(JSON.stringify({ week: store.week, done: store.done, tests: store.tests, wt: store.wt, eq: store.eq, log: store.log.map(function (l) { return [l.t, l.w, l.id, l.eq, l.k, l.kg, l.v]; }) })); }
   function refreshBackup() { $('bkOut').value = backupCode(); }
   function parseCode(raw) {
     var m = String(raw || '').match(/ISOHOLD1:\s*([A-Za-z0-9+/=]+)/);
     if (!m) throw new Error('That does not look like an Isohold code. It should start with ISOHOLD1:');
     var o; try { o = JSON.parse(b64dec(m[1])); } catch (e) { throw new Error('The code is incomplete or damaged. Copy the whole code and try again.'); }
     if (!o || typeof o !== 'object' || !(o.week >= 1 && o.week <= 12) || typeof o.done !== 'object' || typeof o.tests !== 'object') throw new Error('The code is incomplete or damaged. Copy the whole code and try again.');
-    return { week: Math.round(o.week), done: o.done || {}, tests: o.tests || {} };
+    return { week: Math.round(o.week), done: o.done || {}, tests: o.tests || {}, wt: o.wt || {}, eq: o.eq && o.eq.length ? o.eq : null, log: (o.log || []).map(function (l) { return { t: l[0], w: l[1], id: l[2], eq: l[3], k: l[4], kg: l[5], v: l[6] }; }).filter(function (l) { return BY[l.id]; }) };
   }
   function countDone(d) { var n = Object.keys(d).filter(function (k) { return d[k]; }).length; return n + (n === 1 ? ' session' : ' sessions'); }
   var pending = null;
@@ -1962,7 +2404,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
   $('bkNo').addEventListener('click', function () { pending = null; $('bkConfirm').hidden = true; msg('bkMsg', 'Restore cancelled.', ''); });
   $('bkYes').addEventListener('click', function () {
     if (!pending) return;
-    store.week = pending.week; store.done = pending.done; store.tests = pending.tests; pending = null;
+    store.week = pending.week; store.done = pending.done; store.tests = pending.tests; store.wt = pending.wt; store.log = pending.log; if (pending.eq) store.eq = pending.eq; pending = null; selDay = nextDayIdx();
     save(); renderAll(); renderProgress(); refreshBackup();
     $('bkConfirm').hidden = true; $('bkIn').value = '';
     msg('bkMsg', 'Progress restored.', 'ok');
