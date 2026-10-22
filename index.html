@@ -429,6 +429,29 @@ svg .val { fill: var(--ink); font: 700 11.5px var(--f-body); }
 .lib-list .row[data-addid] { grid-template-columns: 64px minmax(0, 1fr) 20px; }
 .skipex { justify-self: start; min-height: 36px; padding: 4px 0; font-size: 15px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
 
+/* strength map */
+svg.body { width: 100%; max-width: 420px; height: auto; display: block; margin: 0 auto; }
+svg.body .mu { cursor: pointer; transition: opacity .15s; }
+svg.body .mu:hover { opacity: .8; }
+.mdet { background: var(--bg); border-radius: var(--r-md); padding: 12px 14px; display: grid; gap: 10px; }
+.mdet > b { font-family: var(--f-display); font-weight: 800; font-size: 24px; line-height: 1; }
+.mrow { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; }
+.mk-l { font-weight: 700; font-size: 15px; }
+.mv { font-family: var(--f-display); font-weight: 800; font-size: 24px; line-height: 1; color: var(--ok); text-align: right; }
+.ms { grid-column: 1 / -1; font-size: 14px; color: var(--muted); }
+.ms .up { color: var(--ok); } .ms .down { color: var(--hold); }
+.mlist { display: grid; gap: 10px; }
+.mgrp { display: grid; }
+.mg-t { font-size: 13px; font-weight: 700; color: var(--muted); padding: 4px 0; }
+.mli { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; border: 0; border-top: 1px solid var(--line); background: none; padding: 9px 0; min-height: 44px; text-align: left; font-size: 15px; }
+.mli span:first-child { font-weight: 700; }
+.mli-v { color: var(--ink); font-variant-numeric: tabular-nums; text-align: right; }
+.mli-v i { color: var(--muted); font-style: normal; }
+.mli.on span:first-child { color: var(--ok); }
+details.how summary { font-weight: 700; color: var(--rep); min-height: 44px; display: flex; align-items: center; cursor: pointer; list-style: none; }
+details.how summary::-webkit-details-marker { display: none; }
+details.how .gbody { display: grid; gap: 10px; font-size: 15px; }
+
 @keyframes pulse { 0%, 100% { opacity: .55 } 50% { opacity: 1 } }
 .holding [data-glow] { animation: pulse 1.2s ease-in-out infinite; }
 
@@ -468,6 +491,7 @@ svg .val { fill: var(--ink); font: 700 11.5px var(--f-body); }
   <section class="view" id="progress" aria-labelledby="tab-progress" hidden>
     <div class="view-head"><h1>Progress</h1></div>
     <div class="card" id="allCard"></div>
+    <div class="card" id="mapCard"></div>
     <div class="card" id="strCard"></div>
     <div class="card">
       <h2>Max-hold test</h2>
@@ -1411,6 +1435,8 @@ var REFS = {
   mcgill2009stab: { a: 'McGill & Karpowicz, 2009', j: 'Arch Phys Med Rehabil', t: 'Exercises for spine stabilization: motion/motor patterns, stability progressions, and clinical technique', k: 'The bird dog and plank train the trunk muscles while keeping spine load low.', u: 'https://pubmed.ncbi.nlm.nih.gov/19154838/' },
   mcgill2012: { a: 'McGill & Marshall, 2012', j: 'J Strength Cond Res', t: 'Kettlebell swing, snatch, and bottoms-up carry: back and hip muscle activation, motion, and low back loads', k: 'The swing gives high glute and back-extensor activation with a fast hip snap.', u: 'https://pubmed.ncbi.nlm.nih.gov/21997449/' },
   hubscher2010: { a: 'Hübscher et al., 2010', j: 'Med Sci Sports Exerc', t: 'Neuromuscular training for sports injury prevention: a systematic review', k: 'Balance training reduces ankle sprains, especially in people who have sprained an ankle before.', u: 'https://pubmed.ncbi.nlm.nih.gov/19952811/' },
+  freylaw2010: { a: 'Frey-Law & Avin, 2010', j: 'Ergonomics', t: 'Endurance time is joint-specific: a modelling and meta-analysis investigation', k: 'Pooled hold-to-failure studies into one equation per joint linking how long you can hold to what share of your maximum the load is. Used for the strength map.', u: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC2891087/' },
+  reynolds2006: { a: 'Reynolds, Gordon & Robergs, 2006', j: 'J Strength Cond Res', t: 'Prediction of one repetition maximum strength from multiple repetition maximum testing and anthropometry', k: 'Rep-based one-rep-max estimates are most accurate from sets of about 5 reps and should use no more than 10. Used for the strength map.', u: 'https://www.unm.edu/~rrobergs/478RMStrengthPrediction.pdf' },
   stasinopoulos2023: { a: 'Stasinopoulos, 2023', j: 'J Clin Med', t: 'Isometric exercise for the management of lateral elbow tendinopathy', k: 'Evidence for wrist holds alone in tennis elbow is mixed and low certainty; they fit best inside a progressive loading program.', u: 'https://www.mdpi.com/2077-0383/12/1/94' }
 };
 // Evidence per exercise: r = how strong the support is, s = what it supports, refs = papers.
@@ -1904,7 +1930,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     var td = totalDone(), n = weekDone(store.week);
     $('allCard').innerHTML = '<h2>Program</h2><div class="wkprog"><span class="big num">' + Math.round(td / 72 * 100) + '<small>%</small></span><p class="muted">' + td + ' of 72 sessions done. You’re on week ' + store.week + ' with ' + n + ' of 12 sessions done this week.</p></div>' +
       '<div class="ov-bar big" aria-hidden="true"><i style="width:' + (td / 72 * 100).toFixed(1) + '%"></i></div>' + weekChart();
-    renderStrength(); renderCov(); renderTests();
+    renderMap(); renderStrength(); renderCov(); renderTests();
   }
   function weekChart() {
     var W = 336, H = 150, L = 22, B = 22, T = 14, bw = (W - L) / 12, s = '<svg class="wchart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Sessions done each week">';
@@ -1920,10 +1946,10 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
   function renderStrength() {
     var logged = {}; store.log.forEach(function (l) { logged[l.id] = 1; });
     var ids = EX.map(function (e) { return e.id; }).filter(function (id) { return logged[id]; });
-    if (!ids.length) { $('strCard').innerHTML = '<h2>Strength</h2><p>Enter your weight in the timer or on an exercise. After your first session, this chart shows how much you lift and for how long or how many reps.</p>'; return; }
+    if (!ids.length) { $('strCard').innerHTML = '<h2>Exercise history</h2><p>Enter your weight in the timer or on an exercise. After your first session, this chart shows how much you lift and for how long or how many reps.</p>'; return; }
     if (!strSel || ids.indexOf(strSel) < 0) { var last = store.log[store.log.length - 1]; strSel = last ? last.id : ids[0]; if (last) strKind = last.k; }
     var rows = store.log.filter(function (l) { return l.id === strSel && l.k === strKind; });
-    var h = '<h2>Strength</h2><select id="strSel" aria-label="Exercise">' + ids.map(function (id) { return '<option value="' + id + '"' + (id === strSel ? ' selected' : '') + '>' + esc(baseName(BY[id].name)) + '</option>'; }).join('') + '</select>' +
+    var h = '<h2>Exercise history</h2><select id="strSel" aria-label="Exercise">' + ids.map(function (id) { return '<option value="' + id + '"' + (id === strSel ? ' selected' : '') + '>' + esc(baseName(BY[id].name)) + '</option>'; }).join('') + '</select>' +
       '<div class="seg"><button class="h" data-k="h" aria-selected="' + (strKind === 'h') + '">Hold</button><button class="r" data-k="r" aria-selected="' + (strKind === 'r') + '">Reps</button></div>';
     if (!rows.length) h += '<p class="muted">No ' + (strKind === 'h' ? 'holds' : 'rep sets') + ' logged for this exercise yet.</p>';
     else {
@@ -1996,6 +2022,129 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     store.tests[i.dataset.t] = store.tests[i.dataset.t] || {}; store.tests[i.dataset.t][i.dataset.k] = i.value; save(); delta(i.dataset.t);
   });
   function renderAll() { renderTrain(); if (current === 'progress') renderProgress(); if (libBuilt && current === 'exercises') ensureLib(); }
+
+  // ---------- strength map: estimated max per muscle ----------
+  // Hold endurance time vs intensity: ET = b0 * f^b1 (Frey-Law & Avin 2010), f = fraction of max.
+  var ET = { shoulder: [14.86, -1.83], elbow: [17.98, -2.21], grip: [33.55, -1.61], trunk: [22.69, -2.27], knee: [19.38, -1.88], ankle: [34.71, -2.06], general: [21.92, -1.98] };
+  var JOINT = {
+    'front-raise': 'shoulder', 'lateral-raise': 'shoulder', 'rear-fly': 'shoulder', 'overhead-hold': 'shoulder', 'ext-rot': 'shoulder', 'prone-y': 'shoulder', 'shrug': 'shoulder',
+    'oh-triceps': 'elbow', 'kickback': 'elbow', 'floor-press': 'elbow', 'curl': 'elbow', 'hammer': 'elbow',
+    'farmer': 'grip', 'pinch': 'grip', 'wrist': 'grip',
+    'hollow': 'trunk', 'plank-db': 'trunk', 'dead-bug': 'trunk', 'crunch': 'trunk', 'bird-dog': 'trunk', 'suitcase': 'trunk',
+    'goblet-squat': 'knee', 'wall-sit': 'knee', 'split-squat': 'knee', 'sl-balance': 'knee',
+    'calf-raise': 'ankle', 'seated-calf': 'ankle', 'tib-hold': 'ankle'
+  };
+  var ACT = {
+    'front-raise': 'raise', 'lateral-raise': 'raise', 'overhead-hold': 'push', 'oh-triceps': 'push', 'kickback': 'push', 'floor-press': 'push', 'plank-db': 'push',
+    'goblet-squat': 'push', 'wall-sit': 'push', 'split-squat': 'push', 'calf-raise': 'push', 'seated-calf': 'push', 'glute-bridge': 'push', 'ham-bridge': 'push',
+    'rear-fly': 'pull', 'ext-rot': 'pull', 'prone-y': 'pull', 'sa-row': 'pull', 'bo-row': 'pull', 'curl': 'pull', 'hammer': 'pull', 'rdl': 'pull', 'sl-rdl': 'pull', 'shrug': 'pull', 'tib-hold': 'pull'
+  };
+  function holdMax(l) {
+    var c = ET[JOINT[l.id] || 'general'], f = Math.pow(l.v / c[0], 1 / c[1]);
+    f = Math.min(1, Math.max(0.1, f));
+    return { est: l.kg / f, pct: Math.round(f * 100) };
+  }
+  function repMax(l) {
+    var ph = phaseOf(l.w || 1), target = repsFor(G[l.id], ph), early = l.v < target, rir = early ? 0 : ph.rir, rtf = Math.min(20, l.v + rir);
+    var epley = l.kg * (1 + rtf / 30), brz = rtf < 37 ? l.kg * 36 / (37 - rtf) : epley;
+    return { est: rtf <= 10 ? (epley + brz) / 2 : epley, rtf: rtf, rir: rir, rough: rtf > 10 };
+  }
+  function unitNote(id, eq, kind) {
+    var o = parseEq(EQV[id][kind === 'h' ? 'h' : 'g']).filter(function (x) { return x.eq === eq; })[0] || { eq: eq, style: '' };
+    if (eq === 'w') return '';
+    var lab = wLabel(V(id, kind === 'h' ? 'h' : 'g', o));
+    return { 'Weight of each kettlebell': 'per kettlebell', 'Weight of each dumbbell': 'per dumbbell', 'Kettlebell weight': 'one kettlebell', 'Dumbbell weight': 'one dumbbell', 'Barbell total (bar + plates)': 'barbell total', 'Plate weight': 'plate' }[lab] || '';
+  }
+  function strengthData() {
+    var m = {};
+    store.log.forEach(function (l) {
+      if (!l.kg || !BY[l.id]) return;
+      var isH = l.k === 'h', r = isH ? holdMax(l) : repMax(l), tags = (isH ? BY[l.id] : G[l.id]).tags;
+      tags.forEach(function (tag, ti) {
+        var e = m[tag] || (m[tag] = { h: null, r: null, first: {}, n: 0 }), slot = isH ? 'h' : 'r', cur = e[slot];
+        var rank = ti; // primary muscle of an exercise counts first
+        e.n++;
+        if (!e.first[slot] || l.t < e.first[slot].t) e.first[slot] = { t: l.t, est: r.est, id: l.id };
+        if (!cur || rank < cur.rank || (rank === cur.rank && r.est > cur.est)) e[slot] = { est: r.est, l: l, r: r, rank: rank };
+      });
+    });
+    return m;
+  }
+  // body outline + muscle zones, drawn from simple shapes (front and back views)
+  var ZONES = {
+    f: [['Traps', 'e', 15, 41, 8, 3.6, -28], ['Front delts', 'e', 30, 52, 7.5, 8.5, 0], ['Side delts', 'e', 38.5, 55, 4.5, 9, 0], ['Biceps', 'e', 36.5, 78, 5.8, 14, -8], ['Forearms', 'e', 41.5, 118, 5, 15, -6], ['Grip', 'c', 45, 148, 6],
+      ['Upper abs', 'r', 52, 66, 16, 13], ['Mid abs', 'r', 52, 82, 16, 13], ['Lower abs', 'r', 52, 98, 16, 15], ['Quads', 'e', 12.5, 170, 8.5, 24, 0], ['Knees', 'c', 13, 202, 5.8], ['Ankles', 'c', 13, 252, 5]],
+    b: [['Traps', 'p'], ['Rear delts', 'e', 30.5, 53, 7.5, 8, 0], ['Upper back', 'e', 18, 62, 8, 7, 0], ['Triceps', 'e', 36.5, 78, 5.8, 14, -8], ['Lats', 'e', 22, 90, 7.5, 17, 8], ['Mid back', 'r', 52, 76, 16, 16], ['Lower back', 'r', 52, 98, 16, 18],
+      ['Forearms', 'e', 41.5, 118, 5, 15, -6], ['Grip', 'c', 45, 148, 6], ['Glutes', 'e', 12, 140, 11, 10, 0], ['Hamstrings', 'e', 12.5, 173, 8.5, 22, 0], ['Calves', 'e', 13, 224, 7, 16, 0], ['Ankles', 'c', 13, 252, 5]]
+  };
+  function bodySvg(view, data, sel, ox) {
+    var s = '<g transform="translate(' + ox + ',0)">';
+    // silhouette
+    var lim = 'stroke="var(--sunk)" stroke-linecap="round" fill="none"';
+    s += '<circle cx="60" cy="20" r="12.5" fill="var(--sunk)"/><rect x="55" y="30" width="10" height="10" fill="var(--sunk)"/>';
+    s += '<path d="M28 44 Q60 36 92 44 L86 120 L88 142 L32 142 L34 120 Z" fill="var(--sunk)"/>';
+    [-1, 1].forEach(function (sd) {
+      var x = function (d) { return 60 + sd * d; };
+      s += '<line x1="' + x(33) + '" y1="50" x2="' + x(40) + '" y2="98" stroke-width="14" ' + lim + '/><line x1="' + x(40) + '" y1="98" x2="' + x(44) + '" y2="140" stroke-width="11" ' + lim + '/>';
+      s += '<line x1="' + x(12) + '" y1="146" x2="' + x(13) + '" y2="200" stroke-width="20" ' + lim + '/><line x1="' + x(13) + '" y1="200" x2="' + x(13) + '" y2="250" stroke-width="13" ' + lim + '/><line x1="' + x(13) + '" y1="256" x2="' + x(view === 'f' ? 22 : 20) + '" y2="258" stroke-width="7" ' + lim + '/>';
+    });
+    ZONES[view].forEach(function (z) {
+      var name = z[0], has = data[name] && (data[name].h || data[name].r), on = sel === name;
+      var fill = has ? 'var(--ok)' : 'var(--line)', st = on ? ' stroke="var(--ink)" stroke-width="2.2"' : ' stroke="var(--surface)" stroke-width="1"';
+      var attrs = ' data-mu="' + name + '" fill="' + fill + '"' + st + ' class="mu' + (has ? ' has' : '') + '"';
+      var shp = '';
+      if (z[1] === 'p') shp = '<path d="M60 36 L75 48 L60 72 L45 48 Z"' + attrs + '/>';
+      else if (z[1] === 'r') shp = '<rect x="' + z[2] + '" y="' + z[3] + '" width="' + z[4] + '" height="' + z[5] + '" rx="3"' + attrs + '/>';
+      else [-1, 1].forEach(function (sd) {
+        var cx = 60 + sd * z[2];
+        if (z[1] === 'c') shp += '<circle cx="' + cx + '" cy="' + z[3] + '" r="' + z[4] + '"' + attrs + '/>';
+        else shp += '<ellipse cx="' + cx + '" cy="' + z[3] + '" rx="' + z[4] + '" ry="' + z[5] + '" transform="rotate(' + (sd * z[6]) + ' ' + cx + ' ' + z[3] + ')"' + attrs + '/>';
+      });
+      s += '<g><title>' + name + '</title>' + shp + '</g>';
+    });
+    return s + '<text x="60" y="276" text-anchor="middle" class="ax">' + (view === 'f' ? 'Front' : 'Back') + '</text></g>';
+  }
+  var mapSel = null;
+  var VERB = { push: 'push', pull: 'pull', raise: 'raise', hold: 'hold' };
+  function fmtKg(v) { return v >= 20 ? Math.round(v) : Math.round(v * 2) / 2; }
+  function muscleDetail(name, e) {
+    if (!e || (!e.h && !e.r)) return '<div class="mdet"><b>' + name + '</b><p class="muted">No weighted sets logged yet for an exercise that works this muscle. Do a session with a weight entered and it will appear here.</p></div>';
+    var out = '<div class="mdet"><b>' + name + '</b>';
+    if (e.h) {
+      var l = e.h.l, v = ACT[l.id] || 'hold', un = unitNote(l.id, l.eq, 'h'), tr = e.first.h && e.first.h.t < l.t ? Math.round((e.h.est - e.first.h.est) / e.first.h.est * 100) : null;
+      out += '<div class="mrow"><span class="mk-l">Max ' + VERB[v] + ' (isometric)</span><span class="mv">at least ' + fmtKg(e.h.est) + ' kg</span><span class="ms">' + esc(baseName(BY[l.id].name)) + ': you held ' + l.kg + ' kg' + (un ? ' (' + un + ')' : '') + ' for ' + l.v + ' s, about ' + e.h.r.pct + '% of your max.' + (tr != null && tr !== 0 ? ' <b class="' + (tr > 0 ? 'up' : 'down') + '">' + (tr > 0 ? '+' : '') + tr + '% since first log</b>' : '') + '</span></div>';
+    }
+    if (e.r) {
+      var l2 = e.r.l, v2 = ACT[l2.id] || 'lift', un2 = unitNote(l2.id, l2.eq, 'r');
+      out += '<div class="mrow"><span class="mk-l">Max ' + (v2 === 'hold' ? 'lift' : VERB[v2]) + ', one rep</span><span class="mv">about ' + fmtKg(e.r.est) + ' kg</span><span class="ms">' + esc(baseName(G[l2.id].name)) + ': ' + l2.kg + ' kg' + (un2 ? ' (' + un2 + ')' : '') + ' for ' + l2.v + ' reps' + (e.r.r.rir ? ' with about ' + e.r.r.rir + ' in reserve' : ' to your limit') + '.' + (e.r.r.rough ? ' Rough estimate: based on more than 10 reps.' : '') + '</span></div>';
+    }
+    return out + '</div>';
+  }
+  function renderMap() {
+    var data = strengthData(), names = Object.keys(data).filter(function (k) { return data[k].h || data[k].r; });
+    if (!mapSel || !data[mapSel]) mapSel = names[0] || null;
+    var h = '<h2>Strength map</h2><p>Your estimated maximum for each muscle group, from the sets you’ve logged with a weight. Tap a muscle.</p>' +
+      '<svg class="body" viewBox="0 0 250 282" role="img" aria-label="Body map of muscles with strength data">' + bodySvg('f', data, mapSel, 0) + bodySvg('b', data, mapSel, 130) + '</svg>' +
+      '<div class="legend"><span><i class="mk" style="background:var(--ok);border-radius:3px"></i>Has data</span><span><i class="mk" style="background:var(--line);border-radius:3px"></i>No weighted sets yet</span></div>' +
+      '<div id="mapDet">' + (mapSel ? muscleDetail(mapSel, data[mapSel]) : '<p class="muted">Log a session with your weights entered and the muscles you trained will fill in.</p>') + '</div>';
+    h += '<div class="mlist">' + GROUPS.map(function (g) {
+      return '<div class="mgrp"><span class="mg-t">' + g[0] + '</span>' + g[1].map(function (n) {
+        var e = data[n], hv = e && e.h ? 'hold ≥ ' + fmtKg(e.h.est) + ' kg' : '', rv = e && e.r ? '1 rep ≈ ' + fmtKg(e.r.est) + ' kg' : '';
+        return '<button class="mli' + (n === mapSel ? ' on' : '') + '" data-mu="' + n + '"><span>' + n + '</span><span class="mli-v">' + ([hv, rv].filter(Boolean).join(', ') || '<i>no data</i>') + '</span></button>';
+      }).join('') + '</div>';
+    }).join('') + '</div>' +
+      '<details class="how"><summary>How this is calculated</summary><div class="gbody">' +
+      '<p><b>Holds.</b> The longer you can hold a weight, the smaller the share of your maximum it is. A meta-analysis of hold-to-failure studies gives that relationship for each joint (for example, at the shoulder a 30-second hold is about 68% of max). Dividing your hold weight by that share gives your maximum. Your holds stop before failure, so this is a minimum: shown as “at least”.</p>' +
+      '<p><b>Reps.</b> The one-rep maximum comes from the standard Epley and Brzycki formulas, using your reps plus the reps you had left in reserve that week (from the phase target; if you ended a set early, it counts as reaching your limit). Estimates from more than 10 reps are less accurate.</p>' +
+      '<p><b>What the number means.</b> It is the external weight for that exercise and position, per dumbbell or kettlebell if you hold one in each hand, or the barbell total. Each muscle shows the exercise that targets it most directly. Numbers for different muscles come from different exercises, so compare a muscle with itself over time rather than with other muscles.</p>' +
+      '<ul class="refs">' + ['freylaw2010', 'reynolds2006'].map(function (k) { var r = REFS[k]; return '<li><a href="' + r.u + '" target="_blank" rel="noopener">' + esc(r.t) + '</a><span>' + esc(r.a) + ', ' + esc(r.j) + '. ' + esc(r.k) + '</span></li>'; }).join('') + '</ul></div></details>';
+    $('mapCard').innerHTML = h;
+  }
+  $('mapCard').addEventListener('click', function (e) {
+    var t = e.target.closest('[data-mu]'); if (!t) return;
+    mapSel = t.getAttribute('data-mu'); renderMap();
+    var d = $('mapDet'); if (d && t.tagName === 'BUTTON') d.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
+  });
 
   // ---------- coach (Gemini) ----------
   var GEM = 'https://generativelanguage.googleapis.com/v1beta';
