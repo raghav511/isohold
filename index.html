@@ -279,6 +279,11 @@ ol.steps .sf span { width: auto; min-width: 24px; padding: 0 7px; border-radius:
 .bk-confirm p { margin: 0; }
 @media (max-width: 700px) { .bk { grid-template-columns: minmax(0, 1fr); } }
 
+/* skip layout and paint for cards that are off-screen */
+.ex { content-visibility: auto; contain-intrinsic-size: auto 1150px; }
+.day { content-visibility: auto; contain-intrinsic-size: auto 1500px; }
+#program .panel, #method .rule { content-visibility: auto; contain-intrinsic-size: auto 600px; }
+
 @keyframes pulse { 0%, 100% { opacity: .55 } 50% { opacity: 1 } }
 .holding [data-glow] { animation: pulse 1.2s ease-in-out infinite; }
 
@@ -667,6 +672,7 @@ var FIG = (function () {
   // Prepare an exercise: resolve steps, pick anchor, compute viewBox
   function prep(ex) {
     var R_ = ex.steps.map(function (st) { return resolve(st.p); });
+    if (ex.pre) { ex._r = R_; ex._anchor = ex.pre[0]; ex._vb = ex.pre[1]; return ex; }
     var fin = R_[R_.length - 1];
     var anchor = 'H';
     if (fin.v === 's') {
@@ -1129,8 +1135,12 @@ var CARDIO_DAYS = [
     pm: function () { return [['walk', 1800, 'Zone 2', 'Easy-to-brisk walk, 4.5–5.5 km/h']]; } }
 ];
 
+var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"rear-fly":["H",[-96.8,-135.2,193.6,145.2]],"overhead-hold":["An",[-130.6,-208,290.6,218]],"bottoms-up":["An",[-110.4,-180,253.3,190]],"oh-triceps":["An",[-150.4,-207.7,290.3,217.7]],"kickback":["An",[-69.1,-122.6,176.8,132.6]],"hollow":["H",[-130,-161.8,229.1,171.8]],"plank-db":["An",[-33,-124,178.7,134]],"goblet-squat":["An",[-115.9,-161.9,229.2,171.9]],"wall-sit":["An",[-122.1,-152,215.9,162]],"split-squat":["An",[-151.4,-160.2,227,170.2]],"glute-bridge":["H",[-84.5,-109.1,158.8,119.1]],"calf-raise":["An",[-115.1,-168.6,238.2,178.6]],"seated-calf":["H",[-64.7,-124,178.7,134]],"tib-hold":["H",[-61.3,-124,178.7,134]],"dead-bug":["H",[-84,-124.9,179.9,134.9]],"shrug":["H",[-114.6,-161.9,229.2,171.9]],"prone-y":["H",[-108,-168,237.4,178]],"pullover":["H",[-129.1,-142.3,203.1,152.3]],"sa-row":["An",[-82.7,-127.9,183.9,137.9]],"bo-row":["An",[-71.1,-132.1,189.4,142.1]],"curl":["An",[-99.2,-162,229.3,172]],"hammer":["An",[-98.6,-162,229.3,172]],"suitcase":["H",[-114.6,-161.9,229.2,171.9]],"crunch":["H",[-84,-108.5,158,118.5]],"rdl":["An",[-87.6,-161.9,229.2,171.9]],"sl-rdl":["An",[-126.4,-162.4,229.8,172.4]],"ham-bridge":["H",[-84.5,-121.5,175.4,131.5]],"superman":["H",[-108,-168.5,238,178.5]],"farmer":["An",[-105.6,-162,229.3,172]],"pinch":["An",[-97.1,-162,229.3,172]],"wrist":["H",[-60.7,-117.8,170.4,127.8]],"sl-balance":["An",[-92.4,-162,229.3,172]],"g-front-raise":["An",[-86.2,-162,229.3,172]],"g-lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"g-rear-fly":["H",[-96.8,-135.2,193.6,145.2]],"g-overhead-hold":["An",[-131.8,-208,290.6,218]],"g-bottoms-up":["An",[-130.9,-208,290.6,218]],"g-oh-triceps":["An",[-152.1,-207.7,290.3,217.7]],"g-kickback":["An",[-69.1,-122.6,176.8,132.6]],"g-hollow":["H",[-130,-161.1,228.2,171.1]],"g-plank-db":["An",[-22.8,-116.4,168.5,126.4]],"g-goblet-squat":["An",[-116.5,-161.9,229.2,171.9]],"g-wall-sit":["Kn",[-112.1,-126,181.3,136]],"g-split-squat":["An",[-152.8,-160.2,227,170.2]],"g-glute-bridge":["H",[-84.5,-109.7,159.7,119.7]],"g-calf-raise":["An",[-115.1,-168.6,238.2,178.6]],"g-seated-calf":["H",[-64.4,-124,178.7,134]],"g-tib-hold":["H",[-61.3,-124,178.7,134]],"g-dead-bug":["H",[-84,-124.9,179.9,134.9]],"g-shrug":["H",[-114.6,-161.9,229.2,171.9]],"g-prone-y":["H",[-108,-168,237.4,178]],"g-pullover":["H",[-129.1,-142.3,203.1,152.3]],"g-sa-row":["An",[-82.7,-127.9,183.9,137.9]],"g-bo-row":["An",[-71.1,-132.1,189.4,142.1]],"g-curl":["An",[-99,-162,229.3,172]],"g-hammer":["An",[-98.6,-162,229.3,172]],"g-suitcase":["H",[-114.6,-161.9,229.2,171.9]],"g-crunch":["H",[-84,-108.5,158,118.5]],"g-rdl":["An",[-87.6,-161.9,229.2,171.9]],"g-sl-rdl":["An",[-126.2,-162,229.3,172]],"g-ham-bridge":["H",[-84.5,-121.5,175.3,131.5]],"g-superman":["An",[-87.4,-162.2,229.7,172.2]],"g-farmer":["H",[-112.8,-162.5,230,172.5]],"g-pinch":["H",[-112.8,-162.5,230,172.5]],"g-wrist":["H",[-60.7,-117.8,170.4,127.8]],"g-sl-balance":["An",[-127.2,-168.4,237.8,178.4]],"c-walk":["H",[-112.8,-162.5,230,172.5]],"c-row":["Tn",[-129.6,-129.5,186,139.5]]};
+
 (function () {
   var BY = {}, ALL = {}, G = buildGrow(EX);
+  function pre(x) { if (typeof PRE !== 'undefined' && PRE[x.id]) x.pre = PRE[x.id]; return x; }
+  EX.forEach(pre); Object.keys(G).forEach(function (k) { pre(G[k]); }); Object.keys(CARDIO_FIG).forEach(function (k) { pre(CARDIO_FIG[k]); });
   EX.forEach(function (e) { FIG.prep(e); BY[e.id] = e; ALL[e.id] = e; });
   Object.keys(G).forEach(function (k) { FIG.prep(G[k]); ALL[G[k].id] = G[k]; });
   Object.keys(CARDIO_FIG).forEach(function (k) { FIG.prep(CARDIO_FIG[k]); ALL[CARDIO_FIG[k].id] = CARDIO_FIG[k]; });
@@ -1158,7 +1168,7 @@ var CARDIO_DAYS = [
     TABS.forEach(function (t) { $(t).hidden = t !== id; $('tab-' + t).setAttribute('aria-selected', String(t === id)); });
     try { history.replaceState(null, '', '#' + id); } catch (e) { }
     if (!keepScroll) window.scrollTo(0, 0);
-    if (id === 'exercises') observeAll();
+    if (id === 'exercises') { ensureLib(); observeAll(); }
   }
   TABS.forEach(function (t) { $('tab-' + t).addEventListener('click', function () { show(t); }); });
 
@@ -1350,7 +1360,10 @@ var CARDIO_DAYS = [
     var b = e.target.closest('button'); if (!b) return;
     filter = b.dataset.f; renderChips(); applyFilter();
   });
+  var libBuilt = false;
+  function ensureLib() { if (libBuilt) return; libBuilt = true; renderLib(); applyFilter(); }
   function applyFilter() {
+    if (!libBuilt) return;
     var n = 0;
     EX.forEach(function (ex) { var on = filter === 'All' || has(ex, filter) || has(G[ex.id], filter); $('ex-' + ex.id).hidden = !on; if (on) n++; });
     $('count').textContent = n + ' hold + rep pair' + (n === 1 ? '' : 's') + (filter === 'All' ? '' : ' for ' + filter.toLowerCase());
@@ -1388,7 +1401,7 @@ var CARDIO_DAYS = [
     document.querySelectorAll('[data-rx-g]').forEach(function (el) { var g = G[el.dataset.rxG]; el.textContent = 'Week ' + store.week + ': ' + grx(g, ph) + (g.mode === 'time' ? '' : ' · ' + rirTxt(ph).toLowerCase()); });
   }
   function jumpTo(id, toGrow) {
-    filter = 'All'; renderChips(); applyFilter(); show('exercises');
+    filter = 'All'; renderChips(); ensureLib(); applyFilter(); show('exercises');
     var el = $(toGrow ? 'g-' + id : 'ex-' + id); if (el) setTimeout(function () { el.scrollIntoView({ block: 'start' }); }, 30);
   }
 
@@ -1658,8 +1671,10 @@ var CARDIO_DAYS = [
   var _save = save;
   save = function () { _save(); try { refreshBackup(); } catch (e) { } };
 
-  renderChips(); renderLib(); applyFilter(); renderProgram(); renderTests();
-  refreshBackup();
+  // Paint the top of the page first, then fill in the day cards just after.
+  renderChips(); renderWeeks(); renderPlate(); refreshBackup();
+  var later = function () { renderDays(); renderCov(); renderTests(); window.__isoholdReady = performance.now(); };
+  if (window.requestAnimationFrame) requestAnimationFrame(function () { setTimeout(later, 0); }); else setTimeout(later, 0);
   var h = (location.hash || '').slice(1);
   if (TABS.indexOf(h) > -1) show(h, true);
   requestAnimationFrame(frame);
