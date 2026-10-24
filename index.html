@@ -242,7 +242,11 @@ table.cov thead th { font-size: 12px; color: var(--muted); font-weight: 700; }
 table.cov td.c, table.cov th.c { text-align: center; }
 table.cov .grp { font-weight: 700; color: var(--muted); padding-top: 14px; }
 table.cov td small { color: var(--muted); }
-.mks { display: inline-flex; gap: 2px; }
+.mks { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 2px; max-width: 46px; vertical-align: middle; }
+table.cov { table-layout: fixed; }
+table.cov th:first-child { width: 30%; }
+table.cov th:last-child { width: 13%; }
+table.cov td, table.cov th { padding-left: 3px; padding-right: 3px; }
 .mk { display: inline-block; width: 8px; height: 8px; }
 .mk.h { border-radius: 50%; background: var(--hold); } .mk.r { border-radius: 2px; background: var(--rep); }
 .legend { display: flex; gap: 14px; font-size: 13px; color: var(--muted); }
@@ -274,7 +278,7 @@ table.cov td small { color: var(--muted); }
 .p-head .t { text-align: center; display: grid; }
 .p-head .t b { font-weight: 700; font-size: 15px; }
 .p-head .t span { font-size: 13px; color: var(--muted); font-weight: 700; }
-.p-main { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; align-content: start; overflow: auto; max-width: 900px; width: 100%; margin: 0 auto; padding-bottom: 8px; }
+.p-main { display: grid; grid-template-columns: minmax(0, 1fr); grid-auto-rows: max-content; gap: 14px; align-content: start; overflow: auto; max-width: 900px; width: 100%; margin: 0 auto; padding-bottom: 8px; }
 .p-fig { background: var(--fig-bg); border-radius: var(--r-lg); overflow: hidden; position: relative; }
 .p-fig svg { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; max-height: 34vh; }
 .p-fig .angle { left: auto; right: 10px; }
@@ -344,6 +348,21 @@ table.cov td small { color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { .typing i { animation: none; opacity: .6; } }
 
 /* ---------- additions: progress, equipment, weights, research ---------- */
+.eqdd { background: var(--surface); border-radius: 14px; }
+.eqdd summary { list-style: none; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 6px 14px; cursor: pointer; }
+.eqdd summary::-webkit-details-marker { display: none; }
+.eqdd summary .eqdd-l { color: var(--muted); font-size: 14px; }
+.eqdd summary b { flex: 1; min-width: 0; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.eqdd summary .gc { width: 18px; height: 18px; transition: transform .15s; flex: none; }
+.eqdd[open] summary .gc { transform: rotate(90deg); }
+.eqdd-m { display: grid; gap: 2px; padding: 0 8px 10px; }
+.eqdd-m label { display: flex; align-items: center; gap: 12px; min-height: 46px; padding: 0 8px; border-radius: 10px; font-weight: 700; cursor: pointer; }
+.eqdd-m label:has(input:checked) { background: var(--sunk); }
+.eqdd-m input { width: 22px; height: 22px; margin: 0; accent-color: var(--ink); flex: none; }
+.eqdd-m .eqi { display: inline-flex; width: 28px; justify-content: center; }
+.eqdd-m .eqi svg { width: 26px; height: 26px; }
+.eqdd-m p { margin: 4px 8px 0; font-size: 13.5px; color: var(--muted); }
+.eqdd-m p.err { color: var(--hold); font-weight: 700; }
 .overall { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; font-size: 14px; }
 .overall .ov-t { display: flex; gap: 6px; align-items: baseline; font-weight: 700; color: var(--muted); }
 .overall .ov-t b { color: var(--ink); }
@@ -482,12 +501,14 @@ details.how .gbody { display: grid; gap: 10px; font-size: 15px; }
     <div class="band" id="band"></div>
     <div class="overall" id="overall"></div>
     <div class="strip" id="strip" role="group" aria-label="Day of the week"></div>
+    <div class="eqdd-wrap" id="eqddTrain"></div>
     <div id="sessions" class="view" style="gap:12px"></div>
   </section>
 
   <!-- EXERCISES -->
   <section class="view" id="exercises" aria-labelledby="tab-exercises" hidden>
     <div class="view-head"><h1>Exercises</h1></div>
+    <div class="eqdd-wrap" id="eqddLib"></div>
     <div class="chips" id="chips" role="group" aria-label="Filter by area"></div>
     <div id="lib" class="view" style="gap:14px"></div>
   </section>
@@ -767,6 +788,11 @@ var FIG = (function () {
       var c0 = type === 'dbb' ? hand : add(hand, [0, 1], 11);
       var e1 = add(c0, ax, -11), e2 = add(c0, ax, 11);
       s += seg(e1, e2, 3, col) + seg(add(c0, ax, -12), add(c0, ax, -6), 9, col) + seg(add(c0, ax, 6), add(c0, ax, 12), 9, col);
+    } else if (type === 'kb' && hand[1] + 24 > 0) {
+      // hand near the floor: the bell rests on the floor under the hand instead of hanging through it
+      var cf = [hand[0], -10];
+      s += circ(cf, 9.5, col) + '<rect x="' + (cf[0] - 7).toFixed(1) + '" y="-3" width="14" height="3" rx="1" fill="' + col + '"/>';
+      s += '<path d="M' + (hand[0] - 6).toFixed(1) + ',' + (cf[1] - 6).toFixed(1) + ' Q' + hand[0].toFixed(1) + ',' + (cf[1] - 19).toFixed(1) + ' ' + (hand[0] + 6).toFixed(1) + ',' + (cf[1] - 6).toFixed(1) + '" fill="none" stroke="' + col + '" stroke-width="2.6"/>';
     } else if (type === 'kb') {
       var c = [hand[0], hand[1] + 14];
       s += '<path d="M' + (hand[0] - 6).toFixed(1) + ',' + (hand[1] + 9).toFixed(1) + ' L' + (hand[0] - 6).toFixed(1) + ',' + (hand[1] + 1).toFixed(1) + ' Q' + (hand[0] - 6).toFixed(1) + ',' + (hand[1] - 3).toFixed(1) + ' ' + hand[0].toFixed(1) + ',' + (hand[1] - 3).toFixed(1) + ' Q' + (hand[0] + 6).toFixed(1) + ',' + (hand[1] - 3).toFixed(1) + ' ' + (hand[0] + 6).toFixed(1) + ',' + (hand[1] + 1).toFixed(1) + ' L' + (hand[0] + 6).toFixed(1) + ',' + (hand[1] + 9).toFixed(1) + '" fill="none" stroke="' + col + '" stroke-width="2.6"/>';
@@ -861,7 +887,7 @@ var FIG = (function () {
       return seg([x0, y], [x1, y], 3.2, C.iron) + '<rect x="' + (x0 - 5).toFixed(1) + '" y="' + (y - 13).toFixed(1) + '" width="7" height="26" rx="2" fill="' + C.iron + '"/>' + '<rect x="' + (x1 - 2).toFixed(1) + '" y="' + (y - 13).toFixed(1) + '" width="7" height="26" rx="2" fill="' + C.iron + '"/>';
     }
     if (r.w.bar) s += barAcross(o.Pr, o.Pl);
-    if (r.w.barone) { var P1 = o['P' + r.w.barone]; s += barAcross([P1[0] - 28, P1[1]], [P1[0] + 28, P1[1]]); }
+    if (r.w.barone) { var P1 = o['P' + r.w.barone]; s += weight('bar', P1, o['W' + r.w.barone], true); } // one hand, front view: the bar points at you, so you see its end
     return s;
   }
 
@@ -1341,17 +1367,17 @@ var EQ_LABEL = { k: 'Kettlebell', d: 'Dumbbell', b: 'Barbell', w: 'Bodyweight' }
 var EQ_STEP = { k: 4, d: 2, b: 2.5, w: 0 };
 var EQV = {
   'front-raise': { h: 'd k b:plate', g: 'd k b:plate' },
-  'lateral-raise': { h: 'd k b:plate', g: 'd k b:plate' },
-  'rear-fly': { h: 'd k b:plate', g: 'd k b:plate' },
+  'lateral-raise': { h: 'd k b:plate?', g: 'd k b:plate?' },
+  'rear-fly': { h: 'd k b:plate?', g: 'd k b:plate?' },
   'overhead-hold': { h: 'k d b:bar', g: 'k d b:bar', both: 'b', n: { b: 'Barbell Overhead Hold' }, gn: { b: 'Barbell Overhead Press' } },
-  'ext-rot': { h: 'd k b:plate', g: 'd k b:plate' },
+  'ext-rot': { h: 'd k b:plate?', g: 'd k b:plate?' },
   'oh-triceps': { h: 'k d b:bar', g: 'k d b:bar' },
-  'kickback': { h: 'd k b:plate', g: 'd k b:plate' },
+  'kickback': { h: 'd k b:plate?', g: 'd k b:plate?' },
   'hollow': { h: 'd k b:plate w', g: 'd k b:plate w' },
   'plank-db': { h: 'd k w', g: 'd k w', n: { k: 'High Plank on Kettlebells', w: 'High Plank' }, gn: { w: 'Plank Shoulder Tap' } },
   'goblet-squat': { h: 'k d b:bar', g: 'k d b:bar', n: { b: 'Zercher Squat Hold' }, gn: { b: 'Zercher Squat' } },
   'wall-sit': { h: 'd k b:plate w', g: 'd k b:plate w' },
-  'split-squat': { h: 'd k b:plate w', g: 'd k b:plate w' },
+  'split-squat': { h: 'd k b:plate? w', g: 'd k b:plate? w' },
   'glute-bridge': { h: 'd k b:bar w', g: 'd k b:bar w' },
   'calf-raise': { h: 'd k b:bar w', g: 'd k b:bar w' },
   'seated-calf': { h: 'd k b:bar', g: 'd k b:bar' },
@@ -1369,13 +1395,14 @@ var EQV = {
   'rdl': { h: 'b:bar k d', g: 'b:bar k d' },
   'sl-rdl': { h: 'k d b:bar', g: 'k d b:bar', both: 'b' },
   'ham-bridge': { h: 'd k b:bar w', g: 'd k b:bar w' },
-  'bird-dog': { h: 'd k b:plate w', g: 'k d b:bar', gn: { d: 'Dumbbell Swing', b: 'Barbell Speed RDL' } },
+  'bird-dog': { h: 'd k b:plate? w', g: 'k d b:bar', gn: { d: 'Dumbbell Swing', b: 'Barbell Speed RDL' }, fig: { 'g:b': 'rdl' } },
   'farmer': { h: 'k d b:bar', g: 'k d b:bar', n: { b: 'Deadlift Lockout Hold' }, gn: { b: 'Barbell Hold March' } },
   'pinch': { h: 'd b:plate', g: 'd b:plate', n: { d: 'Dumbbell Pinch Hold', b: 'Plate Pinch Hold' }, gn: { d: 'Dumbbell Pinch Carry', b: 'Plate Pinch Carry' } },
   'wrist': { h: 'd k b:bar', g: 'd k b:bar', both: 'b' },
   'sl-balance': { h: 'k d b:plate w', g: 'k d b:plate w' }
 };
-function parseEq(s) { return s.split(' ').map(function (x) { var p = x.split(':'); return { eq: p[0], style: p[1] || '' }; }); }
+// A trailing '?' marks an awkward version, used only when nothing better is selected.
+function parseEq(s) { return s.split(' ').map(function (x) { var poor = /\?$/.test(x), p = x.replace('?', '').split(':'); return { eq: p[0], style: p[1] || '', poor: poor }; }); }
 function baseName(n) { return n.replace(/\b(Kettlebell|Dumbbell|Barbell|Weighted|Plate)\s+/g, '').replace(/ on Dumbbells$/, ''); }
 function mapW(w, eq, style, front) {
   var o = {}, k;
@@ -1405,19 +1432,281 @@ function makeVariant(base, id, kind, opt) {
   v.name = (names && names[eq]) || (VPREFIX[eq === 'b' ? style : eq] + baseName(base.name));
   v.equipLabel = eq === 'b' ? (style === 'plate' ? 'Barbell plate' : 'Barbell') : EQ_LABEL[eq];
   v.uni = both ? false : base.uni;
+  if (typeof eqText === 'function' && base.steps) {
+    var tx = eqText(base, id, kind, eq, style);
+    v.steps = base.steps.map(function (st, i) { var c = {}, key; for (key in st) c[key] = st[key]; c.txt = tx.steps[i]; return c; });
+    v.cues = tx.cues;
+  }
   v._r = base._r.map(function (r) {
     var c = {}, key; for (key in r) c[key] = r[key];
     c.w = mapW(r.w || {}, eq, style, r.v === 'f');
-    if (both && r.v !== 'f') { c.af = r.an.slice(); }
+    if (both && r.v !== 'f') { c.af = r.an.slice(); if (c.w.l && !c.w.r) c.w.r = c.w.l; if (c.w.r && !c.w.l) c.w.l = c.w.r; if (c.w.f && !c.w.n) { c.w.n = c.w.f; if (eq === 'b') delete c.w.f; } } // both hands hold it, so draw it in the near hand too
     return c;
   });
   return v;
 }
+// Share exercises across every selected instrument. Walk the program in order and give each
+// exercise (hold and its paired reps together) the selected instrument used least so far,
+// skipping awkward versions when a good one is available.
+function eqPlan(sel, order) {
+  var used = {}, plan = {};
+  sel.forEach(function (e) { used[e] = 0; });
+  order.forEach(function (id) {
+    if (plan[id] || !EQV[id]) return;
+    var H = parseEq(EQV[id].h), Gs = parseEq(EQV[id].g);
+    function cands(list) { var c = list.filter(function (o) { return sel.indexOf(o.eq) > -1; }), good = c.filter(function (o) { return !o.poor; }); return good.length ? good : c; }
+    var ch = cands(H), cg = cands(Gs);
+    var both = ch.filter(function (o) { return cg.some(function (x) { return x.eq === o.eq; }); });
+    var pool = both.length ? both : ch;
+    if (!pool.length) { plan[id] = { h: chooseEq(id, 'h', sel), g: chooseEq(id, 'g', sel) }; return; }
+    var best = pool.slice().sort(function (a, b) { return (used[a.eq] - used[b.eq]) || (H.indexOf(a) - H.indexOf(b)); })[0];
+    used[best.eq]++;
+    var g = cg.filter(function (x) { return x.eq === best.eq; })[0] || (cg.length ? cg[0] : chooseEq(id, 'g', sel));
+    plan[id] = { h: best, g: g };
+  });
+  return plan;
+}
 function chooseEq(id, kind, sel) {
   var spec = EQV[id]; if (!spec) return { eq: 'd', style: '' };
   var list = parseEq(spec[kind]);
-  for (var i = 0; i < list.length; i++) if (list[i].eq === 'w' || sel.indexOf(list[i].eq) > -1) return list[i];
+  for (var i = 0; i < list.length; i++) if (sel.indexOf(list[i].eq) > -1 && !list[i].poor) return list[i];
+  for (i = 0; i < list.length; i++) if (list[i].eq === 'w' || sel.indexOf(list[i].eq) > -1) return list[i];
   return { eq: list[0].eq, style: list[0].style, missing: true };
+}
+
+// ---- Step text and cues for each equipment version ----
+// Base texts in data.js / grow.js are written for the exercise's first-listed equipment.
+// EQTX holds hand-written replacements: EQTX[id][kind][key] = { s: [step texts], c: [cues] }
+// where kind is 'h' (hold) or 'g' (reps) and key is 'k', 'd', 'bar', 'plate' or 'w'.
+// Anything not listed falls back to a word swap between kettlebell and dumbbell.
+var EQTX = {
+  'front-raise': {
+    h: { plate: { s: ['Stand tall, feet hip-width. Hold a weight plate by its sides in front of your thighs, arms straight.', 'Brace your abs and squeeze your glutes. Raise the plate forward with a soft elbow.', 'Stop at shoulder height with the plate level. Hold without leaning back.'] } },
+    g: { plate: { s: ['Start with the plate in front of your thighs, held by its sides, abs braced.', 'Raise to shoulder height in about 1 s, pause, then lower over 2–3 s.'] } }
+  },
+  'lateral-raise': {
+    h: { plate: { s: ['Stand with a light plate in each hand at your sides, gripped by the rim, slight bend at the elbows.', 'Lift the arms out to the sides, leading with the elbows, not the hands.', 'Stop when the arms are level with the shoulders. Hold.'] } },
+    g: { plate: { s: ['A light plate in each hand at your sides, gripped by the rim, slight bend in the elbows.', 'Raise out to shoulder height, pause, lower slowly over 2–3 s.'] } }
+  },
+  'rear-fly': {
+    h: { plate: { s: ['Hinge forward to about 45°, knees soft, back flat. (Shown from the front.) Let a light plate in each hand hang under your shoulders, gripped by the rim.', 'Pinch the shoulder blades lightly and sweep the arms out wide.', 'Stop with the arms in line with the torso, forming a T. Hold.'] } },
+    g: { plate: { s: ['Hinge to about 45°, a light plate in each hand hanging under your shoulders.', 'Sweep the arms out to a T, pause, lower over 2–3 s.'] } }
+  },
+  'overhead-hold': {
+    h: {
+      d: { s: ['Lift the dumbbell to your shoulder, palm facing in, wrist straight.', 'Brace and press the dumbbell up, biceps travelling close to the ear.', 'Lock the elbow, bicep beside the ear, knuckles to the ceiling. Hold.'] },
+      bar: { s: ['Hold the barbell on the front of your shoulders, hands just wider than shoulder-width, elbows under the bar.', 'Brace and press the bar straight up, moving your head back slightly to clear it.', 'Lock the elbows with the bar over the middle of your feet, head through the arms. Hold.'], c: ['Stack wrists over elbows over shoulders', 'Push your head through at the top', 'Ribs down'] }
+    },
+    g: {
+      d: { s: ['Dumbbell at the shoulder, wrist straight, glutes squeezed.', 'Press to lockout, bicep by the ear. Lower back to the shoulder over 2–3 s.'] },
+      bar: { s: ['Bar on the front of the shoulders, hands just wider than shoulder-width, glutes squeezed.', 'Press to lockout, head through the arms. Lower to the shoulders over 2–3 s.'] }
+    }
+  },
+  'ext-rot': {
+    h: { plate: { s: ['Lie on your side, head resting on your lower arm. Top elbow bent to 90° and pinned to your side, a small plate held by the rim near your belly.', 'Keep the elbow glued to your ribs (a rolled towel under it helps) and rotate the forearm up.', 'Stop just short of vertical. Hold, then switch sides.'] } }
+  },
+  'oh-triceps': {
+    h: {
+      d: { s: ['Hold one dumbbell upright with both hands cupping the top end, at your chest.', 'Press it straight overhead, ribs down.', 'Lower the dumbbell behind your head until the elbows are bent past 90°. Elbows point up. Hold.'] },
+      bar: { s: ['Hold a barbell (an EZ bar is easier on the wrists) with hands shoulder-width apart, at your chest.', 'Press it straight overhead, ribs down.', 'Lower the bar behind your head until the elbows are bent past 90°. Elbows point up. Hold.'] }
+    },
+    g: {
+      d: { s: ['Hold one dumbbell upright with both hands cupping the top end, arms straight overhead.', 'Lower behind your head over 2–3 s, pause in the stretch, extend back up.'] },
+      bar: { s: ['Hold the bar overhead with a shoulder-width grip, arms straight.', 'Lower behind your head over 2–3 s, pause in the stretch, extend back up.'] }
+    }
+  },
+  'kickback': {
+    h: { plate: { s: ['Hinge to roughly 70°, knees soft, a light plate in each hand gripped by the rim.', 'Drive the elbows back until the upper arms are parallel to the floor.', 'Straighten the elbows fully and squeeze the triceps. Hold.'] } }
+  },
+  'hollow': {
+    h: {
+      plate: { s: ['Lie on your back, arms overhead holding a weight plate by its sides, legs straight.', 'Press the low back into the floor and lift the shoulders and arms.', 'Lift the legs until they hover. Body forms a shallow banana. Hold, low back flat.'] },
+      w: { s: ['Lie on your back, arms straight overhead, legs straight.', 'Press the low back into the floor and lift the shoulders and arms.', 'Lift the legs until they hover. Body forms a shallow banana. Hold, low back flat.'] }
+    },
+    g: {
+      plate: { s: ['Lie on your back, low back pressed down, legs hovering. Arms overhead holding a light plate on the floor.', 'Raise the legs to vertical, curl the hips slightly up, then lower over 2–3 s.'] },
+      w: { s: ['Lie on your back, low back pressed down, legs hovering. Arms overhead, hands gripping something sturdy behind your head.', 'Raise the legs to vertical, curl the hips slightly up, then lower over 2–3 s.'] }
+    }
+  },
+  'plank-db': {
+    h: { w: { s: ['Kneel on all fours, hands flat under your shoulders.', 'Step the feet back one at a time with the hips slightly high.', 'Lower the hips to a straight line from head to heels. Push the floor away and hold.'], c: ['Squeeze glutes and quads', 'Push the floor away', 'Spread the fingers wide'] } },
+    g: { w: { s: ['High plank on your hands, feet wide for balance.', 'Lift one hand and tap the opposite shoulder without twisting the hips. Alternate sides.'], c: ['Hips stay square', 'Wider feet = easier'] } }
+  },
+  'goblet-squat': {
+    h: {
+      d: { s: ['Hold one dumbbell upright at your chest, hands cupping the top end. Feet just wider than hips, toes slightly out.', 'Sit the hips down and back, knees tracking over the toes.', 'Stop with the thighs parallel to the floor, chest proud. Hold.'] },
+      bar: { s: ['Hold the barbell in the crooks of your elbows, hands clasped, bar against your body. Feet just wider than hips, toes slightly out.', 'Sit the hips down and back, knees tracking over the toes.', 'Stop with the thighs parallel to the floor, chest proud. Hold.'], c: ['Weight across the whole foot', 'Knees out over the toes', 'Bar tight to the body, upper back tall'] }
+    },
+    g: {
+      d: { s: ['Hold one dumbbell upright at your chest, feet just wider than hips.', 'Sit down over 2–3 s, pause 1 s at the bottom, stand up strongly.'] },
+      bar: { s: ['Bar in the crooks of the elbows, hands clasped, feet just wider than hips.', 'Sit down over 2–3 s, pause 1 s at the bottom, stand up strongly.'] }
+    }
+  },
+  'wall-sit': {
+    h: {
+      plate: { s: ['Stand with your back on a wall, feet about two foot-lengths out. Hold a plate in each hand at your sides, gripped by the rim.', 'Slide down the wall slowly, keeping the back flat on it.', 'Stop with thighs parallel and shins vertical (knees at 90°). Hold.'] },
+      w: { s: ['Stand with your back on a wall, feet about two foot-lengths out, arms relaxed at your sides.', 'Slide down the wall slowly, keeping the back flat on it.', 'Stop with thighs parallel and shins vertical (knees at 90°). Hold.'] }
+    },
+    g: {
+      plate: { s: ['Kneel on a mat, shins flat, holding a light plate at your chest. Knees to head in one line.', 'Lean back from the knees over 2–3 s, hips straight. Pause, then pull back up with the quads.'] },
+      w: { s: ['Kneel on a mat, shins flat, arms crossed on your chest. Knees to head in one line.', 'Lean back from the knees over 2–3 s, hips straight. Pause, then pull back up with the quads.'] }
+    }
+  },
+  'split-squat': {
+    h: {
+      plate: { s: ['Stand in a long split stance, back heel up, a plate in each hand at your sides, gripped by the rim.', 'Lower straight down, torso tall, both knees bending.', 'Stop with the back knee just above the floor and front knee at 90°. Hold, then switch legs.'] },
+      w: { s: ['Stand in a long split stance, back heel up, hands on your hips.', 'Lower straight down, torso tall, both knees bending.', 'Stop with the back knee just above the floor and front knee at 90°. Hold, then switch legs.'] }
+    },
+    g: {
+      plate: { s: ['Long split stance, a plate in each hand at your sides, back heel up.', 'Lower over 2–3 s until the back knee nearly touches. Drive up through the front foot.'] },
+      w: { s: ['Long split stance, hands on your hips, back heel up.', 'Lower over 2–3 s until the back knee nearly touches. Drive up through the front foot.'] }
+    }
+  },
+  'glute-bridge': {
+    h: {
+      bar: { s: ['Lie on your back, knees bent, feet flat. Rest a barbell across your hip crease (pad it with a towel) and hold it steady with both hands.', 'Drive through the heels and squeeze the glutes to lift the hips.', 'Stop with a straight line from shoulders to knees. Hold with the glutes squeezed hard.'] },
+      w: { s: ['Lie on your back, knees bent, feet flat, arms on the floor by your sides.', 'Drive through the heels and squeeze the glutes to lift the hips.', 'Stop with a straight line from shoulders to knees. Hold with the glutes squeezed hard.'] }
+    },
+    g: {
+      bar: { s: ['Back on the floor, padded barbell across the hips, feet flat.', 'Drive the hips up, squeeze 1 s, lower over 2–3 s.'] },
+      w: { s: ['Back on the floor, arms by your sides, feet flat.', 'Drive the hips up, squeeze 1 s, lower over 2–3 s.'] }
+    }
+  },
+  'calf-raise': {
+    h: {
+      bar: { s: ['Stand tall holding a barbell in front of your thighs, arms straight, feet hip-width.', 'Rise onto the balls of the feet, pressing through the big toe.', 'Go as high as you can, knees straight. Hold the top.'] },
+      w: { s: ['Stand tall, feet hip-width, one hand on a wall for balance.', 'Rise onto the balls of the feet, pressing through the big toe.', 'Go as high as you can, knees straight. Hold the top.'] }
+    },
+    g: {
+      bar: { s: ['Stand tall, barbell in front of your thighs, arms straight. Use a step for more range.', 'Rise as high as possible, pause 1 s, lower over 2–3 s into a full stretch.'] },
+      w: { s: ['Stand tall, one hand on a wall for balance. Use a step for more range.', 'Rise as high as possible, pause 1 s, lower over 2–3 s into a full stretch.'] }
+    }
+  },
+  'seated-calf': {
+    h: { bar: { s: ['Sit on a bench, feet flat, a barbell resting across the knees (pad it with a towel). Hands keep it steady.', 'Press through the balls of the feet to lift the heels.', 'Lift the heels as high as possible. Hold the top.'] } },
+    g: { bar: { s: ['Seated, padded barbell across the knees, feet flat.', 'Lift the heels high, pause, lower over 2–3 s.'] } }
+  },
+  'tib-hold': {
+    h: {
+      k: { s: ['Sit on a bench with the handle of a light kettlebell hooked over the front of one foot.', 'Keep the heel on the floor and pull the toes up.', 'Lift the toes as high as possible toward your shin. Hold, then switch feet.'] },
+      plate: { s: ['Sit on a bench with a small plate resting on the tops of your feet.', 'Keep the heels on the floor and pull the toes up, keeping the plate balanced.', 'Lift the toes as high as possible toward your shins. Hold.'] },
+      w: { s: ['Sit on a bench, feet flat, heels on the floor.', 'Pull the toes up hard, heels staying down.', 'Lift the toes as high as possible toward your shins. Hold.'] }
+    },
+    g: {
+      k: { s: ['Seated, the handle of a light kettlebell hooked over the front of the foot.', 'Pull the toes up, pause, lower over 2–3 s. Do all reps, then switch feet.'] },
+      plate: { s: ['Seated, a small plate resting on the tops of the feet.', 'Pull the toes up, pause, lower over 2–3 s.'] },
+      w: { s: ['Seated, heels planted, no weight.', 'Pull the toes up, pause, lower over 2–3 s.'] }
+    }
+  },
+  'dead-bug': {
+    h: {
+      d: { s: ['Lie on your back, knees bent, a dumbbell held by both ends on your chest.', 'Press the dumbbell to the ceiling and lift the legs to a tabletop (knees at 90°).', 'Straighten one leg until it hovers just off the floor. Hold, then switch legs.'] },
+      plate: { s: ['Lie on your back, knees bent, a weight plate held by its sides on your chest.', 'Press the plate to the ceiling and lift the legs to a tabletop (knees at 90°).', 'Straighten one leg until it hovers just off the floor. Hold, then switch legs.'] },
+      w: { s: ['Lie on your back, knees bent, arms reaching straight up.', 'Keep the arms vertical and lift the legs to a tabletop (knees at 90°).', 'Straighten one leg until it hovers just off the floor. Hold, then switch legs.'] }
+    },
+    g: {
+      d: { s: ['Dumbbell pressed up, legs in tabletop, low back flat.', 'Extend one leg over 2–3 s until it hovers, then bring it back. Do all reps, then switch.'] },
+      plate: { s: ['Plate pressed up, legs in tabletop, low back flat.', 'Extend one leg over 2–3 s until it hovers, then bring it back. Do all reps, then switch.'] },
+      w: { s: ['Arms reaching up, legs in tabletop, low back flat.', 'Extend one leg over 2–3 s until it hovers, then bring it back. Do all reps, then switch.'] }
+    }
+  },
+  'shrug': {
+    h: { bar: { s: ['Stand tall holding a barbell in front of your thighs, hands just outside the hips, arms straight.', 'Lift the shoulders straight up toward the ears.', 'Squeeze at the top, shoulders as high as they go. Hold.'] } },
+    g: { bar: { s: ['Heavy barbell in front of the thighs, arms straight.', 'Shrug straight up, hold 1 s, lower over 2–3 s to a full stretch.'] } }
+  },
+  'prone-y': {
+    h: {
+      plate: { s: ['Lie face down, arms overhead in a Y, thumbs up, a small plate in each hand.', 'Draw the shoulder blades down and back, then lift the arms.', 'Lift the arms and chest slightly off the floor. Hold, eyes on the floor.'] },
+      w: { s: ['Lie face down, arms overhead in a Y, thumbs up.', 'Draw the shoulder blades down and back, then lift the arms.', 'Lift the arms and chest slightly off the floor. Hold, eyes on the floor.'] }
+    },
+    g: { w: { s: ['Face down, arms overhead in a Y, thumbs up.', 'Lift the arms and chest slightly, pause 1 s, lower over 2–3 s.'], c: ['Shoulder blades down', 'Add a little load once this is easy'] } }
+  },
+  'sa-row': {
+    h: { bar: { s: ['Hinge to about 45°, knees soft, back flat, holding a barbell with a narrow grip.', 'Pull the bar toward your belly, elbows close to your body.', 'Stop with the bar touching your lower ribs. Hold.'], c: ['Elbows close to the body', 'Hinge angle stays fixed', 'Long neck'] } },
+    g: { bar: { s: ['Hinged, back flat, barbell hanging at arm’s length with a narrow grip.', 'Row to the belly, squeeze 1 s, lower over 2–3 s.'], c: ['Let the shoulders stretch at the bottom', 'No jerking the torso'] } }
+  },
+  'curl': {
+    h: { bar: { s: ['Stand tall holding a barbell in front of your thighs, palms facing forward, hands shoulder-width.', 'Curl the bar up, elbows pinned to your sides.', 'Stop with the forearms parallel to the floor (elbows at 90°). Hold.'] } },
+    g: { bar: { s: ['Barbell in front of the thighs, palms forward, arms fully straight.', 'Curl all the way up, squeeze 1 s, lower over 2–3 s to full extension.'] } }
+  },
+  'hammer': {
+    h: { bar: { s: ['Stand tall holding a barbell in front of your thighs, palms facing back, hands shoulder-width.', 'Curl the bar up with the knuckles leading, elbows close.', 'Stop with the forearms parallel to the floor. Hold.'], c: ['Wrists straight, knuckles up', 'Squeeze the bar', 'Elbows still'] } },
+    g: { bar: { s: ['Barbell in front of the thighs, palms facing back.', 'Curl up with the knuckles leading, pause, lower over 2–3 s.'], c: ['Wrists straight', 'No swinging'] } }
+  },
+  'suitcase': {
+    h: { bar: { s: ['Squat beside a barbell and grip it in the exact middle with one hand. (Shown from the front.)', 'Stand up with a flat back, keeping the bar level and close to your leg.', 'Stand tall with shoulders level, not tilted toward the weight. Hold, then switch.'], c: ['Shoulders level', 'Bar stays level, grip dead centre', 'Brace like you might get punched'] } },
+    g: { bar: { s: ['Stand tall, barbell held in the middle at one side. (Front view.)', 'Squat down over 2–3 s with shoulders level, touch the plates to the floor, stand up.'], c: ['Shoulders stay level', 'Bar stays level and close'] } }
+  },
+  'crunch': {
+    h: {
+      plate: { s: ['Lie on your back, knees bent, hugging a weight plate to your chest.', 'Exhale and curl the ribs toward the hips.', 'Lift until the shoulder blades are off the floor. Hold, breathing shallowly.'] },
+      w: { s: ['Lie on your back, knees bent, arms crossed on your chest.', 'Exhale and curl the ribs toward the hips.', 'Lift until the shoulder blades are off the floor. Hold, breathing shallowly.'] }
+    },
+    g: {
+      plate: { s: ['On your back, knees bent, plate hugged to the chest.', 'Curl the ribs to the hips, squeeze 1 s, lower over 2–3 s.'] },
+      w: { s: ['On your back, knees bent, arms crossed on the chest.', 'Curl the ribs to the hips, squeeze 1 s, lower over 2–3 s.'] }
+    }
+  },
+  'sl-rdl': {
+    h: { bar: { s: ['Stand on one leg holding a barbell in front of your thighs with both hands.', 'Hinge forward while the free leg reaches straight back.', 'Stop when the torso and back leg form a line parallel to the floor. Hold, then switch.'] } },
+    g: { bar: { s: ['Balance on one leg, barbell in both hands.', 'Hinge over 2–3 s until level, pause, return to standing.'] } }
+  },
+  'ham-bridge': {
+    h: {
+      bar: { s: ['Lie on your back, heels on the floor far from your hips, knees slightly bent. A padded barbell across the hips.', 'Dig the heels down and pull them toward you without moving them.', 'Lift the hips until the body is straight. Hold; you should feel the back of the thighs.'] },
+      w: { s: ['Lie on your back, heels on the floor far from your hips, knees slightly bent, arms by your sides.', 'Dig the heels down and pull them toward you without moving them.', 'Lift the hips until the body is straight. Hold; you should feel the back of the thighs.'] }
+    },
+    g: {
+      bar: { s: ['Heels far out, knees slightly bent, padded barbell across the hips.', 'Lift the hips by digging the heels down, pause, lower over 2–3 s.'] },
+      w: { s: ['Heels far out, knees slightly bent, arms by your sides.', 'Lift the hips by digging the heels down, pause, lower over 2–3 s.'] }
+    }
+  },
+  'bird-dog': {
+    h: {
+      plate: { s: ['Kneel on all fours, hands under shoulders, knees under hips, a small plate in one hand.', 'Brace your abs. Slide the opposite leg back and start to lift the plate arm.', 'Reach the arm forward and the leg back until both are level with your back. Hold, then switch sides.'] },
+      w: { s: ['Kneel on all fours, hands under shoulders, knees under hips.', 'Brace your abs. Slide one leg back and start to lift the opposite arm.', 'Reach the arm forward and the leg back until both are level with your back. Hold, then switch sides.'] }
+    },
+    g: {
+      d: { s: ['Hold one dumbbell by an end with both hands. Hike it back between your legs, back flat, hips high.', 'Snap the hips forward so the dumbbell floats to chest height. Let it fall and hinge again.'] },
+      bar: { s: ['Hold a barbell in front of your thighs, knees soft, back flat.', 'Push the hips back until the bar is just below the knees, then snap them forward hard to stand tall. Repeat at a brisk, controlled pace.'], c: ['It is a hinge, not a squat', 'The hips drive; the arms stay long'] }
+    }
+  },
+  'farmer': {
+    h: { bar: { s: ['Stand with the bar over your mid-foot. Hinge and grip it just outside your knees.', 'Drive through the floor and stand up with a flat back.', 'Stand tall, shoulders back and down, bar against your thighs. Crush the bar and hold.'], c: ['Crush the bar', 'Shoulders packed down', 'Stand like a pillar'] } },
+    g: { bar: { s: ['Deadlift a heavy barbell and stand tall with it against your thighs.', 'March on the spot, lifting each knee in turn, for the whole set. Keep the bar level.'], c: ['Tall posture', 'Crush the bar'] } }
+  },
+  'pinch': {
+    h: { plate: { s: ['Put two plates together, smooth sides out. Pinch them with fingers on one side, thumb on the other.', 'Lift them off the floor using only the pinch.', 'Stand tall, arm straight at your side. Hold, then switch hands.'] } },
+    g: { plate: { s: ['Pinch two plates together with fingers and thumb, arm straight.', 'Walk for the whole set, then switch hands.'] } }
+  },
+  'wrist': {
+    h: { bar: { s: ['Sit with both forearms on your thighs, holding a light barbell, wrists just past the knees, palms down.', 'Lift the backs of the hands until the wrists are straight.', 'Extend the wrists up and hold. Next set, turn the palms up and hold the curled-up position.'] } },
+    g: { bar: { s: ['Forearms on the thighs holding a light barbell, wrists past the knees, hands relaxed down.', 'Extend the wrists up, pause, lower over 2–3 s. Next set, palms up and curl.'] } }
+  },
+  'sl-balance': {
+    h: {
+      plate: { s: ['Stand tall, a small plate in the hand opposite the standing leg.', 'Shift your weight onto one foot and lift the other.', 'Drive the knee up to hip height, standing knee soft. Hold, then switch.'] },
+      w: { s: ['Stand tall, arms relaxed at your sides.', 'Shift your weight onto one foot and lift the other.', 'Drive the knee up to hip height, standing knee soft. Hold, then switch.'] }
+    },
+    g: {
+      plate: { s: ['Stand on one foot holding a small plate, other foot lifted behind. Touch a wall for balance if needed.', 'Rise as high as possible, pause 1 s, lower over 2–3 s.'] },
+      w: { s: ['Stand on one foot, other foot lifted behind. Touch a wall for balance.', 'Rise as high as possible, pause 1 s, lower over 2–3 s.'] }
+    }
+  }
+};
+// Word swap between kettlebell and dumbbell versions (same grammar).
+function swapEqText(t, from, to) {
+  if (from === to || !t) return t;
+  if (from === 'd' && to === 'k') return t.replace(/dumbbell/g, 'kettlebell').replace(/Dumbbell/g, 'Kettlebell');
+  if (from === 'k' && to === 'd') return t.replace(/kettlebell/g, 'dumbbell').replace(/Kettlebell/g, 'Dumbbell').replace(/\bthe bell\b/g, 'the dumbbell').replace(/\bThe bell\b/g, 'The dumbbell').replace(/\bBell\b/g, 'Dumbbell').replace(/\bbell\b/g, 'dumbbell');
+  return t;
+}
+function eqText(base, id, kind, eq, style) {
+  var key = eq === 'b' ? style : eq, o = EQTX[id] && EQTX[id][kind] && EQTX[id][kind][key];
+  var from = parseEq(EQV[id][kind])[0].eq;
+  var steps = base.steps.map(function (st, i) { return o && o.s && o.s[i] ? o.s[i] : swapEqText(st.txt, from, eq); });
+  var cues = o && o.c ? o.c : base.cues.map(function (c) { return swapEqText(c, from, eq); });
+  return { steps: steps, cues: cues };
 }
 
 // ---- Research behind the program ----
@@ -1495,15 +1784,32 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
   Object.keys(G).forEach(function (k) { FIG.prep(G[k]); ALL[G[k].id] = G[k]; });
   Object.keys(CARDIO_FIG).forEach(function (k) { FIG.prep(CARDIO_FIG[k]); ALL[CARDIO_FIG[k].id] = CARDIO_FIG[k]; });
   var $ = function (id) { return document.getElementById(id); };
-  var VC = {};
+  var VC = {}, PLAN = null, PLANKEY = '';
+  // Program order: days, morning then evening, blocks in order; then anything else in the library.
+  function planOrder() { var o = []; DAYS.forEach(function (d) { ['am', 'pm'].forEach(function (p) { (d[p] || []).forEach(function (b) { o = o.concat(b); }); }); }); EX.forEach(function (e) { o.push(e.id); }); return o; }
+  function pickEq(id, kind) {
+    var k = store.eq.join('');
+    if (!PLAN || PLANKEY !== k) { PLAN = eqPlan(store.eq, planOrder()); PLANKEY = k; }
+    var p = PLAN[id]; return p ? p[kind === 'h' ? 'h' : 'g'] : chooseEq(id, kind, store.eq);
+  }
   function V(id, kind, eqOpt) {
-    var o = eqOpt || chooseEq(id, kind, store.eq), key = id + kind + o.eq + o.style + (o.missing ? '!' : '');
-    if (!VC[key]) VC[key] = makeVariant(kind === 'h' ? BY[id] : G[id], id, kind, o);
+    var o = eqOpt || pickEq(id, kind), key = id + kind + o.eq + o.style + (o.missing ? '!' : '');
+    if (!VC[key]) {
+      VC[key] = makeVariant(kind === 'h' ? BY[id] : G[id], id, kind, o);
+      // some versions borrow another exercise's pictures (e.g. the barbell speed RDL uses the RDL figure)
+      var fid = EQV[id].fig && EQV[id].fig[(kind === 'h' ? 'h' : 'g') + ':' + o.eq];
+      if (fid) { var fb = kind === 'h' ? BY[fid] : G[fid], fv = makeVariant(fb, fid, kind, o); VC[key]._r = fv._r; VC[key]._vb = fb._vb; }
+    }
     return VC[key];
   }
   function eqOptions(id, kind) { return parseEq(EQV[id][kind]); }
   function wkey(id, ex, kind) { return id + '|' + ex.eq + '|' + kind; }
-  function getWt(id, ex, kind) { var v = store.wt[wkey(id, ex, kind)]; return v == null ? null : v; }
+  function getWt(id, ex, kind) {
+    var v = store.wt[wkey(id, ex, kind)]; if (v != null) return v;
+    // nothing saved yet: fall back to the last weight logged for this exercise and equipment
+    for (var i = store.log.length - 1; i >= 0; i--) { var l = store.log[i]; if (l.id === id && l.eq === ex.eq && l.k === kind && l.kg) return l.kg; }
+    return null;
+  }
   function wLabel(ex) {
     if (ex.eq === 'b') return ex.style === 'plate' ? 'Plate weight' : 'Barbell total (bar + plates)';
     var w = ex._r[ex._r.length - 1].w || {}, n = 0, k;
@@ -1533,12 +1839,12 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
 
   // ---------- dosing helpers ----------
   function figSvg(ex, i, extra) { return FIG.svgFor(ex, ex._r[i], { label: ex.name + (extra || '') }); }
-  function rx(ex, ph) { return ph.sets + ' × ' + ph.hold + ' s' + (ex.uni ? ' / side' : ''); }
+  function rx(ex, ph) { return ph.sets + '\u00a0×\u00a0' + ph.hold + '\u00a0s' + (ex.uni ? '\u00a0/ side' : ''); }
   function repsFor(g, ph) { return g.fixed ? (ph.n === 4 ? 10 : g.fixed) : ph.gr; }
   function repsTxt(g, ph) { return g.fixed ? String(repsFor(g, ph)) : ph.grt; }
   function grx(g, ph) {
-    if (g.mode === 'time') return ph.gs + ' × ' + ph.gt + ' s walk' + (g.uni ? ' / hand' : '');
-    return ph.gs + ' × ' + repsTxt(g, ph) + (g.uni ? ' / side' : '');
+    if (g.mode === 'time') return ph.gs + '\u00a0×\u00a0' + ph.gt + '\u00a0s walk' + (g.uni ? '\u00a0/ hand' : '');
+    return ph.gs + '\u00a0×\u00a0' + repsTxt(g, ph) + (g.uni ? '\u00a0/ side' : '');
   }
   function repDur(g) { return g.tempo[0] + g.tempo[1] + g.tempo[2] + g.tempo[3]; }
   function tempoTxt(g) {
@@ -1678,7 +1984,30 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
       return '<button data-i="' + i + '" aria-pressed="' + (i === selDay) + '" class="' + (i === nx ? 'today' : '') + '" aria-label="Day ' + (i + 1) + ', ' + d.name + (i === nx ? ', up next' : '') + '"><span class="n">' + (i + 1) + '</span><span class="d">' + SHORT[i] + '</span><span class="dots">' + dots + '</span></button>';
     }).join('');
     $('sessions').innerHTML = sessionCard(day, 'am', ph) + sessionCard(day, 'pm', ph);
+    renderEqDD('eqddTrain', 'Exercises in each session change to match.');
   }
+  // ---------- equipment dropdown (Train + Exercises) ----------
+  var EQ_NAME = { k: 'Kettlebells', d: 'Dumbbells', b: 'Barbell & plates' };
+  function renderEqDD(host, note, err) {
+    var el = $(host); if (!el) return;
+    var wasOpen = !!el.querySelector('details[open]');
+    var names = store.eq.map(function (e) { return EQ_NAME[e]; }).join(', ');
+    el.innerHTML = '<details class="eqdd"' + (wasOpen ? ' open' : '') + '><summary aria-label="Equipment: ' + esc(names) + '. Change"><span class="eqdd-l">Using</span><b>' + esc(names) + '</b>' +
+      '<svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>' +
+      '<div class="eqdd-m" role="group" aria-label="Equipment you have">' + ['k', 'd', 'b'].map(function (e) {
+        return '<label><input type="checkbox" data-eqv="' + e + '"' + (store.eq.indexOf(e) > -1 ? ' checked' : '') + '><span class="eqi">' + EQ_ICON[e] + '</span>' + EQ_NAME[e] + '</label>';
+      }).join('') + '<p class="' + (err ? 'err' : '') + '" role="status">' + (err || note) + '</p></div></details>';
+  }
+  document.addEventListener('change', function (e) {
+    var cb = e.target.closest && e.target.closest('input[data-eqv]'); if (!cb) return;
+    var host = cb.closest('.eqdd-wrap').id;
+    var sel = [].slice.call(cb.closest('.eqdd-m').querySelectorAll('input[data-eqv]:checked')).map(function (x) { return x.dataset.eqv; });
+    if (!sel.length) { cb.checked = true; renderEqDD(host, '', 'Pick at least one.'); var f = $(host).querySelector('input[data-eqv="' + cb.dataset.eqv + '"]'); if (f) f.focus(); return; }
+    store.eq = sel.sort(function (x, y) { return 'kdb'.indexOf(x) - 'kdb'.indexOf(y); }); save();
+    renderTrain(); if (libBuilt) ensureLib();
+    renderEqDD('eqddLib', 'Exercise names and pictures change to match.');
+    var back = $(host).querySelector('input[data-eqv="' + cb.dataset.eqv + '"]'); if (back) back.focus();
+  });
   function exRow(id, ph, sk, off, added) {
     var h = V(id, 'h'), g = V(id, 'g'), wh = getWt(id, h, 'h'), wg = getWt(id, g, 'r'), o = (off && off[id]) || {};
     var both = o.h && o.r;
@@ -1693,7 +2022,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     return '<li><div class="row cardio">' + figSvg(fig, 0) + '<span><span class="t">' + esc(label) + '</span><span class="s">' + esc(s[0]) + ', <b>' + esc(s[1]) + '</b></span></span></div></li>';
   }
   var openPlans = {};
-  function eqSummary() { return store.eq.map(function (e) { return EQ_LABEL[e].toLowerCase() + 's'; }).join(', ').replace(/, ([^,]*)$/, ' and $1'); }
+  function eqSummary() { return store.eq.map(function (e) { return e === 'b' ? 'a barbell' : EQ_LABEL[e].toLowerCase() + 's'; }).join(', ').replace(/, ([^,]*)$/, ' and $1'); }
   function sessionCard(day, part, ph) {
     var key = doneKey(day, part), done = !!store.done[key], m = mins(day, part, ph), name = part === 'am' ? 'Morning' : 'Evening';
     var list = '', count = 0;
@@ -1826,7 +2155,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
       return names;
     }
     function render() {
-      var h = '<p class="muted">Pick everything you have with you. Each exercise uses the best fit from your choice.</p><div class="eqs">' + ['k', 'd', 'b'].map(function (e) {
+      var h = '<p class="muted">Pick everything you have with you. The exercises are shared out across all of it.</p><div class="eqs">' + ['k', 'd', 'b'].map(function (e) {
         return '<button class="eq" data-e="' + e + '" aria-pressed="' + (sel.indexOf(e) > -1) + '">' + EQ_ICON[e] + '<b>' + (e === 'b' ? 'Barbell & plates' : EQ_LABEL[e] + 's') + '</b>' + I_CHECK.replace('<svg', '<svg class="tick"') + '</button>';
       }).join('') + '</div>' + (sel.length ? '<div class="eq-prev"><b>Today’s holds</b><ul>' + preview() + '</ul></div>' : '<p class="bk-msg err">Pick at least one.</p>') +
         '<button class="btn go block" id="eqGo"' + (sel.length ? '' : ' disabled') + '>Start ' + (part === 'am' ? 'morning' : 'evening') + '</button>';
@@ -1851,7 +2180,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
   }
   function openExercise(id, part, from) {
     var ph = phaseOf(store.week), state = { part: part, eq: {} };
-    function cur() { var kind = state.part === 'hold' ? 'h' : 'g'; var o = state.eq[kind] || chooseEq(id, kind, store.eq); return V(id, kind, o); }
+    function cur() { var kind = state.part === 'hold' ? 'h' : 'g'; var o = state.eq[kind] || pickEq(id, kind); return V(id, kind, o); }
     function body() {
       var isH = state.part === 'hold', x = cur(), kind = isH ? 'h' : 'r', w = getWt(id, x, kind);
       var opts = eqOptions(id, isH ? 'h' : 'g');
@@ -1892,8 +2221,11 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
       else if (b.dataset.d) { var x = cur(), inp = $('dWt'), step = EQ_STEP[x.eq] || 2, v = parseFloat(inp.value) || 0; v = Math.max(0, Math.round((v + step * (+b.dataset.d)) * 10) / 10); inp.value = v; setWt(id, x, state.part === 'hold' ? 'h' : 'r', v); }
     });
     $('sheetBody').addEventListener('input', function (e) { if (e.target.id === 'dWt') { var v = parseFloat(e.target.value); setWt(id, cur(), state.part === 'hold' ? 'h' : 'r', isNaN(v) ? null : v); } });
+    $('sheetBody').addEventListener('change', function (e) { if (e.target.id === 'dWt') { var v = cleanWt(parseFloat(e.target.value)); e.target.value = v == null ? '' : v; } });
   }
-  function setWt(id, ex, kind, v) { var k = wkey(id, ex, kind); if (v == null) delete store.wt[k]; else store.wt[k] = v; save(); }
+  // Weights are kept between 0 and 500 kg; anything unreadable clears the saved weight.
+  function cleanWt(v) { return v == null || !isFinite(v) ? null : Math.min(500, Math.max(0, Math.round(v * 100) / 100)); }
+  function setWt(id, ex, kind, v) { var k = wkey(id, ex, kind); v = cleanWt(v); if (v == null) delete store.wt[k]; else store.wt[k] = v; save(); return v; }
 
   // ---------- exercises ----------
   var filter = 'All';
@@ -1904,7 +2236,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
   }
   $('chips').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; filter = b.dataset.f; renderChips(); applyFilter(); });
   var libBuilt = false, libEq = '';
-  function ensureLib() { if (libBuilt && libEq === store.eq.join('')) return; libBuilt = true; libEq = store.eq.join(''); renderChips(); renderLib(); applyFilter(); }
+  function ensureLib() { renderEqDD('eqddLib', 'Exercise names and pictures change to match.'); if (libBuilt && libEq === store.eq.join('')) return; libBuilt = true; libEq = store.eq.join(''); renderChips(); renderLib(); applyFilter(); }
   function renderLib() {
     $('lib').innerHTML = DAYS.map(function (d) {
       return '<div class="lib-group" data-g="' + d.id + '"><h2>Day ' + (allDays().indexOf(d) + 1) + ', ' + esc(d.name) + '</h2><div class="lib-list">' + d.ex.map(function (id) {
@@ -1942,7 +2274,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
   ];
   function renderProgress() {
     var td = totalDone(), n = weekDone(store.week);
-    $('allCard').innerHTML = '<h2>Program</h2><div class="wkprog"><span class="big num">' + Math.round(td / 72 * 100) + '<small>%</small></span><p class="muted">' + td + ' of 72 sessions done. You’re on week ' + store.week + ' with ' + n + ' of 12 sessions done this week.</p></div>' +
+    $('allCard').innerHTML = '<h2>Program</h2><div class="wkprog"><span class="big num">' + Math.round(td / 72 * 100) + '<small>%</small></span><p class="muted">' + (td ? td + ' of 72 sessions done. You’re on week ' + store.week + ' with ' + n + ' of 12 sessions done this week.' : 'No sessions yet. Your first one is on the Train tab, and this fills in as you go.') + '</p></div>' +
       '<div class="ov-bar big" aria-hidden="true"><i style="width:' + (td / 72 * 100).toFixed(1) + '%"></i></div>' + weekChart();
     renderMap(); renderStrength(); renderCov(); renderTests();
   }
@@ -2156,12 +2488,12 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
       '<svg class="body" viewBox="0 0 250 282" role="img" aria-label="Body map of muscles with strength data">' + bodySvg('f', data, mapSel, 0) + bodySvg('b', data, mapSel, 130) + '</svg>' +
       '<div class="legend"><span><i class="mk" style="background:var(--ok);border-radius:3px"></i>Has data</span><span><i class="mk" style="background:var(--line);border-radius:3px"></i>No weighted sets yet</span></div>' +
       '<div id="mapDet">' + (mapSel ? muscleDetail(mapSel, data[mapSel]) : '<p class="muted">Log a session with your weights entered and the muscles you trained will fill in.</p>') + '</div>';
-    h += '<div class="mlist">' + GROUPS.map(function (g) {
+    h += (names.length ? '<div class="mlist">' + GROUPS.map(function (g) {
       return '<div class="mgrp"><span class="mg-t">' + g[0] + '</span>' + g[1].map(function (n) {
         var e = data[n], hv = e && e.h ? 'hold ≥ ' + fmtKg(e.h.est) + ' kg' : '', rv = e && e.r ? '1 rep ≈ ' + fmtKg(e.r.est) + ' kg' : '';
         return '<button class="mli' + (n === mapSel ? ' on' : '') + '" data-mu="' + n + '"><span>' + n + '</span><span class="mli-v">' + ([hv, rv].filter(Boolean).join(', ') || '<i>no data</i>') + '</span></button>';
       }).join('') + '</div>';
-    }).join('') + '</div>' +
+    }).join('') + '</div>' : '') +
       '<details class="how"><summary>How this is calculated</summary><div class="gbody">' +
       '<p><b>Holds.</b> The longer you can hold a weight, the smaller the share of your maximum it is. A meta-analysis of hold-to-failure studies gives that relationship for each joint (for example, at the shoulder a 30-second hold is about 68% of max). Dividing your hold weight by that share gives your maximum. Your holds stop before failure, so this is a minimum: shown as “at least”.</p>' +
       '<p><b>Reps.</b> The one-rep maximum comes from the standard Epley and Brzycki formulas, using your reps plus the reps you had left in reserve that week (from the phase target; if you ended a set early, it counts as reaching your limit). Estimates from more than 10 reps are less accurate.</p>' +
@@ -2620,16 +2952,17 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     enter('ready');
   });
   function wtStep(d) {
-    if (!P) return; var nxt = P.q[P.i + 1], it = (P.stage === 'rest' && nxt) ? nxt : P.q[P.i]; if (!it || it.kind === 'cardio') return;
+    if (!P) return; var it = P.showIt; if (!it || it.kind === 'cardio') return; // the set whose weight is on screen
     var step = EQ_STEP[it.ex.eq] || 2, v = parseFloat($('pWt').value); v = isNaN(v) ? 0 : v; v = Math.max(0, Math.round((v + d * step) * 10) / 10);
     $('pWt').value = v; setWt(it.id, it.ex, it.wk, v);
   }
   $('pWtMinus').addEventListener('click', function () { wtStep(-1); });
   $('pWtPlus').addEventListener('click', function () { wtStep(1); });
   $('pWt').addEventListener('input', function () {
-    if (!P) return; var nxt = P.q[P.i + 1], it = (P.stage === 'rest' && nxt) ? nxt : P.q[P.i]; if (!it || it.kind === 'cardio') return;
+    if (!P) return; var it = P.showIt; if (!it || it.kind === 'cardio') return; // the set whose weight is on screen
     var v = parseFloat(this.value); setWt(it.id, it.ex, it.wk, isNaN(v) ? null : v);
   });
+  $('pWt').addEventListener('change', function () { var v = cleanWt(parseFloat(this.value)); this.value = v == null ? '' : v; });
   function logAdj(d) {
     if (!P) return; var it = P.q[P.i]; if (!it || !it.logged) return;
     it.logged.v = Math.max(1, it.logged.v + d * (it.logged.k === 'h' ? 5 : 1)); save();
@@ -2707,7 +3040,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
   show((location.hash || '').slice(1) || 'train', true);
   window.__isoholdReady = performance.now();
   // read-only hooks for the automated test suite
-  window.__isoTest = { buildQueue: buildQueue, allDays: allDays, mins: mins, V: V, chooseEq: chooseEq, store: function () { return store; }, strengthData: strengthData, holdMax: holdMax, repMax: repMax, phaseOf: phaseOf, blocksFor: blocksFor, wLabel: wLabel, weekDone: weekDone, isPB: isPB };
+  window.__isoTest = { buildQueue: buildQueue, allDays: allDays, mins: mins, V: V, chooseEq: chooseEq, pickEq: pickEq, store: function () { return store; }, strengthData: strengthData, holdMax: holdMax, repMax: repMax, phaseOf: phaseOf, blocksFor: blocksFor, wLabel: wLabel, weekDone: weekDone, isPB: isPB };
   requestAnimationFrame(frame);
 })();
 
