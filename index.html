@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -34,7 +34,7 @@ button, .chip, .tabs button { -webkit-user-select: none; user-select: none; -web
    Layout: one column (max 560px), bottom tab bar in thumb reach, sheets slide up for detail. */
 :root {
   --bg: #eceeec; --surface: #f8f9f8; --sunk: #dfe3e2; --ink: #1a1d20; --muted: #5a626a; --line: #d2d7d6;
-  --hold: #cf3a2f; --hold-ink: #ffffff; --rep: #2458b3; --rep-ink: #ffffff; --ok: #1f8247; --ok-ink: #ffffff;
+  --hold: #c4352a; --hold-ink: #ffffff; --rep: #2458b3; --rep-ink: #ffffff; --ok: #19703c; --ok-ink: #ffffff;
   --k16: #d9a300; --k20: #7a4fc6; --k24: #23864a; --k28: #df6f19; --k32: #cf3a2f;
   --band-ink: #1a1d20;
   --fig-ink: #1c2024; --fig-far: #a1a8ad; --fig-hl: #d8402f; --fig-hl-far: #eea39c; --iron: #2a2e33; --iron-hub: #8b9299;
@@ -178,9 +178,9 @@ nav.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; backgrou
 .stage.easy { background: var(--ok); color: var(--ok-ink); }
 .seg { display: grid; grid-template-columns: 1fr 1fr; background: var(--sunk); border-radius: 12px; padding: 4px; gap: 4px; }
 .seg button { border: 0; border-radius: 9px; min-height: 40px; background: transparent; font-weight: 700; font-size: 15px; }
-.seg button[aria-selected="true"] { background: var(--surface); box-shadow: 0 1px 2px rgba(0, 0, 0, .12); }
-.seg button[aria-selected="true"].h { color: var(--hold); }
-.seg button[aria-selected="true"].r { color: var(--rep); }
+.seg button[aria-selected="true"], .seg button[aria-pressed="true"] { background: var(--surface); box-shadow: 0 1px 2px rgba(0, 0, 0, .12); }
+.seg button[aria-selected="true"].h, .seg button[aria-pressed="true"].h { color: var(--hold); }
+.seg button[aria-selected="true"].r, .seg button[aria-pressed="true"].r { color: var(--rep); }
 .d-meta { display: grid; gap: 4px; }
 .d-meta h3 { font-family: var(--f-display); font-weight: 800; font-size: 34px; line-height: 1; }
 .d-rx { font-weight: 700; font-size: 17px; }
@@ -299,6 +299,10 @@ table.cov td small { color: var(--muted); }
 #pSetLabel { font-weight: 700; font-size: 15px; }
 #pRx { font-size: 15px; color: var(--muted); }
 #pCues { margin: 0; padding-left: 20px; display: grid; gap: 2px; font-size: 15.5px; }
+#pCues.summary { list-style: none; padding: 0; gap: 8px; }
+#pCues.summary li { background: var(--surface); border-radius: 12px; padding: 9px 12px; line-height: 1.35; }
+.sum-sets { color: var(--muted); font-size: 14.5px; }
+.pb { display: inline-block; font-size: 12.5px; font-weight: 800; padding: 1px 8px; border-radius: 999px; background: var(--ink); color: var(--bg); vertical-align: 1px; }
 #pNext { font-size: 15px; color: var(--muted); }
 .p-ctrl { display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 8px; padding-block: 10px calc(10px + env(safe-area-inset-bottom, 0px)); max-width: 560px; width: 100%; margin: 0 auto; }
 .p-ctrl .btn { min-height: 60px; font-size: 17px; white-space: nowrap; padding: 0 10px; }
@@ -354,7 +358,7 @@ table.cov td small { color: var(--muted); }
 .row .s.m { color: var(--muted); font-size: 13.5px; }
 .ev-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-left: 4px; vertical-align: middle; }
 .ev { display: inline-block; font-size: 12.5px; font-weight: 700; padding: 2px 9px; border-radius: 999px; }
-.ev-strong { background: color-mix(in srgb, var(--ok) 18%, var(--surface)); color: var(--ok); } .ev-dot.ev-strong { background: var(--ok); }
+.ev-strong { background: color-mix(in srgb, var(--ok) 11%, var(--surface)); color: color-mix(in srgb, var(--ok) 85%, var(--ink)); } .ev-dot.ev-strong { background: var(--ok); }
 .ev-moderate { background: color-mix(in srgb, var(--rep) 15%, var(--surface)); color: var(--rep); } .ev-dot.ev-moderate { background: var(--rep); }
 .ev-limited { background: var(--sunk); color: var(--muted); } .ev-dot.ev-limited { background: var(--muted); }
 .d-top { display: flex; align-items: flex-start; gap: 10px; }
@@ -390,6 +394,7 @@ table.cov td small { color: var(--muted); }
 .stepper span { font-weight: 700; color: var(--muted); padding: 0 2px; }
 .pwt { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--surface); border-radius: 14px; padding: 8px 10px 8px 14px; }
 .pwt > span { font-weight: 700; font-size: 15px; }
+.pwt-l small { display: block; font-weight: 500; font-size: 13px; color: var(--muted); margin-top: 1px; }
 .plog { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-weight: 700; color: var(--ok); margin: 0; }
 .plog-b { display: flex; gap: 6px; }
 .plog-b button { width: 40px; height: 36px; border-radius: 10px; border: 1.5px solid var(--line); background: transparent; font-weight: 700; font-size: 18px; padding: 0; }
@@ -502,7 +507,7 @@ details.how .gbody { display: grid; gap: 10px; font-size: 15px; }
       <h2>Muscle coverage</h2>
       <p id="covNote"></p>
       <div class="legend"><span><i class="mk h"></i>Tendon hold</span><span><i class="mk r"></i>Growth lift</span></div>
-      <div class="cov-scroll"><table class="cov" id="cov"></table></div>
+      <div class="cov-scroll" tabindex="0" role="region" aria-label="Muscle coverage table, scrolls sideways"><table class="cov" id="cov"></table></div>
     </div>
     <div class="card bk" id="backup">
       <h2>Backup &amp; restore</h2>
@@ -614,7 +619,7 @@ details.how .gbody { display: grid; gap: 10px; font-size: 15px; }
           <span id="pRx"></span>
         </div>
       </div>
-      <div class="pwt" id="pWtRow"><span id="pWtLab">Weight</span><div class="stepper"><button id="pWtMinus" aria-label="Less weight">−</button><input id="pWt" type="number" inputmode="decimal" step="0.5" min="0" placeholder="0" aria-label="Weight in kilograms"><span>kg</span><button id="pWtPlus" aria-label="More weight">+</button></div></div>
+      <div class="pwt" id="pWtRow"><span class="pwt-l"><span id="pWtLab">Weight</span><small id="pLast" hidden></small></span><div class="stepper"><button id="pWtMinus" aria-label="Less weight">−</button><input id="pWt" type="number" inputmode="decimal" step="0.5" min="0" placeholder="0" aria-label="Weight in kilograms"><span>kg</span><button id="pWtPlus" aria-label="More weight">+</button></div></div>
       <p class="plog" id="pLog" hidden><span id="pLogTxt"></span><span class="plog-b"><button id="pLogMinus" aria-label="Logged less">−</button><button id="pLogPlus" aria-label="Logged more">+</button></span></p>
       <ul id="pCues"></ul>
       <p id="pNext"></p>
@@ -1426,8 +1431,8 @@ var REFS = {
   oneill2019: { a: "O'Neill et al., 2019", j: 'Knee Surg Sports Traumatol Arthrosc', t: 'Acute sensory and motor response to 45-s heavy isometric holds for the plantar flexors in patients with Achilles tendinopathy', k: '45 s heavy calf holds did not give immediate pain relief for Achilles tendon pain.', u: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC6706360/' },
   maeo2023: { a: 'Maeo et al., 2023', j: 'Eur J Sport Sci', t: 'Triceps brachii hypertrophy is substantially greater after elbow extension training performed in the overhead versus neutral arm position', k: 'Overhead (stretched) triceps work grew the triceps about 1.4× more than pushdowns.', u: 'https://pubmed.ncbi.nlm.nih.gov/35819335/' },
   maeo2021: { a: 'Maeo et al., 2021', j: 'Med Sci Sports Exerc', t: 'Greater hamstrings muscle hypertrophy but similar damage protection after training at long versus short muscle lengths', k: 'Training the hamstrings in a stretched position built more muscle.', u: 'https://pubmed.ncbi.nlm.nih.gov/33009197/' },
-  refalo2023: { a: 'Refalo et al., 2023', j: 'Sports Medicine', t: 'Influence of resistance training proximity-to-failure on skeletal muscle hypertrophy (meta-analysis)', k: 'Sets taken closer to failure build more muscle, with diminishing returns near failure.', u: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9935748/' },
-  schoenfeld2017: { a: 'Schoenfeld, Ogborn & Krieger, 2017', j: 'J Sports Sciences', t: 'Dose-response relationship between weekly resistance training volume and increases in muscle mass (meta-analysis)', k: 'About 10 or more hard sets per muscle per week builds more muscle than fewer.', u: 'https://doi.org/10.1080/02640414.2016.1210197' },
+  refalo2023: { a: 'Refalo et al., 2023', j: 'Sports Medicine', t: 'Influence of resistance training proximity-to-failure on skeletal muscle hypertrophy (meta-analysis)', k: 'Going all the way to failure gave only a trivial extra growth benefit; stopping 1–3 reps short works about as well.', u: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9935748/' },
+  schoenfeld2017: { a: 'Schoenfeld, Ogborn & Krieger, 2017', j: 'J Sports Sciences', t: 'Dose-response relationship between weekly resistance training volume and increases in muscle mass (meta-analysis)', k: 'More weekly sets per muscle gave more growth in a graded way; 10+ sets a week trended highest.', u: 'https://doi.org/10.1080/02640414.2016.1210197' },
   reinold2004: { a: 'Reinold et al., 2004', j: 'J Orthop Sports Phys Ther', t: 'Electromyographic analysis of the rotator cuff and deltoid musculature during common shoulder external rotation exercises', k: 'Side-lying external rotation produced the highest infraspinatus and teres minor activity of the exercises tested.', u: 'https://pubmed.ncbi.nlm.nih.gov/15296366/' },
   ekstrom2003: { a: 'Ekstrom, Donatelli & Soderberg, 2003', j: 'J Orthop Sports Phys Ther', t: 'Surface electromyographic analysis of exercises for the trapezius and serratus anterior muscles', k: 'Prone arm raises overhead in line with the lower trapezius (the Y position) strongly activated the lower trapezius.', u: 'https://pubmed.ncbi.nlm.nih.gov/12774999/' },
   fenwick2009: { a: 'Fenwick, Brown & McGill, 2009', j: 'J Strength Cond Res', t: 'Comparison of different rowing exercises: trunk muscle activation and lumbar spine motion, load, and stiffness', k: 'Bent-over and one-arm rows strongly load the back muscles; bent-over rows also load the lower back.', u: 'https://pubmed.ncbi.nlm.nih.gov/19197209/' },
@@ -1436,8 +1441,8 @@ var REFS = {
   mcgill2012: { a: 'McGill & Marshall, 2012', j: 'J Strength Cond Res', t: 'Kettlebell swing, snatch, and bottoms-up carry: back and hip muscle activation, motion, and low back loads', k: 'The swing gives high glute and back-extensor activation with a fast hip snap.', u: 'https://pubmed.ncbi.nlm.nih.gov/21997449/' },
   hubscher2010: { a: 'Hübscher et al., 2010', j: 'Med Sci Sports Exerc', t: 'Neuromuscular training for sports injury prevention: a systematic review', k: 'Balance training reduces ankle sprains, especially in people who have sprained an ankle before.', u: 'https://pubmed.ncbi.nlm.nih.gov/19952811/' },
   freylaw2010: { a: 'Frey-Law & Avin, 2010', j: 'Ergonomics', t: 'Endurance time is joint-specific: a modelling and meta-analysis investigation', k: 'Pooled hold-to-failure studies into one equation per joint linking how long you can hold to what share of your maximum the load is. Used for the strength map.', u: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC2891087/' },
-  reynolds2006: { a: 'Reynolds, Gordon & Robergs, 2006', j: 'J Strength Cond Res', t: 'Prediction of one repetition maximum strength from multiple repetition maximum testing and anthropometry', k: 'Rep-based one-rep-max estimates are most accurate from sets of about 5 reps and should use no more than 10. Used for the strength map.', u: 'https://www.unm.edu/~rrobergs/478RMStrengthPrediction.pdf' },
-  stasinopoulos2023: { a: 'Stasinopoulos, 2023', j: 'J Clin Med', t: 'Isometric exercise for the management of lateral elbow tendinopathy', k: 'Evidence for wrist holds alone in tennis elbow is mixed and low certainty; they fit best inside a progressive loading program.', u: 'https://www.mdpi.com/2077-0383/12/1/94' }
+  reynolds2006: { a: 'Reynolds, Gordon & Robergs, 2006', j: 'J Strength Cond Res', t: 'Prediction of one repetition maximum strength from multiple repetition maximum testing and anthropometry', k: 'Rep-based one-rep-max estimates are most accurate from sets of about 5 reps and should use no more than 10. Used for the strength map.', u: 'https://pubmed.ncbi.nlm.nih.gov/16937972/' },
+  stasinopoulos2023: { a: 'Stasinopoulos, 2023', j: 'J Clin Med (editorial)', t: 'Isometric exercise for the management of lateral elbow tendinopathy', k: 'An expert editorial, not a trial: evidence for wrist holds alone in tennis elbow is mixed; they fit best inside a progressive loading program.', u: 'https://pubmed.ncbi.nlm.nih.gov/36614894/' }
 };
 // Evidence per exercise: r = how strong the support is, s = what it supports, refs = papers.
 var EVID = {
@@ -1587,7 +1592,16 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
       if (part === 'am') q = q.concat(cardioItems(WARMUP));
       var c = custFor(day, part);
       blocksFor(day, part).forEach(function (b) { q = q.concat(blockItems(b, ph, c.off)); });
-      if (part === 'pm') q = q.concat(cardioItems(FINISHER[ph.n]));
+      if (part === 'pm') {
+        // keep the whole day within 60 minutes: trim the easy/steady parts of the rowing finisher if needed
+        var fin = FINISHER[ph.n].map(function (s) { return s.slice(); }), finSecs = fin.reduce(function (t, s) { return t + s[1]; }, 0);
+        var over = qSecs(buildQueue(day, 'am', ph)) + qSecs(q) + finSecs - 3600;
+        if (over > 0) {
+          var soft = fin.filter(function (s) { return s[2] !== 'Hard'; }), softSecs = soft.reduce(function (t, s) { return t + s[1]; }, 0);
+          soft.forEach(function (s) { s[1] = Math.max(60, Math.round((s[1] - over * s[1] / softSecs) / 10) * 10); });
+        }
+        q = q.concat(cardioItems(fin));
+      }
     }
     if (q.length) q[q.length - 1].after = 0;
     return q;
@@ -1694,7 +1708,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
       });
       var nOff = Object.keys(c.off).filter(function (id) { return c.off[id] && (c.off[id].h || c.off[id].r); }).length;
       list += '<li class="plan-act"><button class="addbtn" data-add="' + sk + '"><span aria-hidden="true">+</span> Add exercise</button>' + (nOff || c.add.length ? '<button class="textbtn" data-reset="' + sk + '">Reset to plan</button>' : '') + '</li>';
-      if (part === 'pm') list += cardioRow(FINISHER[ph.n], 'Rowing finisher');
+      if (part === 'pm') list += cardioRow(buildQueue(day, 'pm', ph).filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.ex === CARDIO_FIG.row ? 'row' : 'walk', it.dur, it.effort, it.txt]; }), 'Rowing finisher');
     }
     var cc = day.cardio ? null : custFor(day, part), edits = cc ? Object.keys(cc.off).filter(function (id) { return cc.off[id] && (cc.off[id].h || cc.off[id].r); }).length + cc.add.length : 0;
     var sum = day.cardio ? segSummary(day[part](ph))[1] : (part === 'am' ? 'Treadmill warm-up, then ' : '') + count + ' exercise' + (count === 1 ? '' : 's') + (part === 'pm' ? ', then rowing' : '') + '. Using ' + eqSummary() + '.' + (edits ? ' Changed by you.' : '');
@@ -1950,7 +1964,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     if (!strSel || ids.indexOf(strSel) < 0) { var last = store.log[store.log.length - 1]; strSel = last ? last.id : ids[0]; if (last) strKind = last.k; }
     var rows = store.log.filter(function (l) { return l.id === strSel && l.k === strKind; });
     var h = '<h2>Exercise history</h2><select id="strSel" aria-label="Exercise">' + ids.map(function (id) { return '<option value="' + id + '"' + (id === strSel ? ' selected' : '') + '>' + esc(baseName(BY[id].name)) + '</option>'; }).join('') + '</select>' +
-      '<div class="seg"><button class="h" data-k="h" aria-selected="' + (strKind === 'h') + '">Hold</button><button class="r" data-k="r" aria-selected="' + (strKind === 'r') + '">Reps</button></div>';
+      '<div class="seg" role="group" aria-label="Hold or reps"><button class="h" data-k="h" aria-pressed="' + (strKind === 'h') + '">Hold</button><button class="r" data-k="r" aria-pressed="' + (strKind === 'r') + '">Reps</button></div>';
     if (!rows.length) h += '<p class="muted">No ' + (strKind === 'h' ? 'holds' : 'rep sets') + ' logged for this exercise yet.</p>';
     else {
       // best set per session day
@@ -1995,7 +2009,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
           var ho = d.ex.filter(function (id) { return has(BY[id], tag); }), gr = d.ex.filter(function (id) { return has(G[id], tag); });
           hs += ho.length * ph.sets; gsum += gr.length * ph.gs;
           var marks = ''; ho.forEach(function () { marks += '<i class="mk h"></i>'; }); gr.forEach(function () { marks += '<i class="mk r"></i>'; });
-          return '<td class="c"><span class="mks" aria-label="' + ho.length + ' holds, ' + gr.length + ' rep exercises">' + marks + '</span></td>';
+          return '<td class="c"><span class="mks" role="img" aria-label="' + ho.length + ' holds, ' + gr.length + ' rep exercises">' + marks + '</span></td>';
         }).join('') + '<td class="c num"><b>' + (hs + gsum) + '</b></td></tr>';
       });
     });
@@ -2049,6 +2063,21 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     var epley = l.kg * (1 + rtf / 30), brz = rtf < 37 ? l.kg * 36 / (37 - rtf) : epley;
     return { est: rtf <= 10 ? (epley + brz) / 2 : epley, rtf: rtf, rir: rir, rough: rtf > 10 };
   }
+  function estOf(l) { return l.k === 'h' ? holdMax(l).est : repMax(l).est; }
+  function sameEx(a, b) { return a.id === b.id && a.k === b.k && a.eq === b.eq; }
+  // A set is a personal best when its estimated max beats every earlier set of the same exercise and equipment.
+  function isPB(e) {
+    if (!e || !e.kg || e.v < (e.k === 'h' ? 10 : 3)) return false; // very short holds or tiny sets are not a fair test
+    var est = estOf(e), prev = 0, n = 0;
+    store.log.forEach(function (l) { if (l !== e && l.kg && l.t < e.t && sameEx(l, e)) { n++; prev = Math.max(prev, estOf(l)); } });
+    return n > 0 && est > prev * 1.005;
+  }
+  function setTxt(l) { return (l.kg ? kg(l.kg) + ' × ' : '') + l.v + (l.k === 'h' ? ' s' : l.v === 1 ? ' rep' : ' reps'); }
+  function lastFor(it) {
+    for (var i = store.log.length - 1; i >= 0; i--) { var l = store.log[i]; if (l.t < P.start && l.id === it.id && l.k === it.wk && l.eq === it.ex.eq) return l; }
+    return null;
+  }
+  function haptic(style) { native({ type: 'haptic', style: style }); try { if (navigator.vibrate) navigator.vibrate(style === 'success' ? [25, 60, 25] : 15); } catch (e) { } }
   function unitNote(id, eq, kind) {
     var o = parseEq(EQV[id][kind === 'h' ? 'h' : 'g']).filter(function (x) { return x.eq === eq; })[0] || { eq: eq, style: '' };
     if (eq === 'w') return '';
@@ -2394,7 +2423,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
   function startSession(dayId, part, replaceHist) {
     var day = allDays().filter(function (d) { return d.id === dayId; })[0], ph = phaseOf(store.week);
     var q = buildQueue(day, part, ph);
-    P = { day: day, part: part, ph: ph, q: q, i: 0, stage: 'ready', paused: false };
+    P = { day: day, part: part, ph: ph, q: q, i: 0, stage: 'ready', paused: false, start: Date.now(), pbs: {} };
     try { if (replaceHist && history.state && history.state.sheet) history.replaceState({ player: 1 }, ''); else history.pushState({ player: 1 }, ''); } catch (e) { }
     $('pConfirm').hidden = true;
     try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) { }
@@ -2413,7 +2442,8 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     var it = P.q[P.i];
     P.stage = stage; P.t0 = performance.now(); P.lastSec = null; P.lastRep = 0;
     P.dur = stage === 'ready' ? readyDur(it) : stage === 'work' ? it.dur : it.after;
-    if (stage === 'work') beep(it.kind === 'cardio' && it.effort !== 'Hard' ? 700 : 880, 0.35);
+    if (stage === 'work') { beep(it.kind === 'cardio' && it.effort !== 'Hard' ? 700 : 880, 0.35); haptic('medium'); }
+    if (stage === 'rest' || stage === 'switch') haptic('light');
     if (stage === 'rest' || stage === 'switch') { beep(660, 0.15); setTimeout(function () { beep(660, 0.15); }, 200); }
     paint();
   }
@@ -2423,7 +2453,6 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     if (P.stage === 'ready') return enter('work');
     if (P.stage === 'work') {
       logSet(it);
-      if (nextIdx(P.i) >= P.q.length) return finish();
       if (nextIdx(P.i) >= P.q.length) return finish();
       if (it.after > 0) return enter(it.afterKind);
     }
@@ -2439,6 +2468,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     var w = getWt(it.id, it.ex, it.wk);
     var e = { t: Date.now(), w: store.week, id: it.id, eq: it.ex.eq, k: it.wk, kg: it.ex.eq === 'w' ? 0 : w, v: v };
     unlog(it); store.log.push(e); it.logged = e;
+    if (isPB(e) && !P.pbs[it.id + it.wk]) { P.pbs[it.id + it.wk] = 1; haptic('success'); beep(988, .12); setTimeout(function () { beep(1319, .2); }, 130); }
     if (store.log.length > 4000) store.log.splice(0, store.log.length - 4000);
     save();
   }
@@ -2452,8 +2482,18 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     $('pTime').textContent = '✓'; $('pTime').className = ''; $('pRing').style.strokeDashoffset = 0;
     var holds = P.q.filter(function (x) { return x.kind === 'hold'; }).length, reps = P.q.filter(function (x) { return x.kind === 'reps' || x.kind === 'time'; }).length;
     var cm = Math.round(P.q.filter(function (x) { return x.kind === 'cardio'; }).reduce(function (s, x) { return s + x.dur; }, 0) / 60);
-    $('pSetLabel').textContent = P.day.cardio ? cm + ' min of cardio' : holds + ' holds, ' + reps + ' rep sets and ' + cm + ' min of cardio'; $('pSets').innerHTML = ''; $('pRx').textContent = 'Logged for week ' + store.week + '.';
-    $('pCues').innerHTML = ''; $('pNext').textContent = P.part === 'am' && !P.day.cardio ? 'Evening session later today. Leave at least 6 hours between the two if you can.' : 'Rate how your tendons feel tomorrow morning. Above 3/10 means go lighter next time. Muscle soreness is normal.';
+    $('pSetLabel').textContent = P.day.cardio ? cm + ' min of cardio' : holds + ' holds, ' + reps + ' rep sets and ' + cm + ' min of cardio'; $('pSets').innerHTML = '';
+    $('pCues').className = 'summary'; $('pRx').textContent = 'Logged for week ' + store.week + '.';
+    var groups = [], byKey = {}, nSets = 0, nPB = 0, load = 0;
+    P.q.forEach(function (x) { if (!x.logged) return; var key = x.id + x.wk, g = byKey[key];
+      if (!g) { g = byKey[key] = { name: x.ex.name, sets: [], pb: false }; groups.push(g); }
+      g.sets.push(setTxt(x.logged)); nSets++; if (isPB(x.logged)) g.pb = true; if (x.logged.k !== 'h') load += x.logged.kg * x.logged.v; });
+    groups.forEach(function (g) { if (g.pb) nPB++; });
+    var took = Math.max(1, Math.round((Date.now() - P.start) / 60000));
+    if (!P.day.cardio) $('pSetLabel').textContent = took + ' min · ' + nSets + (nSets === 1 ? ' set' : ' sets') + ' logged' + (nPB ? ' · ' + nPB + (nPB === 1 ? ' new best' : ' new bests') : '') + (load ? ' · ' + Math.round(load) + ' kg lifted' : '');
+    $('pCues').innerHTML = groups.map(function (g) { return '<li><b>' + esc(g.name) + '</b>' + (g.pb ? ' <span class="pb">New best</span>' : '') + '<br><span class="sum-sets">' + esc(g.sets.join(', ')) + '</span></li>'; }).join('');
+    if (nPB) haptic('success');
+    $('pNext').textContent = P.part === 'am' && !P.day.cardio ? 'Evening session later today. Leave at least 6 hours between the two if you can.' : 'Rate how your tendons feel tomorrow morning. Above 3/10 means go lighter next time. Muscle soreness is normal.';
     $('pDay').textContent = P.head;
     $('pAngle').hidden = true; $('pPause').hidden = true; $('pSkip').hidden = true; $('pMore').hidden = true; $('pPrev').hidden = true; $('pWtRow').hidden = true; $('pLog').hidden = true; $('pSkipEx').hidden = true;
     $('pClose').setAttribute('aria-label', 'Close');
@@ -2474,7 +2514,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     renderTrain();
     native({ type: 'awake', on: false });
     ['pPause', 'pSkip', 'pMore', 'pPrev', 'pWtRow', 'pSkipEx'].forEach(function (id) { $(id).hidden = false; });
-    $('pClose').setAttribute('aria-label', 'End session'); $('pAngle').hidden = false;
+    $('pClose').setAttribute('aria-label', 'End session'); $('pAngle').hidden = false; $('pCues').className = '';
     try { if (WL) WL.release(); } catch (e) { } WL = null;
   }
   function nextDifferent(from, ex) { for (var k = from; k < P.q.length; k++) if (P.q[k].ex !== ex && !P.q[k].skip) return P.q[k]; return null; }
@@ -2511,7 +2551,8 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     if (showWt) { var wv = getWt(showIt.id, ex, showIt.wk); $('pWt').value = wv == null ? '' : wv; $('pWtLab').textContent = wLabel(ex); }
     var lg = (P.stage === 'rest' || P.stage === 'switch') && it.logged;
     $('pLog').hidden = !lg;
-    if (lg) $('pLogTxt').textContent = 'Logged ' + (it.logged.kg ? kg(it.logged.kg) + ' × ' : '') + it.logged.v + (it.logged.k === 'h' ? ' s' : it.logged.v === 1 ? ' rep' : ' reps');
+    if (lg) { var pb = isPB(it.logged); $('pLogTxt').innerHTML = 'Logged ' + esc(setTxt(it.logged)) + (pb ? ' <b class="pb">New best</b>' : ''); }
+    var last = showWt && lastFor(showIt); $('pLast').hidden = !last; if (last) $('pLast').textContent = 'Last time: ' + setTxt(last);
     var after = '';
     if (P.stage === 'work' && it.kind !== 'cardio') after = nxt ? (it.afterKind === 'switch' ? 'Then switch sides' : it.after > MOVE + 5 ? 'Then rest ' + it.after + ' s' : 'Then move straight to the next exercise') : 'Last set of the session';
     if (P.stage === 'work' && it.kind === 'reps') after = 'Tap “Set done” if you hit your limit early. ' + after;
@@ -2591,7 +2632,9 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
   });
   function logAdj(d) {
     if (!P) return; var it = P.q[P.i]; if (!it || !it.logged) return;
-    it.logged.v = Math.max(1, it.logged.v + d * (it.logged.k === 'h' ? 5 : 1)); save(); paint();
+    it.logged.v = Math.max(1, it.logged.v + d * (it.logged.k === 'h' ? 5 : 1)); save();
+    if (isPB(it.logged) && !P.pbs[it.id + it.wk]) { P.pbs[it.id + it.wk] = 1; haptic('success'); }
+    paint();
   }
   $('pLogMinus').addEventListener('click', function () { logAdj(-1); });
   $('pLogPlus').addEventListener('click', function () { logAdj(1); });
@@ -2663,6 +2706,8 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
   renderTrain(); refreshBackup();
   show((location.hash || '').slice(1) || 'train', true);
   window.__isoholdReady = performance.now();
+  // read-only hooks for the automated test suite
+  window.__isoTest = { buildQueue: buildQueue, allDays: allDays, mins: mins, V: V, chooseEq: chooseEq, store: function () { return store; }, strengthData: strengthData, holdMax: holdMax, repMax: repMax, phaseOf: phaseOf, blocksFor: blocksFor, wLabel: wLabel, weekDone: weekDone, isPB: isPB };
   requestAnimationFrame(frame);
 })();
 
