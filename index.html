@@ -344,6 +344,21 @@ table.cov td small { color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { .typing i { animation: none; opacity: .6; } }
 
 /* ---------- additions: progress, equipment, weights, research ---------- */
+.eqdd { background: var(--surface); border-radius: 14px; }
+.eqdd summary { list-style: none; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 6px 14px; cursor: pointer; }
+.eqdd summary::-webkit-details-marker { display: none; }
+.eqdd summary .eqdd-l { color: var(--muted); font-size: 14px; }
+.eqdd summary b { flex: 1; min-width: 0; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.eqdd summary .gc { width: 18px; height: 18px; transition: transform .15s; flex: none; }
+.eqdd[open] summary .gc { transform: rotate(90deg); }
+.eqdd-m { display: grid; gap: 2px; padding: 0 8px 10px; }
+.eqdd-m label { display: flex; align-items: center; gap: 12px; min-height: 46px; padding: 0 8px; border-radius: 10px; font-weight: 700; cursor: pointer; }
+.eqdd-m label:has(input:checked) { background: var(--sunk); }
+.eqdd-m input { width: 22px; height: 22px; margin: 0; accent-color: var(--ink); flex: none; }
+.eqdd-m .eqi { display: inline-flex; width: 28px; justify-content: center; }
+.eqdd-m .eqi svg { width: 26px; height: 26px; }
+.eqdd-m p { margin: 4px 8px 0; font-size: 13.5px; color: var(--muted); }
+.eqdd-m p.err { color: var(--hold); font-weight: 700; }
 .overall { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; font-size: 14px; }
 .overall .ov-t { display: flex; gap: 6px; align-items: baseline; font-weight: 700; color: var(--muted); }
 .overall .ov-t b { color: var(--ink); }
@@ -482,12 +497,14 @@ details.how .gbody { display: grid; gap: 10px; font-size: 15px; }
     <div class="band" id="band"></div>
     <div class="overall" id="overall"></div>
     <div class="strip" id="strip" role="group" aria-label="Day of the week"></div>
+    <div class="eqdd-wrap" id="eqddTrain"></div>
     <div id="sessions" class="view" style="gap:12px"></div>
   </section>
 
   <!-- EXERCISES -->
   <section class="view" id="exercises" aria-labelledby="tab-exercises" hidden>
     <div class="view-head"><h1>Exercises</h1></div>
+    <div class="eqdd-wrap" id="eqddLib"></div>
     <div class="chips" id="chips" role="group" aria-label="Filter by area"></div>
     <div id="lib" class="view" style="gap:14px"></div>
   </section>
@@ -1678,7 +1695,30 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
       return '<button data-i="' + i + '" aria-pressed="' + (i === selDay) + '" class="' + (i === nx ? 'today' : '') + '" aria-label="Day ' + (i + 1) + ', ' + d.name + (i === nx ? ', up next' : '') + '"><span class="n">' + (i + 1) + '</span><span class="d">' + SHORT[i] + '</span><span class="dots">' + dots + '</span></button>';
     }).join('');
     $('sessions').innerHTML = sessionCard(day, 'am', ph) + sessionCard(day, 'pm', ph);
+    renderEqDD('eqddTrain', 'Exercises in each session change to match.');
   }
+  // ---------- equipment dropdown (Train + Exercises) ----------
+  var EQ_NAME = { k: 'Kettlebells', d: 'Dumbbells', b: 'Barbell & plates' };
+  function renderEqDD(host, note, err) {
+    var el = $(host); if (!el) return;
+    var wasOpen = !!el.querySelector('details[open]');
+    var names = store.eq.map(function (e) { return EQ_NAME[e]; }).join(', ');
+    el.innerHTML = '<details class="eqdd"' + (wasOpen ? ' open' : '') + '><summary aria-label="Equipment: ' + esc(names) + '. Change"><span class="eqdd-l">Using</span><b>' + esc(names) + '</b>' +
+      '<svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>' +
+      '<div class="eqdd-m" role="group" aria-label="Equipment you have">' + ['k', 'd', 'b'].map(function (e) {
+        return '<label><input type="checkbox" data-eqv="' + e + '"' + (store.eq.indexOf(e) > -1 ? ' checked' : '') + '><span class="eqi">' + EQ_ICON[e] + '</span>' + EQ_NAME[e] + '</label>';
+      }).join('') + '<p class="' + (err ? 'err' : '') + '" role="status">' + (err || note) + '</p></div></details>';
+  }
+  document.addEventListener('change', function (e) {
+    var cb = e.target.closest && e.target.closest('input[data-eqv]'); if (!cb) return;
+    var host = cb.closest('.eqdd-wrap').id;
+    var sel = [].slice.call(cb.closest('.eqdd-m').querySelectorAll('input[data-eqv]:checked')).map(function (x) { return x.dataset.eqv; });
+    if (!sel.length) { cb.checked = true; renderEqDD(host, '', 'Pick at least one.'); var f = $(host).querySelector('input[data-eqv="' + cb.dataset.eqv + '"]'); if (f) f.focus(); return; }
+    store.eq = sel.sort(function (x, y) { return 'kdb'.indexOf(x) - 'kdb'.indexOf(y); }); save();
+    renderTrain(); if (libBuilt) ensureLib();
+    renderEqDD('eqddLib', 'Exercise names and pictures change to match.');
+    var back = $(host).querySelector('input[data-eqv="' + cb.dataset.eqv + '"]'); if (back) back.focus();
+  });
   function exRow(id, ph, sk, off, added) {
     var h = V(id, 'h'), g = V(id, 'g'), wh = getWt(id, h, 'h'), wg = getWt(id, g, 'r'), o = (off && off[id]) || {};
     var both = o.h && o.r;
@@ -1693,7 +1733,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     return '<li><div class="row cardio">' + figSvg(fig, 0) + '<span><span class="t">' + esc(label) + '</span><span class="s">' + esc(s[0]) + ', <b>' + esc(s[1]) + '</b></span></span></div></li>';
   }
   var openPlans = {};
-  function eqSummary() { return store.eq.map(function (e) { return EQ_LABEL[e].toLowerCase() + 's'; }).join(', ').replace(/, ([^,]*)$/, ' and $1'); }
+  function eqSummary() { return store.eq.map(function (e) { return e === 'b' ? 'a barbell' : EQ_LABEL[e].toLowerCase() + 's'; }).join(', ').replace(/, ([^,]*)$/, ' and $1'); }
   function sessionCard(day, part, ph) {
     var key = doneKey(day, part), done = !!store.done[key], m = mins(day, part, ph), name = part === 'am' ? 'Morning' : 'Evening';
     var list = '', count = 0;
@@ -1904,7 +1944,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
   }
   $('chips').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; filter = b.dataset.f; renderChips(); applyFilter(); });
   var libBuilt = false, libEq = '';
-  function ensureLib() { if (libBuilt && libEq === store.eq.join('')) return; libBuilt = true; libEq = store.eq.join(''); renderChips(); renderLib(); applyFilter(); }
+  function ensureLib() { renderEqDD('eqddLib', 'Exercise names and pictures change to match.'); if (libBuilt && libEq === store.eq.join('')) return; libBuilt = true; libEq = store.eq.join(''); renderChips(); renderLib(); applyFilter(); }
   function renderLib() {
     $('lib').innerHTML = DAYS.map(function (d) {
       return '<div class="lib-group" data-g="' + d.id + '"><h2>Day ' + (allDays().indexOf(d) + 1) + ', ' + esc(d.name) + '</h2><div class="lib-list">' + d.ex.map(function (id) {
