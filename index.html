@@ -1367,24 +1367,24 @@ var EQ_LABEL = { k: 'Kettlebell', d: 'Dumbbell', b: 'Barbell', w: 'Bodyweight' }
 var EQ_STEP = { k: 4, d: 2, b: 2.5, w: 0 };
 var EQV = {
   'front-raise': { h: 'd k b:plate', g: 'd k b:plate' },
-  'lateral-raise': { h: 'd k b:plate?', g: 'd k b:plate?' },
-  'rear-fly': { h: 'd k b:plate?', g: 'd k b:plate?' },
+  'lateral-raise': { h: 'd k', g: 'd k' },
+  'rear-fly': { h: 'd k', g: 'd k' },
   'overhead-hold': { h: 'k d b:bar', g: 'k d b:bar', both: 'b', n: { b: 'Barbell Overhead Hold' }, gn: { b: 'Barbell Overhead Press' } },
-  'ext-rot': { h: 'd k b:plate?', g: 'd k b:plate?' },
+  'ext-rot': { h: 'd k', g: 'd k' },
   'oh-triceps': { h: 'k d b:bar', g: 'k d b:bar' },
-  'kickback': { h: 'd k b:plate?', g: 'd k b:plate?' },
+  'kickback': { h: 'd k', g: 'd k' },
   'hollow': { h: 'd k b:plate w', g: 'd k b:plate w' },
   'plank-db': { h: 'd k w', g: 'd k w', n: { k: 'High Plank on Kettlebells', w: 'High Plank' }, gn: { w: 'Plank Shoulder Tap' } },
   'goblet-squat': { h: 'k d b:bar', g: 'k d b:bar', n: { b: 'Zercher Squat Hold' }, gn: { b: 'Zercher Squat' } },
   'wall-sit': { h: 'd k b:plate w', g: 'd k b:plate w' },
-  'split-squat': { h: 'd k b:plate? w', g: 'd k b:plate? w' },
+  'split-squat': { h: 'd k w', g: 'd k w' },
   'glute-bridge': { h: 'd k b:bar w', g: 'd k b:bar w' },
   'calf-raise': { h: 'd k b:bar w', g: 'd k b:bar w' },
   'seated-calf': { h: 'd k b:bar', g: 'd k b:bar' },
   'tib-hold': { h: 'd k b:plate w', g: 'd k b:plate w' },
   'dead-bug': { h: 'k d b:plate w', g: 'k d b:plate w' },
   'shrug': { h: 'd k b:bar', g: 'd k b:bar' },
-  'prone-y': { h: 'd b:plate k w', g: 'd b:plate k w' },
+  'prone-y': { h: 'd w', g: 'd w' },
   'floor-press': { h: 'd k b:bar', g: 'd k b:bar' },
   'sa-row': { h: 'd k b:bar', g: 'd k b:bar', both: 'b', n: { b: 'Close-Grip Barbell Row Hold' }, gn: { b: 'Close-Grip Barbell Row' } },
   'bo-row': { h: 'b:bar d k', g: 'b:bar d k', n: { b: 'Wide-Grip Barbell Row Hold' }, gn: { b: 'Wide-Grip Barbell Row' } },
@@ -1395,8 +1395,8 @@ var EQV = {
   'rdl': { h: 'b:bar k d', g: 'b:bar k d' },
   'sl-rdl': { h: 'k d b:bar', g: 'k d b:bar', both: 'b' },
   'ham-bridge': { h: 'd k b:bar w', g: 'd k b:bar w' },
-  'bird-dog': { h: 'd k b:plate? w', g: 'k d b:bar', gn: { d: 'Dumbbell Swing', b: 'Barbell Speed RDL' }, fig: { 'g:b': 'rdl' } },
-  'farmer': { h: 'k d b:bar', g: 'k d b:bar', n: { b: 'Deadlift Lockout Hold' }, gn: { b: 'Barbell Hold March' } },
+  'bird-dog': { h: 'd k w', g: 'k d b:bar', gn: { d: 'Dumbbell Swing', b: 'Barbell Speed RDL' }, fig: { 'g:b': 'rdl' } },
+  'farmer': { h: 'k d b:bar', g: 'k d b:bar', n: { b: 'Deadlift Lockout Hold' }, gn: { b: 'Barbell Deadlift' }, fig: { 'g:b': 'h:farmer:0,2' }, gx: { b: { mode: null, uni: false, tempo: [1, 0.5, 2.5, 0.5] } } },
   'pinch': { h: 'd b:plate', g: 'd b:plate', n: { d: 'Dumbbell Pinch Hold', b: 'Plate Pinch Hold' }, gn: { d: 'Dumbbell Pinch Carry', b: 'Plate Pinch Carry' } },
   'wrist': { h: 'd k b:bar', g: 'd k b:bar', both: 'b' },
   'sl-balance': { h: 'k d b:plate w', g: 'k d b:plate w' }
@@ -1432,6 +1432,7 @@ function makeVariant(base, id, kind, opt) {
   v.name = (names && names[eq]) || (VPREFIX[eq === 'b' ? style : eq] + baseName(base.name));
   v.equipLabel = eq === 'b' ? (style === 'plate' ? 'Barbell plate' : 'Barbell') : EQ_LABEL[eq];
   v.uni = both ? false : base.uni;
+  var gx = kind === 'g' && spec.gx && spec.gx[eq]; if (gx) for (var gk in gx) v[gk] = gx[gk];
   if (typeof eqText === 'function' && base.steps) {
     var tx = eqText(base, id, kind, eq, style);
     v.steps = base.steps.map(function (st, i) { var c = {}, key; for (key in st) c[key] = st[key]; c.txt = tx.steps[i]; return c; });
@@ -1544,7 +1545,7 @@ var EQTX = {
   },
   'wall-sit': {
     h: {
-      plate: { s: ['Stand with your back on a wall, feet about two foot-lengths out. Hold a plate in each hand at your sides, gripped by the rim.', 'Slide down the wall slowly, keeping the back flat on it.', 'Stop with thighs parallel and shins vertical (knees at 90°). Hold.'] },
+      plate: { s: ['Stand with your back on a wall, feet about two foot-lengths out, holding a weight plate by its sides.', 'Slide down the wall slowly, keeping the back flat on it.', 'Stop with thighs parallel and shins vertical (knees at 90°). Rest the plate on your thighs, hands holding it steady. Hold.'] },
       w: { s: ['Stand with your back on a wall, feet about two foot-lengths out, arms relaxed at your sides.', 'Slide down the wall slowly, keeping the back flat on it.', 'Stop with thighs parallel and shins vertical (knees at 90°). Hold.'] }
     },
     g: {
@@ -1673,7 +1674,7 @@ var EQTX = {
   },
   'farmer': {
     h: { bar: { s: ['Stand with the bar over your mid-foot. Hinge and grip it just outside your knees.', 'Drive through the floor and stand up with a flat back.', 'Stand tall, shoulders back and down, bar against your thighs. Crush the bar and hold.'], c: ['Crush the bar', 'Shoulders packed down', 'Stand like a pillar'] } },
-    g: { bar: { s: ['Deadlift a heavy barbell and stand tall with it against your thighs.', 'March on the spot, lifting each knee in turn, for the whole set. Keep the bar level.'], c: ['Tall posture', 'Crush the bar'] } }
+    g: { bar: { s: ['Bar over your mid-foot. Hinge and grip it just outside your knees, back flat.', 'Push the floor away and stand tall, bar close to your legs. Lower to the floor over 2–3 s.'], c: ['Bar stays against your legs', 'Back flat the whole way', 'Crush the bar'] } }
   },
   'pinch': {
     h: { plate: { s: ['Put two plates together, smooth sides out. Pinch them with fingers on one side, thumb on the other.', 'Lift them off the floor using only the pinch.', 'Stand tall, arm straight at your side. Hold, then switch hands.'] } },
@@ -1797,8 +1798,13 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     if (!VC[key]) {
       VC[key] = makeVariant(kind === 'h' ? BY[id] : G[id], id, kind, o);
       // some versions borrow another exercise's pictures (e.g. the barbell speed RDL uses the RDL figure)
+      // 'rdl' = that exercise's same kind; 'h:farmer:0,2' = the farmer hold's steps 0 and 2
       var fid = EQV[id].fig && EQV[id].fig[(kind === 'h' ? 'h' : 'g') + ':' + o.eq];
-      if (fid) { var fb = kind === 'h' ? BY[fid] : G[fid], fv = makeVariant(fb, fid, kind, o); VC[key]._r = fv._r; VC[key]._vb = fb._vb; }
+      if (fid) {
+        var fp = fid.split(':'), fk = fp.length > 1 ? fp[0] : (kind === 'h' ? 'h' : 'g'), fname = fp.length > 1 ? fp[1] : fp[0];
+        var fb = fk === 'h' ? BY[fname] : G[fname], fv = makeVariant(fb, fname, fk, o);
+        VC[key]._r = fp[2] ? fp[2].split(',').map(function (i) { return fv._r[+i]; }) : fv._r; VC[key]._vb = fb._vb;
+      }
     }
     return VC[key];
   }
@@ -1868,7 +1874,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
   function blockItems(b0, ph, off) {
     var q = []; off = off || {};
     function run(kind, rounds) {
-      var kk = kind === 'hold' ? 'h' : 'r', b = b0.filter(function (id) { return !(off[id] && off[id][kk]); });
+      var kk = kind === 'hold' ? 'h' : 'r', b = b0.filter(function (id) { return !(off[id] && off[id][kk]) && !V(id, kind === 'hold' ? 'h' : 'g').missing; });
       if (!b.length) return;
       for (var r = 1; r <= rounds; r++) {
         b.forEach(function (id, bi) {
@@ -2008,12 +2014,19 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     renderEqDD('eqddLib', 'Exercise names and pictures change to match.');
     var back = $(host).querySelector('input[data-eqv="' + cb.dataset.eqv + '"]'); if (back) back.focus();
   });
+  // 'a dumbbell or kettlebell': what an exercise needs when nothing selected can do it
+  function needsTxt(id, kind) {
+    var seen = {}, names = parseEq(EQV[id][kind]).filter(function (x) { if (x.eq === 'w' || seen[x.eq]) return false; seen[x.eq] = 1; return true; })
+      .map(function (x) { return x.eq === 'b' ? (x.style === 'plate' ? 'weight plate' : 'barbell') : EQ_LABEL[x.eq].toLowerCase(); });
+    return 'a ' + names.join(' or ');
+  }
   function exRow(id, ph, sk, off, added) {
     var h = V(id, 'h'), g = V(id, 'g'), wh = getWt(id, h, 'h'), wg = getWt(id, g, 'r'), o = (off && off[id]) || {};
+    if (h.missing && g.missing) return '<div class="rw off"><button class="row" data-ex="' + id + '">' + figSvg(h, 2) + '<span><span class="t">' + esc(baseName(h.name)) + '</span><span class="s miss">Left out: needs ' + esc(needsTxt(id, 'h')) + '</span></span></button></div>';
     var both = o.h && o.r;
     return '<div class="rw' + (both ? ' off' : '') + '"><button class="row" data-ex="' + id + '">' + figSvg(h, 2) + '<span><span class="t">' + esc(h.name) + '</span>' +
       '<span class="s' + (o.h ? ' x' : '') + '"><span class="h">' + rx(h, ph) + (wh != null ? ' at ' + kg(wh) : '') + '</span></span>' +
-      '<span class="s' + (o.r ? ' x' : '') + '">Then <b>' + esc(g.name) + ' ' + grx(g, ph) + (wg != null ? ' at ' + kg(wg) : '') + '</b></span>' + (h.missing ? '<span class="s miss">Needs a ' + esc(h.equipLabel.toLowerCase()) + '</span>' : '') + '</span></button>' +
+      '<span class="s' + (o.r ? ' x' : '') + '">Then <b>' + esc(g.name) + ' ' + grx(g, ph) + (wg != null ? ' at ' + kg(wg) : '') + '</b></span>' + (h.missing ? '<span class="s miss">Hold left out: needs ' + esc(needsTxt(id, 'h')) + '</span>' : g.missing ? '<span class="s miss">Reps left out: needs ' + esc(needsTxt(id, 'g')) + '</span>' : '') + '</span></button>' +
       (sk ? '<div class="tg" role="group" aria-label="Include in this session"><button data-tg="h" data-id="' + id + '" data-sk="' + sk + '" aria-pressed="' + !o.h + '">' + (o.h ? 'Hold skipped' : 'Hold') + '</button><button data-tg="r" data-id="' + id + '" data-sk="' + sk + '" aria-pressed="' + !o.r + '">' + (o.r ? 'Reps skipped' : 'Reps') + '</button>' +
         (added ? '<button class="rm" data-rm="' + id + '" data-sk="' + sk + '">Remove</button>' : '') + '</div>' : '') + '</div>';
   }
@@ -2031,9 +2044,9 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
       if (part === 'am') list += cardioRow(WARMUP, 'Warm-up walk');
       var sk = day.id + part, c = custFor(day, part), nPlan = day[part].length;
       blocksFor(day, part).forEach(function (b, bi) {
-        var added = bi >= nPlan;
-        count += b.filter(function (id) { var o = c.off[id]; return !(o && o.h && o.r); }).length;
-        list += '<li class="grp' + (added ? ' added' : '') + '"><span class="grp-t">' + (added ? 'Added by you' + (b.length > 1 ? ', alternate these ' + b.length : '') : b.length > 1 ? 'Alternate these ' + b.length : 'On its own') + '</span>' + b.map(function (id) { return exRow(id, ph, sk, c.off, added); }).join('') + '</li>';
+        var added = bi >= nPlan, nb = b.filter(function (id) { return !(V(id, 'h').missing && V(id, 'g').missing); }).length;
+        count += b.filter(function (id) { var o = c.off[id]; return !(o && o.h && o.r) && !(V(id, 'h').missing && V(id, 'g').missing); }).length;
+        list += '<li class="grp' + (added ? ' added' : '') + '"><span class="grp-t">' + (added ? 'Added by you' + (nb > 1 ? ', alternate these ' + nb : '') : nb > 1 ? 'Alternate these ' + nb : nb ? 'On its own' : 'Left out today') + '</span>' + b.map(function (id) { return exRow(id, ph, sk, c.off, added); }).join('') + '</li>';
       });
       var nOff = Object.keys(c.off).filter(function (id) { return c.off[id] && (c.off[id].h || c.off[id].r); }).length;
       list += '<li class="plan-act"><button class="addbtn" data-add="' + sk + '"><span aria-hidden="true">+</span> Add exercise</button>' + (nOff || c.add.length ? '<button class="textbtn" data-reset="' + sk + '">Reset to plan</button>' : '') + '</li>';
@@ -2150,7 +2163,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
     var sel = store.eq.slice();
     function preview() {
       var keep = store.eq; store.eq = sel.length ? sel : keep;
-      var names = day[part].map(function (b) { return b.map(function (id) { var v = V(id, 'h'); return '<li class="' + (v.missing ? 'miss' : '') + '">' + esc(v.name) + (v.missing ? ' <span>(needs a ' + esc(v.equipLabel.toLowerCase()) + ')</span>' : '') + '</li>'; }).join(''); }).join('');
+      var names = day[part].map(function (b) { return b.map(function (id) { var v = V(id, 'h'); return '<li class="' + (v.missing ? 'miss' : '') + '">' + esc(v.missing ? baseName(v.name) : v.name) + (v.missing ? ' <span>(left out: needs ' + esc(needsTxt(id, 'h')) + ')</span>' : '') + '</li>'; }).join(''); }).join('');
       store.eq = keep;
       return names;
     }
