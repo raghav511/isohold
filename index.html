@@ -1358,17 +1358,17 @@ var EQ_LABEL = { k: 'Kettlebell', d: 'Dumbbell', b: 'Barbell', w: 'Bodyweight' }
 var EQ_STEP = { k: 4, d: 2, b: 2.5, w: 0 };
 var EQV = {
   'front-raise': { h: 'd k b:plate', g: 'd k b:plate' },
-  'lateral-raise': { h: 'd k b:plate', g: 'd k b:plate' },
-  'rear-fly': { h: 'd k b:plate', g: 'd k b:plate' },
+  'lateral-raise': { h: 'd k b:plate?', g: 'd k b:plate?' },
+  'rear-fly': { h: 'd k b:plate?', g: 'd k b:plate?' },
   'overhead-hold': { h: 'k d b:bar', g: 'k d b:bar', both: 'b', n: { b: 'Barbell Overhead Hold' }, gn: { b: 'Barbell Overhead Press' } },
-  'ext-rot': { h: 'd k b:plate', g: 'd k b:plate' },
+  'ext-rot': { h: 'd k b:plate?', g: 'd k b:plate?' },
   'oh-triceps': { h: 'k d b:bar', g: 'k d b:bar' },
-  'kickback': { h: 'd k b:plate', g: 'd k b:plate' },
+  'kickback': { h: 'd k b:plate?', g: 'd k b:plate?' },
   'hollow': { h: 'd k b:plate w', g: 'd k b:plate w' },
   'plank-db': { h: 'd k w', g: 'd k w', n: { k: 'High Plank on Kettlebells', w: 'High Plank' }, gn: { w: 'Plank Shoulder Tap' } },
   'goblet-squat': { h: 'k d b:bar', g: 'k d b:bar', n: { b: 'Zercher Squat Hold' }, gn: { b: 'Zercher Squat' } },
   'wall-sit': { h: 'd k b:plate w', g: 'd k b:plate w' },
-  'split-squat': { h: 'd k b:plate w', g: 'd k b:plate w' },
+  'split-squat': { h: 'd k b:plate? w', g: 'd k b:plate? w' },
   'glute-bridge': { h: 'd k b:bar w', g: 'd k b:bar w' },
   'calf-raise': { h: 'd k b:bar w', g: 'd k b:bar w' },
   'seated-calf': { h: 'd k b:bar', g: 'd k b:bar' },
@@ -1386,13 +1386,14 @@ var EQV = {
   'rdl': { h: 'b:bar k d', g: 'b:bar k d' },
   'sl-rdl': { h: 'k d b:bar', g: 'k d b:bar', both: 'b' },
   'ham-bridge': { h: 'd k b:bar w', g: 'd k b:bar w' },
-  'bird-dog': { h: 'd k b:plate w', g: 'k d b:bar', gn: { d: 'Dumbbell Swing', b: 'Barbell Speed RDL' } },
+  'bird-dog': { h: 'd k b:plate? w', g: 'k d b:bar', gn: { d: 'Dumbbell Swing', b: 'Barbell Speed RDL' } },
   'farmer': { h: 'k d b:bar', g: 'k d b:bar', n: { b: 'Deadlift Lockout Hold' }, gn: { b: 'Barbell Hold March' } },
   'pinch': { h: 'd b:plate', g: 'd b:plate', n: { d: 'Dumbbell Pinch Hold', b: 'Plate Pinch Hold' }, gn: { d: 'Dumbbell Pinch Carry', b: 'Plate Pinch Carry' } },
   'wrist': { h: 'd k b:bar', g: 'd k b:bar', both: 'b' },
   'sl-balance': { h: 'k d b:plate w', g: 'k d b:plate w' }
 };
-function parseEq(s) { return s.split(' ').map(function (x) { var p = x.split(':'); return { eq: p[0], style: p[1] || '' }; }); }
+// A trailing '?' marks an awkward version, used only when nothing better is selected.
+function parseEq(s) { return s.split(' ').map(function (x) { var poor = /\?$/.test(x), p = x.replace('?', '').split(':'); return { eq: p[0], style: p[1] || '', poor: poor }; }); }
 function baseName(n) { return n.replace(/\b(Kettlebell|Dumbbell|Barbell|Weighted|Plate)\s+/g, '').replace(/ on Dumbbells$/, ''); }
 function mapW(w, eq, style, front) {
   var o = {}, k;
@@ -1430,10 +1431,32 @@ function makeVariant(base, id, kind, opt) {
   });
   return v;
 }
+// Share exercises across every selected instrument. Walk the program in order and give each
+// exercise (hold and its paired reps together) the selected instrument used least so far,
+// skipping awkward versions when a good one is available.
+function eqPlan(sel, order) {
+  var used = {}, plan = {};
+  sel.forEach(function (e) { used[e] = 0; });
+  order.forEach(function (id) {
+    if (plan[id] || !EQV[id]) return;
+    var H = parseEq(EQV[id].h), Gs = parseEq(EQV[id].g);
+    function cands(list) { var c = list.filter(function (o) { return sel.indexOf(o.eq) > -1; }), good = c.filter(function (o) { return !o.poor; }); return good.length ? good : c; }
+    var ch = cands(H), cg = cands(Gs);
+    var both = ch.filter(function (o) { return cg.some(function (x) { return x.eq === o.eq; }); });
+    var pool = both.length ? both : ch;
+    if (!pool.length) { plan[id] = { h: chooseEq(id, 'h', sel), g: chooseEq(id, 'g', sel) }; return; }
+    var best = pool.slice().sort(function (a, b) { return (used[a.eq] - used[b.eq]) || (H.indexOf(a) - H.indexOf(b)); })[0];
+    used[best.eq]++;
+    var g = cg.filter(function (x) { return x.eq === best.eq; })[0] || (cg.length ? cg[0] : chooseEq(id, 'g', sel));
+    plan[id] = { h: best, g: g };
+  });
+  return plan;
+}
 function chooseEq(id, kind, sel) {
   var spec = EQV[id]; if (!spec) return { eq: 'd', style: '' };
   var list = parseEq(spec[kind]);
-  for (var i = 0; i < list.length; i++) if (list[i].eq === 'w' || sel.indexOf(list[i].eq) > -1) return list[i];
+  for (var i = 0; i < list.length; i++) if (sel.indexOf(list[i].eq) > -1 && !list[i].poor) return list[i];
+  for (i = 0; i < list.length; i++) if (list[i].eq === 'w' || sel.indexOf(list[i].eq) > -1) return list[i];
   return { eq: list[0].eq, style: list[0].style, missing: true };
 }
 
@@ -1512,9 +1535,16 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
   Object.keys(G).forEach(function (k) { FIG.prep(G[k]); ALL[G[k].id] = G[k]; });
   Object.keys(CARDIO_FIG).forEach(function (k) { FIG.prep(CARDIO_FIG[k]); ALL[CARDIO_FIG[k].id] = CARDIO_FIG[k]; });
   var $ = function (id) { return document.getElementById(id); };
-  var VC = {};
+  var VC = {}, PLAN = null, PLANKEY = '';
+  // Program order: days, morning then evening, blocks in order; then anything else in the library.
+  function planOrder() { var o = []; DAYS.forEach(function (d) { ['am', 'pm'].forEach(function (p) { (d[p] || []).forEach(function (b) { o = o.concat(b); }); }); }); EX.forEach(function (e) { o.push(e.id); }); return o; }
+  function pickEq(id, kind) {
+    var k = store.eq.join('');
+    if (!PLAN || PLANKEY !== k) { PLAN = eqPlan(store.eq, planOrder()); PLANKEY = k; }
+    var p = PLAN[id]; return p ? p[kind === 'h' ? 'h' : 'g'] : chooseEq(id, kind, store.eq);
+  }
   function V(id, kind, eqOpt) {
-    var o = eqOpt || chooseEq(id, kind, store.eq), key = id + kind + o.eq + o.style + (o.missing ? '!' : '');
+    var o = eqOpt || pickEq(id, kind), key = id + kind + o.eq + o.style + (o.missing ? '!' : '');
     if (!VC[key]) VC[key] = makeVariant(kind === 'h' ? BY[id] : G[id], id, kind, o);
     return VC[key];
   }
@@ -1891,7 +1921,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
   }
   function openExercise(id, part, from) {
     var ph = phaseOf(store.week), state = { part: part, eq: {} };
-    function cur() { var kind = state.part === 'hold' ? 'h' : 'g'; var o = state.eq[kind] || chooseEq(id, kind, store.eq); return V(id, kind, o); }
+    function cur() { var kind = state.part === 'hold' ? 'h' : 'g'; var o = state.eq[kind] || pickEq(id, kind); return V(id, kind, o); }
     function body() {
       var isH = state.part === 'hold', x = cur(), kind = isH ? 'h' : 'r', w = getWt(id, x, kind);
       var opts = eqOptions(id, isH ? 'h' : 'g');
@@ -2747,7 +2777,7 @@ var PRE = {"front-raise":["An",[-86.2,-162,229.3,172]],"lateral-raise":["H",[-11
   show((location.hash || '').slice(1) || 'train', true);
   window.__isoholdReady = performance.now();
   // read-only hooks for the automated test suite
-  window.__isoTest = { buildQueue: buildQueue, allDays: allDays, mins: mins, V: V, chooseEq: chooseEq, store: function () { return store; }, strengthData: strengthData, holdMax: holdMax, repMax: repMax, phaseOf: phaseOf, blocksFor: blocksFor, wLabel: wLabel, weekDone: weekDone, isPB: isPB };
+  window.__isoTest = { buildQueue: buildQueue, allDays: allDays, mins: mins, V: V, chooseEq: chooseEq, pickEq: pickEq, store: function () { return store; }, strengthData: strengthData, holdMax: holdMax, repMax: repMax, phaseOf: phaseOf, blocksFor: blocksFor, wLabel: wLabel, weekDone: weekDone, isPB: isPB };
   requestAnimationFrame(frame);
 })();
 
