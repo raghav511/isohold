@@ -3,7 +3,7 @@
   "private": true,
   "description": "Browser tests for Isohold (Chromium = Android, WebKit = iPhone).",
   "scripts": {
-    "test": "node test-parse.js && node test-flows.js && node test-layout.js && node test-boot.js && node test-start.js && node test-android.js"
+    "test": "node test-parse.js && node test-flows.js && node test-layout.js && node test-boot.js && node test-start.js && node test-timer.js && node test-android.js"
   },
   "devDependencies": {
     "playwright": "1.56.1"
