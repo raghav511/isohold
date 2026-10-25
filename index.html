@@ -2406,10 +2406,10 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     c: '<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="6" y="3" width="4" height="34" rx="1.5" fill="currentColor"/><circle cx="24" cy="7" r="3.2" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M24 10v14" stroke="currentColor" stroke-width="2"/><rect x="18" y="24" width="12" height="11" rx="1.5" fill="currentColor"/><path d="M8 7h16" stroke="currentColor" stroke-width="2.4"/></svg>'
   };
   function openEquip(day, part, from) {
-    var sel = store.eq.slice();
+    var sel = store.eq.slice(), blocks = partsOf(part).reduce(function (o, p) { return o.concat(day[p] || []); }, []);
     function preview() {
       var keep = store.eq; store.eq = sel.length ? sel : keep;
-      var names = day[part].map(function (b) { return b.map(function (id) { var v = V(id, 'h'); return '<li class="' + (v.missing ? 'miss' : '') + '">' + esc(v.missing ? baseName(v.name) : v.name) + (v.missing ? ' <span>(left out: needs ' + esc(needsTxt(id, 'h')) + ')</span>' : '') + '</li>'; }).join(''); }).join('');
+      var names = blocks.map(function (b) { return b.map(function (id) { var v = V(id, 'h'); return '<li class="' + (v.missing ? 'miss' : '') + '">' + esc(v.missing ? baseName(v.name) : v.name) + (v.missing ? ' <span>(left out: needs ' + esc(needsTxt(id, 'h')) + ')</span>' : '') + '</li>'; }).join(''); }).join('');
       store.eq = keep;
       return names;
     }
@@ -2417,7 +2417,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       var h = '<p class="muted">Pick everything you have with you. The exercises are shared out across all of it.</p><div class="eqs">' + ['k', 'd', 'b', 'c'].map(function (e) {
         return '<button class="eq" data-e="' + e + '" aria-pressed="' + (sel.indexOf(e) > -1) + '">' + EQ_ICON[e] + '<b>' + EQ_NAME[e] + '</b>' + I_CHECK.replace('<svg', '<svg class="tick"') + '</button>';
       }).join('') + '</div>' + (sel.length ? '<div class="eq-prev"><b>Today’s holds</b><ul>' + preview() + '</ul></div>' : '<p class="bk-msg err">Pick at least one.</p>') +
-        '<button class="btn go block" id="eqGo"' + (sel.length ? '' : ' disabled') + '>Start ' + (part === 'am' ? 'morning' : 'evening') + '</button>';
+        '<button class="btn go block" id="eqGo"' + (sel.length ? '' : ' disabled') + '>Start ' + ({ am: 'morning', pm: 'evening', all: 'session' }[part.replace(/^short-/, '')]) + (/^short-/.test(part) ? ' (short)' : '') + '</button>';
       $('sheetBody').innerHTML = h;
       $('sheetBody').querySelector('.eqs').addEventListener('click', function (e) {
         var b = e.target.closest('button'); if (!b) return; var k = b.dataset.e, i = sel.indexOf(k);
