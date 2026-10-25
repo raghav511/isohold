@@ -1,1 +1,23 @@
-{"name":"Isohold","short_name":"Isohold","start_url":"./index.html","display":"standalone","background_color":"#eceeec","theme_color":"#eceeec","icons":[{"src":"icon-512.png","sizes":"512x512","type":"image/png"},{"src":"icon-180.png","sizes":"180x180","type":"image/png"}]}
+{
+  "id": "./",
+  "name": "Isohold Strength",
+  "short_name": "Isohold",
+  "description": "Tendon holds plus muscle-building reps, with food, bodyweight and cardio logging by text, voice or photo.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eceeec",
+  "theme_color": "#eceeec",
+  "categories": ["health", "fitness", "lifestyle"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" }
+  ],
+  "shortcuts": [
+    { "name": "Log food or a set", "short_name": "Log", "url": "./index.html#coach", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
+    { "name": "Today's session", "short_name": "Train", "url": "./index.html#train", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] }
+  ]
+}
