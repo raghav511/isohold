@@ -2749,7 +2749,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     }
     if (e.r) {
       var l2 = e.r.l, v2 = ACT[l2.id] || 'lift', un2 = unitNote(l2.id, l2.eq, 'r');
-      out += '<div class="mrow"><span class="mk-l">Max ' + (v2 === 'hold' ? 'lift' : VERB[v2]) + ', one rep</span><span class="mv">about ' + fmtKg(toU(e.r.est)) + ' ' + uLab() + '</span><span class="ms">' + esc(baseName(G[l2.id].name)) + ': ' + kg(l2.kg) + (un2 ? ' (' + un2 + ')' : '') + ' for ' + l2.v + ' reps' + (e.r.r.rir ? ' with about ' + e.r.r.rir + ' in reserve' : ' to your limit') + '.' + (e.r.r.rough ? ' Rough estimate: based on more than 10 reps.' : '') + '</span></div>';
+      var o2 = parseEq(EQV[l2.id].g).filter(function (q) { return q.eq === l2.eq; })[0];
+      out += '<div class="mrow"><span class="mk-l">Max ' + (v2 === 'hold' ? 'lift' : VERB[v2]) + ', one rep</span><span class="mv">about ' + fmtKg(toU(e.r.est)) + ' ' + uLab() + '</span><span class="ms">' + esc(o2 ? V(l2.id, 'g', o2).name : baseName(G[l2.id].name)) + ': ' + kg(l2.kg) + (un2 ? ' (' + un2 + ')' : '') + ' for ' + l2.v + ' reps' + (e.r.r.rir ? ' with about ' + e.r.r.rir + ' in reserve' : ' to your limit') + '.' + (e.r.r.rough ? ' Rough estimate: based on more than 10 reps.' : '') + '</span></div>';
     }
     return out + '</div>';
   }
@@ -2762,7 +2763,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       '<div id="mapDet">' + (mapSel ? muscleDetail(mapSel, data[mapSel]) : '<p class="muted">Log a session with your weights entered and the muscles you trained will fill in.</p>') + '</div>';
     h += (names.length ? '<div class="mlist">' + GROUPS.map(function (g) {
       return '<div class="mgrp"><span class="mg-t">' + g[0] + '</span>' + g[1].map(function (n) {
-        var e = data[n], src = function (x, kind) { return ' <i>(' + esc(baseName((kind === 'h' ? BY : G)[x.l.id].name).replace(/ Hold$/, '')) + ')</i>'; }, hv = e && e.h ? 'hold ≥ ' + fmtKg(toU(e.h.est)) + ' ' + uLab() + src(e.h, 'h') : '', rv = e && e.r ? '1 rep ≈ ' + fmtKg(toU(e.r.est)) + ' ' + uLab() + src(e.r, 'r') : '';
+        var e = data[n], src = function (x, kind) { var o = parseEq(EQV[x.l.id][kind]).filter(function (q) { return q.eq === x.l.eq; })[0]; return ' <i>(' + esc((o ? V(x.l.id, kind, o).name : baseName((kind === 'h' ? BY : G)[x.l.id].name)).replace(/ Hold$/, '')) + ')</i>'; }, hv = e && e.h ? 'hold ≥ ' + fmtKg(toU(e.h.est)) + ' ' + uLab() + src(e.h, 'h') : '', rv = e && e.r ? '1 rep ≈ ' + fmtKg(toU(e.r.est)) + ' ' + uLab() + src(e.r, 'g') : '';
         return '<button class="mli' + (n === mapSel ? ' on' : '') + '" data-mu="' + n + '"><span>' + n + '</span><span class="mli-v">' + ([hv, rv].filter(Boolean).join(', ') || '<i>no data</i>') + '</span></button>';
       }).join('') + '</div>';
     }).join('') + '</div>' : '') +
@@ -3372,8 +3373,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         if (a.weight != null) setWt(a.exercise, ex, kind, kgv);
         vals.forEach(function (vv, i) { var e = { t: now + i, w: store.week, id: a.exercise, eq: ex.eq, k: kind, kg: ex.eq === 'w' ? 0 : (kgv || 0), v: vv }; store.log.push(e); ts.push(e.t); }); n = vals.length;
         save();
-        var last = store.log[store.log.length - 1], pb = isPB(last), bwk = bodyKg(), odd = a.weight != null && ((!/kg|lb/.test(a.unitSaid || '') && kgv > Math.max(100, (bwk || 80) * 1.8)) || ((ex.eq === 'd' || ex.eq === 'k') && kgv > Math.max(45, (bwk || 80) * 0.75)));
-        card = { k: 'set', ref: ts, title: ex.name, warn: odd ? ((ex.eq === 'd' || ex.eq === 'k') && kgv > 45 ? 'That’s very heavy for one ' + (ex.eq === 'd' ? 'dumbbell' : 'kettlebell') + '. If it was a barbell, tick Barbell on the Train tab; if the unit was wrong, tap Undo.' : 'That’s a lot for this exercise. If you meant ' + a.weight + (p.units === 'lb' ? ' kg' : ' lb') + ', tap Undo and add the unit.') : '', lines: [(vals.every(function (x) { return x === vals[0]; }) ? n + ' × ' + setTxt(last) : vals.map(function (x) { return setTxt({ kg: last.kg, v: x, k: kind }); }).join(', ')) + (ex.eq !== 'w' && !kgv ? ' (no weight entered)' : a.weight == null && kgv ? ' (your saved weight)' : '')], pb: pb, sub: pb ? 'New personal best.' : '' };
+        var last = store.log[store.log.length - 1], pb = isPB(last), bwk = bodyKg(), odd = a.weight != null && ((!/kg|lb/.test(a.unitSaid || '') && kgv > Math.max(100, (bwk || 80) * 1.8)) || ((ex.eq === 'd' || ex.eq === 'k') && kgv > Math.max(40, (bwk || 80) * 0.5)));
+        card = { k: 'set', ref: ts, title: ex.name, warn: odd ? ((ex.eq === 'd' || ex.eq === 'k') && kgv > 40 ? 'That’s very heavy for one ' + (ex.eq === 'd' ? 'dumbbell' : 'kettlebell') + '. If it was a barbell, tick Barbell on the Train tab; if the unit was wrong, tap Undo.' : 'That’s a lot for this exercise. If you meant ' + a.weight + (p.units === 'lb' ? ' kg' : ' lb') + ', tap Undo and add the unit.') : '', lines: [(vals.every(function (x) { return x === vals[0]; }) ? n + ' × ' + setTxt(last) : vals.map(function (x) { return setTxt({ kg: last.kg, v: x, k: kind }); }).join(', ')) + (ex.eq !== 'w' && !kgv ? ' (no weight entered)' : a.weight == null && kgv ? ' (your saved weight)' : '')], pb: pb, sub: pb ? 'New personal best.' : '' };
         break;
       }
       case 'set_weight': {
