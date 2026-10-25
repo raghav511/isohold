@@ -651,8 +651,9 @@ nav.tabbar { background: color-mix(in srgb, var(--surface) 94%, transparent); bo
 .donechip { color: var(--hold); font-family: var(--f-display); font-weight: 600; }
 .chk { border-radius: 50%; width: 52px; }
 .chk[aria-pressed="true"] { background: var(--hold); border-color: var(--hold); color: var(--hold-ink); }
-.thumbs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
-.thumbs .th { aspect-ratio: 1; border-radius: 16px; background: var(--fig-bg); overflow: hidden; display: grid; place-items: center; }
+.thumbs { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x proximity; overscroll-behavior-x: contain; scrollbar-width: none; margin: 0 -18px; padding: 0 18px; scroll-padding: 0 18px; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 28px), transparent); }
+.thumbs::-webkit-scrollbar { display: none; }
+.thumbs .th { flex: 0 0 74px; height: 74px; scroll-snap-align: start; border-radius: 16px; background: var(--fig-bg); overflow: hidden; display: grid; place-items: center; }
 .thumbs .th svg { width: 135%; height: auto; display: block; }
 .thumbs .th.more { font-family: var(--f-display); font-weight: 600; font-size: 17px; color: var(--muted); background: var(--sunk); }
 .sess details summary { color: var(--hold); font-family: var(--f-display); font-weight: 600; }
@@ -737,6 +738,22 @@ svg.wchart .ax.cur { fill: var(--hold); }
 .lgc-i { display: none; }
 .howto { justify-self: start; min-height: 36px; padding: 2px 0; font-size: 15px; }
 .psteps { margin: 0; padding-left: 22px; display: grid; gap: 4px; font-size: 15px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 10px 14px 10px 32px; }
+button.th { border: 0; padding: 0; cursor: pointer; }
+button.th:active { transform: scale(.96); }
+.thumbs .th.more { border: 1.5px solid var(--line); color: var(--ink); }
+button.ring { border: 0; background: none; padding: 0; color: inherit; cursor: pointer; border-radius: 50%; }
+button.ring:active { transform: scale(.97); }
+.ring small { position: absolute; left: 0; right: 0; bottom: 22%; text-align: center; font-family: var(--f-display); font-weight: 500; font-size: 11.5px; color: var(--muted); line-height: 1; }
+.ring b { padding-bottom: 8px; }
+/* the live movement cue sits big on the picture */
+.p-fig { display: grid; }
+.p-fig .angle.cue { position: static; justify-self: center; margin: -4px 0 12px; display: grid; justify-items: center; gap: 1px; padding: 8px 18px 9px; border-radius: 18px; min-width: 56%; text-align: center; background: color-mix(in srgb, var(--surface) 88%, transparent); color: var(--ink); box-shadow: 0 2px 10px rgba(20, 30, 50, .12); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.p-fig .angle.cue b { font-family: var(--f-display); font-weight: 700; font-size: clamp(26px, 7.5vw, 34px); line-height: 1.05; letter-spacing: -0.02em; }
+.p-fig .angle.cue small { font-size: 13.5px; font-weight: 600; color: var(--muted); }
+.p-fig .angle.cue.rep { background: var(--rep); color: var(--rep-ink); } .p-fig .angle.cue.rep small { color: color-mix(in srgb, var(--rep-ink) 75%, transparent); }
+.p-fig .angle.cue.hold { background: var(--hold); color: var(--hold-ink); } .p-fig .angle.cue.hold small { color: color-mix(in srgb, var(--hold-ink) 78%, transparent); }
+.p-fig .angle.cue.easy { background: var(--ok); color: var(--ok-ink); } .p-fig .angle.cue.easy small { color: color-mix(in srgb, var(--ok-ink) 78%, transparent); }
+@media (prefers-reduced-motion: no-preference) { .p-fig .angle.cue b { transition: opacity .15s; } }
 /*@@endcss*/
 </style>
 <style>
@@ -880,7 +897,7 @@ svg.wchart .ax.cur { fill: var(--hold); }
       <button class="textbtn howto" id="pHow" aria-expanded="false" aria-controls="pSteps">How to do it</button>
       <ol class="psteps" id="pSteps" hidden></ol>
       <div class="p-row">
-        <div class="ring"><svg viewBox="0 0 120 120"><circle class="bgc" cx="60" cy="60" r="52"/><circle class="fgc" id="pRing" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="0"/></svg><b id="pTime">0</b></div>
+        <button class="ring" id="pRingBtn" type="button"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="bgc" cx="60" cy="60" r="52"/><circle class="fgc" id="pRing" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="0"/></svg><b id="pTime">0</b><small id="pRingCap"></small></button>
         <div class="p-info" style="gap:8px">
           <span id="pSetLabel"></span>
           <div class="sets" id="pSets"></div>
@@ -1145,6 +1162,7 @@ var FIG = (function () {
     if (r.w.knee) s += weight(r.w.knee, add(o.Kn, [0, -8]), o.Kn, true);
     s += renderG(N.leg.concat(N.arm)) + weight(r.w.n, o.Pn, o.Wn, true);
     if (prone) s += renderG(headG) + head(o.head, o.face);
+    else if (ST && o.En[1] < o.NK[1] - 4) s += head(o.head, o.face);
     if (r.w.toe) { var tt = r.w.toe === 'db' ? 'dbp' : r.w.toe; s += weight(tt, add(o.Tn, [3, tt === 'dbp' ? -26 : -14]), o.Tn, true); }
     return s + (rg ? rg.front : '');
   }
@@ -1778,8 +1796,8 @@ var EQV = {
 var GYM = {
   'lateral-raise': { rig: { 'h:c': { k: 'xover', h: 'low' }, 'g:c': { k: 'xover', h: 'low' } } },
   'oh-triceps': { rig: { 'h:c': { k: 'tower', side: 'back', h: 'low', att: 'rope', hands: 'both' }, 'g:c': { k: 'tower', side: 'back', h: 'low', att: 'rope', hands: 'both' } },
-    pose: { 'h:c': [{ t: 12, ln: [16, 2], lf: [-12, -2], an: [158, -15], af: [156, -17], w: { n: 'db' } }, { t: 12, ln: [16, 2], lf: [-12, -2], an: [150, 156], af: [148, 154], w: { n: 'db' } }, { t: 12, ln: [16, 2], lf: [-12, -2], an: [160, -78], af: [158, -80], w: { n: 'db' } }],
-      'g:c': [{ t: 12, ln: [16, 2], lf: [-12, -2], an: [150, 156], af: [148, 154], w: { n: 'db' } }, { t: 12, ln: [16, 2], lf: [-12, -2], an: [158, -15], af: [156, -17], w: { n: 'db' } }] } },
+    pose: { 'h:c': [{ t: 6, ln: [14, 2], lf: [-10, -2], an: [178, -40], af: [176, -42], w: { n: 'db' } }, { t: 6, ln: [14, 2], lf: [-10, -2], an: [172, 175], af: [170, 173], w: { n: 'db' } }, { t: 6, ln: [14, 2], lf: [-10, -2], an: [178, -92], af: [176, -94], w: { n: 'db' } }],
+      'g:c': [{ t: 6, ln: [14, 2], lf: [-10, -2], an: [178, -40], af: [176, -42], w: { n: 'db' } }, { t: 6, ln: [14, 2], lf: [-10, -2], an: [172, 175], af: [170, 173], w: { n: 'db' } }] } },
   'kickback': { rig: { 'h:c': { k: 'tower', side: 'front', h: 'low', att: 'd', hands: 'n' }, 'g:c': { k: 'tower', side: 'front', h: 'low', att: 'd', hands: 'n' } },
     pose: { 'h:c': [{ t: 62, hn: -12, ln: [14, -6], lf: [-6, -6], an: [8, 8], af: [96, 92], w: { n: 'db' } }, { t: 62, hn: -12, ln: [14, -6], lf: [-6, -6], an: [-80, 2], af: [96, 92], w: { n: 'db' } }, { t: 62, hn: -12, ln: [14, -6], lf: [-6, -6], an: [-80, -82], af: [96, 92], w: { n: 'db' } }],
       'g:c': [{ t: 62, hn: -12, ln: [14, -6], lf: [-6, -6], an: [-80, 2], af: [96, 92], w: { n: 'db' } }, { t: 62, hn: -12, ln: [14, -6], lf: [-6, -6], an: [-80, -82], af: [96, 92], w: { n: 'db' } }] } },
@@ -2592,8 +2610,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function thumbs(day, part) {
     var q = buildQueue(day, part, phaseOf(store.week)), seen = {}, figs = [];
     q.forEach(function (it) { var k = it.kind === 'cardio' ? 'c-' + it.m : it.id; if (!seen[k] && (it.kind === 'cardio' || it.wk === 'h')) { seen[k] = 1; figs.push(it); } });
-    var show = figs.length > 5 ? figs.slice(0, 4) : figs, more = figs.length - show.length;
-    return '<div class="thumbs" aria-hidden="true">' + show.map(function (it) { var ex = it.ex; return '<span class="th' + (it.kind === 'cardio' ? ' c' : '') + '">' + figSvg(ex, it.kind === 'cardio' ? 0 : Math.min(2, ex._r.length - 1)) + '</span>'; }).join('') + (more > 0 ? '<span class="th more">+' + more + '</span>' : '') + '</div>';
+    var show = figs, more = 0;
+    // each picture opens that exercise's guide; +N opens the full list for this session
+    return '<div class="thumbs" role="group" aria-label="Exercises in this session. Scroll sideways for more">' + show.map(function (it) { var ex = it.ex, fig = figSvg(ex, it.kind === 'cardio' ? 0 : Math.min(2, ex._r.length - 1)); return it.kind === 'cardio' ? '<span class="th c" aria-hidden="true">' + fig + '</span>' : '<button class="th" data-ex="' + it.id + '" aria-label="How to do ' + esc(ex.name) + '">' + fig + '</button>'; }).join('') + (more > 0 ? '<button class="th more" data-more="' + day.id + part + '" aria-label="Show all ' + figs.length + ' exercises">+' + more + '</button>' : '') + '</div>';
   }
   function planList(day, part, ph) {
     var list = '', count = 0, fin = '';
@@ -2620,6 +2639,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   $('sessions').addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
     if (b.dataset.ex) openExercise(b.dataset.ex, 'hold', b);
+    else if (b.dataset.more) { var dt = $('sessions').querySelector('details[data-pk="' + b.dataset.more + '"]'); if (dt) { dt.open = true; openPlans[b.dataset.more] = true; dt.scrollIntoView({ block: 'start', behavior: reduce ? 'auto' : 'smooth' }); } }
     else if (b.dataset.tg) {
       var c = store.cust[b.dataset.sk] || (store.cust[b.dataset.sk] = { off: {}, add: [] }), o = c.off[b.dataset.id] || (c.off[b.dataset.id] = {});
       o[b.dataset.tg] = !o[b.dataset.tg]; if (!o.h && !o.r) delete c.off[b.dataset.id];
@@ -3281,7 +3301,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function prof() {
     var p = store.profile || {};
     return { name: p.name || '', age: p.age || null, sex: p.sex || '', cm: p.cm || null, bw: p.bw || null, units: p.units || 'kg', diet: p.diet || 'any', where: p.where || 'home',
-      cardio: p.cardio || ['treadmill', 'rower'], issues: p.issues || [], cues: !!p.cues, goal: p.goal || 'build', split: p.split || 'two', posture: !!p.posture, inv: p.inv || {} };
+      cardio: p.cardio || ['treadmill', 'rower'], issues: p.issues || [], cues: !!p.cues, goal: p.goal || 'build', pace: p.pace || 'auto', split: p.split || 'two', posture: !!p.posture, inv: p.inv || {} };
   }
   // gentle mode: blood pressure, fragile bones or 65+
   // osteopenia: leave out loaded spinal flexion (crunch, hollow body)
@@ -4256,6 +4276,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       '<span class="pf-l">Sex <span class="muted">(for the calorie estimate)</span></span>' + chipSet('sex', [['f', 'Female'], ['m', 'Male'], ['x', 'Prefer not to say']], p.sex) +
       '<span class="pf-l">Units</span>' + chipSet('units', [['kg', 'Kilograms'], ['lb', 'Pounds'], ['st', 'Kilograms, stones for me']], p.units) +
       '<span class="pf-l">Goal</span>' + chipSet('goal', [['build', 'Build muscle'], ['keep', 'Stay as I am'], ['lose', 'Lose fat']], p.goal) +
+      '<span class="pf-l">Between sets</span>' + chipSet('pace', [['auto', 'Timer moves me on'], ['self', 'I’ll tap when ready']], p.pace) +
       '<span class="pf-l">Sessions a day</span>' + chipSet('split', [['two', 'Two short ones (morning + evening)'], ['one', 'One session']], p.split) +
       '<p class="muted pf-n">The plan runs in order, not by the calendar: train on the days that suit you and it waits for you.</p>' +
       '<label class="pf-sw"><input type="checkbox" id="pfCues"' + (p.cues || first ? ' checked' : '') + '><span>Spoken cues during sessions (exercise names, “hold”, “rest”)</span></label>' +
@@ -4274,7 +4295,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       '<div class="pf-more"><h3>App</h3><div class="bk-row"><button class="btn sm line" id="pfAi">' + (coach.key ? 'Gemini connected · settings' : 'Connect Gemini (photos, voice notes, questions)') + '</button></div>' +
       '<div class="bk-row"><button class="btn sm line" id="pfInstall">Install on your phone</button></div></div></div>';
     openSheet(first ? 'Welcome to Isohold' : 'Your profile', h, true, from);
-    var body = $('sheetBody'), state = { goal: p.goal, sex: p.sex, units: p.units, where: p.where, eq: first ? [] : store.eq.slice(), cardio: first ? [] : p.cardio.slice(), diet: p.diet, issues: p.issues.slice(), split: p.split };
+    var body = $('sheetBody'), state = { pace: p.pace, goal: p.goal, sex: p.sex, units: p.units, where: p.where, eq: first ? [] : store.eq.slice(), cardio: first ? [] : p.cardio.slice(), diet: p.diet, issues: p.issues.slice(), split: p.split };
     body.addEventListener('click', function (e) {
       var b = e.target.closest('.pchips button');
       if (b) {
@@ -4299,7 +4320,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         if (bwKg != null && !(bwKg >= 25 && bwKg <= 350)) { msg('pfErr', 'That bodyweight looks off. Check the units.', 'err'); return; }
         var cm = isNaN(hh) ? null : state.units === 'lb' ? Math.round(hh * 2.54) : Math.round(hh);
         if (cm != null && !(cm >= 100 && cm <= 250)) { msg('pfErr', 'Height should be in ' + (state.units === 'lb' ? 'inches, like 70' : 'centimetres, like 175') + '.', 'err'); return; }
-        store.profile = { name: $('pfName').value.trim().slice(0, 40), age: isNaN(age) ? null : age, sex: state.sex, cm: cm, bw: bwKg ? r1(bwKg) : null, units: state.units, diet: state.diet, where: state.where, cardio: state.cardio, issues: state.issues, cues: $('pfCues').checked, split: state.split, goal: state.goal, posture: $('pfPost').checked, inv: { k: $('pfInvK').value.trim(), d: $('pfInvD').value.trim(), b: $('pfInvB').value.trim() } };
+        store.profile = { name: $('pfName').value.trim().slice(0, 40), age: isNaN(age) ? null : age, sex: state.sex, cm: cm, bw: bwKg ? r1(bwKg) : null, units: state.units, diet: state.diet, where: state.where, cardio: state.cardio, issues: state.issues, cues: $('pfCues').checked, split: state.split, goal: state.goal, pace: state.pace, posture: $('pfPost').checked, inv: { k: $('pfInvK').value.trim(), d: $('pfInvD').value.trim(), b: $('pfInvB').value.trim() } };
         ['k', 'd', 'b'].forEach(function (e) { if (!store.profile.inv[e]) delete store.profile.inv[e]; });
         if (bwKg && (!store.body.length || Math.abs(store.body[store.body.length - 1].kg - bwKg) > 0.05)) store.body.push({ t: Date.now(), kg: r1(bwKg) });
         store.eq = state.eq.sort(function (x, y) { return 'kdbc'.indexOf(x) - 'kdbc'.indexOf(y); });
@@ -4554,7 +4575,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (it.kind === 'reps') v = el >= it.dur - 1.2 ? it.reps : Math.min(it.reps, Math.floor(el / repDur(it.ex)));
     else v = Math.round(Math.min(el, it.dur));
     if (P.pendingV != null) { v = P.pendingV; P.pendingV = null; }
-    if (v <= 0) return;
+    if (v <= 0 || (it.kind === 'hold' && v < 5)) return;
     var w = getWt(it.id, it.ex, it.wk);
     var e = { t: Date.now(), w: store.week, id: it.id, eq: it.ex.eq, k: it.wk, kg: it.ex.eq === 'w' ? 0 : w, v: v };
     unlog(it); store.log.push(e); it.logged = e;
@@ -4624,16 +4645,16 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       $('pSetLabel').textContent = 'Part ' + showIt.seg + ' of ' + showIt.segs;
       $('pSets').innerHTML = '';
       $('pRx').textContent = showIt.txt;
-      $('pAngle').textContent = showIt.effort; $('pAngle').className = 'stage angle' + (showIt.effort === 'Hard' ? ' hold' : ' easy');
+      setCue(showIt.effort, showIt.txt && showIt.txt.length < 40 ? showIt.txt : '', showIt.effort === 'Hard' ? 'hold' : 'easy');
     } else {
       $('pSetLabel').textContent = (showIt.kind === 'hold' ? 'Hold set ' : 'Rep set ') + showIt.set + ' of ' + showIt.sets + (showIt.side ? ', ' + showIt.side.toLowerCase() : '');
       var d = ''; for (var s = 1; s <= showIt.sets; s++) d += '<i class="' + (s < showIt.set ? 'done' : s === showIt.set ? (showIt.kind === 'hold' ? 'on' : 'on r') : '') + '"></i>';
       $('pSets').innerHTML = d;
       $('pRx').textContent = (showIt.kind === 'hold' ? (showIt.pain ? showIt.dur + ' s (shortened)' : rx(ex, ph)) + ' at RPE ' + Math.min(ph.rpe, gentle() ? 7 : 10) : grx(ex, ph) + (showIt.kind === 'reps' ? ', ' + rirTxt(ph).toLowerCase() : '')) + (showIt.pain ? '. ' + areaName(showIt.pain.area).replace(/^./, function (c) { return c.toUpperCase(); }) + ' ' + showIt.pain.score + '/10: go about 20% lighter, stop above 3/10.' : '');
       var ang = $('pAngle');
-      if (showIt.kind === 'hold' && (P.stage === 'rest' || P.stage === 'switch')) { ang.textContent = 'Start position'; ang.className = 'stage angle'; }
-      else if (showIt.kind === 'hold') { ang.textContent = showIt.angle === 'mid' ? 'Mid-range hold' : 'Hold here'; ang.className = 'stage angle' + (showIt.angle === 'mid' ? '' : ' hold'); }
-      else { ang.textContent = tempoShort(ex); ang.className = 'stage angle rep'; }
+      if (P.stage === 'rest' || P.stage === 'switch') setCue(P.stage === 'switch' ? 'Switch sides' : 'Rest', 'Next: start position', '');
+      else if (showIt.kind === 'hold') setCue(P.stage === 'work' ? (showIt.angle === 'mid' ? 'Hold mid-range' : 'Hold') : 'Get into position', P.stage === 'work' ? 'Keep breathing, stay still' : (showIt.angle === 'mid' ? 'Mid-range hold' : 'Then hold'), P.stage === 'work' ? 'hold' : '');
+      else setCue(P.stage === 'work' ? (P.repLabel || 'Go') : 'Get ready', tempoShort(ex), 'rep');
     }
     $('pCues').innerHTML = ex.cues.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('');
     $('pHow').hidden = cardio; $('pSteps').innerHTML = (ex.steps || []).map(function (st) { return '<li>' + esc(st.txt) + '</li>'; }).join('');
@@ -4657,17 +4678,31 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     $('pSvg').setAttribute('viewBox', ex._vb.map(function (x) { return x.toFixed(1); }).join(' '));
     $('pMore').hidden = !(P.stage === 'rest' || P.stage === 'switch');
     $('pPause').textContent = P.paused ? 'Resume' : 'Pause';
-    $('pSkip').textContent = P.stage === 'work' && it.kind === 'reps' ? 'Set done' : it.kind === 'cardio' && P.i === 0 && P.q.some(function (x) { return x.kind !== 'cardio'; }) ? 'Skip warm-up' : 'Skip';
+    var act = nextAction(it); $('pSkip').textContent = act; $('pRingCap').textContent = 'tap: ' + ({ 'Start now': 'start', 'Start next': 'start', 'Skip rest': 'skip', 'Skip warm-up': 'skip', 'End hold': 'end', 'Set done': 'done', 'Switch now': 'switch', 'Next part': 'next', 'Finish': 'finish' }[act] || 'next'); $('pRingBtn').setAttribute('aria-label', act);
     P.showEx = ex; P.showIt = showIt;
     drawPlayerFig(performance.now());
   }
+  // the big movement cue on the picture: main word plus a smaller line
+  function setCue(main, sub, cls) {
+    var el = $('pAngle'), h = '<b>' + esc(main) + '</b>' + (sub ? '<small>' + esc(sub) + '</small>' : '');
+    if (el.dataset.k !== main + '|' + sub + '|' + cls) { el.innerHTML = h; el.className = 'stage angle cue' + (cls ? ' ' + cls : ''); el.dataset.k = main + '|' + sub + '|' + cls; }
+  }
+  // what Skip / tapping the ring does at this moment
+  function nextAction(it) {
+    if (it.kind === 'cardio') return P.i === 0 && P.q.some(function (x) { return x.kind !== 'cardio'; }) ? 'Skip warm-up' : nextIdx(P.i) < P.q.length && P.q[nextIdx(P.i)].kind === 'cardio' ? 'Next part' : 'Finish';
+    if (P.stage === 'ready') return 'Start now';
+    if (P.stage === 'rest') return selfPaced() ? 'Start next' : 'Skip rest';
+    if (P.stage === 'switch') return 'Switch now';
+    return it.kind === 'hold' ? 'End hold' : 'Set done';
+  }
+  function selfPaced() { return !!(store.profile && store.profile.pace === 'self'); }
   function drawPlayerFig(now) {
     var ex = P.showEx, it = P.showIt, fig = $('pSvg').parentNode, r, holding = false, el = (now - P.t0) / 1000;
     if (it.kind === 'hold') {
       if (P.stage === 'ready' && !reduce && P.dur >= 5) {
         r = seq(ex, Math.min(el, 4.25))[0]; if (el >= 4.25 && it.angle === 'mid') r = ex._r[1];
         var lab = el < 0.7 ? 'Start position' : el < 3.25 ? 'Move into position' : it.angle === 'mid' ? 'Mid-range hold' : 'Hold here';
-        if ($('pAngle').textContent !== lab) { $('pAngle').textContent = lab; $('pAngle').className = 'stage angle' + (lab === 'Hold here' ? ' hold' : ''); }
+        setCue(lab, el < 3.25 ? 'Step ' + (el < 0.7 ? 1 : el < 1.8 ? 2 : 3) + ' of 3' : 'Starts when the count ends', lab === 'Hold here' ? 'hold' : '');
       }
       else if (P.stage === 'work' || P.stage === 'ready') { r = ex._r[it.angle === 'mid' ? 1 : 2]; holding = P.stage === 'work'; }
       else r = ex._r[0];
@@ -4690,8 +4725,10 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       $('pTime').textContent = rep; $('pTime').className = '';
       frac = 1 - Math.min(1, el / (it.reps * rd));
       if (rep !== P.lastRep) { P.lastRep = rep; if (rep > 1) beep(520, 0.08, 0.15); }
-      var lab = P.repLabel ? 'Reps, ' + P.repLabel.toLowerCase() : 'Reps';
-      if ($('pPhase').textContent !== lab) $('pPhase').textContent = lab;
+      if ($('pPhase').textContent !== 'Reps') $('pPhase').textContent = 'Reps';
+      setCue(P.repLabel || 'Go', tempoShort(it.ex), 'rep');
+    } else if (selfPaced() && P.stage !== 'work') {
+      var tu = fmt(el); $('pTime').textContent = tu; $('pTime').className = tu.length > 3 ? 'long' : ''; frac = 1;
     } else {
       var t = fmt(left); $('pTime').textContent = t; $('pTime').className = t.length > 3 ? 'long' : '';
       frac = P.dur ? left / P.dur : 0;
@@ -4705,9 +4742,10 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var rc = P.stage === 'rest' || P.stage === 'switch' ? ' rest-c' : P.stage === 'work' && it.kind === 'cardio' ? (it.effort === 'Hard' ? '' : ' rest-c') : P.stage === 'work' && it.kind !== 'hold' ? ' rep-c' : '';
     $('pRing').setAttribute('class', 'fgc' + rc);
     if (P.stage === 'ready' || (P.stage === 'work' && it.kind !== 'hold')) drawPlayerFig(now);
-    if (left <= 0) advance();
+    if (left <= 0 && !(selfPaced() && P.stage !== 'work')) advance();
   }
   $('pPause').addEventListener('click', function () { if (!P) return; P.paused = !P.paused; P.pt = performance.now(); paint(); });
+  $('pRingBtn').addEventListener('click', function () { if (P && P.stage !== 'done') $('pSkip').click(); });
   $('pSkip').addEventListener('click', function () {
     if (!P || P.stage === 'done') return;
     var it = P.q[P.i];
