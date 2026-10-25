@@ -578,6 +578,8 @@ details.tipc summary::-webkit-details-marker { display: none; }
 details.tipc summary .muted { font-size: 14px; }
 details.tipc summary::after { content: 'Show'; color: var(--rep); font-weight: 700; font-size: 14px; }
 details.tipc[open] summary::after { content: 'Hide'; }
+.pf-n { font-size: 14px; }
+.lgd-ok { display: inline-block; font-size: 13px; font-weight: 700; color: var(--ok-ink); background: var(--ok); border-radius: 999px; padding: 2px 10px; margin-top: 4px; }
 /*@@endcss*/
 </style>
 <style>
@@ -1478,7 +1480,7 @@ var EQ_STEP = { k: 4, d: 2, b: 2.5, c: 2.5, w: 0 };
 var EQV = {
   'front-raise': { h: 'd k b:plate', g: 'd k b:plate' },
   'lateral-raise': { h: 'd k c:cable', g: 'd k c:cable' },
-  'rear-fly': { h: 'd k', g: 'd k' },
+  'rear-fly': { h: 'd k c:cable', g: 'd k c:cable', n: { c: 'Cable Rear-Delt Fly Hold' }, gn: { c: 'Cable Rear-Delt Fly' } },
   'overhead-hold': { h: 'k d b:bar', g: 'k d b:bar', both: 'b', n: { b: 'Barbell Overhead Hold' }, gn: { b: 'Barbell Overhead Press' } },
   'ext-rot': { h: 'd k', g: 'd k' },
   'oh-triceps': { h: 'k d b:bar c:cable', g: 'k d b:bar c:cable', n: { c: 'Cable Overhead Triceps Hold' }, gn: { c: 'Cable Overhead Triceps Extension' } },
@@ -1486,7 +1488,7 @@ var EQV = {
   'hollow': { h: 'd k b:plate w', g: 'd k b:plate w' },
   'plank-db': { h: 'd k w', g: 'd k w', n: { k: 'High Plank on Kettlebells', w: 'High Plank' }, gn: { w: 'Plank Shoulder Tap' } },
   'goblet-squat': { h: 'k d b:bar c:mach', g: 'k d b:bar c:mach', n: { b: 'Zercher Squat Hold', c: 'Hack Squat Hold' }, gn: { b: 'Zercher Squat', c: 'Hack Squat' }, mp: 'sh' },
-  'wall-sit': { h: 'd k b:plate w', g: 'd k b:plate w' },
+  'wall-sit': { h: 'd k b:plate c:mach w', g: 'd k b:plate c:mach w', n: { c: 'Leg Press Hold' }, gn: { c: 'Leg Press' }, mp: 'kn' },
   'split-squat': { h: 'd k w', g: 'd k w' },
   'glute-bridge': { h: 'd k b:bar c:mach w', g: 'd k b:bar c:mach w', n: { c: 'Hip Thrust Machine Hold' }, gn: { c: 'Machine Hip Thrust' }, mp: 'hip' },
   'calf-raise': { h: 'd k b:bar c:mach w', g: 'd k b:bar c:mach w', n: { c: 'Standing Calf Machine Hold' }, gn: { c: 'Standing Calf Machine Raise' }, mp: 'sh' },
@@ -1496,7 +1498,7 @@ var EQV = {
   'shrug': { h: 'd k b:bar', g: 'd k b:bar' },
   'prone-y': { h: 'd w', g: 'd w' },
   'floor-press': { h: 'd k b:bar', g: 'd k b:bar' },
-  'sa-row': { h: 'd k b:bar', g: 'd k b:bar', both: 'b', n: { b: 'Close-Grip Barbell Row Hold' }, gn: { b: 'Close-Grip Barbell Row' } },
+  'sa-row': { h: 'd k b:bar c:cable', g: 'd k b:bar c:cable', both: 'b', n: { b: 'Close-Grip Barbell Row Hold', c: 'Single-Arm Cable Row Hold' }, gn: { b: 'Close-Grip Barbell Row', c: 'Single-Arm Cable Row' } },
   'bo-row': { h: 'b:bar d k', g: 'b:bar d k', n: { b: 'Wide-Grip Barbell Row Hold' }, gn: { b: 'Wide-Grip Barbell Row' } },
   'curl': { h: 'd k b:bar c:cable', g: 'd k b:bar c:cable' },
   'hammer': { h: 'd k b:bar', g: 'd k b:bar', n: { b: 'Barbell Reverse Curl Hold' }, gn: { b: 'Barbell Reverse Curl' } },
@@ -1815,6 +1817,18 @@ function swapEqText(t, from, to) {
 }
 // Gym versions: cable stations and plate-loaded or stack machines.
 var EQTX_GYM = {
+  'sa-row': {
+    h: { cable: { s: ['Set a cable at about waist height with a D-handle. Stagger your stance, free hand on your front knee, and hinge forward slightly.', 'Pull the handle to your lower ribs, elbow close to your side, shoulder blade drawn back.', 'Stop with the elbow just behind the body. Hold.'], c: ['Pull with the elbow, not the hand', 'Keep the chest still; no twisting', 'Shoulder down, away from the ear'] } },
+    g: { cable: { s: ['Staggered stance, arm long towards the cable.', 'Row to the ribs in 1 s, lower over 2–3 s into a full stretch.'], c: ['Let the shoulder blade move forward at the stretch', 'Keep the stack from resting'] } }
+  },
+  'rear-fly': {
+    h: { cable: { s: ['Stand between two high-ish pulleys (chest height), handles crossed: left cable in the right hand, right cable in the left.', 'Soft elbows. Sweep the arms out and back.', 'Stop with the arms in line with the shoulders, forming a T. Hold.'], c: ['Lead with the back of the hands', 'Don’t shrug', 'Light weight: this is a small muscle'] } },
+    g: { cable: { s: ['Handles crossed in front of the chest.', 'Sweep out to a T in 1 s, return over 2–3 s.'], c: ['Keep the elbows soft and still', 'Control the return'] } }
+  },
+  'wall-sit': {
+    h: { mach: { s: ['Sit in the leg press, back flat on the pad, feet shoulder-width in the middle of the platform.', 'Release the safeties and lower the platform under control.', 'Stop with the knees at about 90°. Hold, pushing evenly through both feet.'], c: ['Don’t let the lower back lift off the pad', 'Knees in line with the toes', 'Never lock the knees hard at the top'] } },
+    g: { mach: { s: ['Back flat on the pad, knees bent about 90°.', 'Press up in 1 s without locking out, lower over 2–3 s.'], c: ['Full control at the bottom', 'Lower back stays on the pad'] } }
+  },
   'lateral-raise': {
     h: { cable: { s: ['Stand between the two low pulleys of a cable crossover, a D-handle in each hand, cables crossing in front of your thighs.', 'Brace, soft elbows. Raise both arms out to the sides, leading with the elbows.', 'Stop with the arms level with the shoulders. Hold against the cables’ pull.'], c: ['The cables keep tension at the bottom, unlike dumbbells', 'Lead with the elbows, wrists no higher than the elbows', 'Only one low pulley? Do one arm at a time, standing side-on'] } },
     g: { cable: { s: ['Between two low pulleys, a handle in each hand in front of your thighs.', 'Raise out to shoulder height in 1 s, lower over 2–3 s without letting the stacks touch.'], c: ['Keep the stacks from resting between reps', 'Stand tall; do not lean back to cheat'] } }
@@ -2052,7 +2066,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function blockItems(b0, ph, off) {
     var q = []; off = off || {};
     function run(kind, rounds) {
-      var kk = kind === 'hold' ? 'h' : 'r', b = b0.filter(function (id) { return !(off[id] && off[id][kk]) && !V(id, kind === 'hold' ? 'h' : 'g').missing && !painFor(id).skip; });
+      var kk = kind === 'hold' ? 'h' : 'r', b = b0.filter(function (id) { return !(off[id] && off[id][kk]) && !V(id, kind === 'hold' ? 'h' : 'g').missing && !painFor(id).skip && !safetySkip(id); });
       if (!b.length) return;
       for (var r = 1; r <= rounds; r++) {
         b.forEach(function (id, bi) {
@@ -2064,7 +2078,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
             else if (it.kind === 'reps') { it.reps = repsFor(ex, ph); it.dur = it.reps * repDur(ex) + 1; }
             else it.dur = ph.gt;
             var lastSide = j === sides.length - 1;
-            it.after = lastSide ? MOVE : SWITCH; it.afterKind = lastSide ? 'rest' : 'switch';
+            it.after = lastSide ? MOVE + (gentle() ? 20 : 0) : SWITCH; it.afterKind = lastSide ? 'rest' : 'switch';
             q.push(it);
           });
         });
@@ -2234,8 +2248,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function exRow(id, ph, sk, off, added) {
     var h = V(id, 'h'), g = V(id, 'g'), wh = getWt(id, h, 'h'), wg = getWt(id, g, 'r'), o = (off && off[id]) || {};
     if (h.missing && g.missing) return '<div class="rw off"><button class="row" data-ex="' + id + '">' + figSvg(h, 2) + '<span><span class="t">' + esc(baseName(h.name)) + '</span><span class="s miss">Left out: needs ' + esc(needsTxt(id, 'h')) + '</span></span></button></div>';
-    var both = o.h && o.r;
-    return '<div class="rw' + (both ? ' off' : '') + '"><button class="row" data-ex="' + id + '">' + figSvg(h, 2) + '<span><span class="t">' + esc(h.name) + '</span>' +
+    var both = o.h && o.r, pn = painFor(id);
+    return '<div class="rw' + (both ? ' off' : '') + '">' + (pn.area && !pn.skip ? '<span class="s miss">' + esc(areaName(pn.area).replace(/^./, function (c) { return c.toUpperCase(); })) + ' ' + pn.score + '/10: shorter holds, about 20% lighter today</span>' : '') + '<button class="row" data-ex="' + id + '">' + figSvg(h, 2) + '<span><span class="t">' + esc(h.name) + '</span>' +
       '<span class="s' + (o.h ? ' x' : '') + '"><span class="h">' + rx(h, ph) + (wh != null ? ' at ' + kg(wh) : '') + '</span></span>' +
       '<span class="s' + (o.r ? ' x' : '') + '">Then <b>' + esc(g.name) + ' ' + grx(g, ph) + (wg != null ? ' at ' + kg(wg) : '') + '</b></span>' + (h.missing ? '<span class="s miss">Hold left out: needs ' + esc(needsTxt(id, 'h')) + '</span>' : g.missing ? '<span class="s miss">Reps left out: needs ' + esc(needsTxt(id, 'g')) + '</span>' : '') + '</span></button>' +
       (sk ? '<div class="tg" role="group" aria-label="Include in this session"><button data-tg="h" data-id="' + id + '" data-sk="' + sk + '" aria-pressed="' + !o.h + '">' + (o.h ? 'Hold skipped' : 'Hold') + '</button><button data-tg="r" data-id="' + id + '" data-sk="' + sk + '" aria-pressed="' + !o.r + '">' + (o.r ? 'Reps skipped' : 'Reps') + '</button>' +
@@ -2278,6 +2292,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       blocksFor(day, part).forEach(function (b, bi) {
         var added = bi >= nPlan, nb = b.filter(function (id) { return !(V(id, 'h').missing && V(id, 'g').missing); }).length;
         count += b.filter(function (id) { var o = c.off[id]; return !(o && o.h && o.r) && !(V(id, 'h').missing && V(id, 'g').missing); }).length;
+        var safe = b.filter(function (id) { return safetySkip(id); });
+        if (safe.length) list += '<li class="grp"><span class="grp-t miss">Left out for bone health (loaded forward bending): ' + esc(safe.map(function (id) { return baseName(BY[id].name); }).join(', ')) + '</span></li>';
         var hurt = b.filter(function (id) { return painFor(id).skip; });
         if (hurt.length) list += '<li class="grp"><span class="grp-t miss">Left out today for ' + esc(areaName(painFor(hurt[0]).area)) + ' pain: ' + esc(hurt.map(function (id) { return baseName(BY[id].name); }).join(', ')) + '</span></li>';
         list += '<li class="grp' + (added ? ' added' : '') + '"><span class="grp-t">' + (added ? 'Added by you' + (nb > 1 ? ', alternate these ' + nb : '') : nb > 1 ? 'Alternate these ' + nb : nb ? 'On its own' : 'Left out today') + '</span>' + b.map(function (id) { return exRow(id, ph, sk, c.off, added); }).join('') + '</li>';
@@ -2860,7 +2876,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     ['Cheese', 'cheese|cheddar|mozzarella|parmesan', 25, 1.3, 33, 403, 20, 'slice', 'V'],
     ['Whey protein', 'whey|whey protein|protein shake|protein powder|shake', 80, 8, 6, 400, 30, 'scoop', 'V'],
     ['Plant protein', 'plant protein shake|pea protein shake|vegan protein shake|soy protein shake|plant protein|pea protein|vegan protein|soy protein', 75, 8, 7, 390, 30, 'scoop', 'N'],
-    ['Protein bar', 'protein bars?', 33, 40, 15, 400, 60, 'bar', 'V'],
+    ['String cheese', 'string cheese|cheese sticks?', 25, 3.6, 21, 286, 28, 'stick', 'V'],
+    ['Pork rinds', 'pork rinds|chicharrones', 61, 0, 31, 544, 28, 'bag', 'M'],
+    ['Protein bar', 'protein bars?|quest bars?|grenade bars?|rxbars?', 33, 40, 15, 400, 60, 'bar', 'V'],
     ['Rice', 'rice|white rice|steamed rice|jeera rice|chawal', 2.7, 28, 0.3, 130, 150, 'bowl', 'N'],
     ['Brown rice', 'brown rice', 2.6, 23, 0.9, 112, 150, 'bowl', 'N'],
     ['Veg biryani', 'veg biryani|pulao|pulav|fried rice', 4, 25, 6, 170, 300, 'plate', 'V'],
@@ -2936,9 +2954,11 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function prof() {
     var p = store.profile || {};
     return { name: p.name || '', age: p.age || null, sex: p.sex || '', cm: p.cm || null, bw: p.bw || null, units: p.units || 'kg', diet: p.diet || 'any', where: p.where || 'home',
-      cardio: p.cardio || ['treadmill', 'rower'], issues: p.issues || [], cues: !!p.cues, split: p.split || 'two', posture: !!p.posture, inv: p.inv || {} };
+      cardio: p.cardio || ['treadmill', 'rower'], issues: p.issues || [], cues: !!p.cues, goal: p.goal || 'build', split: p.split || 'two', posture: !!p.posture, inv: p.inv || {} };
   }
   // gentle mode: blood pressure, fragile bones or 65+
+  // osteopenia: leave out loaded spinal flexion (crunch, hollow body)
+  function safetySkip(id) { return prof().issues.indexOf('bones') > -1 && (id === 'crunch' || id === 'hollow'); }
   function gentle() { var p = prof(); return p.issues.indexOf('bp') > -1 || p.issues.indexOf('bones') > -1 || (p.age || 0) >= 65; }
   function bwTxt(v) { if (v == null) return ''; if (prof().units === 'st') { var lb = Math.round(v * 2.20462); return Math.floor(lb / 14) + ' st ' + (lb % 14) + ' lb'; } return kg(v); }
   // weights you own: "12, 16, 24" or "2.5-12.5" (step 2.5) -> list in kg
@@ -2990,7 +3010,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // Mifflin–St Jeor resting energy x 1.55 (training 4 days a week plus walking)
   function kcalTarget() {
     var p = prof(), b = bodyKg(); if (!b || !p.age || !p.cm || !p.sex || p.sex === 'x') return null;
-    return Math.round((10 * b + 6.25 * p.cm - 5 * p.age + (p.sex === 'm' ? 5 : -161)) * 1.55 / 10) * 10;
+    return Math.round(((10 * b + 6.25 * p.cm - 5 * p.age + (p.sex === 'm' ? 5 : -161)) * 1.55 + ({ lose: -450, keep: 0, build: 250 }[p.goal] || 0)) / 10) * 10;
   }
   function dayStart(t) { var d = new Date(t == null ? Date.now() : t); d.setHours(0, 0, 0, 0); return d.getTime(); }
   function today(list) { var s = dayStart(); return list.filter(function (x) { return x.t >= s; }); }
@@ -3072,7 +3092,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       'hollow': ['hollow', 'hollow body', 'hollow hold', 'leg raise', 'leg raises'],
       'plank-db': ['plank', 'high plank', 'renegade row', 'renegade rows', 'shoulder tap', 'shoulder taps'],
       'goblet-squat': ['goblet squat', 'goblet squats', 'zercher squat', 'zercher', 'hack squat', 'hack squats'],
-      'wall-sit': ['wall sit', 'wall sits', 'wallsit', 'reverse nordic', 'reverse nordics'],
+      'wall-sit': ['wall sit', 'wall sits', 'wallsit', 'reverse nordic', 'reverse nordics', 'leg press', 'leg press hold'],
       'split-squat': ['split squat', 'split squats', 'lunge', 'lunges', 'bulgarian'],
       'glute-bridge': ['glute bridge', 'glute bridges', 'hip thrust', 'hip thrusts', 'hip thrust machine'],
       'calf-raise': ['calf raise', 'calf raises', 'standing calf', 'standing calf raise', 'calf machine'],
@@ -3086,11 +3106,11 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       'sl-rdl': ['single leg rdl', 'single-leg rdl', 'one leg rdl', 'single leg deadlift'],
       'bird-dog': ['bird dog', 'bird dogs', 'birddog', 'swing', 'swings', 'kettlebell swing', 'kettlebell swings'],
       'sl-balance': ['single leg balance', 'single-leg balance', 'balance hold', 'single leg calf raise', 'single-leg calf raise'],
-      'sa-row': ['row', 'rows', 'one arm row', 'single arm row', 'dumbbell row', 'db row', 'one-arm row'],
+      'sa-row': ['one arm row', 'one arm rows', 'single arm row', 'single arm rows', 'dumbbell row', 'dumbbell rows', 'db row', 'one-arm row', 'cable row', 'kettlebell row', 'bent over row'],
       'rear-fly': ['rear delt fly', 'rear delt flye', 'rear fly', 'reverse fly', 'rear delt']
     };
     // aliases that name the rep exercise (r) or a machine/cable version (c)
-    var HINT = { 'swing': 'r', 'swings': 'r', 'kettlebell swing': 'r', 'kettlebell swings': 'r', 'renegade row': 'r', 'renegade rows': 'r', 'shoulder tap': 'r', 'shoulder taps': 'r', 'reverse nordic': 'r', 'reverse nordics': 'r', 'leg raise': 'r', 'leg raises': 'r', 'hack squat': 'c', 'hack squats': 'c', 'hip thrust machine': 'c', 'calf machine': 'c', 'pull through': 'c', 'pull-through': 'c', 'cable pull through': 'c' };
+    var HINT = { 'swing': 'r', 'swings': 'r', 'kettlebell swing': 'r', 'kettlebell swings': 'r', 'renegade row': 'r', 'renegade rows': 'r', 'shoulder tap': 'r', 'shoulder taps': 'r', 'reverse nordic': 'r', 'reverse nordics': 'r', 'leg raise': 'r', 'leg raises': 'r', 'hack squat': 'c', 'hack squats': 'c', 'leg press': 'c', 'leg press hold': 'c', 'cable row': 'c', 'hip thrust machine': 'c', 'calf machine': 'c', 'pull through': 'c', 'pull-through': 'c', 'cable pull through': 'c' };
     var ids = []; DAYS.forEach(function (d) { d.ex.forEach(function (id) { if (ids.indexOf(id) < 0) ids.push(id); }); }); ADDON.forEach(function (id) { if (ids.indexOf(id) < 0) ids.push(id); });
     ids.forEach(function (id) {
       var names = [baseName(BY[id].name).replace(/ hold$/i, ''), baseName(G[id].name)].concat(extra[id] || []);
@@ -3099,7 +3119,10 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     a.sort(function (x, y) { return y[0].length - x[0].length; });
     return (EXALIAS = a);
   }
+  // lifts that aren't program exercises, even though they share a word ("seated cable row", "back squat")
+  var NOTEX = /\b(seated (?:cable )?rows?|t-bar rows?|upright rows?|pendlay|chest[- ]supported rows?|inverted rows?|lat pull-?downs?|pull-?downs?|pull-?ups?|chin-?ups?|leg extensions?|leg curls?|bench press|smith|chest press|pec deck|shoulder press|overhead press|military press|dips|push-?ups?|face pulls?|back squats?|front squats?|sumo|conventional deadlifts?|trap bar)\b/;
   function findEx(t) {
+    if (NOTEX.test(t.replace(/romanian deadlifts?|stiff[- ]leg deadlifts?|single[- ]leg deadlifts?/g, ''))) return null;
     var A = exAliases();
     for (var i = 0; i < A.length; i++) { var re = new RegExp('\\b' + A[i][0].replace(/[-]/g, '[- ]?') + '\\b'); var m = t.match(re); if (m) return { id: A[i][1], hint: A[i][2], at: m.index, len: m[0].length }; }
     return null;
@@ -3110,11 +3133,11 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var list = [];
     FOODS.forEach(function (f, i) { f[1].split('|').forEach(function (al) { list.push([al, i]); }); });
     list.sort(function (a, b) { return b[0].replace(/[?()|:]/g, '').length - a[0].replace(/[?()|:]/g, '').length; });
-    var U = '(g|gm|gms|grams?|ml|l|litres?|liters?|oz|ounces?|cups?|bowls?|katoris?|plates?|slices?|pieces?|pcs|scoops?|tbsp|tablespoons?|tsp|teaspoons?|glass(?:es)?|handfuls?|servings?|portions?|cans?|tins?|bars?|pots?|fillets?|bottles?|pints?)';
+    var U = '(g|gm|gms|grams?|ml|l|litres?|liters?|oz|ounces?|cups?|bowls?|katoris?|plates?|slices?|pieces?|pcs|scoops?|tbsp|tablespoons?|tsp|teaspoons?|spoons?|spoonfuls?|glass(?:es)?|handfuls?|servings?|portions?|cans?|tins?|bars?|pots?|fillets?|bottles?|pints?)';
     FOODRE = list.map(function (x) { return [new RegExp('(?:(\\d+(?:\\.\\d+)?)\\s*' + U + '?\\s*(?:of\\s+)?)?\\b(' + x[0] + ')\\b(?:\\s*(?:x\\s*)?(\\d+(?:\\.\\d+)?)\\s*(g|gm|grams?|ml|oz|ounces?)\\b)?'), x[1]]; });
     return FOODRE;
   }
-  var GEN = { tbsp: 15, tablespoon: 15, tablespoons: 15, tsp: 5, teaspoon: 5, teaspoons: 5, handful: 30, handfuls: 30, oz: 28.35 };
+  var GEN = { spoon: 15, spoons: 15, spoonful: 15, spoonfuls: 15, tbsp: 15, tablespoon: 15, tablespoons: 15, tsp: 5, teaspoon: 5, teaspoons: 5, handful: 30, handfuls: 30, oz: 28.35 };
   function foodItem(i, qty, unit, grams) {
     var f = FOODS[i], g;
     if (grams) g = grams;
@@ -3137,7 +3160,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         s = s.slice(0, m.index) + ' # ' + s.slice(m.index + m[0].length);
       }
     }
-    var left = s.replace(/#/g, ' ').replace(/\b(i|i've|ive|had|have|ate|eaten|eat|drank|drink|for|my|with|and|some|a|of|the|breakfast|lunch|dinner|snack|meal|just|today|this|morning|evening|night|also|plus|then|log|add|bowl|plate|cup|glass|small|large|big|medium|piece|homemade|little|bit|on|in|at|it|was|me|please|post|pre|workout|after|before)\b/g, ' ').replace(/[^a-z]/g, ' ').trim();
+    var left = s.replace(/#/g, ' ').replace(/\b(i|i've|ive|had|have|ate|eaten|eat|drank|drink|for|my|with|and|some|a|of|the|breakfast|lunch|dinner|snack|meal|just|today|this|morning|evening|night|also|plus|then|log|add|bowl|plate|cup|glass|small|large|big|medium|piece|homemade|little|bit|on|in|at|it|was|me|please|post|pre|workout|after|before|aur|spoon|spoons|katori|katoris)\b/g, ' ').replace(/[^a-z]/g, ' ').trim();
     // "tofu scramble with 200 g tofu": one food named twice counts once, keeping the exact amount
     items = items.filter(function (i) { return !items.some(function (o) { return o !== i && o.n === i.n && o.exact && !i.exact; }); });
     items.sort(function (a, b) { return a.at - b.at; }); items.forEach(function (i) { delete i.at; delete i.exact; });
@@ -3197,13 +3220,15 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       if (/\bskip\b/.test(t)) return { type: 'skip_exercise', exercise: ex.id };
       var rest = t.slice(0, ex.at) + ' ' + t.slice(ex.at + ex.len), u = wUnit(rest), a = { type: 'log_set', exercise: ex.id };
       if (ex.hint === 'c') a.eq = 'c';
+      if (/goblet/.test(t)) a.eq = store.eq.indexOf('k') > -1 || store.eq.indexOf('d') < 0 ? 'k' : 'd';
+      if (/zercher/.test(t)) a.eq = 'b';
       // "135x10" or "40 kg x 8": weight x reps (a first number over 10, or one with a unit, is a weight)
       var wx = rest.match(/(\d+(?:\.\d+)?)\s*(kg|lb)?\s*x\s*(\d+)\b(?:\s*x\s*(\d+))?/);
-      if (wx && (wx[2] || +wx[1] > 10)) { a.weight = +wx[1]; a.unit = wx[2] || u; a.reps = +wx[3]; if (wx[4]) a.sets = +wx[4]; rest = rest.replace(wx[0], ' '); }
+      if (wx && (wx[2] || +wx[1] > 10)) { a.weight = +wx[1]; a.unit = wx[2] || u; a.unitSaid = wx[2] || ''; a.reps = +wx[3]; if (wx[4]) a.sets = +wx[4]; rest = rest.replace(wx[0], ' '); }
       var sx = rest.match(/(\d+)\s*(?:x|sets? of)\s*(\d+)\b(?!\s*(?:kg|lb))/);
       if (sx) { a.sets = +sx[1]; var n2 = +sx[2]; if (/\bs\b|sec|hold/.test(rest) && !/rep/.test(rest)) a.seconds = n2; else a.reps = n2; rest = rest.replace(sx[0], ' '); }
       if ((m = rest.match(/(\d+)\s*sets?\b/))) { a.sets = +m[1]; rest = rest.replace(m[0], ' '); }
-      if (a.weight == null && ((m = rest.match(/(\d+(?:\.\d+)?)\s*(kg|lb)\b/)) || (m = rest.match(/\b(?:with|at|using|of)\s+(\d+(?:\.\d+)?)\b(?!\s*(?:s|min|reps?))/)))) { a.weight = +m[1]; a.unit = m[2] || u; rest = rest.replace(m[0], ' '); }
+      if (a.weight == null && ((m = rest.match(/(\d+(?:\.\d+)?)\s*(kg|lb)\b/)) || (m = rest.match(/\b(?:with|at|using|of)\s+(\d+(?:\.\d+)?)\b(?!\s*(?:s|min|reps?))/)))) { a.weight = +m[1]; a.unit = m[2] || u; a.unitSaid = m[2] || ''; rest = rest.replace(m[0], ' '); }
       if ((m = rest.match(/(\d+(?:\.\d+)?)\s*min\b/))) { a.seconds = Math.round(+m[1] * 60); rest = rest.replace(m[0], ' '); }
       if ((m = rest.match(/(\d+)\s*s\b/))) { a.seconds = +m[1]; rest = rest.replace(m[0], ' '); }
       if (a.reps == null && (m = rest.match(/(\d+)\s*(?:reps?|times)\b/))) { a.reps = +m[1]; rest = rest.replace(m[0], ' '); }
@@ -3212,7 +3237,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       if (bare.length && a.seconds == null && a.reps == null) { var v0 = bare.shift(); if (/hold/.test(t) || (ex.hint !== 'r' && !/rep/.test(t) && v0 >= 20 && a.weight != null)) a.seconds = v0; else if (a.weight == null && bare.length) { a.weight = v0; a.unit = u; v0 = bare.shift(); if (/hold/.test(t)) a.seconds = v0; else a.reps = v0; } else if (a.weight != null) a.reps = v0; else if (/hold/.test(t) || (ex.hint !== 'r' && v0 >= 20)) a.seconds = v0; else a.reps = v0; }
       a.part = a.seconds != null ? 'hold' : a.reps != null ? 'reps' : /hold/.test(t) || ex.hint !== 'r' && !/rep/.test(t) ? 'hold' : 'reps';
       Object.keys(EQW).forEach(function (k) { if (EQW[k].test(t) && !a.eq) a.eq = k; });
-      if (a.eq === 'c' && !/cable|machine|hack|pull.?through|hip thrust machine/.test(t) && ex.hint !== 'c') delete a.eq;
+      if (a.eq === 'c' && !/cable|machine|hack|pull.?through|hip thrust machine|leg press/.test(t) && ex.hint !== 'c') delete a.eq;
       if (a.seconds == null && a.reps == null) { if (a.weight == null) return { type: 'open_exercise', exercise: ex.id }; a.type = 'set_weight'; }
       return a;
     }
@@ -3221,7 +3246,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       var mins = (m = t.match(/(\d+(?:\.\d+)?)\s*min\b/)) ? +m[1] : (m = t.match(/(\d+(?:\.\d+)?)\s*h\b/)) ? +m[1] * 60 : null;
       var km = (m = t.match(/(\d+(?:\.\d+)?)\s*(km|k)\b/)) ? +m[1] : (m = t.match(/(\d+(?:\.\d+)?)\s*(mi|miles?)\b/)) ? +m[1] * 1.609 : (m = t.match(/(\d{3,5})\s*m\b/)) ? +m[1] / 1000 : null;
       var steps = (m = t.match(/(\d{3,6})\s*steps\b/)) ? +m[1] : null;
-      var mach = /row/.test(t) ? 'Rowing' : /cycl|bike|spin/.test(t) ? 'Cycling' : /swim|swam/.test(t) ? 'Swimming' : /\bran\b|run|jog/.test(t) ? 'Running' : /hike/.test(t) ? 'Hiking' : /stair/.test(t) ? 'Stairs' : /elliptical/.test(t) ? 'Elliptical' : 'Walking';
+      var mach = /treadmill/.test(t) ? 'Treadmill' : /row/.test(t) ? 'Rowing' : /cycl|bike|spin/.test(t) ? 'Cycling' : /swim|swam/.test(t) ? 'Swimming' : /\bran\b|run|jog/.test(t) ? 'Running' : /hike/.test(t) ? 'Hiking' : /stair/.test(t) ? 'Stairs' : /elliptical/.test(t) ? 'Elliptical' : 'Walking';
       if (mins || km || steps) return { type: 'log_cardio', machine: mach, minutes: mins, distance_km: km, steps: steps, hard: /\b(hard|intervals?|hiit|sprints?|fast|tempo)\b/.test(t) };
     }
     if ((m = t.match(/(\d{3,6})\s*steps\b/))) return { type: 'log_cardio', machine: 'Walking', steps: +m[1] };
@@ -3244,11 +3269,13 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (fd.items.length) return { type: 'log_food', items: fd.items, meal_name: mealName(t), left: fd.left };
     return null;
   }
+  function bareStones(raw) { var m = norm(raw).match(/^\s*(?:i'?m\s*)?(\d{2,3}(?:\.\d+)?) kg\s*$/); return /\bst(one)?s?\b/i.test(raw) && m ? +m[1] : null; }
   var QWORDS = /^\s*(what|what's|whats|how|why|should|can|could|is|are|does|when|which|where|will|would|tell me|explain|any ideas|give me|suggest|help|(?:do|did) (?:i|you|we))\b/;
   function parseText(raw) {
     var t = norm(raw), out = { actions: [], unknown: [], question: QWORDS.test(t) || /\?\s*$/.test(raw) };
     if (out.question) return out;
-    var parts = t.split(/(?:\.(?!\d))+|[;!\n]+|,\s*(?:and\s+)?(?=[a-z])|\b(?:and then|then|also|plus|and|with)\b/);
+    if (bareStones(raw)) { out.actions.push({ type: 'log_bodyweight', weight: bareStones(raw), unit: 'kg' }); return out; }
+    var parts = t.split(/(?:\.(?!\d))+|[;!\n]+|,\s*(?:and\s+)?(?=[a-z])|\b(?:and then|then|also|plus|and|with|aur|n)\b/);
     var prev = null, carry = '';
     parts.forEach(function (p, pi) {
       p = ' ' + (p || '').trim() + ' '; if (!p.trim()) return;
@@ -3278,7 +3305,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       out.actions.push(a); prev = a;
     });
     if (carry) out.unknown.push(carry.trim());
-    out.actions.forEach(function (a) { delete a.raw; if (a.left) { if (a.left.length > 2) out.unknown.push(a.left); delete a.left; } });
+    out.actions.forEach(function (a) { delete a.raw; if (a.type === 'log_set' && a.unitSaid == null && a.weight != null) a.unitSaid = /\b(kg|lb)\b/.test(t) ? 'x' + t.match(/\b(kg|lb)\b/)[1] : ''; if (a.left) { if (a.left.length > 2) out.unknown.push(a.left); delete a.left; } });
     return out;
   }
 
@@ -3339,8 +3366,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         if (a.weight != null) setWt(a.exercise, ex, kind, kgv);
         vals.forEach(function (vv, i) { var e = { t: now + i, w: store.week, id: a.exercise, eq: ex.eq, k: kind, kg: ex.eq === 'w' ? 0 : (kgv || 0), v: vv }; store.log.push(e); ts.push(e.t); }); n = vals.length;
         save();
-        var last = store.log[store.log.length - 1], pb = isPB(last);
-        card = { k: 'set', ref: ts, title: ex.name, lines: [(vals.every(function (x) { return x === vals[0]; }) ? n + ' × ' + setTxt(last) : vals.map(function (x) { return setTxt({ kg: last.kg, v: x, k: kind }); }).join(', ')) + (ex.eq !== 'w' && !kgv ? ' (no weight entered)' : a.weight == null && kgv ? ' (your saved weight)' : '')], pb: pb, sub: pb ? 'New personal best.' : '' };
+        var last = store.log[store.log.length - 1], pb = isPB(last), bwk = bodyKg(), odd = a.weight != null && !/kg|lb/.test(a.unitSaid || '') && kgv > Math.max(100, (bwk || 80) * 1.8);
+        card = { k: 'set', ref: ts, title: ex.name, warn: odd ? 'That’s a lot for this exercise. If you meant ' + a.weight + (p.units === 'lb' ? ' kg' : ' lb') + ', tap Undo and add the unit.' : '', lines: [(vals.every(function (x) { return x === vals[0]; }) ? n + ' × ' + setTxt(last) : vals.map(function (x) { return setTxt({ kg: last.kg, v: x, k: kind }); }).join(', ')) + (ex.eq !== 'w' && !kgv ? ' (no weight entered)' : a.weight == null && kgv ? ' (your saved weight)' : '')], pb: pb, sub: pb ? 'New personal best.' : '' };
         break;
       }
       case 'set_weight': {
@@ -3483,11 +3510,13 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     DAYS.forEach(function (d) { d.ex.forEach(function (id) { if (ids.indexOf(id) < 0 && tags.some(function (t) { return BY[id].tags.slice(0, 2).indexOf(t) > -1; })) ids.push(id); }); });
     return ids;
   }
+  var AREA_TIP = { neck: 'Gentle chin tucks and opening the upper back over a chair back (2 × 10, once or twice a day) often help. Keep weights below shoulder height until it settles.', back: 'Easy walking and gentle movement usually help more than rest.', knee: 'Keep knee holds at a comfortable angle; a smaller bend is fine.', shoulder: 'Keep arms below shoulder height until it settles.' };
   function painAdvice(a) {
-    var ids = exercisesFor(a.area), names = ids.slice(0, 4).map(function (id) { return baseName(BY[id].name).replace(/ Hold$/, ''); });
+    var ids = exercisesFor(a.area), names = ids.slice(0, 4).map(function (id) { return baseName(BY[id].name).replace(/ Hold$/, ''); }), tip = AREA_TIP[a.area] ? ' ' + AREA_TIP[a.area] : '', gp = a.score >= 4 ? ' If it isn’t settling within 1–2 weeks, see a physiotherapist or GP.' : '';
     if (a.soreness) return ['Muscle soreness 1–2 days after training is normal and not a reason to stop. Warm up well; it usually eases as you move.'];
     if (a.score <= 3) return ['Up to 3/10 that settles by the next morning is fine under the pain rule. Train as planned.' + (names.length ? ' Keep an eye on ' + names.join(', ') + '.' : '')];
-    return ['Above 3/10: for the next 48 hours, lighten ' + (names.length ? names.join(', ') : 'exercises for this area') + ' by about 20% or shorten the holds, and stop any set that pushes past 3/10.', 'Holds at a comfortable angle are usually tolerated better than reps. The Train tab shows a reminder until it settles.'];
+    if (a.sharp || a.score >= 7) return [(names.length ? 'Left out of your sessions for the next 48 hours: ' + names.join(', ') + '.' : 'Rest this area for the next 48 hours.') + tip + gp];
+    return [(names.length ? 'For the next 48 hours your sessions shorten the holds for ' + names.join(', ') + ' and suggest going about 20% lighter. Stop any set that pushes past 3/10.' : 'Go about 20% lighter on anything that loads this area, and stop any set that pushes past 3/10.') + tip + gp];
   }
   function activePain() {
     var s = Date.now() - 48 * 36e5, by = {};
@@ -3499,7 +3528,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function localAnswer(raw) {
     var t = norm(raw), f = sumFood(today(store.food)), tg = proteinTarget(), m;
     if (/protein|macros?|calories|kcal|eaten|ate today|food today|carbs/.test(t)) {
-      var s = 'Today so far: **' + r0(f.p) + ' g protein**' + (tg ? ' of ' + tg + ' g' : '') + ', ' + r0(f.k) + ' kcal, ' + r0(f.c) + ' g carbs, ' + r0(f.f) + ' g fat.';
+      var s = 'Today so far: **' + r0(f.p) + ' g protein**' + (tg ? ' of ' + tg + ' g' : '') + ', ' + r0(f.k) + ' kcal' + (kcalTarget() ? ' of about ' + kcalTarget() : '') + ', ' + (prof().diet === 'keto' ? r0(f.net) + ' g net carbs (' + r0(f.c) + ' g total)' : r0(f.c) + ' g carbs') + ', ' + r0(f.f) + ' g fat.';
       if (tg && f.p < tg) s += '\n\nTo close the gap of ' + r0(tg - f.p) + ' g, try: ' + ideas(tg - f.p).join('; ') + '.';
       if (!tg) s += '\n\nTell me your bodyweight (“I weigh 75 kg”) to get a daily protein target.';
       return s;
@@ -3601,7 +3630,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var wa = today(store.notes).filter(function (n) { return n.k === 'water'; }).reduce(function (s, n) { return s + n.ml; }, 0);
     var pct = tg ? Math.min(1, f.p / tg) : 0, keto = prof().diet === 'keto';
     var ring = '<svg class="lg-ring" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27" class="bgc"/><circle cx="32" cy="32" r="27" class="fgc" stroke-dasharray="169.6" stroke-dashoffset="' + (169.6 * (1 - pct)).toFixed(1) + '"/></svg>';
-    var h = '<div class="lgd-top">' + ring + '<div><span class="lgd-k">Protein today</span><b class="num">' + r0(f.p) + (tg ? '<small> / ' + tg + ' g</small>' : ' g') + '</b>' + (tg ? '' : '<button class="textbtn" data-prof="1">Add your bodyweight for a target</button>') + '</div></div>' +
+    var h = '<div class="lgd-top">' + ring + '<div><span class="lgd-k">Protein today</span><b class="num">' + r0(f.p) + (tg ? '<small> / ' + tg + ' g</small>' : ' g') + '</b>' + (tg ? '' : '<button class="textbtn" data-prof="1">Add your bodyweight for a target</button>') + (tg && f.p >= tg ? '<span class="lgd-ok">Target reached</span>' : '') + '</div></div>' +
       '<div class="lgd-row"><span><b class="num">' + r0(f.k) + '</b>' + (kt ? ' / ' + kt : '') + ' kcal</span>' + (keto ? '<span><b class="num">' + r0(f.net) + '</b> / 30 g net carbs</span>' : '<span><b class="num">' + r0(f.c) + '</b> g carbs</span>') + '<span><b class="num">' + sets + '</b> sets</span><span><b class="num">' + cm + '</b> min cardio</span>' + (wa ? '<span><b class="num">' + volTxt(wa) + '</b> water</span>' : '') + '</div>';
     if (tg && f.p < tg * 0.85 && new Date().getHours() >= 14) h += '<p class="lgd-tip">' + r0(tg - f.p) + ' g of protein to go. Ideas: ' + esc(ideas(tg - f.p).slice(0, 3).join('; ')) + '.</p>';
     $('lgDay').innerHTML = h;
@@ -3614,7 +3643,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   var I_MIC = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
   function saveChat() { saveFeed(); }
-  function scrollEnd() { var c = $('cForm'); try { c.scrollIntoView({ block: 'end' }); } catch (e) { window.scrollTo(0, document.body.scrollHeight); } }
+  function scrollEnd() { requestAnimationFrame(function () { window.scrollTo(0, document.documentElement.scrollHeight); }); }
 
   function errorFor(status, body) {
     var msg = (body && body.error && body.error.message) || '';
@@ -3759,7 +3788,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   var photoPending = null;
   function pickPhotoKind(q, v) {
     if (!q) return;
-    photoPending = q.ph || null; q.r = 'm'; q.x = { meal: 'Photo saved with your meal. Say or type what was in it, like “2 eggs on toast” or “dal, 2 rotis and curd”.', scale: 'Type the number on the scale, like “78.4”.', cardio: 'Type what the display shows, like “rowed 20 min 4 km”.', other: 'Photo saved. Add a note if you like.' }[v];
+    photoPending = q.ph || null; q.r = 'm'; q.x = { meal: 'Photo saved with your meal. Say or type what was in it, like “' + ({ vegan: 'tofu, rice and broccoli', vegetarian: 'dal, 2 rotis and curd', pescatarian: 'salmon with potatoes and salad', keto: '3 eggs and bacon' }[prof().diet] || '2 eggs on toast') + '”.', scale: 'Type the number on the scale, like “78.4”.', cardio: 'Type what the display shows, like “rowed 20 min 4 km”.', other: 'Photo saved. Add a note if you like.' }[v];
     $('cIn').placeholder = { meal: 'What was in it?', scale: 'Scale reading', cardio: 'Minutes and distance', other: 'Note' }[v];
     $('cIn').dataset.mode = v; saveFeed(); renderCoach(); $('cIn').focus();
   }
@@ -3893,15 +3922,18 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       '<label><span>Height (<span class="pfH">' + (lbU ? 'in' : 'cm') + '</span>)</span><input id="pfCm" type="number" inputmode="numeric" min="40" max="250" value="' + hIn + '"></label></div>' +
       '<span class="pf-l">Sex <span class="muted">(for the calorie estimate)</span></span>' + chipSet('sex', [['f', 'Female'], ['m', 'Male'], ['x', 'Prefer not to say']], p.sex) +
       '<span class="pf-l">Units</span>' + chipSet('units', [['kg', 'Kilograms'], ['lb', 'Pounds'], ['st', 'Kilograms, stones for me']], p.units) +
+      '<span class="pf-l">Goal</span>' + chipSet('goal', [['build', 'Build muscle'], ['keep', 'Stay as I am'], ['lose', 'Lose fat']], p.goal) +
       '<span class="pf-l">Sessions a day</span>' + chipSet('split', [['two', 'Two short ones (morning + evening)'], ['one', 'One session']], p.split) +
-      '<label class="pf-sw"><input type="checkbox" id="pfCues"' + (p.cues ? ' checked' : '') + '><span>Spoken cues during sessions (exercise names, “hold”, “rest”)</span></label>' +
+      '<p class="muted pf-n">The plan runs in order, not by the calendar: train on the days that suit you and it waits for you.</p>' +
+      '<label class="pf-sw"><input type="checkbox" id="pfCues"' + (p.cues || first ? ' checked' : '') + '><span>Spoken cues during sessions (exercise names, “hold”, “rest”)</span></label>' +
       '<span class="pf-l">Where you train</span>' + chipSet('where', [['home', 'Home'], ['gym', 'Gym'], ['both', 'Both']], p.where) +
-      '<span class="pf-l">Strength equipment</span>' + chipSet('eq', [['k', 'Kettlebells'], ['d', 'Dumbbells'], ['b', 'Barbell & plates'], ['c', 'Cables & machines']], store.eq, true) +
-      '<details class="pf-inv"' + (Object.keys(p.inv).length ? ' open' : '') + '><summary>Weights you own (optional)</summary><p class="muted">So suggestions and the + / − buttons use your actual weights. Like “12, 16, 24” or “2.5-12.5”.</p>' +
+      '<span class="pf-l">Strength equipment</span>' + chipSet('eq', [['k', 'Kettlebells'], ['d', 'Dumbbells'], ['b', 'Barbell & plates'], ['c', 'Cables & machines']], first ? [] : store.eq, true) +
+      '<p class="muted pf-n">Barbell versions start from the floor, so no rack is needed.</p>' +
+      '<details class="pf-inv" open><summary>Weights you own (optional)</summary><p class="muted">So suggestions and the + / − buttons use your actual weights. Like “12, 16, 24” or “2.5-12.5”.</p>' +
       '<label><span>Kettlebells (' + (isLb() ? 'lb' : 'kg') + ')</span><input id="pfInvK" autocomplete="off" value="' + esc(p.inv.k || '') + '" placeholder="12, 16, 24"></label>' +
       '<label><span>Dumbbells, each (' + (isLb() ? 'lb' : 'kg') + ')</span><input id="pfInvD" autocomplete="off" value="' + esc(p.inv.d || '') + '" placeholder="2.5-12.5"></label>' +
       '<label><span>Barbell totals you can load (' + (isLb() ? 'lb' : 'kg') + ')</span><input id="pfInvB" autocomplete="off" value="' + esc(p.inv.b || '') + '" placeholder="20-80"></label></details>' +
-      '<label class="pf-sw"><input type="checkbox" id="pfPost"' + (p.posture ? ' checked' : '') + '><span>Add back and posture work: one-arm rows and rear-delt flies on upper-body days (moderate evidence)</span></label>' +
+      '<label class="pf-sw"><input type="checkbox" id="pfPost"' + (p.posture ? ' checked' : '') + '><span>Add back and posture work: rows and rear-delt flies on the two cardio days (moderate evidence)</span></label>' +
       '<span class="pf-l">Cardio</span>' + chipSet('cardio', CARDIO_OPTS, p.cardio, true) +
       '<span class="pf-l">Diet</span>' + chipSet('diet', DIETS, p.diet) +
       '<span class="pf-l">Anything to be careful with?</span>' + chipSet('issues', ISSUES, p.issues, true) +
@@ -3909,17 +3941,18 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       '<div class="pf-more"><h3>App</h3><div class="bk-row"><button class="btn sm line" id="pfAi">' + (coach.key ? 'Gemini connected · settings' : 'Connect Gemini (photos, voice notes, questions)') + '</button></div>' +
       '<div class="bk-row"><button class="btn sm line" id="pfInstall">Install on your phone</button></div></div></div>';
     openSheet(first ? 'Welcome to Isohold' : 'Your profile', h, true, from);
-    var body = $('sheetBody'), state = { sex: p.sex, units: p.units, where: p.where, eq: store.eq.slice(), cardio: p.cardio.slice(), diet: p.diet, issues: p.issues.slice(), split: p.split };
+    var body = $('sheetBody'), state = { goal: p.goal, sex: p.sex, units: p.units, where: p.where, eq: first ? [] : store.eq.slice(), cardio: p.cardio.slice(), diet: p.diet, issues: p.issues.slice(), split: p.split };
     body.addEventListener('click', function (e) {
       var b = e.target.closest('.pchips button');
       if (b) {
         var g = b.parentNode, k = g.dataset.set, v = b.dataset.v;
         if (g.dataset.multi === '1') { var i = state[k].indexOf(v); if (i > -1) state[k].splice(i, 1); else state[k].push(v); }
         else state[k] = v;
-        if (k === 'where' && v === 'gym') state.eq = ['d', 'b', 'c'];
+        if (k === 'where' && v === 'gym') { state.eq = ['d', 'c']; if (!cardioTouched) state.cardio = ['treadmill', 'bike']; }
+        if (k === 'cardio') cardioTouched = true;
         if (k === 'where' && v === 'both' && state.eq.indexOf('c') < 0) state.eq.push('c');
         if (k === 'units') { var bk0 = readBw(p0), hh = parseFloat($('pfCm').value); if (bk0) { var sv = store.profile; store.profile = Object.assign({}, sv || {}, { units: v }); $('pfBw').value = v === 'st' ? bwTxt(bk0) : dispW(bk0); store.profile = sv; } if (!isNaN(hh)) $('pfCm').value = v === 'lb' && p0 !== 'lb' ? Math.round(hh / 2.54) : v !== 'lb' && p0 === 'lb' ? Math.round(hh * 2.54) : hh; p0 = v; body.querySelector('.pfU').textContent = v === 'st' ? 'st lb' : v; body.querySelector('.pfH').textContent = v === 'lb' ? 'in' : 'cm'; $('pfBw').placeholder = v === 'st' ? '10 st 4' : ''; }
-        [].forEach.call(body.querySelectorAll('.pchips[data-set="' + k + '"], .pchips[data-set="eq"]'), function (gg) { var kk = gg.dataset.set; [].forEach.call(gg.querySelectorAll('button'), function (x) { x.setAttribute('aria-pressed', String(gg.dataset.multi === '1' ? state[kk].indexOf(x.dataset.v) > -1 : state[kk] === x.dataset.v)); }); });
+        [].forEach.call(body.querySelectorAll('.pchips[data-set="' + k + '"], .pchips[data-set="eq"], .pchips[data-set="cardio"]'), function (gg) { var kk = gg.dataset.set; [].forEach.call(gg.querySelectorAll('button'), function (x) { x.setAttribute('aria-pressed', String(gg.dataset.multi === '1' ? state[kk].indexOf(x.dataset.v) > -1 : state[kk] === x.dataset.v)); }); });
         return;
       }
       if (e.target.id === 'pfSkip') { store.profile = store.profile || { skipped: 1 }; save(); closeSheet(); renderAll(); return; }
@@ -3933,7 +3966,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         if (bwKg != null && !(bwKg >= 25 && bwKg <= 350)) { msg('pfErr', 'That bodyweight looks off. Check the units.', 'err'); return; }
         var cm = isNaN(hh) ? null : state.units === 'lb' ? Math.round(hh * 2.54) : Math.round(hh);
         if (cm != null && !(cm >= 100 && cm <= 250)) { msg('pfErr', 'Height should be in ' + (state.units === 'lb' ? 'inches, like 70' : 'centimetres, like 175') + '.', 'err'); return; }
-        store.profile = { name: $('pfName').value.trim().slice(0, 40), age: isNaN(age) ? null : age, sex: state.sex, cm: cm, bw: bwKg ? r1(bwKg) : null, units: state.units, diet: state.diet, where: state.where, cardio: state.cardio, issues: state.issues, cues: $('pfCues').checked, split: state.split, posture: $('pfPost').checked, inv: { k: $('pfInvK').value.trim(), d: $('pfInvD').value.trim(), b: $('pfInvB').value.trim() } };
+        store.profile = { name: $('pfName').value.trim().slice(0, 40), age: isNaN(age) ? null : age, sex: state.sex, cm: cm, bw: bwKg ? r1(bwKg) : null, units: state.units, diet: state.diet, where: state.where, cardio: state.cardio, issues: state.issues, cues: $('pfCues').checked, split: state.split, goal: state.goal, posture: $('pfPost').checked, inv: { k: $('pfInvK').value.trim(), d: $('pfInvD').value.trim(), b: $('pfInvB').value.trim() } };
         ['k', 'd', 'b'].forEach(function (e) { if (!store.profile.inv[e]) delete store.profile.inv[e]; });
         if (bwKg && (!store.body.length || Math.abs(store.body[store.body.length - 1].kg - bwKg) > 0.05)) store.body.push({ t: Date.now(), kg: r1(bwKg) });
         store.eq = state.eq.sort(function (x, y) { return 'kdbc'.indexOf(x) - 'kdbc'.indexOf(y); });
@@ -3941,7 +3974,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         toast(first ? 'All set. Your first session is below.' : 'Profile saved.');
       }
     });
-    var p0 = p.units;
+    var p0 = p.units, cardioTouched = false;
     function readBw(u) { var raw = $('pfBw').value.trim(); if (!raw) return null; if (u === 'st' || /st|stone/i.test(raw)) { var t = norm(/st|stone/i.test(raw) ? raw : raw.replace(/^(\d+)\s+(\d+)$/, '$1 st $2').replace(/^(\d+)$/, '$1 st')); var mm = t.match(/(\d+(?:\.\d+)?) kg/); return mm ? +mm[1] : null; } var n = parseFloat(raw); return isNaN(n) ? null : u === 'lb' ? n / 2.20462 : n; }
   }
   function openAI(from) {
@@ -4029,6 +4062,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   var tipsOpen = false;
   function trainExtras() {
     var p = prof(), h = '';
+    var lastT = Math.max(0, store.log.length ? store.log[store.log.length - 1].t : 0, (store.notes.filter(function (n) { return n.k === 'cardio'; }).pop() || {}).t || 0), gap = lastT ? Math.floor((Date.now() - lastT) / 864e5) : 0;
+    if (gap >= 5) h += '<div class="card nudge"><b>Welcome back</b><p>It’s been ' + gap + ' days. The plan picks up where you left off.' + (gap >= 10 ? ' After more than a week away, start with the short version or go about 20% lighter for your first two sessions.' : '') + '</p></div>';
     if (!store.profile) h += '<div class="card nudge"><b>Make it yours</b><p>Set your diet, units, equipment (home or gym) and any joints to look after. It takes a minute.</p><button class="btn sm go" data-prof="1">Set up profile</button></div>';
     activePain().forEach(function (n) { h += '<div class="card warnc"><b>' + esc(areaName(n.area).replace(/^./, function (c) { return c.toUpperCase(); })) + ': ' + n.score + '/10 ' + (Date.now() - n.t < 864e5 ? 'today' : 'yesterday') + '</b><p>' + esc(painAdvice(n)[0]) + '</p></div>'; });
     var tips = [];
@@ -4142,7 +4177,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function fmt(s) { s = Math.max(0, Math.ceil(s)); return s >= 100 ? Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2) : String(s); }
   function startSession(dayId, part, replaceHist) {
     var day = allDays().filter(function (d) { return d.id === dayId; })[0], ph = phaseOf(store.week);
-    var q = buildQueue(day, part, ph); clearToast();
+    var q = buildQueue(day, part, ph);
+    if (/^short-/.test(part)) { ph = Object.create(ph); ph.sets = 1; ph.gs = 1; } clearToast();
     P = { day: day, part: part, ph: ph, q: q, i: 0, stage: 'ready', paused: false, start: Date.now(), pbs: {} };
     try { if (replaceHist && history.state && history.state.sheet) history.replaceState({ player: 1 }, ''); else history.pushState({ player: 1 }, ''); } catch (e) { }
     $('pConfirm').hidden = true;
@@ -4286,7 +4322,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     $('pSvg').setAttribute('viewBox', ex._vb.map(function (x) { return x.toFixed(1); }).join(' '));
     $('pMore').hidden = !(P.stage === 'rest' || P.stage === 'switch');
     $('pPause').textContent = P.paused ? 'Resume' : 'Pause';
-    $('pSkip').textContent = P.stage === 'work' && it.kind === 'reps' ? 'Set done' : 'Skip';
+    $('pSkip').textContent = P.stage === 'work' && it.kind === 'reps' ? 'Set done' : it.kind === 'cardio' && P.i === 0 && P.q.some(function (x) { return x.kind !== 'cardio'; }) ? 'Skip warm-up' : 'Skip';
     P.showEx = ex; P.showIt = showIt;
     drawPlayerFig(performance.now());
   }
@@ -4333,7 +4369,12 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (left <= 0) advance();
   }
   $('pPause').addEventListener('click', function () { if (!P) return; P.paused = !P.paused; P.pt = performance.now(); paint(); });
-  $('pSkip').addEventListener('click', function () { if (P && P.stage !== 'done') advance(); });
+  $('pSkip').addEventListener('click', function () {
+    if (!P || P.stage === 'done') return;
+    var it = P.q[P.i];
+    if (it.kind === 'cardio' && it.first && P.i === 0 && P.q.some(function (x) { return x.kind !== 'cardio'; })) { while (P.i < P.q.length - 1 && P.q[P.i].kind === 'cardio') P.i++; return enter('ready'); }
+    advance();
+  });
   $('pMore').addEventListener('click', function () { if (P && (P.stage === 'rest' || P.stage === 'switch')) { P.dur += 15; } });
   // Previous: during a rest, redo the set you just did; otherwise go back one set.
   $('pPrev').addEventListener('click', function () {
