@@ -735,6 +735,8 @@ svg.body .mu.has { fill: var(--hold); }
 svg.wchart rect { fill: var(--hold); }
 svg.wchart .ax.cur { fill: var(--hold); }
 .lgc-i { display: none; }
+.howto { justify-self: start; min-height: 36px; padding: 2px 0; font-size: 15px; }
+.psteps { margin: 0; padding-left: 22px; display: grid; gap: 4px; font-size: 15px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 10px 14px 10px 32px; }
 /*@@endcss*/
 </style>
 <style>
@@ -875,6 +877,8 @@ svg.wchart .ax.cur { fill: var(--hold); }
       <p class="pheard" id="pHeard" hidden aria-live="polite"></p>
       <h2 id="pName"></h2>
       <button class="textbtn skipex" id="pSkipEx" hidden>Skip this hold for today</button>
+      <button class="textbtn howto" id="pHow" aria-expanded="false" aria-controls="pSteps">How to do it</button>
+      <ol class="psteps" id="pSteps" hidden></ol>
       <div class="p-row">
         <div class="ring"><svg viewBox="0 0 120 120"><circle class="bgc" cx="60" cy="60" r="52"/><circle class="fgc" id="pRing" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="0"/></svg><b id="pTime">0</b></div>
         <div class="p-info" style="gap:8px">
@@ -1004,7 +1008,7 @@ var FIG = (function () {
   // place: shift points so lowest touches floor (y=0) or seat
   function place(r, anchorKey, anchorX) {
     var o = points(r), dy;
-    if (r.seat) dy = -(r.seat) ; else dy = FLOOR - lowest(o, r);
+    if (r.seat) dy = -(r.seat) ; else dy = FLOOR - lowest(o, r) - (r.raise || 0);
     var key = anchorKey || 'H', dx = anchorX == null ? 0 : anchorX - o[key][0];
     for (var k in o) o[k] = [o[k][0] + dx, o[k][1] + dy];
     return o;
@@ -1048,8 +1052,7 @@ var FIG = (function () {
     } else if (type === 'bar') {
       s += circ(hand, 15, col) + circ(hand, 11, 'none', ' stroke="' + C.hub + '" stroke-width="1.2" opacity=".6"') + circ(hand, 3.6, C.hub);
     } else if (type === 'cable') {
-      var an = [hand[0] + (near ? 14 : -10), -3];
-      s += seg(hand, an, 1.4, C.far) + circ(an, 4, 'none', ' stroke="' + C.far + '" stroke-width="1.6"') + seg(add(hand, u, -4), add(hand, u, 5), 4.5, col);
+      // the rig draws the cable and its attachment
     } else if (type === 'handle') {
       s += seg([hand[0], hand[1] - 6], [hand[0], hand[1] + 6], 4, col);
     } else if (type === 'kbr') {
@@ -1076,6 +1079,7 @@ var FIG = (function () {
     var r = L.HR * (ST.head || 1), out = '';
     if (ST.ol) out += circ(p, r + ST.ol, ST.olc);
     out += circ(p, r, ST.fill('head', true));
+    if (face) { var fd = Math.sign(face[0] - p[0]) || 1; out += circ([p[0] + fd * r * 0.45, p[1] - r * 0.12], 1.25, ST.olc || C.ink); }
     if (ST.hair) {
       var dx = face ? Math.sign(face[0] - p[0]) || 1 : 0, back = face ? [p[0] - dx * r * 0.45, p[1] - r * 0.42] : [p[0], p[1] - r * 0.55];
       out += '<clipPath id="hc' + (++hcN) + '"><circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="' + r + '"/></clipPath><circle clip-path="url(#hc' + hcN + ')" cx="' + back[0].toFixed(1) + '" cy="' + back[1].toFixed(1) + '" r="' + (r * 0.92).toFixed(1) + '" fill="' + ST.hair + '"/>';
@@ -1115,11 +1119,9 @@ var FIG = (function () {
     } else if (r.seat && !(props && props.indexOf('rower') > -1)) {
       s += '<rect x="' + (o.H[0] - 22).toFixed(1) + '" y="' + (o.H[1] + 6).toFixed(1) + '" width="34" height="' + (-o.H[1] - 6).toFixed(1) + '" rx="2" fill="' + C.prop + '"/>';
     }
-    if (r.mach) {
-      var mp = r.mach === 'kn' ? o.Kn : r.mach === 'hip' ? o.H : o.S, mx = Math.min(o.H[0], o.S[0]) - 18;
-      s += seg([mx, 0], [mx, Math.min(mp[1], o.S[1]) - 14], 5, C.far) + seg([mx, mp[1] - 6], [mp[0], mp[1] - 6], 3, C.far) + '<rect x="' + (mp[0] - 10).toFixed(1) + '" y="' + (mp[1] - 13).toFixed(1) + '" width="20" height="8" rx="3" fill="' + C.iron + '"/>';
-    }
-    if (r.v === 'f') return s + drawFront(r, o, hl);
+    var rg = r.rig ? rig(r, o) : null;
+    if (rg) s += rg.back;
+    if (r.v === 'f') return s + drawFront(r, o, hl) + (rg ? rg.front : '');
     var glow = function (id, p) { return isHL(hl, id) ? circ(p, 10, C.glow, ' data-glow=""') : ''; };
     var g = '';
     if (!ST || ST.glow) {
@@ -1144,7 +1146,78 @@ var FIG = (function () {
     s += renderG(N.leg.concat(N.arm)) + weight(r.w.n, o.Pn, o.Wn, true);
     if (prone) s += renderG(headG) + head(o.head, o.face);
     if (r.w.toe) { var tt = r.w.toe === 'db' ? 'dbp' : r.w.toe; s += weight(tt, add(o.Tn, [3, tt === 'dbp' ? -26 : -14]), o.Tn, true); }
+    return s + (rg ? rg.front : '');
+  }
+  // ---- equipment: cable towers, crossovers and machines ----
+  var PULLEY = { low: -16, mid: -84, chest: -116, high: -182 };
+  function part(a, b, w) { return seg(a, b, w + 3, C.ink) + seg(a, b, w, C.prop); }
+  function box(x, y, w, h, rx) { return '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="' + (rx || 3) + '" fill="' + C.prop + '" stroke="' + C.ink + '" stroke-width="1.5"/>'; }
+  function tower(x, py, dir) {
+    // dir: which way the pulley faces (+1 right, -1 left)
+    var s = box(x - 5, -190, 10, 190, 3) + box(x - dir * 22, -70, 14, 64, 2);
+    for (var k = 1; k < 6; k++) s += seg([x - dir * 22, -70 + k * 10.5], [x - dir * 8, -70 + k * 10.5], 1, C.ink);
+    s += seg([x, py], [x + dir * 7, py], 3, C.ink) + circ([x + dir * 8, py], 5, C.prop, ' stroke="' + C.ink + '" stroke-width="1.5"');
     return s;
+  }
+  function attach(type, at, from) {
+    var u = [at[0] - from[0], at[1] - from[1]], n = Math.hypot(u[0], u[1]) || 1; u = [u[0] / n, u[1] / n];
+    var p = [-u[1], u[0]];
+    if (type === 'rope') return seg(at, add(at, add(u, p, 0.5), 7), 2.2, C.ink) + seg(at, add(at, add(u, p, -0.5), 7), 2.2, C.ink) + circ(at, 2, C.ink);
+    if (type === 'bar') return seg(add(at, p, -8), add(at, p, 8), 3.2, C.ink);
+    return circ(at, 3.4, 'none', ' stroke="' + C.ink + '" stroke-width="1.8"');
+  }
+  function cable(a, b) { return seg(a, b, 1.3, C.ink, 0.85); }
+  function rig(r, o) {
+    var R = r.rig, back = '', front = '';
+    if (R.k === 'tower') {
+      var x = r.rigX, dir = R.side === 'front' ? -1 : 1, py = PULLEY[R.h], pul = [x + dir * 8, py];
+      back += tower(x, py, dir);
+      var hand = R.hands === 'both' ? [(o.Pn[0] + o.Pf[0]) / 2, (o.Pn[1] + o.Pf[1]) / 2] : o.Pn;
+      front += cable(pul, hand) + attach(R.att, hand, pul);
+    } else if (R.k === 'xover') {
+      var X = r.rigX, py2 = PULLEY[R.h];
+      back += tower(-X, py2, 1) + tower(X, py2, -1);
+      // cables cross: each hand is pulled from the opposite tower
+      front += cable([X - 8, py2], o.Pl) + cable([-X + 8, py2], o.Pr) + attach('d', o.Pl, [X, py2]) + attach('d', o.Pr, [-X, py2]);
+    } else if (R.k === 'hack') {
+      var u = tv(r.t), bn = [-Math.cos(r.t * R_), -Math.sin(r.t * R_)], h0 = add(add(o.H, bn, 9), u, -8), h1 = add(add(o.S, bn, 9), u, 10);
+      var rail0 = [h0[0] - 6, 0], railU = tv(-24), rail1 = add(rail0, railU, 210);
+      back += part(rail0, rail1, 4) + part(add(h0, bn, -1), h1, 9) + part(add(o.S, u, 6), add(add(o.S, u, 6), bn, -16), 6);
+      back += box(o.Ln[0] - 10, -8, Math.max(30, o.Tn[0] - o.Ln[0] + 22), 8, 2) + part([rail0[0], -2], [o.Ln[0] - 8, -2], 3);
+    } else if (R.k === 'legpress') {
+      var u2 = tv(r.t), bn2 = [-Math.cos(r.t * R_), -Math.sin(r.t * R_)];
+      back += box(o.H[0] - 22, o.H[1] + 5, 32, 7, 3) + part([o.H[0] - 6, o.H[1] + 12], [o.H[0] - 6, 0], 4) + part(add(add(o.H, bn2, 9), u2, -6), add(add(o.S, bn2, 9), u2, 8), 9);
+      var px = Math.max(o.Tn[0], o.Ln[0]) + 3;
+      back += box(px, Math.min(o.Tn[1], o.Ln[1]) - 18, 7, 44, 2) + part([px + 4, o.Tn[1] + 26], [px + 4, 0], 3) + part([o.H[0] - 20, -2], [px + 30, -2], 3);
+    } else if (R.k === 'hipthrust') {
+      var bx = o.S[0], top = R.padY || -30;
+      back += box(bx - 14, top, 34, -top, 4);
+      front += part(add(o.H, [-9, -9]), add(o.H, [9, -9]), 6) + seg(add(o.H, [9, -9]), [o.H[0] + 22, 0], 2.5, C.ink);
+    } else if (R.k === 'calfstand') {
+      var cx = Math.min(o.H[0], o.S[0], o.Ln[0]) - 20;
+      back += box(cx - 5, -196, 10, 196, 3) + part([cx, o.S[1] - 7], [o.S[0] + 7, o.S[1] - 7], 6) + box(o.Ln[0] - 2, -(r.raise || 10), Math.max(18, o.Tn[0] - o.Ln[0] + 8), r.raise || 10, 2);
+    } else if (R.k === 'calfseat') {
+      front += part([o.Kn[0] - 11, o.Kn[1] - 8], [o.Kn[0] + 11, o.Kn[1] - 8], 6) + seg([o.Kn[0] + 11, o.Kn[1] - 8], [o.Kn[0] + 24, 0], 3, C.ink);
+    }
+    return { back: back, front: front };
+  }
+  var R_ = Math.PI / 180;
+  // frame: recompute the picture box for a version whose equipment sits beside the body
+  function frame(ex) {
+    var R0 = ex._r, anchor = ex._anchor, bb = [1e9, 1e9, -1e9, -1e9], rg = R0[0].rig;
+    for (var i = 0; i < R0.length; i++) { var b = bbox(place(R0[i], anchor, 0)); bb = [Math.min(bb[0], b[0]), Math.min(bb[1], b[1]), Math.max(bb[2], b[2]), Math.max(bb[3], b[3])]; }
+    if (rg && rg.k === 'tower') {
+      var x = rg.side === 'front' ? bb[2] + 30 : bb[0] - 30;
+      R0.forEach(function (r) { r.rigX = x; });
+      bb = [Math.min(bb[0], x - 26), Math.min(bb[1], -192), Math.max(bb[2], x + 26), bb[3]];
+    }
+    if (rg && rg.k === 'xover') { var X = Math.max(Math.abs(bb[0]), Math.abs(bb[2])) + 24; R0.forEach(function (r) { r.rigX = X; }); bb = [-X - 26, Math.min(bb[1], -192), X + 26, bb[3]]; }
+    if (rg && rg.k === 'hack') bb = [bb[0] - 30, Math.min(bb[1], -200), bb[2] + 20, bb[3]];
+    if (rg && (rg.k === 'legpress' || rg.k === 'calfstand' || rg.k === 'hipthrust' || rg.k === 'calfseat')) bb = [bb[0] - 34, Math.min(bb[1], rg.k === 'calfstand' ? -198 : bb[1]), bb[2] + 34, bb[3]];
+    var pad = 22, w = bb[2] - bb[0] + pad * 2, hh = -bb[1] + pad + 10, W = Math.max(w, hh * 4 / 3, 150), Hh = W * 3 / 4;
+    if (Hh < hh) { Hh = hh; W = Hh * 4 / 3; }
+    ex._vb = [(bb[0] + bb[2]) / 2 - W / 2, -Hh + 10, W, Hh];
+    return ex;
   }
   function drawFront(r, o, hl) {
     var s = shadow(o), hf = function (id) { return isHL(hl, id); };
@@ -1222,7 +1295,7 @@ var FIG = (function () {
     var o = place(r, ex._anchor, 0), vb = ex._vb;
     return '<rect x="' + vb[0] + '" y="0" width="' + vb[2] + '" height="10" fill="var(--fig-mat)"/>' + seg([vb[0], 0], [vb[0] + vb[2], 0], 1.5, C.floor) + draw(r, o, hl, ex.props);
   }
-  return { prep: prep, lerp: lerp, svgFor: svgFor, inner: inner, setStyle: setStyle };
+  return { prep: prep, lerp: lerp, svgFor: svgFor, inner: inner, setStyle: setStyle, frame: frame };
 })();
 
 // ---- Exercise library ----
@@ -1699,6 +1772,42 @@ var EQV = {
   'wrist': { h: 'd k b:bar', g: 'd k b:bar', both: 'b' },
   'sl-balance': { h: 'k d b:plate w', g: 'k d b:plate w' }
 };
+// Gym equipment drawn with the figure, and body positions for versions that move differently.
+// rig: k = tower (side front/back, h low/mid/chest/high, att d/rope/bar, hands n/both), xover, hack, legpress, hipthrust, calfstand, calfseat
+// pose[kind:eq]: replacement step poses (same count as the base steps)
+var GYM = {
+  'lateral-raise': { rig: { 'h:c': { k: 'xover', h: 'low' }, 'g:c': { k: 'xover', h: 'low' } } },
+  'oh-triceps': { rig: { 'h:c': { k: 'tower', side: 'back', h: 'low', att: 'rope', hands: 'both' }, 'g:c': { k: 'tower', side: 'back', h: 'low', att: 'rope', hands: 'both' } },
+    pose: { 'h:c': [{ t: 12, ln: [16, 2], lf: [-12, -2], an: [158, -15], af: [156, -17], w: { n: 'db' } }, { t: 12, ln: [16, 2], lf: [-12, -2], an: [150, 156], af: [148, 154], w: { n: 'db' } }, { t: 12, ln: [16, 2], lf: [-12, -2], an: [160, -78], af: [158, -80], w: { n: 'db' } }],
+      'g:c': [{ t: 12, ln: [16, 2], lf: [-12, -2], an: [150, 156], af: [148, 154], w: { n: 'db' } }, { t: 12, ln: [16, 2], lf: [-12, -2], an: [158, -15], af: [156, -17], w: { n: 'db' } }] } },
+  'kickback': { rig: { 'h:c': { k: 'tower', side: 'front', h: 'low', att: 'd', hands: 'n' }, 'g:c': { k: 'tower', side: 'front', h: 'low', att: 'd', hands: 'n' } },
+    pose: { 'h:c': [{ t: 62, hn: -12, ln: [14, -6], lf: [-6, -6], an: [8, 8], af: [96, 92], w: { n: 'db' } }, { t: 62, hn: -12, ln: [14, -6], lf: [-6, -6], an: [-80, 2], af: [96, 92], w: { n: 'db' } }, { t: 62, hn: -12, ln: [14, -6], lf: [-6, -6], an: [-80, -82], af: [96, 92], w: { n: 'db' } }],
+      'g:c': [{ t: 62, hn: -12, ln: [14, -6], lf: [-6, -6], an: [-80, 2], af: [96, 92], w: { n: 'db' } }, { t: 62, hn: -12, ln: [14, -6], lf: [-6, -6], an: [-80, -82], af: [96, 92], w: { n: 'db' } }] } },
+  'curl': { rig: { 'h:c': { k: 'tower', side: 'front', h: 'low', att: 'bar', hands: 'both' }, 'g:c': { k: 'tower', side: 'front', h: 'low', att: 'bar', hands: 'both' } } },
+  'rdl': { rig: { 'h:c': { k: 'tower', side: 'back', h: 'low', att: 'rope', hands: 'both' }, 'g:c': { k: 'tower', side: 'back', h: 'low', att: 'rope', hands: 'both' } },
+    pose: { 'h:c': [{ t: 4, ln: [4, 0], lf: [-4, 0], an: [-6, -8], w: { n: 'db', f: 'db' } }, { t: 45, ln: [12, -6], lf: [6, -6], an: [-22, -24], w: { n: 'db', f: 'db' } }, { t: 74, ln: [16, -8], lf: [10, -8], an: [-38, -40], w: { n: 'db', f: 'db' } }],
+      'g:c': [{ t: 74, ln: [16, -8], lf: [10, -8], an: [-38, -40], w: { n: 'db', f: 'db' } }, { t: 4, ln: [4, 0], lf: [-4, 0], an: [-6, -8], w: { n: 'db', f: 'db' } }] } },
+  'sa-row': { rig: { 'h:c': { k: 'tower', side: 'front', h: 'mid', att: 'd', hands: 'n' }, 'g:c': { k: 'tower', side: 'front', h: 'mid', att: 'd', hands: 'n' } },
+    pose: { 'h:c': [{ t: 22, ln: [24, -4], lf: [-16, -10], af: { ik: [14, 30], b: 1 }, an: [62, 70], w: { n: 'db' } }, { t: 22, ln: [24, -4], lf: [-16, -10], af: { ik: [14, 30], b: 1 }, an: [10, 82], w: { n: 'db' } }, { t: 22, ln: [24, -4], lf: [-16, -10], af: { ik: [14, 30], b: 1 }, an: [-42, 82], w: { n: 'db' } }],
+      'g:c': [{ t: 22, ln: [24, -4], lf: [-16, -10], af: { ik: [14, 30], b: 1 }, an: [62, 70], w: { n: 'db' } }, { t: 22, ln: [24, -4], lf: [-16, -10], af: { ik: [14, 30], b: 1 }, an: [-42, 82], w: { n: 'db' } }] } },
+  'rear-fly': { rig: { 'h:c': { k: 'xover', h: 'chest' }, 'g:c': { k: 'xover', h: 'chest' } },
+    pose: { 'h:c': [{ v: 'f', aR: [-38, -96], lR: [6, 6], w: { r: 'db', l: 'db' } }, { v: 'f', aR: [40, 62], lR: [6, 6], w: { r: 'db', l: 'db' } }, { v: 'f', aR: [86, 92], lR: [6, 6], w: { r: 'db', l: 'db' } }],
+      'g:c': [{ v: 'f', aR: [-38, -96], lR: [6, 6], w: { r: 'db', l: 'db' } }, { v: 'f', aR: [86, 92], lR: [6, 6], w: { r: 'db', l: 'db' } }] } },
+  'goblet-squat': { rig: { 'h:c': { k: 'hack' }, 'g:c': { k: 'hack' } }, anchor: 'An',
+    pose: { 'h:c': [{ t: -20, ln: [20, 20, 104], an: { ikt: [43, 9], b: -1 } }, { t: -24, ln: [58, -4, 104], an: { ikt: [43, 9], b: -1 } }, { t: -30, ln: [96, -14, 104], an: { ikt: [43, 9], b: -1 } }],
+      'g:c': [{ t: -20, ln: [20, 20, 104], an: { ikt: [43, 9], b: -1 } }, { t: -30, ln: [96, -14, 104], an: { ikt: [43, 9], b: -1 } }] } },
+  'wall-sit': { rig: { 'h:c': { k: 'legpress' }, 'g:c': { k: 'legpress' } }, anchor: 'H', noProps: true,
+    pose: { 'h:c': [{ seat: 46, t: -32, ln: [100, 88, 180], an: { ik: [10, 14], b: -1 } }, { seat: 46, t: -32, ln: [114, 62, 180], an: { ik: [10, 14], b: -1 } }, { seat: 46, t: -32, ln: [128, 40, 180], an: { ik: [10, 14], b: -1 } }],
+      'g:c': [{ seat: 46, t: -32, ln: [128, 40, 180], an: { ik: [10, 14], b: -1 } }, { seat: 46, t: -32, ln: [100, 88, 180], an: { ik: [10, 14], b: -1 } }] } },
+  'glute-bridge': { rig: { 'h:c': { k: 'hipthrust', padY: -30 }, 'g:c': { k: 'hipthrust', padY: -30 } }, anchor: 'An',
+    pose: { 'h:c': [{ t: -62, ln: { ik: [34, 12], b: 1 }, an: { ik: [4, -8], b: 1 } }, { t: -78, ln: { ik: [36, 26], b: 1 }, an: { ik: [4, -8], b: 1 } }, { t: -90, ln: { ik: [37, 37], b: 1 }, an: { ik: [4, -8], b: 1 } }],
+      'g:c': [{ t: -62, ln: { ik: [34, 12], b: 1 }, an: { ik: [4, -8], b: 1 } }, { t: -90, ln: { ik: [37, 37], b: 1 }, an: { ik: [4, -8], b: 1 } }] } },
+  'calf-raise': { rig: { 'h:c': { k: 'calfstand' }, 'g:c': { k: 'calfstand' } },
+    pose: { 'h:c': [{ raise: 10, an: { ikt: [45, 5], b: -1 }, ln: [0, 0, 104] }, { raise: 10, an: { ikt: [45, 5], b: -1 }, ln: [0, 0, 70] }, { raise: 10, an: { ikt: [45, 5], b: -1 }, ln: [0, 0, 48] }],
+      'g:c': [{ raise: 10, an: { ikt: [45, 5], b: -1 }, ln: [0, 0, 104] }, { raise: 10, an: { ikt: [45, 5], b: -1 }, ln: [0, 0, 48] }] } },
+  'seated-calf': { rig: { 'h:c': { k: 'calfseat' }, 'g:c': { k: 'calfseat' } } }
+};
+Object.keys(GYM).forEach(function (id) { var g = GYM[id]; if (EQV[id]) { EQV[id].rig = g.rig; EQV[id].pose = g.pose; EQV[id].poseAnchor = g.anchor; EQV[id].noProps = g.noProps; } });
 // A trailing '?' marks an awkward version, used only when nothing better is selected.
 function parseEq(s) { return s.split(' ').map(function (x) { var poor = /\?$/.test(x), p = x.replace('?', '').split(':'); return { eq: p[0], style: p[1] || '', poor: poor }; }); }
 function baseName(n) { return n.replace(/\b(Kettlebell|Dumbbell|Barbell|Weighted|Plate|Cable|Machine)\s+/g, '').replace(/ on Dumbbells$/, ''); }
@@ -1739,7 +1848,7 @@ function makeVariant(base, id, kind, opt) {
   }
   v._r = base._r.map(function (r) {
     var c = {}, key; for (key in r) c[key] = r[key];
-    c.w = mapW(r.w || {}, eq, style, r.v === 'f'); if (eq === 'c' && style === 'mach') c.mach = spec.mp || 'sh';
+    c.w = mapW(r.w || {}, eq, style, r.v === 'f'); var rgs = spec.rig && spec.rig[kind + ':' + eq]; if (rgs) c.rig = rgs;
     if (both && r.v !== 'f') { c.af = r.an.slice(); if (c.w.l && !c.w.r) c.w.r = c.w.l; if (c.w.r && !c.w.l) c.w.l = c.w.r; if (c.w.f && !c.w.n) { c.w.n = c.w.f; if (eq === 'b') delete c.w.f; } } // both hands hold it, so draw it in the near hand too
     return c;
   });
@@ -2162,7 +2271,15 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function V(id, kind, eqOpt) {
     var o = eqOpt || pickEq(id, kind), key = id + kind + o.eq + o.style + (o.missing ? '!' : '');
     if (!VC[key]) {
-      VC[key] = makeVariant(kind === 'h' ? BY[id] : G[id], id, kind, o);
+      var base0 = kind === 'h' ? BY[id] : G[id], ps = EQV[id].pose && EQV[id].pose[(kind === 'h' ? 'h' : 'g') + ':' + o.eq];
+      if (ps) {
+        var nb = Object.create(base0);
+        nb.steps = base0.steps.map(function (st, i) { var c = {}, k; for (k in st) c[k] = st[k]; c.p = ps[i] || st.p; return c; });
+        nb.pre = null; nb.anchor = EQV[id].poseAnchor || base0.anchor; if (EQV[id].noProps) nb.props = null;
+        FIG.prep(nb); base0 = nb;
+      }
+      VC[key] = makeVariant(base0, id, kind, o);
+      if (VC[key]._r[0].rig) FIG.frame(VC[key]);
       // some versions borrow another exercise's pictures (e.g. the barbell speed RDL uses the RDL figure)
       // 'rdl' = that exercise's same kind; 'h:farmer:0,2' = the farmer hold's steps 0 and 2
       var fid = EQV[id].fig && EQV[id].fig[(kind === 'h' ? 'h' : 'g') + ':' + o.eq];
@@ -2243,7 +2360,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   function rirTxt(ph) { return ph.rir >= 3 ? 'Stop with ~' + ph.rir + ' reps left' : 'Stop ' + ph.rir + (ph.rir === 1 ? '–2' : '') + ' reps short of failure'; }
   // ---------- session queues (shared by timer and time estimates) ----------
-  var MOVE = 12, SWITCH = 5, SOLO = 35, BLOCK = 20;
+  var MOVE = 12, SWITCH = 5, SOLO = 35, BLOCK = 20, DAYCAP = 3570; // a day stays under 60 minutes, even after rounding each session
   function cardioItems(segs) {
     segs = segs.map(subSeg);
     return segs.map(function (s, k) { return { ex: CARDIO_FIG[s[0]], m: s[0], kind: 'cardio', dur: s[1], effort: s[2], txt: s[3], seg: k + 1, segs: segs.length, first: k === 0, after: 0, afterKind: 'rest' }; });
@@ -2283,7 +2400,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (day.cardio && part === 'pm' && prof().posture) {
       // back & posture add-on: rows and rear-delt flies first, then the evening cardio trimmed so the day stays within the hour
       var add = blockItems(ADDON, ph, {}), segs = day.pm(ph).map(function (x) { return x.slice(); });
-      var room = 3600 - qSecs(buildQueue(day, 'am', ph)) - qSecs(add) - 5, tot = segs.reduce(function (t, x) { return t + x[1]; }, 0);
+      var room = DAYCAP - qSecs(buildQueue(day, 'am', ph)) - qSecs(add) - 5, tot = segs.reduce(function (t, x) { return t + x[1]; }, 0);
       if (tot > room) segs.forEach(function (x) { x[1] = Math.max(300, Math.floor(x[1] * room / tot / 60) * 60); });
       q = add.concat(cardioItems(segs));
     }
@@ -2295,24 +2412,24 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         // the warm-up walk shrinks (to 3 min at least) on days where the strength work alone nearly fills the hour
         var wu = WARMUP.map(function (s) { return s.slice(); }), wuSecs = wu.reduce(function (t, s) { return t + s[1]; }, 0);
         var pmq = []; blocksFor(day, 'pm').forEach(function (b) { pmq = pmq.concat(blockItems(b, ph, custFor(day, 'pm').off)); });
-        var wOver = wuSecs + 10 + qSecs(q) + qSecs(pmq) - 3600;
+        var wOver = wuSecs + 10 + qSecs(q) + qSecs(pmq) - DAYCAP;
         if (wOver > 0) { var keep = Math.max(180, wuSecs - wOver) / wuSecs; wu.forEach(function (s) { s[1] = Math.round(s[1] * keep / 10) * 10; }); }
         q = cardioItems(wu).concat(q);
       }
       if (part === 'pm') {
         // keep the whole day within 60 minutes: trim the easy/steady parts of the rowing finisher if needed
         var fin = FINISHER[ph.n].map(function (s) { return s.slice(); }), finSecs = fin.reduce(function (t, s) { return t + s[1]; }, 0);
-        var over = qSecs(buildQueue(day, 'am', ph)) + qSecs(q) + finSecs - 3600;
+        var over = qSecs(buildQueue(day, 'am', ph)) + qSecs(q) + finSecs - DAYCAP;
         if (over > 0) {
           var soft = fin.filter(function (s) { return s[2] !== 'Hard'; }), softSecs = soft.reduce(function (t, s) { return t + s[1]; }, 0);
           soft.forEach(function (s) { s[1] = Math.max(60, Math.round((s[1] - over * s[1] / softSecs) / 10) * 10); });
           // still over: drop hard/easy interval pairs from the end, then the whole finisher as a last resort
           var dayBase = qSecs(buildQueue(day, 'am', ph)) + qSecs(q), finT = function () { return fin.reduce(function (t, s) { return t + s[1]; }, 0) + 5; };
-          while (fin.length && dayBase + finT() > 3629) {
+          while (fin.length && dayBase + finT() > DAYCAP) {
             var lastHard = -1; fin.forEach(function (s, k) { if (s[2] === 'Hard') lastHard = k; });
             if (lastHard < 0) {
               // only easy rowing left: shorten it to fit, or drop it if less than 2 minutes would remain
-              var room = 3600 - dayBase - 5, cur = finT() - 5;
+              var room = DAYCAP - dayBase - 5, cur = finT() - 5;
               if (room >= 120) fin.forEach(function (s) { s[1] = Math.max(30, Math.floor(s[1] * room / cur / 10) * 10); }); else fin = [];
               break;
             }
@@ -2331,7 +2448,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     for (var i = 0; i < c.add.length; i += 2) out.push(c.add.slice(i, i + 2));
     return out;
   }
-  function readyDur(it) { return it.kind === 'cardio' ? (it.first ? 5 : 0) : it.first ? 10 : 3; }
+  // the first set of each hold gets time to show the movement from the start position
+  function readyDur(it) { return it.kind === 'cardio' ? (it.first ? 5 : 0) : it.first ? 10 : it.kind === 'hold' && it.set === 1 && (!it.side || it.side === 'Side 1') ? 6 : 3; }
   function qSecs(q, from) { var t = 0; for (var i = from || 0; i < q.length; i++) t += readyDur(q[i]) + q[i].dur + q[i].after; return t; }
   function mins(day, part, ph) { return Math.round(qSecs(buildQueue(day, part, ph)) / 60); }
   function segSummary(segs) {
@@ -4469,7 +4587,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (cuesOn()) say('Session complete' + (nPB ? '. ' + nPB + (nPB === 1 ? ' new best' : ' new bests') : '') + '. Nice work.');
     $('pNext').textContent = !anyLogged ? 'You skipped every set, so this session isn’t marked done. Tick it on the Train tab if you trained without the timer.' : P.part === 'am' && !P.day.cardio && !oneADay() ? 'Evening session later today. Leave at least 6 hours between the two if you can.' : 'Rate how your tendons feel tomorrow morning. Above 3/10 means go lighter next time. Muscle soreness is normal.';
     $('pDay').textContent = P.head;
-    $('pAngle').hidden = true; $('pPause').hidden = true; $('pSkip').hidden = true; $('pMore').hidden = true; $('pPrev').hidden = true; $('pWtRow').hidden = true; $('pLog').hidden = true; $('pSkipEx').hidden = true;
+    $('pAngle').hidden = true; $('pPause').hidden = true; $('pSkip').hidden = true; $('pMore').hidden = true; $('pPrev').hidden = true; $('pWtRow').hidden = true; $('pLog').hidden = true; $('pSkipEx').hidden = true; $('pHow').hidden = true; $('pSteps').hidden = true;
     $('pClose').setAttribute('aria-label', 'Close');
     renderAll();
   }
@@ -4513,10 +4631,12 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       $('pSets').innerHTML = d;
       $('pRx').textContent = (showIt.kind === 'hold' ? (showIt.pain ? showIt.dur + ' s (shortened)' : rx(ex, ph)) + ' at RPE ' + Math.min(ph.rpe, gentle() ? 7 : 10) : grx(ex, ph) + (showIt.kind === 'reps' ? ', ' + rirTxt(ph).toLowerCase() : '')) + (showIt.pain ? '. ' + areaName(showIt.pain.area).replace(/^./, function (c) { return c.toUpperCase(); }) + ' ' + showIt.pain.score + '/10: go about 20% lighter, stop above 3/10.' : '');
       var ang = $('pAngle');
-      if (showIt.kind === 'hold') { ang.textContent = showIt.angle === 'mid' ? 'Mid-range hold' : 'Hold here'; ang.className = 'stage angle' + (showIt.angle === 'mid' ? '' : ' hold'); }
+      if (showIt.kind === 'hold' && (P.stage === 'rest' || P.stage === 'switch')) { ang.textContent = 'Start position'; ang.className = 'stage angle'; }
+      else if (showIt.kind === 'hold') { ang.textContent = showIt.angle === 'mid' ? 'Mid-range hold' : 'Hold here'; ang.className = 'stage angle' + (showIt.angle === 'mid' ? '' : ' hold'); }
       else { ang.textContent = tempoShort(ex); ang.className = 'stage angle rep'; }
     }
     $('pCues').innerHTML = ex.cues.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('');
+    $('pHow').hidden = cardio; $('pSteps').innerHTML = (ex.steps || []).map(function (st) { return '<li>' + esc(st.txt) + '</li>'; }).join('');
     $('pSkipEx').hidden = cardio || P.stage === 'done';
     if (!cardio) $('pSkipEx').textContent = 'Skip ' + (showIt.kind === 'hold' ? 'this hold' : 'these reps') + ' for today';
     // weight for the set shown (during rest this is the next set, so you can load it now)
@@ -4544,7 +4664,11 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function drawPlayerFig(now) {
     var ex = P.showEx, it = P.showIt, fig = $('pSvg').parentNode, r, holding = false, el = (now - P.t0) / 1000;
     if (it.kind === 'hold') {
-      if (P.stage === 'ready' && !reduce) { r = seq(ex, Math.min(el, 4.25))[0]; if (el >= 4.25 && it.angle === 'mid') r = ex._r[1]; }
+      if (P.stage === 'ready' && !reduce && P.dur >= 5) {
+        r = seq(ex, Math.min(el, 4.25))[0]; if (el >= 4.25 && it.angle === 'mid') r = ex._r[1];
+        var lab = el < 0.7 ? 'Start position' : el < 3.25 ? 'Move into position' : it.angle === 'mid' ? 'Mid-range hold' : 'Hold here';
+        if ($('pAngle').textContent !== lab) { $('pAngle').textContent = lab; $('pAngle').className = 'stage angle' + (lab === 'Hold here' ? ' hold' : ''); }
+      }
       else if (P.stage === 'work' || P.stage === 'ready') { r = ex._r[it.angle === 'mid' ? 1 : 2]; holding = P.stage === 'work'; }
       else r = ex._r[0];
     } else {
@@ -4590,6 +4714,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (it.kind === 'cardio' && it.first && P.i === 0 && P.q.some(function (x) { return x.kind !== 'cardio'; })) { while (P.i < P.q.length - 1 && P.q[P.i].kind === 'cardio') P.i++; return enter('ready'); }
     advance();
   });
+  $('pHow').addEventListener('click', function () { var o = $('pSteps').hidden; $('pSteps').hidden = !o; this.setAttribute('aria-expanded', String(o)); this.textContent = o ? 'Hide the steps' : 'How to do it'; });
   $('pMore').addEventListener('click', function () { if (P && (P.stage === 'rest' || P.stage === 'switch')) { P.dur += 15; } });
   // Previous: during a rest, redo the set you just did; otherwise go back one set.
   $('pPrev').addEventListener('click', function () {
