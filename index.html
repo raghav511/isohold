@@ -899,7 +899,7 @@ button.ring:active { transform: scale(.97); }
     </div>
     <div class="card bk" id="backup">
       <h2>Backup &amp; restore</h2>
-      <p>Your progress is stored only on this phone. Copy a backup code every week or two and keep it in Notes.</p>
+      <p>Your progress is stored only on this device. Copy a backup code every week or two and keep it in Notes.</p>
       <textarea id="bkOut" readonly rows="3" aria-label="Backup code"></textarea>
       <div class="bk-row"><button class="btn sm" id="bkCopy">Copy backup code</button><span class="bk-msg" id="bkCopyMsg" role="status"></span></div>
       <label for="bkIn" class="muted" style="font-weight:700;font-size:14px">Restore from a code</label>
@@ -2667,7 +2667,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     band.style.setProperty('--c', KC[ph.kg]);
     band.className = 'band hero';
     var dose = day.cardio ? ph.name + ' phase. ' + segSummary(day.am(ph).concat(day.pm(ph)).map(subSeg))[0] + ', about ' + (mins(day, 'am', ph) + mins(day, 'pm', ph)) + ' minutes across the day.'
-      : (function () { var one = /one set/.test(buildQueue(day, oneADay() ? 'all' : 'am', ph).trimNote || ''); return ph.name + ' phase. Hold <b>' + (one ? 1 : ph.sets) + ' × ' + ph.hold + ' s</b>, then <b>' + (one ? 1 : ph.gs) + ' × ' + ph.grt + ' reps</b> per exercise.' + (store.profile && store.profile.len ? ' Trimmed to fit ' + store.profile.len + ' minutes.' : ''); })();
+      : (function () { var one = /one set/.test(buildQueue(day, oneADay() ? 'all' : 'am', ph).trimNote || ''); return ph.name + ' phase. Hold <b>' + (one ? 1 : ph.sets) + ' × ' + ph.hold + ' s</b>, then <b>' + (one ? 1 : ph.gs) + ' × ' + ph.grt + ' reps</b> per exercise.' + (store.profile && store.profile.len ? ' Trimmed to fit ' + store.profile.len + ' minutes.' : '') + (function () { var nx = store.week < 12 ? phaseOf(store.week + 1) : null; return nx && nx.n !== ph.n ? ' From week ' + (store.week + 1) + ': ' + nx.name + ' phase, holds of ' + nx.hold + ' s' + (nx.gr !== ph.gr ? ' and ' + nx.grt + ' reps' : '') + '.' : ''; })(); })();
     band.innerHTML = '<div class="hero-t"><span class="when"><i aria-hidden="true"></i>' + (selDay === nx ? 'Up next, day ' + (selDay + 1) + ' of ' + D.length : 'Day ' + (selDay + 1) + ' of ' + D.length) + '</span><h2>' + esc(day.name) + '</h2><p class="dose">' + dose + '</p></div>' + heroRings();
     $('strip').style.gridTemplateColumns = 'repeat(' + D.length + ', minmax(0, 1fr))';
     $('strip').innerHTML = D.map(function (d, i) {
@@ -2736,7 +2736,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       return '<article class="sess' + (dn ? ' done' : '') + '"><div class="sess-top"><h3>Today</h3>' + (dn ? '<span class="donechip">' + I_CHECK.replace('<svg', '<svg width="18" height="18"') + 'Done</span>' : '<span class="mins num">' + mm + ' min</span>') + '</div>' +
         '<p class="sum">' + esc(sum2) + '</p>' + thumbs(day, 'all') + '<div class="sess-actions"><button class="btn ' + (dn ? 'quiet' : 'go') + ' block" data-start="' + day.id + '" data-part="all">' + (dn ? 'Do it again' : 'Start session') + '</button>' +
         '<button class="chk" data-done="all:' + day.id + '" aria-pressed="' + dn + '" aria-label="Mark today’s session as done">' + I_CHECK + '</button></div>' +
-        (day.cardio || dn || mm - sm < 4 ? '' : '<button class="textbtn shortbtn" data-start="' + day.id + '" data-part="short-all">Short on time? ' + sm + '-min version, no warm-up</button>') +
+        (day.cardio || dn || mm - sm < 4 || buildQueue(day, 'all', ph).trimNote ? '' : '<button class="textbtn shortbtn" data-start="' + day.id + '" data-part="short-all">Short on time? ' + sm + '-min version, no warm-up</button>') +
         '<details data-pk="' + day.id + 'all"' + (openPlans[day.id + 'all'] ? ' open' : '') + '><summary><span class="open-t">Show exercises</span><span class="close-t">Hide exercises</span></summary><ul class="plan">' + a.list + b.list + '</ul></details></article>';
     }
     var key = doneKey(day, part), done = !!store.done[key], m = mins(day, part, ph), name = part === 'am' ? 'Morning' : 'Evening';
@@ -2749,7 +2749,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       '<p class="sum">' + esc(sum) + '</p>' + thumbs(day, part) +
       '<div class="sess-actions"><button class="btn ' + (done ? 'quiet' : 'go') + ' block" data-start="' + day.id + '" data-part="' + part + '">' + (done ? 'Do ' + name.toLowerCase() + ' again' : 'Start ' + name.toLowerCase()) + '</button>' +
       '<button class="chk" data-done="' + key + '" aria-pressed="' + done + '" aria-label="Mark ' + name.toLowerCase() + ' as done">' + I_CHECK + '</button></div>' +
-      (day.cardio || done || m - mins(day, 'short-' + part, ph) < 4 ? '' : '<button class="textbtn shortbtn" data-start="' + day.id + '" data-part="short-' + part + '">Short on time? ' + mins(day, 'short-' + part, ph) + '-min version, no warm-up</button>') +
+      (day.cardio || done || m - mins(day, 'short-' + part, ph) < 4 || buildQueue(day, part, ph).trimNote ? '' : '<button class="textbtn shortbtn" data-start="' + day.id + '" data-part="short-' + part + '">Short on time? ' + mins(day, 'short-' + part, ph) + '-min version, no warm-up</button>') +
       '<details data-pk="' + day.id + part + '"' + (openPlans[day.id + part] ? ' open' : '') + '><summary><span class="open-t">Show exercises</span><span class="close-t">Hide exercises</span></summary><ul class="plan">' + list + '</ul></details></article>';
   }
   // small line-art pictures of what's in the session
@@ -3056,7 +3056,12 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var eqs = []; store.log.forEach(function (l) { if (l.id === strSel && l.k === strKind && eqs.indexOf(l.eq) < 0) eqs.push(l.eq); });
     if (eqs.indexOf(strEq) < 0) { var lastE = store.log.filter(function (l) { return l.id === strSel && l.k === strKind; }).pop(); strEq = lastE ? lastE.eq : null; }
     var rows = store.log.filter(function (l) { return l.id === strSel && l.k === strKind && l.eq === strEq && !l.sug; });
-    var h = '<h2>Exercise history</h2><select id="strSel" aria-label="Exercise">' + ids.map(function (id) { return '<option value="' + id + '"' + (id === strSel ? ' selected' : '') + '>' + esc(baseName(BY[id].name)) + '</option>'; }).join('') + '</select>' +
+    function doneName(id) {
+      var l = store.log.filter(function (x) { return x.id === id && (id !== strSel || x.k === strKind); }).pop(); if (!l) return baseName(BY[id].name);
+      var k = l.k === 'h' ? 'h' : 'g', o = parseEq(EQV[id][k]).filter(function (q) { return q.eq === l.eq; })[0];
+      return (o ? V(id, k, o).name : baseName((k === 'h' ? BY : G)[id].name)).replace(/ Hold$/, '');
+    }
+    var h = '<h2>Exercise history</h2><select id="strSel" aria-label="Exercise">' + ids.map(function (id) { return '<option value="' + id + '"' + (id === strSel ? ' selected' : '') + '>' + esc(doneName(id)) + '</option>'; }).join('') + '</select>' +
       '<div class="seg" role="group" aria-label="Hold or reps"><button class="h" data-k="h" aria-pressed="' + (strKind === 'h') + '">Hold</button><button class="r" data-k="r" aria-pressed="' + (strKind === 'r') + '">Reps</button></div>' + (eqs.length > 1 ? '<div class="eqtabs" role="group" aria-label="Equipment">' + eqs.map(function (e) { return '<button data-seq="' + e + '" aria-pressed="' + (e === strEq) + '">' + (e === 'b' ? 'Barbell' : e === 'c' ? 'Cable/machine' : EQ_LABEL[e]) + '</button>'; }).join('') + '</div><p class="muted" style="font-size:14px">Weights on different equipment aren’t comparable, so each has its own chart.</p>' : '');
     if (!rows.length) h += '<p class="muted">No ' + (strKind === 'h' ? 'holds' : 'rep sets') + ' logged with a weight you set for this exercise yet. Sets done at a suggested weight aren’t charted until you confirm the weight.</p>';
     else {
@@ -3067,11 +3072,11 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       var best = rows.reduce(function (b, l) { return (l.kg || 0) > (b.kg || 0) || ((l.kg || 0) === (b.kg || 0) && l.v > b.v) ? l : b; }, rows[0]);
       var unit = strKind === 'h' ? ' s' : ' reps';
       var first = pts[0], lastP = pts[pts.length - 1], ch = first.kg ? Math.round(((lastP.kg || 0) - first.kg) / first.kg * 100) : null;
-      h += '<p class="str-sum"><b>Best: ' + (best.kg ? kg(best.kg) + ' for ' : '') + best.v + (best.v === 1 && unit === ' reps' ? ' rep' : unit) + '</b>' + (pts.length > 1 && ch != null ? '<span class="' + (ch >= 0 ? 'up' : 'down') + '">' + (ch >= 0 ? '+' : '') + ch + '% weight since ' + new Date(first.t).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + '</span>' : '') + '</p>' + strChart(pts, unit);
+      h += '<p class="str-sum"><b>Best: ' + (best.kg ? kg(best.kg) + ' for ' : '') + best.v + (best.v === 1 && unit === ' reps' ? ' rep' : unit) + '</b>' + (pts.length > 1 && ch != null ? '<span class="' + (ch >= 0 ? 'up' : 'down') + '">' + (ch >= 0 ? '+' : '') + ch + '% weight since ' + new Date(first.t).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + '</span>' : '') + '</p>' + strChart(pts, unit, noWt(strEq));
     }
     $('strCard').innerHTML = h;
   }
-  function strChart(pts, unit) {
+  function strChart(pts, unit, noW) { // noW: bodyweight or band, so only seconds or reps are charted
     pts = pts.map(function (p) { var c = Object.create(p); c.kg = p.kg ? toU(p.kg) : p.kg; return c; });
     var W = 336, H1 = 120, H2 = 70, L = 30, R = 8, gap = 18, n = pts.length;
     var maxKg = Math.max.apply(null, pts.map(function (p) { return p.kg || 0; })) || 1, minKg = Math.min.apply(null, pts.map(function (p) { return p.kg || 0; }));
@@ -3081,12 +3086,14 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var y1 = function (v) { return 12 + (1 - (v - lo) / (hi - lo || 1)) * (H1 - 28); };
     // the same numbers in words, for screen readers
     var say1 = function (p) { return (p.kg ? Math.round(p.kg * 10) / 10 + ' ' + uLab() + ' for ' : '') + p.v + (unit === ' s' ? ' seconds' : ' reps') + (p.t ? ' on ' + new Date(p.t).toLocaleDateString(undefined, { day: 'numeric', month: 'long' }) : ''); };
-    var s = '<p class="sr-only">' + esc(n + (n === 1 ? ' session. ' : ' sessions. ') + (n > 1 ? 'First: ' + say1(pts[0]) + '. ' : '') + 'Latest: ' + say1(pts[n - 1]) + '. Heaviest: ' + Math.round(maxKg * 10) / 10 + ' ' + uLab() + '. Most ' + (unit === ' s' ? 'seconds' : 'reps') + ': ' + maxV + '.') + '</p>';
+    var s = '<p class="sr-only">' + esc(n + (n === 1 ? ' session. ' : ' sessions. ') + (n > 1 ? 'First: ' + say1(pts[0]) + '. ' : '') + 'Latest: ' + say1(pts[n - 1]) + '. ' + (noW ? '' : 'Heaviest: ' + Math.round(maxKg * 10) / 10 + ' ' + uLab() + '. ') + 'Most ' + (unit === ' s' ? 'seconds' : 'reps') + ': ' + maxV + '.') + '</p>';
+    var w0 = s.length;
     s += '<p class="chart-t" aria-hidden="true">Weight (' + uLab() + ')</p><svg class="schart" viewBox="0 0 ' + W + ' ' + H1 + '" aria-hidden="true">';
     [lo, (lo + hi) / 2, hi].forEach(function (v) { var y = y1(v); s += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y + '" y2="' + y + '" class="gl"/><text x="' + (L - 5) + '" y="' + (y + 4) + '" class="ax" text-anchor="end">' + (Math.round(v * 10) / 10) + '</text>'; });
     if (n > 1) s += '<polyline fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round" points="' + pts.map(function (p, i) { return xs(i).toFixed(1) + ',' + y1(p.kg || 0).toFixed(1); }).join(' ') + '"/>';
     pts.forEach(function (p, i) { s += '<circle cx="' + xs(i).toFixed(1) + '" cy="' + y1(p.kg || 0).toFixed(1) + '" r="' + (i === n - 1 ? 5 : 3.5) + '" fill="var(--ink)"/>'; });
     var lp = pts[n - 1]; s += '<text x="' + Math.min(W - R, xs(n - 1) + 2).toFixed(1) + '" y="' + (y1(lp.kg || 0) - 10).toFixed(1) + '" class="val" text-anchor="end">' + (lp.kg ? Math.round(lp.kg * 10) / 10 : 0) + ' ' + uLab() + '</text></svg>';
+    if (noW) s = s.slice(0, w0); // no weight chart for bodyweight or band work
     s += '<p class="chart-t" aria-hidden="true">' + (unit === ' s' ? 'Seconds held' : 'Reps done') + '</p><svg class="schart" viewBox="0 0 ' + W + ' ' + H2 + '" aria-hidden="true">';
     var bw = Math.min(26, (W - L - R) / n - 6);
     pts.forEach(function (p, i) { var h = p.v / maxV * (H2 - 30), x = xs(i) - bw / 2, y = H2 - 16 - h; s += '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="3" fill="' + (unit === ' s' ? 'var(--hold)' : 'var(--rep)') + '"/><text x="' + xs(i).toFixed(1) + '" y="' + (y - 3).toFixed(1) + '" class="val" text-anchor="middle">' + p.v + '</text><text x="' + xs(i).toFixed(1) + '" y="' + (H2 - 3) + '" class="ax" text-anchor="middle">' + new Date(p.t).getDate() + '</text>'; });
@@ -3114,7 +3121,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   var TESTS = ['wall-sit', 'plank-db', 'suitcase', 'lateral-raise'];
   function renderTests() {
-    if (gentle()) { $('tests').innerHTML = '<p class="muted">Skipped for you: holding until your form breaks raises blood pressure sharply. Your logged holds track progress instead. Ask your doctor before any all-out test.</p>'; return; }
+    if (gentle()) { $('tests').innerHTML = '<p class="muted">Skipped for you: ' + (prof().issues.indexOf('bp') > -1 ? 'holding until your form breaks raises blood pressure sharply.' : prof().issues.indexOf('bones') > -1 ? 'all-out efforts aren’t needed for bone health, and steady holds load bone safely.' : 'all-out efforts aren’t needed at your age; steady holds build strength safely.') + ' Your logged holds track progress instead. Ask your doctor before any all-out test.</p>'; return; }
     $('tests').innerHTML = TESTS.map(function (id) {
       var t = store.tests[id] || {};
       return '<div class="test"><h3>' + esc(baseName(BY[id].name)) + '<span class="delta" id="d-' + id + '"></span></h3><div class="fields">' +
@@ -3485,7 +3492,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   document.addEventListener('visibilitychange', function () { if (!document.hidden) refreshIfStale(); });
   setInterval(refreshIfStale, 60000);
   // A newer version is online: say so, instead of quietly running the old one until the next launch
-  var APP_VERSION = '23';
+  var APP_VERSION = '24';
   function checkVersion() {
     if (!navigator.onLine || !/^https?:/.test(location.protocol)) return;
     fetch('index.html?v=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
@@ -3652,6 +3659,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (tot() > cap && tail.length) { tail = []; cut.push('no cardio finisher'); }
     if (tot() > cap && warm.some(function (it) { return it.effort !== 'Impact'; })) { warm = warm.filter(function (it) { return it.effort === 'Impact'; }); cut.push('no warm-up'); }
     if (tot() > cap && body.some(function (it) { return it.set > 1; })) { body = body.filter(function (it) { return it.set === 1; }); body.forEach(function (it) { it.sets = 1; }); cut.push('one set of each'); }
+    var warm0 = q.slice(0, lead); if (cut.indexOf('one set of each') > -1 && cut.indexOf('no warm-up') > -1 && qSecs(warm0) + tot() - qSecs(warm) <= cap) { warm = warm0; cut.splice(cut.indexOf('no warm-up'), 1); }
     var dropped = [];
     while (body.length > 1 && tot() > cap) { var last = body.pop(); while (body.length && body[body.length - 1].id === last.id && body[body.length - 1].wk === last.wk) body.pop(); if (!body.some(function (x) { return x.id === last.id; }) && dropped.indexOf(last.id) < 0) dropped.push(last.id); }
     if (dropped.length) cut.push('without ' + dropped.map(function (id) { return baseName(BY[id].name); }).join(', '));
@@ -3722,7 +3730,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     [/\bpatatas?\b/g, 'potatoes'], [/\blentejas\b/g, 'lentils'], [/\bgarbanzos\b/g, 'chickpeas'], [/\byogur(?:t)?\b/g, 'yogurt'], [/\btostadas?\b/g, 'toast'], [/\bjam[oó]n\b/g, 'ham'], [/\bensalada\b/g, 'salad'], [/\bpescado\b/g, 'fish'], [/\bternera\b/g, 'beef'], [/\bcerdo\b/g, 'pork'], [/\bavena\b/g, 'oats'], [/\bzumo\b/g, 'juice'], [/\bpepino\b/g, 'cucumber'],
     [/\b(com[ií]|desayun[eé]|cen[eé]|almorc[eé]|he comido|tom[eé])\b/g, 'had'], [/\b(bici|bicicleta)\b/g, 'bike'], [/\b(corr[ií]|correr)\b/g, 'ran'], [/\b(camin[eé]|caminar|andar|anduve)\b/g, 'walked'], [/\bpeso\b/g, 'i weigh'],
     [/\bsentadillas?\b/g, 'squat'], [/\bflexiones\b/g, 'push ups'], [/\bdominadas\b/g, 'pull ups'], [/\bfondos\b/g, 'dips'], [/\bseries\b/g, 'sets'], [/\brepeticiones\b/g, 'reps'], [/\bpesas rusas?\b/g, 'kettlebell'], [/\b(?:me duele|dolor (?:de|en)(?: la| el)?)\b/g, 'pain'], [/\brodilla\b/g, 'knee'], [/\bespalda\b/g, 'back'], [/\bhombro\b/g, 'shoulder'],
-    [/\bcena\b/g, 'dinner'], [/\bdesayuno\b/g, 'breakfast'], [/\b(almuerzo|comida)\b/g, 'lunch'], [/\bmerienda\b/g, 'snack'], [/\bun vaso de\b/g, '1 glass of'], [/\buna? (?=[a-z])/g, '1 '], [/ de (?=[a-z])/g, ' of '],
+    [/\b(?:uno|una|un)\b(?= [a-z])/g, '1'], [/\bdos\b/g, '2'], [/\btres\b/g, '3'], [/\bcuatro\b/g, '4'], [/\bcinco\b/g, '5'], [/\bseis\b/g, '6'], [/\bsiete\b/g, '7'], [/\bocho\b/g, '8'], [/\bnueve\b/g, '9'], [/\bdiez\b/g, '10'], [/\bonce\b/g, '11'], [/\bdoce\b/g, '12'], [/\bquince\b/g, '15'], [/\bveinte\b/g, '20'], [/\btreinta\b/g, '30'], [/\bmedia\b/g, '0.5'],
+    [/(\d) por (\d)/g, '$1 x $2'], [/\b(fritos?|fritas?)\b/g, 'fried'], [/\b(cocidos?|hervidos?|duros?)\b/g, 'boiled'], [/\ba la plancha\b/g, 'grilled'], [/\b(macarrones|fideos|espaguetis|tallarines)\b/g, 'pasta'],
+    [/\bcena\b/g, 'dinner'], [/\bdesayuno\b/g, 'breakfast'], [/\b(almuerzo|comida)\b/g, 'lunch'], [/\bmerienda\b/g, 'snack'], [/\bun vaso de\b/g, '1 glass of'], [/\buna? (?=[a-z])/g, '1 '], [/ de (?=[a-z\d])/g, ' of '],
     [/ y (?=[a-z\d])/g, ' and '], [/ con (?=[a-z\d])/g, ' with ']];
   function spanish(t) { if (!/[a-z]/.test(t)) return t; t = t.normalize ? t.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : t; ES.forEach(function (r) { t = t.replace(r[0], r[1]); }); return t; }
   function norm(t) {
@@ -3737,7 +3747,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     t = t.replace(/\bhalf an? /g, '0.5 ').replace(/\ba couple of\b/g, '2').replace(/\b(an?|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|half|couple)\b(?! of a)/g, function (m) { return String(NUMW[m]); });
     t = t.replace(/\b(\d+)\s*(?:st|stone|stones)\b(?:\s*(?:and\s*)?(\d+)\s*(?:lbs?|pounds?)?)?/g, function (m, a, b) { return String(Math.round(((+a * 14) + (+b || 0)) * 0.45359 * 10) / 10) + ' kg'; });
     t = spanish(t);
-    t = t.replace(/(\d)\s*(kgs?|kilos?|kilograms?)\b/g, '$1 kg').replace(/(\d)\s*(lbs?|pounds?)\b/g, '$1 lb').replace(/(\d)\s*(secs?|seconds?|s)\b/g, '$1 s').replace(/(\d)\s*(mins?|minutes?)\b/g, '$1 min').replace(/(\d)\s*(hrs?|hours?)\b/g, '$1 h');
+    t = t.replace(/(\d)\s*(?:gr|grs|gramos?)\b/g, '$1 g').replace(/(\d)\s*(kgs?|kilos?|kilograms?)\b/g, '$1 kg').replace(/(\d)\s*(lbs?|pounds?)\b/g, '$1 lb').replace(/(\d)\s*(secs?|seconds?|s)\b/g, '$1 s').replace(/(\d)\s*(mins?|minutes?)\b/g, '$1 min').replace(/(\d)\s*(hrs?|hours?)\b/g, '$1 h');
     return t.replace(/\s+/g, ' ');
   }
   var EXALIAS = null;
@@ -3756,7 +3766,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       'calf-raise': ['calf raise', 'calf raises', 'standing calf', 'standing calf raise', 'calf machine'],
       'seated-calf': ['seated calf', 'seated calf raise', 'seated calf raises'],
       'dead-bug': ['dead bug', 'dead bugs', 'deadbug'],
-      'floor-press': ['floor press', 'dumbbell floor press'],
+      'floor-press': ['floor press', 'dumbbell floor press', 'push up', 'push ups', 'pushup', 'pushups', 'press up', 'press ups', 'push up hold', 'push ups hold'],
       'curl': ['curl', 'curls', 'bicep curl', 'bicep curls', 'biceps curl', 'biceps curls'],
       'suitcase': ['suitcase', 'suitcase hold', 'suitcase carry', 'suitcase deadlift'],
       'crunch': ['crunch', 'crunches', 'weighted crunch'],
@@ -3818,11 +3828,12 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         if (m[1] && m[4]) { grams = 0; tail = (m[0].match(/\s*(?:x\s*)?\d+(?:\.\d+)?\s*[a-z]+\s*$/) || [''])[0]; }
         if (FOODS[fi][0] === 'Whey protein' && !/whey/.test(m[3]) && prof().diet === 'vegan') fi = FOODS.map(function (f) { return f[0]; }).indexOf('Plant protein');
         if (m[1] && !m[2] && +m[1] >= 50 && FOODS[R[j][1]][6] <= 60 && !/eggs?|idli|roti|biscuit/.test(m[3])) { grams = +m[1]; qty = 1; } // "200 paneer" means grams
+        if (!m[1] && /^dates$/.test(m[3])) qty = 3; // "dates" on their own: a few, not one
         var it = foodItem(fi, qty, unit, grams); it.at = m.index; it.exact = !!(grams || /^(g|gm|gms|grams?|ml|oz)$/.test(unit)); items.push(it);
         s = s.slice(0, m.index) + ' # ' + tail + s.slice(m.index + m[0].length);
       }
     }
-    var left = s.replace(/#/g, ' ').replace(/\b(i|i've|ive|had|have|ate|eaten|eat|drank|drink|for|my|with|and|some|a|of|the|breakfast|lunch|dinner|snack|meal|just|today|this|morning|evening|night|also|plus|then|log|add|bowl|plate|cup|glass|small|large|big|medium|piece|homemade|little|bit|on|in|at|it|was|me|please|post|pre|workout|after|before|aur|spoon|spoons|katori|katoris)\b/g, ' ').replace(/[^a-z]/g, ' ').trim();
+    var left = s.replace(/#/g, ' ').replace(/\b(fried|boiled|grilled|steamed|scrambled|poached|baked|roasted|soft|hard|raw|cooked|plain|homemade)\b/g, ' ').replace(/\b(i|i've|ive|had|have|ate|eaten|eat|drank|drink|for|my|with|and|some|a|of|the|breakfast|lunch|dinner|snack|meal|just|today|this|morning|evening|night|also|plus|then|log|add|bowl|plate|cup|glass|small|large|big|medium|piece|homemade|little|bit|on|in|at|it|was|me|please|post|pre|workout|after|before|aur|spoon|spoons|katori|katoris)\b/g, ' ').replace(/[^a-z]/g, ' ').trim();
     // "tofu scramble with 200 g tofu": one food named twice counts once, keeping the exact amount
     items = items.filter(function (i) { return !items.some(function (o) { return o !== i && o.n === i.n && o.exact && !i.exact; }); });
     items.sort(function (a, b) { return a.at - b.at; }); items.forEach(function (i) { delete i.at; delete i.exact; });
@@ -3845,15 +3856,17 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var m, rpe = null;
     if ((m = t.match(/@?\s*\brpe\s*(\d+(?:\.5)?)\b/))) { rpe = +m[1]; t = t.replace(m[0], ' '); }
     else if ((m = t.match(/@\s*(\d+(?:\.5)?)\b(?!\s*(?:kg|lb))/))) { rpe = +m[1]; t = t.replace(m[0], ' '); }
-    t = t.replace(/(\d+(?:\.\d+)?)\s*(?:x\s*(\d+(?:\.\d+)?)\s*(?:kg|lb)?\s*)?plates?\b(?:\s*(?:a|1|per|each|on each)\s*side)?(?:\s*(?:plus|and|\+)\s*(?:1\s+)?(\d+(?:\.\d+)?)s?\b(?!\s*(?:reps?|sets?)))?/, function (all, n, size, extra) {
+    t = t.replace(/(\d+(?:\.\d+)?)\s*(?:x\s*(\d+(?:\.\d+)?)\s*(?:kg|lb)?\s*)?plates?\b(?:\s*(?:a|1|per|each|on each)\s*side)?((?:\s*(?:plus|and|\+)\s*(?:1\s+)?\d+(?:\.\d+)?s?\b(?!\s*(?:reps?|sets?)))*)(?:\s*(?:1|per|each|on each)\s*side\b)?/, function (all, n, size, extras) {
+      var extra = (extras.replace(/(?:plus|and|\+)\s*(?:1\s+(?=\d))?/g, ' ').match(/\d+(?:\.\d+)?/g) || []).reduce(function (t, x) { return t + +x; }, 0);
       var kgU = /\bkg\b/.test(t) || (!/\blb\b/.test(t) && !isLb()), plate = kgU ? 20 : 45, bar = /leg press|sled|hack|machine|calf/.test(t) ? 0 : kgU ? 20 : 45;
       // "8 x 25 kg plates": that many plates in total; "4 plates": per side; "and a 10": one more on each side
       var w = size ? +n * +size + bar : +n * plate * 2 + (extra ? +extra * 2 : 0) + bar;
       plateNote = kgU && !size ? 'Counted 20 kg plates and a 20 kg bar.' : kgU ? 'Counted a 20 kg bar.' : ''; return w + (kgU ? ' kg' : ' lb');
     });
-    t = t.replace(/\b(?:for )?1 single\b(?! (?:leg|arm))|\bfor (?:a )?single\b(?! (?:leg|arm))/, ' x 1'); // "for a single" = 1 rep
-    var more = null, mm2 = t.match(/(?:x|for)\s*(\d+)((?:\s*,\s*\d+)+)/);
-    if (mm2) { more = mm2[2].split(',').map(function (x) { return +x.trim(); }).filter(Boolean); t = t.replace(mm2[2], ' '); }
+    t = t.replace(/\b(?:for )?1 (single|double|triple)\b(?! (?:leg|arm))|\bfor (?:a )?(single|double|triple)\b(?! (?:leg|arm))/, function (m, a, b) { return ' x ' + { single: 1, double: 2, triple: 3 }[a || b]; }); // "for a double" = 2 reps
+    // several sets on one line: "for 8, 8, 7" or "for 8 8 7"
+    var more = null, mm2 = t.match(/(?:x|for)\s*(\d+)((?:\s*,?\s*\b\d{1,2}\b(?!\s*(?:sets?|kg|lb|s|min|x|reps? x)))+)/);
+    if (mm2) { more = mm2[2].split(/[\s,]+/).map(function (x) { return +x; }).filter(Boolean); t = t.replace(mm2[2], ' '); }
     t = t.replace(/(\d+(?:\.\d+)?)(\s*(?:kg|lb))?\s+for\s+(\d{1,2})\b(?!\s*(?:s|min|h|km|k|mi|miles?|m|sets?)\b)/, '$1$2 x $3');
     return { t: t, rpe: rpe, more: more };
   }
@@ -3864,6 +3877,14 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     // a weight for a lift but no reps ("deadlift 4 plates"): ask rather than guess
     if (!a && (m = ls.t.match(/(\d+(?:\.\d+)?)\s*(kg|lb)\b/))) { var nm = ls.t.replace(m[0], ' ').replace(/[^a-z ]/g, ' ').replace(/\s+/g, ' ').trim(); if (LIFTNAME[nm] || findEx(' ' + nm + ' ')) return { type: 'need_reps', name: LIFTNAME[nm] || baseName(BY[findEx(' ' + nm + ' ').id].name), weight: +m[1], unit: m[2] }; }
     if (a && a.type === 'log_lift') { var k = a.name.toLowerCase().replace(/\b(barbell|bb|lb|kg)\b/g, '').replace(/\s+/g, ' ').trim(); if (LIFTNAME[k]) a.name = LIFTNAME[k]; }
+    if (a && (a.type === 'log_set' || a.type === 'set_weight' || a.type === 'open_exercise') && a.exercise === 'floor-press' && /\b(push|press) ?-?ups?\b/.test(ls.t)) {
+      var nums = (ls.t.replace(/\b(push|press) ?-?ups?\b/, ' ').match(/\b\d+\b/g) || []).map(Number), hold = /\bhold\b|\d\s*s\b/.test(ls.t);
+      a = { type: 'log_set', exercise: 'floor-press', eq: 'w', part: hold ? 'hold' : 'reps' };
+      var sx = ls.t.match(/(\d+)\s*(?:x|sets? of)\s*(\d+)/);
+      if (sx) { a.sets = +sx[1]; a[hold ? 'seconds' : 'reps'] = +sx[2]; } else if (nums.length) { a[hold ? 'seconds' : 'reps'] = nums[0]; if (nums.length > 1) a.more = nums.slice(1); }
+      if (ls.more) a.more = (a.more || []).concat(ls.more);
+      if (a.reps == null && a.seconds == null) a = { type: 'open_exercise', exercise: 'floor-press' };
+    }
     if (a && a.type === 'log_lift' && a.name === 'Push-Up' && BY['floor-press']) a = { type: 'log_set', exercise: 'floor-press', eq: 'w', part: a.seconds ? 'hold' : 'reps', reps: a.reps, seconds: a.seconds, sets: a.sets, more: a.more };
     if (a && ls.rpe != null && (a.type === 'log_set' || a.type === 'log_lift') && ls.rpe >= 5 && ls.rpe <= 10) a.rpe = ls.rpe;
     if (a && ls.more && (a.type === 'log_set' || a.type === 'log_lift')) a.more = (a.more || []).concat(ls.more);
@@ -3973,7 +3994,10 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function whenOf(raw) { var w = whenOf0(raw); mealWhen = w; return w; }
   function whenOf0(raw) { var t = String(raw).toLowerCase(), d = new Date(); if (/\byesterday\b|\blast night\b/.test(t)) { d.setDate(d.getDate() - 1); d.setHours(/night|dinner|evening/.test(t) ? 20 : 12, 0, 0, 0); return d.getTime(); } var m = t.match(/\b(\d)\s+days?\s+ago\b/); if (m) { d.setDate(d.getDate() - +m[1]); d.setHours(12, 0, 0, 0); return d.getTime(); } return null; }
   function parseText(raw) {
-    var t = norm(raw).replace(/(plates?(?:\s*(?:a|1|per|each)\s*side)?)\s+and\s+(?:1\s+)?(\d+(?:\.\d+)?)s?\b/g, '$1 + $2'), out = { actions: [], unknown: [], question: QWORDS.test(t) || /\?\s*$/.test(raw), plan: PLANRE.test(t) && !/\b(did|done|had|ate|finished)\b/.test(t) };
+    var t = norm(raw), t0;
+    do { t0 = t; t = t.replace(/(plates?(?:\s*(?:a|1|per|each)\s*side)?(?:\s*\+\s*\d+(?:\.\d+)?)*)\s+and\s+(?:1\s+)?(\d+(?:\.\d+)?)s?\b/, '$1 + $2'); } while (t !== t0);
+    t = t.replace(/(\b(?:for|x)(?:\s*,?\s*\d{1,2}\b)+)\s*,?\s*and\s+(\d{1,2})\b/g, '$1 $2');
+    var out = { actions: [], unknown: [], question: QWORDS.test(t) || /\?\s*$/.test(raw), plan: PLANRE.test(t) && !/\b(did|done|had|ate|finished)\b/.test(t) };
     if (out.plan) return out;
     if (out.question) return out;
     if (bareStones(raw)) { out.actions.push({ type: 'log_bodyweight', weight: bareStones(raw), unit: 'kg' }); return out; }
@@ -4275,11 +4299,13 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     [/\bgroove\b/, 'The **Groove phase** is weeks 1–2: you learn each position with light weights before the program gets harder.'],
     [/hypertrophy/, '**Hypertrophy** means muscle growth.'], [/\be1rm\b|estimated max|one rep max|1rm/, 'An **estimated max** is the most you could probably lift once, worked out from a set of several reps. It’s a guide, not a test.'],
     [/scapular plane/, 'The **scapular plane** means arms slightly in front of you (about 30°) instead of straight out to the sides: it’s kinder to the shoulders.'],
-    [/(bigger|larger|large) (text|font|letters)|(text|font|letters) (bigger|larger)|text size|read (it )?(aloud|out)|speak/, 'Tap the profile button on the Train tab and tick **Larger text and buttons**. For spoken cues during sessions, tick **Spoken cues**, or tap the microphone in a session to control it by voice. Your phone’s own zoom setting works too.']];
+    [/read (it |this |the [a-z]+ )?(aloud|out)|speak|voiceover|talkback|screen reader/, 'During a session, tick **Spoken cues** in your profile, or tap the microphone in a session: the app says each exercise, the hold time and every logged set, and you can say “repeat”, “how long”, “next” or “pause”. Isohold also works with your device’s screen reader (VoiceOver on iPhone, TalkBack on Android).'],
+    [/(bigger|larger|large) (text|font|letters)|(text|font|letters) (bigger|larger)|text size/, 'Tap the profile button on the Train tab and tick **Larger text and buttons**. Your device’s own zoom setting works too.'],
+    [/\bbands?\b/, '**Which band:** pick one you can hold for the full time with good form, where the last 10 seconds feel hard. Standing on it with your feet wider, or holding it shorter, makes it harder; when a hold feels easy for two sessions, move to the next band.']];
   function localAnswer(raw) {
     var t = norm(raw), f = sumFood(today(store.food)), tg = proteinTarget(), m, sa = safetyAnswer(t);
     if (sa) return sa;
-    if (/\b(what|whats|what's) (is|are|does|do)\b|\bmean(s|ing)?\b|\bhow (do|can) i (make|get|turn)\b/.test(t)) { for (var gi = 0; gi < GLOSS.length; gi++) if (GLOSS[gi][0].test(t)) return GLOSS[gi][1]; }
+    if (/\b(what|whats|what's|which) (is|are|does|do|band)\b|\bmean(s|ing)?\b|\bhow (do|can) i (make|get|turn)\b|\b(can|could) you read\b|\bread (it|this|the [a-z]+) (aloud|out)\b/.test(t)) { for (var gi = 0; gi < GLOSS.length; gi++) if (GLOSS[gi][0].test(t)) return GLOSS[gi][1]; }
     if (/protein|macros?|calories|kcal|eaten|ate today|food today|carbs/.test(t)) {
       var s = 'Today so far: **' + r0(f.p) + ' g protein**' + (tg ? ' of ' + tg + ' g' : '') + ', ' + r0(f.k) + ' kcal' + (kcalTarget() ? ' of about ' + kcalTarget() : '') + ', ' + (prof().diet === 'keto' ? r0(f.net) + ' g net carbs (' + r0(f.c) + ' g total)' : r0(f.c) + ' g carbs') + ', ' + r0(f.f) + ' g fat.';
       if (tg && f.p < tg) s += '\n\nTo close the gap of ' + r0(tg - f.p) + ' g, try: ' + ideas(tg - f.p).join('; ') + '.';
@@ -4380,7 +4406,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   function renderDay() {
     var f = sumFood(today(store.food)), tg = proteinTarget(), kt = kcalTarget(), sets = today(store.log).length + today(store.notes).filter(function (n) { return n.k === 'lift'; }).reduce(function (t, n) { return t + (n.sets || 1); }, 0);
-    var cm = today(store.notes).filter(function (n) { return n.k === 'cardio'; }).reduce(function (s, n) { return s + (n.min || 0); }, 0);
+    var cm = today(store.notes).filter(function (n) { return n.k === 'cardio'; }).reduce(function (s, n) { return s + (n.min || 0); }, 0) + cardioDoneMins(dayStart());
     var wa = today(store.notes).filter(function (n) { return n.k === 'water'; }).reduce(function (s, n) { return s + n.ml; }, 0);
     var pct = tg ? Math.min(1, f.p / tg) : 0, keto = prof().diet === 'keto';
     var ring = '<svg class="lg-ring" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27" class="bgc"/><circle cx="32" cy="32" r="27" class="fgc" stroke-dasharray="169.6" stroke-dashoffset="' + (169.6 * (1 - pct)).toFixed(1) + '"/></svg>';
@@ -4706,7 +4732,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function openProfile(from, first) {
     var p = prof(), lbU = p.units === 'lb';
     var hIn = p.cm ? (lbU ? Math.round(p.cm / 2.54) : p.cm) : '';
-    var h = (first ? '<p class="muted">A minute of setup so the plan, weights and food tracking fit you. Everything stays on this phone. You can change it any time from the profile button on the Train tab.</p>' : '') +
+    var h = (first ? '<p class="muted">A minute of setup so the plan, weights and food tracking fit you. Everything stays on this device. You can change it any time from the profile button on the Train tab.</p>' : '') +
       '<div class="pf"><label><span>Name <span class="muted">(optional)</span></span><input id="pfName" autocomplete="given-name" value="' + esc(p.name) + '"></label>' +
       '<div class="pf-row"><label><span>Age</span><input id="pfAge" type="number" inputmode="numeric" min="13" max="100" value="' + (p.age || '') + '"></label>' +
       '<label><span>Bodyweight (<span class="pfU">' + (p.units === 'st' ? 'st lb' : p.units) + '</span>)</span><input id="pfBw" inputmode="decimal" autocomplete="off" placeholder="' + (p.units === 'st' ? '10 st 4' : '') + '" value="' + (bodyKg() ? (p.units === 'st' ? bwTxt(bodyKg()) : dispW(bodyKg())) : '') + '"></label>' +
@@ -4785,7 +4811,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       '<ol class="c-steps"><li>Open <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a> and sign in with your Google account.</li><li>Tap <b>Create API key</b> and copy it.</li><li>Paste it here.</li></ol>' +
       '<label for="cKey" class="muted" style="font-weight:700;font-size:14px">Gemini API key</label><input id="cKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste your key">' +
       '<div class="bk-row"><button class="btn go" id="cSave">Connect Gemini</button><span class="bk-msg" id="cSetMsg" role="status"></span></div>' +
-      '<p class="fine">Your key is stored only on this phone and sent only to Google. It is not part of your backup code. On Google’s free tier, Google may use what you send to improve its products.</p>';
+      '<p class="fine">Your key is stored only on this device and sent only to Google. It is not part of your backup code. On Google’s free tier, Google may use what you send to improve its products.</p>';
     openSheet('Connect Gemini', h, false, from);
     $('cSave').addEventListener('click', function () {
       var k = $('cKey').value.trim();
@@ -4806,8 +4832,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (!opts.some(function (m) { return m.id === coach.model; })) opts = [{ id: coach.model, label: coach.model }].concat(opts);
     var h = '<div class="card"><h2>Model</h2><p>Flash models answer fastest and are free within Google’s limits.</p><select id="cModel" style="font:inherit;font-size:16px;padding:10px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)">' +
       opts.map(function (m) { return '<option value="' + esc(m.id) + '"' + (m.id === coach.model ? ' selected' : '') + '>' + esc(m.label) + (m.label !== m.id ? ' (' + esc(m.id) + ')' : '') + '</option>'; }).join('') + '</select></div>' +
-      '<div class="card"><h2>API key</h2><p>Connected. The key is stored only on this phone.</p><div class="bk-row"><button class="btn sm line" id="cForget">Remove key</button></div></div>' +
-      '<div class="card"><h2>Log history</h2><p>The last ' + FEED_MAX + ' messages are kept on this phone. Clearing them doesn’t delete anything you logged.</p><div class="bk-row"><button class="btn sm line" id="cClear">Clear messages</button><span class="bk-msg" id="cClrMsg" role="status"></span></div></div>' +
+      '<div class="card"><h2>API key</h2><p>Connected. The key is stored only on this device.</p><div class="bk-row"><button class="btn sm line" id="cForget">Remove key</button></div></div>' +
+      '<div class="card"><h2>Log history</h2><p>The last ' + FEED_MAX + ' messages are kept on this device. Clearing them doesn’t delete anything you logged.</p><div class="bk-row"><button class="btn sm line" id="cClear">Clear messages</button><span class="bk-msg" id="cClrMsg" role="status"></span></div></div>' +
       '<p class="fine">On Google’s free tier, Google may use what you send to improve its products. Your plan, progress and today’s food are sent with each message so answers fit you.</p>';
     openSheet('Gemini settings', h, false, from);
     $('cModel').addEventListener('change', function () { coach.model = this.value; cput('model', coach.model); });
@@ -4825,7 +4851,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function openInstall(from) {
     var ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1), android = /android/i.test(navigator.userAgent);
     var h = standalone() ? '<p>Isohold is already installed and running as an app.</p>' :
-      installEvt ? '<p>Install Isohold as an app: its own icon, full screen, works offline. Your progress stays on this phone.</p><button class="btn go block" id="instGo">Install Isohold</button>' :
+      installEvt ? '<p>Install Isohold as an app: its own icon, full screen, works offline. Your progress stays on this device.</p><button class="btn go block" id="instGo">Install Isohold</button>' :
       ios ? '<ol class="c-steps"><li>Open this page in <b>Safari</b>.</li><li>Tap <b>Share</b> (the square with an arrow).</li><li>Tap <b>Add to Home Screen</b>, then <b>Add</b>.</li></ol><p class="fine">Open Isohold from the new icon. It works offline after the first launch. The home-screen app keeps its own storage, separate from Safari: if you’ve already logged things in Safari, save a backup on the Progress tab first and restore it in the app.</p>' :
       android ? '<ol class="c-steps"><li>Open this page in <b>Chrome</b>.</li><li>Tap the <b>⋮</b> menu.</li><li>Tap <b>Install app</b> (or <b>Add to Home screen</b>), then <b>Install</b>.</li></ol><p class="fine">Isohold then opens from its own icon and app drawer entry, full screen and offline. Samsung Internet and Edge offer the same under their menus.</p>' :
       '<p>Open this page on your phone: in Chrome on Android use ⋮ → Install app; in Safari on iPhone use Share → Add to Home Screen.</p>';
@@ -4883,6 +4909,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   var tipsOpen = false;
   function trainExtras() {
     var p = prof(), h = '', run = savedRun();
+    if (gentle() && store.log.length && weekCardio() < 60 && !cget('nudgeWalk', 0)) h += '<div class="card nudge"><b>Walk on your rest days</b><p>20–30 minutes of brisk walking most days helps blood pressure and heart health as much as the strength work. Log it like “walked 25 min”.</p><div class="bk-row"><button class="btn sm quiet" data-nowalk="1">Got it</button></div></div>';
     if (run && !P) { var rd = allDays().filter(function (d) { return d.id === run.day; })[0], nl = (run.logged || []).filter(Boolean).length;
       h += '<div class="card nudge"><b>Pick up where you left off?</b><p>' + esc(rd.name) + ', ' + ({ am: 'morning', pm: 'evening', all: 'today’s session' }[run.part.replace(/^short-/, '')]) + ': ' + nl + (nl === 1 ? ' set' : ' sets') + ' already saved, stopped ' + Math.max(1, Math.round((Date.now() - run.at) / 60000)) + ' min ago.</p><div class="bk-row"><button class="btn sm go" data-resume="1">Resume session</button><button class="btn sm quiet" data-norun="1">Not now</button></div></div>'; }
     if (storageWarn === 'blocked') h += '<div class="card warnc"><b>Your progress isn’t being saved</b><p>This browser is blocking storage (often private browsing). Open Isohold in a normal window, or add it to your Home Screen.</p></div>';
@@ -4913,6 +4940,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (b.dataset.inst) return openInstall(b);
     if (b.dataset.nohs) { cput('nudgeHS', 1); return trainExtras(); }
     if (b.dataset.resume) return resumeRun();
+    if (b.dataset.nowalk) { cput('nudgeWalk', 1); return trainExtras(); }
     if (b.dataset.norun) { try { localStorage.removeItem('isohold.run'); } catch (x) { } return trainExtras(); }
     if (b.dataset.gobk) { show('progress'); setTimeout(function () { var x = $('bkFile'); if (x) { x.scrollIntoView({ block: 'center' }); x.focus(); } }, 100); return; }
     if (b.dataset.quick) { show('coach'); if (b.dataset.quick === 'cam') $('cCam').click(); else if (b.dataset.quick === 'mic') toggleMic(); else $('cIn').focus(); }
@@ -5071,6 +5099,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (dayStart() !== P.day0) e.d = P.day0; // the session started before midnight: keep its sets on that day
     if (e.kg && _getWt(it.id, it.ex, it.wk) == null && !owned(it.ex.eq).length) e.sug = 1; // a weight from your own list is real, not a guess // you never set or confirmed this weight
     unlog(it); store.log.push(e); it.logged = e;
+    if (pv.on) say('Logged ' + setTxt(e).replace(/ × /g, ' for ').replace(/\bkg\b/, 'kilos').replace(/\blb\b/, 'pounds').replace(/(\d+) s\b/, '$1 seconds') + (isPB(e) ? '. New best!' : ''));
     if (isPB(e) && !P.pbs[it.id + it.wk]) { P.pbs[it.id + it.wk] = 1; haptic('success'); beep(988, .12); setTimeout(function () { beep(1319, .2); }, 130); }
     if (store.log.length > 4000) store.log.splice(0, store.log.length - 4000);
     save();
@@ -5164,7 +5193,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     $('pLog').hidden = !lg;
     if (lg) { var pb = isPB(it.logged), lt = 'Logged ' + esc(setTxt(it.logged)) + (pb ? ' <b class="pb">New best</b>' : '');
       // set only when it changes, so screen readers announce each logged set once; hands-free mode says it out loud
-      if ($('pLogTxt').innerHTML !== lt) { $('pLogTxt').innerHTML = lt; if (pv.on && P.saidLog !== it.logged) { P.saidLog = it.logged; say('Logged ' + setTxt(it.logged).replace(/ × /g, ' for ').replace(/\bkg\b/, 'kilos').replace(/\blb\b/, 'pounds').replace(/(\d+) s\b/, '$1 seconds') + (pb ? '. New best!' : '')); } } }
+      if ($('pLogTxt').innerHTML !== lt) $('pLogTxt').innerHTML = lt; }
     var last = showWt && lastFor(showIt), hint = showWt && !last && wtHint(showIt); $('pLast').hidden = !last && !hint; if (last) $('pLast').textContent = 'Last time: ' + setTxt(last); else if (hint) $('pLast').textContent = hint;
     var after = '';
     if (P.stage === 'work' && it.kind !== 'cardio') after = nxt ? (it.afterKind === 'switch' ? 'Then switch sides' : it.after > MOVE + 5 ? 'Then rest ' + it.after + ' s' : 'Then move straight to the next exercise') : 'Last set of the session';
