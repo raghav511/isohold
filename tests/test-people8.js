@@ -19,7 +19,7 @@ const T = (page, f, a) => page.evaluate(f, a);
   let f = await fd('sabzi aur curd, 1 katori'); ok(f.length === 2 && !(await un('sabzi aur curd, 1 katori')).length, '"…, 1 katori" is the amount of the food before it');
   f = await fd('prawn fried rice'); ok(f.length === 1 && f[0].n === 'Fried rice', 'prawn fried rice is one dish');
   f = await fd('fish bee hoon soup'); ok(f[0].n === 'Noodle soup' && f[0].c > 0, 'fish bee hoon soup');
-  f = await fd('kailan'); ok(f[0].n === 'Spinach', 'kailan is leafy greens');
+  f = await fd('kailan'); ok(f[0].n === 'Asian greens', 'kailan is Asian greens, not spinach');
   f = await fd('100g stuffing'); ok(f[0].n === 'Stuffing', 'stuffing');
   f = await fd('a slice of pumpkin pie'); ok(f[0].n === 'Pie', 'pumpkin pie');
   await T(page, () => window.__isoTest.handle('my shoulder hurts 4 out of 10'));
@@ -45,7 +45,7 @@ const T = (page, f, a) => page.evaluate(f, a);
   // one message is one meal; heavier when last week's reps were all done
   ({ b, page, errs } = await boot({ profile: { units: 'kg', bw: 62, age: 52, sex: 'f', inv: { d: '4, 6, 8' } }, eq: ['d'], week: 2, wt: { 'lateral-raise|d|r': 4 }, log: [{ t: Date.now() - 5 * 864e5, w: 1, id: 'lateral-raise', eq: 'd', k: 'r', kg: 4, v: 12 }] }));
   const ms = await T(page, () => window.__isoTest.parseText('iftar: 3 dates, a glass of water, lentil soup and chicken biryani').actions.filter(x => x.type === 'log_food').map(x => x.meal_name));
-  ok(ms.length === 2 && ms.every(m => m === 'Iftar'), 'one iftar line is one meal');
+  ok(ms.length === 1 && ms[0] === 'Iftar', 'one iftar line is one meal card');
   await page.click('#sessions [data-start][data-part="short-am"]'); await page.waitForTimeout(200);
   let seen = '';
   for (let i = 0; i < 12 && !seen; i++) { const t = await T(page, () => document.getElementById('pLast').hidden ? '' : document.getElementById('pLast').textContent); if (/try 6 kg/.test(t)) seen = t; await T(page, () => document.getElementById('pSkip').click()); await page.waitForTimeout(100); }
