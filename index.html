@@ -3438,8 +3438,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     ['Kopi', 'kopi|kopi c|kopi o kosong', 1.5, 10, 2, 65, 200, 'cup', 'V'],
     ['Teh tarik', 'teh tarik|teh c|teh', 1.4, 11, 2, 68, 250, 'cup', 'V'],
     ['Kaya toast', 'kaya toast|kaya', 7, 45, 12, 310, 70, 'slice', 'E'],
-    ['Coffee', 'black coffee|coffee|espresso|americano', 0.3, 0, 0, 2, 240, 'cup', 'N'],
-    ['Latte', 'latte|cappuccino|flat white|cold coffee', 3.4, 5, 3.3, 61, 300, 'cup', 'V'],
+    ['White coffee', 'white coffees?|coffees? with milk|flat whites?', 1.1, 1.6, 1, 20, 220, 'cup', 'V'],
+    ['Coffee', 'black coffees?|coffees?|espressos?|americanos?', 0.3, 0, 0, 2, 240, 'cup', 'N'],
+    ['Latte', 'lattes?|cappuccinos?|cold coffee', 3.4, 5, 3.3, 61, 300, 'cup', 'V'],
     ['Chai', 'chai|tea with milk|masala chai|milk tea', 1, 6, 1, 40, 150, 'cup', 'V'],
     ['Chai', 'chai|masala chai|milk tea|cutting chai|tea with milk', 1.6, 8, 1.6, 52, 150, 'cup', 'V'],
     ['Tea', 'green tea|black tea|tea', 0, 0.2, 0, 1, 240, 'cup', 'N'],
@@ -3738,6 +3739,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     [/(\d) por (\d)/g, '$1 x $2'], [/\b(fritos?|fritas?)\b/g, 'fried'], [/\b(cocidos?|hervidos?|duros?)\b/g, 'boiled'], [/\b(macarrones|fideos|espaguetis|tallarines)\b/g, 'pasta'],
     [/\bcena\b/g, 'dinner'], [/\bdesayuno\b/g, 'breakfast'], [/\b(almuerzo|comida)\b/g, 'lunch'], [/\bmerienda\b/g, 'snack'], [/\bun vaso de\b/g, '1 glass of'], [/\buna? (?=[a-z])/g, '1 '], [/ de (?=[a-z\d])/g, ' of '],
     [/ y (?=[a-z\d])/g, ' and '], [/ con (?=[a-z\d])/g, ' with ']];
+  function drinks(t) { return t.replace(/\b(coffees?|teas?)\s+with\s+(?:(?:a|1|0\.5|little|splash|dash|bit|of|some)\s+){0,4}milk\b/g, function (m, d) { return /tea/.test(d) ? 'chai' : 'white coffee'; }); }
   function spanish(t) { if (!/[a-z]/.test(t)) return t; t = t.normalize ? t.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : t; ES.forEach(function (r) { t = t.replace(r[0], r[1]); }); return t; }
   function norm(t) {
     t = ' ' + String(t || '').toLowerCase().replace(/[’']/g, '\'').replace(/×/g, 'x').replace(/½/g, '0.5').replace(/\b(\d{1,3})((?:,\d{3})+)\b/g, function (m, a, b) { return a + b.replace(/,/g, ''); }).replace(/(\d),(\d)/g, '$1.$2') + ' ';
@@ -3750,7 +3752,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     t = t.replace(/\b(thoda|thodi|thoda sa|little bit of|a little|a bit of|small portion of)\s+/g, '0.5 ');
     t = t.replace(/\bhalf an? /g, '0.5 ').replace(/\ba couple of\b/g, '2').replace(/\b(an?|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|half|couple)\b(?! of a)/g, function (m) { return String(NUMW[m]); });
     t = t.replace(/\b(\d+)\s*(?:st|stone|stones)\b(?:\s*(?:and\s*)?(\d+)\s*(?:lbs?|pounds?)?)?/g, function (m, a, b) { return String(Math.round(((+a * 14) + (+b || 0)) * 0.45359 * 10) / 10) + ' kg'; });
-    t = spanish(t);
+    t = drinks(spanish(t));
     t = t.replace(/(\d)\s*(?:gr|grs|gramos?)\b/g, '$1 g').replace(/(\d)\s*(kgs?|kilos?|kilograms?)\b/g, '$1 kg').replace(/(\d)\s*(lbs?|pounds?)\b/g, '$1 lb').replace(/(\d)\s*(secs?|seconds?|s)\b/g, '$1 s').replace(/(\d)\s*(mins?|minutes?)\b/g, '$1 min').replace(/(\d)\s*(hrs?|hours?)\b/g, '$1 h');
     return t.replace(/\s+/g, ' ');
   }
@@ -3845,7 +3847,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   var MEALW = /\b(breakfast|lunch|dinner|snack|brunch|supper|pre-workout|post-workout)\b/;
   var mealWhen = null;
-  function mealName(t) { var m = t.match(MEALW); if (m) return m[1].charAt(0).toUpperCase() + m[1].slice(1); var h = new Date(mealWhen || Date.now()).getHours(); return h < 11 ? 'Breakfast' : h < 15 ? 'Lunch' : h < 18 ? 'Snack' : 'Dinner'; }
+  function mealName(t) { var m = t.match(MEALW); if (m) return m[1].charAt(0).toUpperCase() + m[1].slice(1); var h = new Date(mealWhen || Date.now()).getHours(); return h < 5 ? 'Late meal' : h < 11 ? 'Breakfast' : h < 15 ? 'Lunch' : h < 18 ? 'Snack' : 'Dinner'; }
   var AREAS_PAIN = { knee: /\bknees?\b|patella|kneecap/, back: /\b(lower )?back\b|spine|lumbar/, shoulder: /\bshoulders?\b|rotator/, elbow: /\belbows?\b|tennis elbow|golfer/, ankle: /\bankles?\b|achilles|heel|calf|calves|shin/, hip: /\bhips?\b|groin|glute/, wrist: /\bwrists?\b|forearm|hand|fingers?/, neck: /\bneck\b|traps?\b/, hamstring: /hamstrings?/ };
   var AREA_TAGS = { knee: ['Knees'], back: ['Lower back'], shoulder: ['Side delts', 'Front delts', 'Rear delts'], elbow: ['Triceps', 'Biceps'], ankle: ['Calves', 'Ankles'], hip: ['Glutes', 'Hamstrings'], wrist: ['Forearms', 'Grip'], neck: ['Traps', 'Upper back'], hamstring: ['Hamstrings'] };
   function painArea(t) { for (var k in AREAS_PAIN) if (AREAS_PAIN[k].test(t)) return k; return null; }
@@ -4302,6 +4304,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var safeQ = /\b(safe|okay|ok|alright|allowed|good idea|bad|dangerous|risky|should i|can i)\b/.test(t);
     if (/blood pressure|\bbp\b|hypertension/.test(t) || (safeQ && ex && is.indexOf('bp') > -1 && !/bone|osteo|knee/.test(t))) return (nm ? '**' + nm + ' with high blood pressure:** ' : '**Holds and blood pressure:** ') + 'holds raise blood pressure while you do them, more than moving exercises at the same effort, and it comes back down within a minute or two. They are generally fine, and over weeks isometric training tends to lower resting blood pressure, if you:\n- breathe out slowly and keep breathing the whole time; never hold your breath or strain\n- keep the effort at about 7 out of 10 (the app caps it there for you)\n- stop if you feel dizzy, get a headache or chest discomfort\n\nWhat the app already changes: arms-overhead holds are left out and rests are longer. If your blood pressure is above 160/100 or not controlled with medication, check with your doctor before heavy holds.';
     if (/osteop|bone (health|density|loss)|bones|brittle/.test(t)) return '**Osteopenia and osteoporosis:** strength training is recommended for bones: muscles pulling on bone, plus some impact, is what tells bone to get stronger. Steady holds and slow reps are a safe way to load it.\n- avoid rounding or twisting your back under load (the app leaves out weighted crunches and hollow-body holds for you)\n- impact helps: the first session of the day starts with a minute of heel drops; if your doctor is happy, progress to small hops\n- build up gradually and keep good posture\n\nIf you have had a fracture from a minor fall, ask your doctor or a physiotherapist which loads are right for you.';
+    if (/night shift|after (?:a|my|the) (?:\d+ hour )?shift|on nights|slept (?:badly|little|\d)|no sleep|exhausted|so tired/.test(t) && /\b(train|workout|session|gym|lift|should i|can i|ok|okay)\b/.test(t)) return '**Training after a night shift or little sleep:** a session is still worth it, but make it lighter:\n- keep effort around 6 out of 10, and stop a set early if form slips\n- holds are a good choice: steady, low-skill and easy on tired joints\n- if you have under 5 hours of sleep, do the short version or just walk 20 minutes\n- eat some protein afterwards, then sleep; a session after you wake up is fine too\n\nSet “My day starts at” in your profile so meals and sets after midnight count to the right day.';
     if (/fast(ing)?\b|ramadan|roza|iftar|suhoor|sehri/.test(t)) return '**Training while fasting:** it’s fine for most people with a few changes:\n- best time: after iftar once you’ve eaten and had water (about 1–2 hours after), or a light session in the last hour before iftar so you can drink straight after\n- keep effort a bit lower than usual and stop if you feel dizzy or faint\n- split protein between iftar, a snack later in the evening and suhoor; the protein target is for the whole day, so it still counts after sunset\n- drink water steadily between iftar and suhoor\n\nTip: set “My day starts at” in your profile if you eat late, so late-night meals count to the right day. If you have diabetes or take blood-pressure medicine, check with your doctor about training while fasting.';
     if (/\bknees?\b/.test(t) && safeQ) return '**Knees:** loading the knee within a comfortable range makes it stronger, and some discomfort up to 3 out of 10 that settles by the next morning is OK. ' + (is.indexOf('knee') > -1 ? 'Because you ticked Knees, kneeling exercises are left out and squats and wall sits use a shorter bend.' : 'If your knees are sensitive, tick Knees in your profile: kneeling exercises are left out and squats use a shorter bend.') + ' Sharp pain, swelling or giving way means stop and get it checked.';
     if (safeQ && /\b(is|are) (this|it|these|that)\b.*\bsafe\b|safe for me/.test(t)) return 'The plan is adjusted for what you ticked in your profile' + (is.length ? ' (' + is.map(function (k) { return ISSUES.filter(function (x) { return x[0] === k; })[0][1].toLowerCase(); }).join(', ') + ')' : '') + '. The general rule: pain up to 3 out of 10 that settles by the next day is fine; sharp pain, dizziness or chest discomfort means stop. Ask about a specific exercise, like “is the wall sit safe for my knees?”.';
@@ -4793,6 +4796,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         if (g.dataset.multi === '1') { var i = state[k].indexOf(v); if (i > -1) state[k].splice(i, 1); else state[k].push(v); }
         else state[k] = v;
         if (k === 'where' && v === 'gym') { state.eq = ['d', 'c']; if (!cardioTouched) state.cardio = ['treadmill', 'bike']; }
+        // home: no gym cardio machines unless you tick them
+        if (k === 'where' && v === 'home' && !cardioTouched) state.cardio = state.cardio.filter(function (c) { return c === 'cycle' || c === 'outdoors'; }).concat(state.cardio.some(function (c) { return c === 'cycle' || c === 'outdoors'; }) ? [] : ['outdoors']);
         if (k === 'cardio') cardioTouched = true;
         if (k === 'days') { daysTouched = true; $('pfDaysN').textContent = daysNote(+v); if (+v <= 3) state.split = 'one'; }
         if (k === 'where' && v === 'both' && state.eq.indexOf('c') < 0) state.eq.push('c');
@@ -4882,7 +4887,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // ---------- Progress extras: other lifts, blood pressure, backup as a file ----------
   // Epley estimate, only from sets of 10 reps or fewer (beyond that it stops being meaningful)
   function e1rm(kgv, reps, rpe) { if (!kgv || !reps || reps > 10) return null; var r = reps + (rpe ? Math.max(0, 10 - rpe) : 0); return r <= 1 ? kgv : kgv * (1 + r / 30); }
-  function dshort(t) { return new Date(t).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }); }
+  function dshort(t) { return new Date(dayStart(t)).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }); }
   function progressExtras() {
     var lifts = store.notes.filter(function (n) { return n.k === 'lift'; }), bp = store.notes.filter(function (n) { return n.k === 'bp'; }), h = '';
     // bodyweight and protein, in words (no chart needed to follow them)
