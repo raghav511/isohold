@@ -59,6 +59,7 @@ async function toWork(page) { await page.click('#sessions [data-start]'); await 
   await say(page, 'deadlift 4 plates'); await say(page, '5'); let c = await lastCard(page);
   ok(c && c.title === 'Deadlift' && /405 lb × 5 reps/.test(c.lines[0]), 'a bare "5" answers "How many reps?"');
   await say(page, 'conventional deadlift 455 for 1'); c = await lastCard(page); ok(c.pb && c.title !== 'Conventional Deadlift', '"conventional deadlift" is the same lift as "deadlift"');
+  await T(page, () => window.__isoTest.store().notes.forEach(n => { if (n.k === 'lift') n.t -= 864e5; })); // earlier lifts were on a previous day
   await say(page, 'deadlift 1100 lb for 1'); c = await lastCard(page); ok(c && /25% above your best/.test(c.warn || ''), 'a huge jump on a lift asks if it’s a typo');
   await page.click('#tab-progress'); txt = await page.locator('#progExtras').innerText();
   ok((txt.match(/^Deadlift$/gm) || []).length === 1, 'Progress shows deadlifts as one lift');
