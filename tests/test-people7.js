@@ -27,7 +27,7 @@ const T = (page, f, a) => page.evaluate(f, a);
   ok(/Today: walk only/.test(await page.locator('#band .dose').innerText()), 'high BP: the top of Train says walk only');
   await page.click('#sessions [data-start][data-part="am"]');
   for (let i = 0; i < 40 && await page.textContent('#pPhase') !== 'Done'; i++) await page.clock.runFor(60000);
-  ok(await T(page, () => !!window.__isoTest.store().done.w1d1am && (window.__isoTest.store().cmin || {}).w1d1am >= 3), 'high BP: the walk-only session is marked done and its minutes count');
+  ok(await T(page, () => !window.__isoTest.store().done.w1d1am && window.__isoTest.store().notes.some(n => n.k === 'cardio' && n.min >= 3)), 'high BP: the walk counts as cardio and the strength session waits');
   await b.close();
   ({ b, page, errs } = await boot({ profile: { units: 'kg', bw: 70, cm: 170, age: 67, issues: ['bp'] }, eq: ['d'] }));
   await T(page, () => window.__isoTest.handle('BP 185 over 112')); await page.click('#tab-train');

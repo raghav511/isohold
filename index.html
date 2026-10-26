@@ -3339,7 +3339,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     ['Rice with chicken', 'chicken rice|arroz con pollo|paella|chicken fried rice', 10, 20, 5, 165, 350, 'plate', 'M'],
     ['Spanish omelette', 'spanish omelet+e?|tortilla de patatas|tortilla espanola', 6.5, 13, 10, 165, 150, 'slice', 'E'],
     ['Bocadillo', 'bocadillos?|bocatas?|baguette sandwich|sub sandwich', 12, 40, 9, 290, 200, 'sandwich', 'M'],
-    ['Mutton curry', 'mutton curry|mutton|lamb curry|lamb|goat curry', 15, 4, 13, 190, 200, 'bowl', 'M'],
+    ['Lamb', 'lamb|lamb chops?|roast lamb|lamb leg', 25, 0, 21, 294, 150, 'portion', 'M'],
+    ['Mutton curry', 'mutton curry|mutton|lamb curry|goat curry', 15, 4, 13, 190, 200, 'bowl', 'M'],
     ['Beef', 'steak|beef|sirloin|ribeye', 26, 0, 15, 250, 150, 'portion', 'M'],
     ['Minced beef', 'beef mince|lean mince|mince|minced beef|ground beef|keema', 26, 0, 17, 250, 120, 'portion', 'M'],
     ['Pork', 'pork chops?|pork', 27, 0, 14, 242, 120, 'portion', 'M'],
@@ -3348,6 +3349,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     ['Turkey', 'turkey|turkey breast', 29, 0, 2, 135, 120, 'portion', 'M'],
     ['Roast chicken', 'roast chicken|rotisserie chicken|whole chicken', 24, 0, 10, 190, 900, 'whole chicken', 'M'],
     ['Meatballs', 'meatballs?|kofta', 15, 6, 14, 215, 150, 'portion', 'M'],
+    ['Stuffing', 'stuffing|dressing', 3.2, 22, 8.6, 175, 100, 'portion', 'V'],
+    ['Pie', 'pumpkin pie|apple pie|pecan pie|pie', 3.5, 34, 13, 260, 120, 'slice', 'V'],
     ['Churros', 'churros?', 5, 40, 20, 370, 100, 'portion', 'V'],
     ['Salmon', 'salmon', 25, 0, 13, 208, 120, 'fillet', 'F'],
     ['Mackerel', 'mackerel|ikan kembung|saba', 19, 0, 14, 205, 120, 'fillet', 'F'],
@@ -3399,7 +3402,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     ['Protein bar', 'protein bars?|rxbars?|clif builders?', 33, 40, 15, 400, 60, 'bar', 'V'],
     ['Rice', 'rice|white rice|steamed rice|jeera rice|chawal', 2.7, 28, 0.3, 130, 150, 'bowl', 'N'],
     ['Brown rice', 'brown rice', 2.6, 23, 0.9, 112, 150, 'bowl', 'N'],
-    ['Veg biryani', 'veg biryani|pulao|pulav|fried rice', 4, 25, 6, 170, 300, 'plate', 'V'],
+    ['Veg biryani', 'veg biryani|pulao|pulav', 4, 25, 6, 170, 300, 'plate', 'V'],
     ['Roti', 'rotis?|chapatis?|chapattis?|phulkas?|tortillas?|wraps?', 8, 46, 7.5, 285, 40, 'roti', 'N'],
     ['Paratha', 'parathas?|parottas?', 6.5, 40, 14, 300, 80, 'paratha', 'V'],
     ['Naan', 'naans?', 9, 50, 5, 290, 90, 'naan', 'V'],
@@ -3417,19 +3420,26 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     ['Chorizo', 'chorizo|salchichon', 24, 2, 38, 455, 30, 'slice', 'M'],
     ['Noodles', 'noodles|ramen|maggi', 4.5, 25, 2, 138, 200, 'bowl', 'N'],
     ['Quinoa', 'quinoa', 4.4, 21, 1.9, 120, 185, 'cup', 'N'],
-    ['Potato', 'potato(?:es)?|aloo|mashed potato(?:es)?|fries|chips', 2, 17, 0.1, 77, 150, 'portion', 'N'],
+    ['Fries', 'fries|french fries|chips|wedges', 3.4, 41, 15, 312, 150, 'portion', 'N'],
+    ['Potato', 'potato(?:es)?|aloo|mashed potato(?:es)?|baked potato(?:es)?', 2, 17, 0.1, 77, 150, 'portion', 'N'],
     ['Sweet potato', 'sweet potato(?:es)?', 1.6, 20, 0.1, 86, 150, 'portion', 'N'],
     ['Banana', 'bananas?', 1.1, 23, 0.3, 89, 120, 'banana', 'N'],
     ['Apple', 'apples?', 0.3, 14, 0.2, 52, 180, 'apple', 'N'],
     ['Orange', 'oranges?', 0.9, 12, 0.1, 47, 130, 'orange', 'N'],
     ['Berries', 'berries|blueberries|strawberries', 0.7, 14, 0.3, 57, 150, 'cup', 'N'],
     ['Fruit', 'fruit|fruits|mango|papaya|grapes|watermelon|pineapple', 0.7, 13, 0.3, 55, 150, 'bowl', 'N'],
+    ['Peppers', 'peppers?|bell peppers?|capsicums?', 1, 6, 0.3, 26, 120, 'pepper', 'N'],
+    ['Beer', 'beers?|lager|pint of beer', 0.5, 3.6, 0, 43, 330, 'can', 'N'],
+    ['Burger', 'burgers?|hamburgers?|cheeseburgers?', 15, 24, 13, 270, 200, 'burger', 'M'],
+    ['Seafood paella', 'seafood paella', 9, 20, 5, 160, 350, 'plate', 'F'],
     ['Avocado', 'avocados?', 2, 9, 15, 160, 75, 'half', 'N'],
     ['Salad', 'salad|green salad|veggies|vegetables', 1.5, 4, 0.2, 20, 150, 'bowl', 'N'],
     ['Cucumber', 'cucumbers?|kheera', 0.7, 3.6, 0.1, 15, 100, 'cucumber', 'N'],
     ['Vegetable curry', 'sabzi|sabji|subzi|veg curry|vegetable curry|mixed veg|bhindi|aloo gobi|palak|baingan', 2.5, 9, 5, 90, 150, 'bowl', 'N'],
     ['Broccoli', 'broccoli', 2.8, 7, 0.4, 34, 150, 'cup', 'N'],
-    ['Spinach', 'spinach|palak|kale|leafy greens', 2.9, 3.6, 0.4, 23, 100, 'cup', 'N'],
+    ['Fried rice', 'fried rice|prawn fried rice|egg fried rice|nasi goreng|yang chow', 6, 25, 6, 180, 300, 'plate', 'E'],
+    ['Noodle soup', 'fish bee hoon soup|bee hoon soup|fish soup|noodle soup|laksa|pho|ramen|bee hoon|mee soup', 6, 12, 3, 100, 450, 'bowl', 'F'],
+    ['Spinach', 'spinach|palak|kale|leafy greens|kailan|kai lan|bok choy|choy sum|greens', 2.9, 3.6, 0.4, 23, 100, 'cup', 'N'],
     ['Chicken salad', 'chicken salad|caesar salad', 15, 3, 8, 150, 250, 'bowl', 'M'],
     ['Pizza', 'pizzas?|slices? of pizza', 11, 33, 10, 266, 107, 'slice', 'V'],
     ['Burger', 'burgers?|cheeseburgers?', 13, 30, 12, 280, 200, 'burger', 'M'],
@@ -3509,7 +3519,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // A newer version is online: say so, instead of quietly running the old one until the next launch
   // dates follow the app's language (English), not the device's, so an English screen doesn't show "28 de octubre"
   var UIL = /^en\b/i.test(navigator.language || '') ? undefined : 'en-GB';
-  var APP_VERSION = '27';
+  var APP_VERSION = '28';
   function checkVersion() {
     if (!navigator.onLine || !/^https?:/.test(location.protocol)) return;
     fetch('index.html?v=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
@@ -3611,7 +3621,10 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   var _getWt = getWt;
   getWt = function (id, ex, kind) { var v = _getWt(id, ex, kind); return v != null ? v : suggestWt(id, ex, kind); };
   function wtHint(it) {
-    if (!it || it.kind === 'cardio' || noWt(it.ex.eq) || _getWt(it.id, it.ex, it.wk) != null) return '';
+    if (!it || it.kind === 'cardio' || noWt(it.ex.eq)) return '';
+    if (it.kind === 'reps' && !it.pain) { var lr = store.log.filter(function (l) { return l.id === it.id && l.k === 'r' && l.eq === it.ex.eq && l.kg && l.w < store.week; }).pop(), cw = getWt(it.id, it.ex, it.wk);
+      if (lr && lr.v >= (it.reps || 0) && cw != null && Math.abs(lr.kg - cw) < 0.01) { var nw = nextWt(it.ex.eq, cw, 1); if (nw > cw + 0.01) return 'Last week you did all ' + lr.v + ' reps at ' + kg(cw) + ': try ' + kg(nw) + ' today (tap +).'; } }
+    if (_getWt(it.id, it.ex, it.wk) != null) return '';
     var s = suggestWt(it.id, it.ex, it.wk), o = owned(it.ex.eq);
     if (s === 0 && o.length) return 'Your lightest ' + ({ k: 'kettlebell', d: 'dumbbell', b: 'weight', c: 'weight' })[it.ex.eq] + ' (' + kg(o[0]) + ') is too heavy to start this safely. Do it with no weight, or a water bottle, until it feels easy.';
     return s != null ? 'Suggested start. Change it if it feels too light or heavy.' : '';
@@ -3746,9 +3759,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   var NUMW = { a: 1, an: 1, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, half: 0.5, couple: 2, both: 2 };
   var TENS = { twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90 };
   // Spanish words people mix into a log ("2 huevos y tostada", "comí arroz con pollo", "5k bici 20 min")
-  var ES = [[/\b(?:bocadillo|bocata) de [a-z]+(?: de patatas| espanola)?/g, 'bocadillo'], [/\bmenu del dia:?\s*/g, ''], [/\bpollo asado\b/g, 'roast chicken'], [/\b(?:a|1) la plancha\b/g, 'grilled'], [/\bcocido madrileno\b|^\s*(?:1 )?cocido\s*$/g, 'chickpea stew'], [/\btortilla (?:de patatas|espa[nñ]ola)\b/g, 'spanish omelette'], [/\barroz con pollo\b/g, 'chicken rice'], [/\bcaf[eé] con leche\b/g, 'latte'], [/\b(t[eé]|tea) (?:con|with) leche\b|\btea with milk\b/g, 'chai'],
+  var ES = [[/\bpatatas fritas\b/g, 'fries'], [/\b(?:bocadillo|bocata) de [a-z]+(?: de patatas| espanola)?/g, 'bocadillo'], [/\bmenu del dia:?\s*/g, ''], [/\bpollo asado\b/g, 'roast chicken'], [/\b(?:a|1) la plancha\b/g, 'grilled'], [/\bcocido madrileno\b|^\s*(?:1 )?cocido\s*$/g, 'chickpea stew'], [/\btortilla (?:de patatas|espa[nñ]ola)\b/g, 'spanish omelette'], [/\barroz con pollo\b/g, 'chicken rice'], [/\bcaf[eé] con leche\b/g, 'latte'], [/\b(t[eé]|tea) (?:con|with) leche\b|\btea with milk\b/g, 'chai'],
     [/\bchurros con chocolate\b/g, 'churros and hot chocolate'], [/\bhuevos?\b/g, 'eggs'], [/\bpollo\b/g, 'chicken'], [/\barroz\b/g, 'rice'], [/\bpan\b/g, 'bread'], [/\bleche\b/g, 'milk'], [/\bqueso\b/g, 'cheese'], [/\bat[uú]n\b/g, 'tuna'], [/\bpl[aá]tanos?\b/g, 'banana'], [/\bmanzanas?\b/g, 'apple'],
-    [/\bpatatas?\b/g, 'potatoes'], [/\blentejas\b/g, 'lentils'], [/\bgarbanzos\b/g, 'chickpeas'], [/\byogur(?:t)?\b/g, 'yogurt'], [/\btostadas?\b/g, 'toast'], [/\bjam[oó]n\b/g, 'ham'], [/\bensalada\b/g, 'salad'], [/\bpescado\b/g, 'fish'], [/\bternera\b/g, 'beef'], [/\bcerdo\b/g, 'pork'], [/\bavena\b/g, 'oats'], [/\bzumo\b/g, 'juice'], [/\bpepino\b/g, 'cucumber'], [/\bmerluza\b|\bbacalao\b|\blubina\b|\bdorada\b/g, 'white fish'], [/\bsalmon\b/g, 'salmon'], [/\bpavo\b/g, 'turkey'], [/\bcordero\b/g, 'lamb'], [/\balbondigas\b/g, 'meatballs'], [/\bjudias verdes\b/g, 'green beans'], [/\byogur(?:t)? griego\b/g, 'greek yogurt'], [/\bgalletas?\b/g, 'biscuits'], [/\b(trozos?|porciones?|raciones?)\b/g, 'slices'], [/\brevueltos?\b/g, 'scrambled'], [/\baceite(?: de oliva)?\b/g, 'olive oil'], [/\bgambas\b|\blangostinos\b/g, 'prawns'], [/\bfiletes?\b/g, 'fillets'], [/\bpechugas?\b/g, 'chicken breast'], [/\bjudias\b/g, 'beans'],
+    [/\bpatatas?\b/g, 'potatoes'], [/\blentejas\b/g, 'lentils'], [/\bgarbanzos\b/g, 'chickpeas'], [/\byogur(?:t)?\b/g, 'yogurt'], [/\btostadas?\b/g, 'toast'], [/\bjam[oó]n\b/g, 'ham'], [/\bensalada\b/g, 'salad'], [/\bpescado\b/g, 'fish'], [/\bternera\b/g, 'beef'], [/\bcerdo\b/g, 'pork'], [/\bavena\b/g, 'oats'], [/\bzumo\b/g, 'juice'], [/\bpepino\b/g, 'cucumber'], [/\bbatidos? (?:de|of) proteinas?\b|\bbatidos? proteicos?\b/g, 'protein shake'], [/\baguacates?\b/g, 'avocado'], [/\bpimientos?\b/g, 'peppers'], [/\bcervezas?\b/g, 'beer'], [/\bhamburguesas? (?:de|of) [a-z]+\b/g, 'burgers'], [/\bhamburguesas?\b/g, 'burgers'], [/\bal horno\b/g, 'baked'], [/\bpaella (?:de|of) marisco\b|\bpaella marinera\b/g, 'seafood paella'], [/\bmerluza\b|\bbacalao\b|\blubina\b|\bdorada\b/g, 'white fish'], [/\bsalmon\b/g, 'salmon'], [/\bpavo\b/g, 'turkey'], [/\bcordero\b/g, 'lamb'], [/\balbondigas\b/g, 'meatballs'], [/\bjudias verdes\b/g, 'green beans'], [/\byogur(?:t)? griego\b/g, 'greek yogurt'], [/\bgalletas?\b/g, 'biscuits'], [/\b(trozos?|porciones?|raciones?)\b/g, 'slices'], [/\brevueltos?\b/g, 'scrambled'], [/\baceite(?: de oliva)?\b/g, 'olive oil'], [/\bgambas\b|\blangostinos\b/g, 'prawns'], [/\bfiletes?\b/g, 'fillets'], [/\bpechugas?\b/g, 'chicken breast'], [/\bjudias\b/g, 'beans'],
     [/\b(com[ií]|desayun[eé]|cen[eé]|almorc[eé]|he comido|tom[eé])\b/g, 'had'], [/\b(bici|bicicleta)\b/g, 'bike'], [/\b(corr[ií]|correr)\b/g, 'ran'], [/\b(camin[eé]|caminar|andar|anduve)\b/g, 'walked'], [/\bpeso\b/g, 'i weigh'],
     [/\bsentadillas?\b/g, 'squat'], [/\bflexiones\b/g, 'push ups'], [/\bdominadas\b/g, 'pull ups'], [/\bfondos\b/g, 'dips'], [/\bseries\b/g, 'sets'], [/\brepeticiones\b/g, 'reps'], [/\bpesas rusas?\b/g, 'kettlebell'], [/\b(?:me duele|dolor (?:de|en)(?: la| el)?)\b/g, 'pain'], [/\brodilla\b/g, 'knee'], [/\bespalda\b/g, 'back'], [/\bhombro\b/g, 'shoulder'],
     [/\b(?:uno|una|un)\b(?= [a-z])/g, '1'], [/\bdos\b/g, '2'], [/\btres\b/g, '3'], [/\bcuatro\b/g, '4'], [/\bcinco\b/g, '5'], [/\bseis\b/g, '6'], [/\bsiete\b/g, '7'], [/\bocho\b/g, '8'], [/\bnueve\b/g, '9'], [/\bdiez\b/g, '10'], [/\bonce\b/g, '11'], [/\bdoce\b/g, '12'], [/\bquince\b/g, '15'], [/\bveinte\b/g, '20'], [/\btreinta\b/g, '30'], [/\bmedi[oa]\b/g, '0.5'],
@@ -3759,7 +3772,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function spanish(t) { if (!/[a-z]/.test(t)) return t;
     if (/^es\b/i.test(navigator.language || '')) t = t.replace(/\btortillas?\b(?! (?:de patatas|espanola|wrap))/g, 'tortilla de patatas'); t = t.normalize ? t.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : t; ES.forEach(function (r) { t = t.replace(r[0], r[1]); }); return t; }
   function norm(t) {
-    t = ' ' + String(t || '').toLowerCase().replace(/[’']/g, '\'').replace(/×/g, 'x').replace(/½/g, '0.5').replace(/\b(\d{1,3})((?:,\d{3})+)\b/g, function (m, a, b) { return a + b.replace(/,/g, ''); }).replace(/(\d),(\d)/g, '$1.$2') + ' ';
+    t = String(t || '').toLowerCase(); if (t.normalize) t = t.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); // accents off first, so "día" stays one word
+    t = ' ' + t.replace(/[’']/g, '\'').replace(/×/g, 'x').replace(/½/g, '0.5').replace(/\b(\d{1,3})((?:,\d{3})+)\b/g, function (m, a, b) { return a + b.replace(/,/g, ''); }).replace(/(\d),(\d)/g, '$1.$2') + ' ';
     t = t.replace(/\b(one|two|three|four|five|six|seven|eight|nine) hundred(?: and)?(?: (one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen))?\b/g, function (m, a, b) { return String(NUMW[a] * 100 + (b ? NUMW[b] : 0)); });
     t = t.replace(/\b(one|two|three|four|five|six|seven|eight|nine) (ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen)\b(?= (?:lb|kg|pounds?|kilos?|for|x|on|plates?)\b|\s*$)/g, function (m, a, b) { return String(NUMW[a] * 100 + NUMW[b]); });
     t = t.replace(/\b(one|two|three|four|five|six|seven|eight|nine) (?:oh|o) (one|two|three|four|five|six|seven|eight|nine)\b/g, function (m, a, b) { return String(NUMW[a] * 100 + NUMW[b]); });
@@ -3856,7 +3870,15 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         s = s.slice(0, m.index) + ' # ' + tail + s.slice(m.index + m[0].length);
       }
     }
-    var left = s.replace(/#/g, ' ').replace(/\b(fried|boiled|grilled|steamed|scrambled|poached|baked|roasted|soft|hard|raw|cooked|plain|homemade)\b/g, ' ').replace(/\b(i|i've|ive|had|have|ate|eaten|eat|drank|drink|for|my|with|and|some|a|of|the|breakfast|lunch|dinner|snack|meal|iftar|suhoor|sehri|just|today|this|morning|evening|night|also|plus|then|log|add|bowl|plate|cup|glass|small|large|big|medium|piece|homemade|little|bit|on|in|at|it|was|me|please|post|pre|workout|after|before|aur|spoon|spoons|katori|katoris)\b/g, ' ').replace(/[^a-z]/g, ' ').trim();
+    var left = s.replace(/#/g, ' ').replace(/\b(fried|boiled|grilled|steamed|scrambled|poached|baked|roasted|soft|hard|raw|cooked|plain|homemade|lean|extra|prep|prepped|leftover|leftovers)\b/g, ' ').replace(/\b(i|i've|ive|had|have|ate|eaten|eat|drank|drink|for|my|with|and|some|a|of|the|breakfast|lunch|dinner|snack|meal|iftar|suhoor|sehri|just|today|this|morning|evening|night|also|plus|then|log|add|bowl|plate|cup|glass|small|large|big|medium|piece|homemade|little|bit|on|in|at|it|was|me|please|post|pre|workout|after|before|aur|spoon|spoons|katori|katoris)\b/g, ' ').replace(/[^a-z]/g, ' ').trim();
+    // "dorada al horno 300g": an amount left over next to words we don't know belongs to the one food we did recognise
+    var lg = s.match(/(\d+(?:\.\d+)?)\s*(g|gm|gms|grams?|ml|kg)\b/), lc = s.replace(/#/g, ' ').match(/^\s*(\d+(?:\.\d+)?)\s+[a-z]{3,}/);
+    if (items.length === 1 && !items[0].exact && (lg || (lc && items[0].q === 1))) {
+      var it0 = items[0], ng = lg ? +lg[1] * (lg[2] === 'kg' ? 1000 : 1) : null, k0 = ng ? ng / (it0.g || 1) : +lc[1];
+      ['p', 'c', 'f', 'k', 'fb'].forEach(function (f) { if (it0[f] != null) it0[f] = Math.round(it0[f] * k0 * 10) / 10; }); it0.k = Math.round(it0.k);
+      if (ng) { it0.g = ng; it0.q = ng; it0.u = 'g'; } else { it0.q = +lc[1]; it0.g = Math.round(it0.g * k0); }
+      s = s.replace(lg ? lg[0] : lc[1], ' # ');
+    }
     // "tofu scramble with 200 g tofu": one food named twice counts once, keeping the exact amount
     items = items.filter(function (i) { return !items.some(function (o) { return o !== i && o.n === i.n && o.exact && !i.exact; }); });
     items.sort(function (a, b) { return a.at - b.at; }); items.forEach(function (i) { delete i.at; delete i.exact; });
@@ -3889,7 +3911,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     t = t.replace(/\b(?:for )?1 (single|double|triple)\b(?! (?:leg|arm))|\bfor (?:a )?(single|double|triple)\b(?! (?:leg|arm))/, function (m, a, b) { return ' x ' + { single: 1, double: 2, triple: 3 }[a || b]; }); // "for a double" = 2 reps
     // several sets on one line: "for 8, 8, 7" or "for 8 8 7"
     var more = null, mm2 = t.match(/(?:x|for)\s*(\d+)((?:\s*,?\s*\b\d{1,2}\b(?!\s*(?:sets?|kg|lb|s|min|x|reps? x)))+)/);
-    if (mm2) { more = mm2[2].split(/[\s,]+/).map(function (x) { return +x; }).filter(Boolean); t = t.replace(mm2[2], ' '); }
+    if (mm2) { more = mm2[2].split(/[\s,]+/).map(function (x) { return +x; }).filter(Boolean); var at = mm2.index + mm2[0].length - mm2[2].length; t = t.slice(0, at) + ' ' + t.slice(at + mm2[2].length); } // cut the extra sets where they were found, not the first look-alike ("365 for 3 3")
     t = t.replace(/(\d+(?:\.\d+)?)(\s*(?:kg|lb))?\s+for\s+(\d{1,2})\b(?!\s*(?:s|min|h|km|k|mi|miles?|m|sets?)\b)/, '$1$2 x $3');
     return { t: t, rpe: rpe, more: more };
   }
@@ -3964,7 +3986,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       if (/goblet/.test(t)) a.eq = store.eq.indexOf('k') > -1 || store.eq.indexOf('d') < 0 ? 'k' : 'd';
       if (/zercher/.test(t)) a.eq = 'b';
       // "135x10" or "40 kg x 8": weight x reps (a first number over 10, or one with a unit, is a weight)
-      var wx = rest.match(/(\d+(?:\.\d+)?)\s*(kg|lb)?\s*x\s*(\d+)\b(?:\s*x\s*(\d+))?/);
+      var wx = rest.match(/(\d+(?:\.\d+)?)\s*(kg|lb)?\s*x\s*(\d+)(?!\d)(?:\s*x\s*(\d+))?/); // "130x10x3": weight x reps x sets
       if (wx && (wx[2] || +wx[1] > 10)) { a.weight = +wx[1]; a.unit = wx[2] || u; a.unitSaid = wx[2] || ''; a.reps = +wx[3]; if (wx[4]) a.sets = +wx[4]; rest = rest.replace(wx[0], ' '); }
       var sx = rest.match(/(\d+)\s*(?:x|sets? of)\s*(\d+)\b(?!\s*(?:kg|lb))/);
       if (sx) { a.sets = +sx[1]; var n2 = +sx[2]; if (/\bs\b|sec|hold/.test(rest) && !/rep/.test(rest)) a.seconds = n2; else a.reps = n2; rest = rest.replace(sx[0], ' '); }
@@ -4033,6 +4055,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var prev = null, carry = '';
     parts.forEach(function (p, pi) {
       p = ' ' + (p || '').trim() + ' '; if (!p.trim()) return;
+      // "curd, 1 katori": an amount on its own is the amount of the food just before it
+      var am = p.match(/^\s*(\d+(?:\.\d+)?)\s*(katoris?|bowls?|cups?|plates?|glass(?:es)?|pieces?|slices?|portions?|servings?)\s*$/);
+      if (am && prev && prev.type === 'log_food' && prev.items.length) { var li = prev.items[prev.items.length - 1], k = +am[1] / (li.q || 1); if (k > 0 && k !== 1) ['q', 'g', 'p', 'c', 'f', 'k', 'fb'].forEach(function (f) { if (li[f] != null) li[f] = f === 'q' ? +am[1] : Math.round(li[f] * k * 10) / 10; }); return; }
       var ramp = (p.match(/\d+(?:\.\d+)?\s*(?:kg|lb)?\s*x\s*\d+/g) || []);
       if (ramp.length > 1 && !/\d\s*(?:kg|lb)?\s*x\s*\d+\s*x\s*\d/.test(p)) {
         var nmR = p.replace(/\d+(?:\.\d+)?\s*(?:kg|lb)?\s*x\s*\d+/g, ' ').replace(/[,@]|\brpe\s*\d+/g, ' '), rs = ramp.map(function (r) { return parseClause(nmR + ' ' + r + ' '); });
@@ -4065,6 +4090,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       out.actions.push(a); prev = a;
     });
     if (carry) out.unknown.push(carry.trim());
+    var mw = t.match(MEALW); if (mw) out.actions.forEach(function (a) { if (a.type === 'log_food') a.meal_name = mw[1].charAt(0).toUpperCase() + mw[1].slice(1); });
     out.actions.forEach(function (a) { delete a.raw; if (a.type === 'log_set' && a.unitSaid == null && a.weight != null) a.unitSaid = /\b(kg|lb)\b/.test(t) ? 'x' + t.match(/\b(kg|lb)\b/)[1] : ''; if (a.left) { if (a.left.length > 2) out.unknown.push(a.left); delete a.left; } });
     // who you were with isn't something to log ("walked 35 min with my wife")
     out.unknown = out.unknown.filter(function (u) { return !/^(?:from|at|in)\s+(?:the\s+|my\s+)?(?:canteen|cafeteria|office|work|home|gym|restaurant|hospital|ward|cafe|shop|takeaway)$/.test(u.trim()); });
@@ -4164,7 +4190,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         if (!(a.sys > 70 && a.sys < 260 && a.dia > 40 && a.dia < 160)) return null;
         store.notes.push({ t: now, k: 'bp', sys: a.sys, dia: a.dia, pulse: a.pulse || null }); save();
         var hi = a.sys >= 160 || a.dia >= 100, vhi = a.sys >= 180 || a.dia >= 110;
-        card = { k: 'pain', ref: now, title: 'Blood pressure ' + a.sys + '/' + a.dia + (a.pulse ? ', pulse ' + a.pulse : ''), lines: [vhi ? 'That’s very high. Don’t train today. Sit quietly for 5 minutes and measure again; if it’s still this high, or you have a headache, chest pain or blurred vision, call your doctor or emergency services.' : hi ? 'That’s high. Today’s sessions are walk only, no strength work. If it stays this high, talk to your doctor.' : a.sys >= 140 || a.dia >= 90 ? 'Above the usual 140/90 target. Keep holds easy (RPE 6–7) and breathe steadily through them.' : 'In a normal range.'], warn: a.sys >= 180 || a.dia >= 120 ? 'At 180/120 or above, rest and recheck in 5 minutes. With chest pain, breathlessness or a severe headache, call emergency services.' : '' };
+        card = { k: 'pain', ref: now, title: 'Blood pressure ' + a.sys + '/' + a.dia + (a.pulse ? ', pulse ' + a.pulse : ''), lines: [vhi ? 'That’s very high. Don’t train today. Sit quietly for 5 minutes and measure again; if it’s still this high, or you have a headache, chest pain or blurred vision, call your doctor or emergency services.' : hi ? 'That’s high. Today’s sessions are walk only, no strength work. If it stays this high, talk to your doctor.' : a.sys >= 140 || a.dia >= 90 ? 'Above the usual 140/90 target. Keep holds easy (RPE 6–7) and breathe steadily through them.' : 'In a normal range.'] };
         break;
       }
       case 'log_bodyweight': {
@@ -4344,6 +4370,12 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function localAnswer(raw) {
     var t = norm(raw), f = sumFood(today(store.food)), tg = proteinTarget(), m, sa = safetyAnswer(t);
     if (sa) return sa;
+    var pa = painArea(t);
+    if (pa && /\bhow\b|\bstill\b|\bstatus\b|\bdoing\b/.test(t) && !/\b(hurts?|pain|sore)\b.*\d/.test(t)) {
+      var pl = store.notes.filter(function (n) { return n.k === 'pain' && n.area === pa; }).pop();
+      if (!pl) return 'No ' + areaName(pa) + ' pain logged. If it hurts, tell me like “' + areaName(pa) + ' hurts 4 out of 10” and the next sessions adjust.';
+      return 'Last logged ' + dshort(pl.t) + ': ' + areaName(pa) + ' ' + pl.score + '/10. ' + (pl.score === 0 ? 'Sessions are back to normal for it.' : Date.now() - pl.t < 48 * 3600e3 ? 'For 48 hours, exercises that load it are shorter and lighter' + (pl.score >= 7 || pl.sharp ? ', and left out today' : '') + '. Say “' + areaName(pa) + ' feels fine” when it settles.' : 'That was more than 2 days ago, so sessions are back to normal. Log it again if it still hurts.');
+    }
     if (!/\bmy\b/.test(t) && /\b(what|whats|what's|which) (is|are|does|do|band)\b|\bmean(s|ing)?\b|\bhow (do|can) i (make|get|turn)\b|\b(can|could) you read\b|\bread (it|this|the [a-z]+) (aloud|out)\b/.test(t)) { for (var gi = 0; gi < GLOSS.length; gi++) if (GLOSS[gi][0].test(t)) return GLOSS[gi][1]; }
     if (/protein|macros?|calories|kcal|eaten|ate today|food today|carbs/.test(t)) {
       var s = 'Today so far: **' + r0(f.p) + ' g protein**' + (tg ? ' of ' + tg + ' g' : '') + ', ' + r0(f.k) + ' kcal' + (kcalTarget() ? ' of about ' + kcalTarget() : '') + ', ' + (prof().diet === 'keto' ? r0(f.net) + ' g net carbs (' + r0(f.c) + ' g total)' : r0(f.c) + ' g carbs') + ', ' + r0(f.f) + ' g fat.';
@@ -4364,7 +4396,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       var pex = findEx(t);
       if (pex && (!lk2 || pex.len > lk2.length)) {
         var rows = store.log.filter(function (l) { return l.id === pex.id && l.kg && !l.sug; }), bestR = null; rows.forEach(function (l) { var e = estOf(l); if (!bestR || e > bestR.e) bestR = { e: e, l: l }; });
-        return rows.length ? '**' + baseName(BY[pex.id].name) + '**: estimated max about **' + kg(bestR.e) + '**, from ' + kg(bestR.l.kg) + ' for ' + bestR.l.v + (bestR.l.k === 'h' ? ' s' : ' reps') + ' on ' + dshort(bestR.l.t) + '.' : 'No weighted sets of ' + baseName(BY[pex.id].name) + ' logged yet.';
+        return rows.length ? '**' + (bestR.l.k === 'h' ? baseName(BY[pex.id].name) : baseName(G[pex.id].name)) + '**: estimated max about **' + kg(bestR.e) + '**, from ' + kg(bestR.l.kg) + ' for ' + bestR.l.v + (bestR.l.k === 'h' ? ' s' : ' reps') + ' on ' + dshort(bestR.l.t) + '.' : 'No weighted sets of ' + baseName(BY[pex.id].name) + ' logged yet.';
       }
       if (lk2) { var LL = store.notes.filter(function (n) { return n.k === 'lift' && liftKey(n.name) === liftKey(LIFTN[lk2]); }), eb = null; LL.forEach(function (x) { var e = e1rm(x.kg, x.reps, x.rpe); if (e && (!eb || e > eb.v)) eb = { v: e, x: x }; });
         if (!LL.length) return 'No ' + LIFTN[lk2].toLowerCase() + ' logged yet. Log a set like “' + lk2 + ' 100 kg for 5”.';
@@ -4702,7 +4734,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (!P || !cuesOn()) return;
     var it = P.q[P.i], nxt = P.q[nextIdx(P.i)];
     if (stage === 'ready' && it.m === 'heel') say('Heel drops for bone health, one minute. Rise onto your toes, then drop onto your heels.');
-    else if (stage === 'ready') { if (it.kind === 'cardio') say((it.first ? '' : 'Next: ') + MACHINE[it.m || 'walk'] + ', ' + (it.effort || '').toLowerCase() + ', ' + spokenDur(it.dur)); else say(it.ex.name + (it.side ? ', ' + it.side : '') + '. ' + (it.kind === 'hold' ? it.dur + ' second hold' : it.reps + ' reps') + (it.mod ? '. ' + it.mod.replace(/^Knees: /, '') : '')); }
+    else if (stage === 'ready') { if (it.kind === 'cardio') say((it.first ? '' : 'Next: ') + MACHINE[it.m || 'walk'] + ', ' + (it.effort || '').toLowerCase() + ', ' + spokenDur(it.dur)); else say(it.ex.name + (it.side ? ', ' + it.side : '') + '. ' + (it.kind === 'hold' ? it.dur + ' second hold' : it.reps + ' reps') + (it.mod ? '. ' + it.mod.replace(/^Knees: /, '') : '') + (it.pain ? '. ' + areaName(it.pain.area).replace(/^./, function (c) { return c.toUpperCase(); }) + ' pain: go lighter, and stop if it passes 3 out of 10' : '')); }
     else if (stage === 'work') say(it.kind === 'hold' ? (gentle() ? 'Hold, and keep breathing' : 'Hold') : it.kind === 'cardio' ? (it.effort === 'Hard' ? 'Go hard' : it.effort === 'Impact' ? 'Heel drops: up on your toes, then drop' : 'Go') : 'Go');
     else if (stage === 'rest') say(nxt ? 'Rest. Next: ' + nxt.ex.name : 'Rest');
     else if (stage === 'switch') say('Switch sides');
@@ -4978,7 +5010,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function trainExtras() {
     var p = prof(), h = '', run = savedRun(), hb = bpToday();
     if (hb) h += '<div class="card warnc"><b>Blood pressure ' + hb.sys + '/' + hb.dia + ' today: no strength work</b><p>' + (hb.sys >= 180 || hb.dia >= 110 ? 'That’s very high. Don’t train today. Sit quietly for 5 minutes and measure again; if it’s still this high, or you have a headache, chest pain or blurred vision, call your doctor or emergency services.' : 'Holds and heavy work are left out of today’s sessions. An easy walk is fine and can help. Measure again before your next session.') + '</p></div>';
-    if ((p.issues.indexOf('bp') > -1 || (p.age || 0) >= 65) && store.log.length && weekCardio() < 60 && !cget('nudgeWalk', 0)) h += '<div class="card nudge"><b>Walk on your rest days</b><p>20–30 minutes of brisk walking most days helps blood pressure and heart health as much as the strength work. Log it like “walked 25 min”.</p><div class="bk-row"><button class="btn sm quiet" data-nowalk="1">Got it</button></div></div>';
+    if (!bpVeryHigh() && (p.issues.indexOf('bp') > -1 || (p.age || 0) >= 65) && store.log.length && weekCardio() < 60 && !cget('nudgeWalk', 0)) h += '<div class="card nudge"><b>Walk on your rest days</b><p>20–30 minutes of brisk walking most days helps blood pressure and heart health as much as the strength work. Log it like “walked 25 min”.</p><div class="bk-row"><button class="btn sm quiet" data-nowalk="1">Got it</button></div></div>';
     if (run && !P) { var rd = allDays().filter(function (d) { return d.id === run.day; })[0], nl = (run.logged || []).filter(Boolean).length;
       h += '<div class="card nudge"><b>Pick up where you left off?</b><p>' + esc(rd.name) + ', ' + ({ am: 'morning', pm: 'evening', all: 'today’s session' }[run.part.replace(/^short-/, '')]) + ': ' + nl + (nl === 1 ? ' set' : ' sets') + ' already saved, stopped ' + Math.max(1, Math.round((Date.now() - run.at) / 60000)) + ' min ago.</p><div class="bk-row"><button class="btn sm go" data-resume="1">Resume session</button><button class="btn sm quiet" data-norun="1">Not now</button></div></div>'; }
     if (storageWarn === 'blocked') h += '<div class="card warnc"><b>Your progress isn’t being saved</b><p>This browser is blocking storage (often private browsing). Open Isohold in a normal window, or add it to your Home Screen.</p></div>';
@@ -5180,11 +5212,13 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var walkOnly = P.q.every(function (x) { return x.kind === 'cardio'; }); // e.g. a high blood pressure day
     var anyLogged = P.day.cardio || walkOnly ? (P.cardioS || 0) >= 180 : P.q.some(function (x) { return x.logged; });
     var dKeys = partsOf(P.part).map(function (pt) { return 'w' + store.week + P.day.id + pt; });
-    if (anyLogged) { store.cmin = store.cmin || {}; dKeys.forEach(function (k, i) { store.done[k] = Date.now(); store.cmin[k] = i ? 0 : Math.round((P.cardioS || 0) / 60); }); } save();
+    // a walk-only day (high blood pressure) logs the walk as cardio; the strength session waits for another day
+    if (anyLogged && walkOnly && !P.day.cardio) { store.notes.push({ t: Date.now(), k: 'cardio', m: 'Walking', min: Math.round((P.cardioS || 0) / 60), km: null, steps: null, hard: false }); anyLogged = false; P.walkLogged = true; }
+    else if (anyLogged) { store.cmin = store.cmin || {}; dKeys.forEach(function (k, i) { store.done[k] = Date.now(); store.cmin[k] = i ? 0 : Math.round((P.cardioS || 0) / 60); }); } save();
     var wk0 = store.week; P.wk0 = wk0; if (anyLogged) checkWeek(dKeys); if (store.week === wk0) selDay = nextDayIdx();
     P.stage = 'done'; beep(523, .2); setTimeout(function () { beep(784, .4); }, 220);
     $('pPhase').textContent = 'Done'; $('pPhase').className = 'p-phase rest';
-    $('pName').textContent = anyLogged ? 'Session complete' : 'Nothing logged';
+    $('pName').textContent = anyLogged ? 'Session complete' : P.walkLogged ? 'Walk logged' : 'Nothing logged';
     $('pTime').textContent = '✓'; $('pTime').className = ''; $('pRing').style.strokeDashoffset = 0;
     var holds = P.q.filter(function (x) { return x.kind === 'hold'; }).length, reps = P.q.filter(function (x) { return x.kind === 'reps' || x.kind === 'time'; }).length;
     var cm = Math.round(P.q.filter(function (x) { return x.kind === 'cardio'; }).reduce(function (s, x) { return s + x.dur; }, 0) / 60);
@@ -5200,7 +5234,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     $('pCues').innerHTML = groups.map(function (g) { return '<li><b>' + esc(g.name) + '</b>' + (g.pb ? ' <span class="pb">New best</span>' : '') + '<br><span class="sum-sets">' + esc(g.sets.join(', ')) + '</span></li>'; }).join('');
     if (nPB) haptic('success');
     if (cuesOn()) say('Session complete' + (nPB ? '. ' + nPB + (nPB === 1 ? ' new best' : ' new bests') : '') + '. Nice work.');
-    $('pNext').textContent = !anyLogged ? (P.day.cardio ? 'Less than 3 minutes of cardio, so this session isn’t marked done. If you walked or rode without the timer, log it like “walked 30 min”.' : 'You skipped every set, so this session isn’t marked done. Tick it on the Train tab if you trained without the timer.') : P.part === 'am' && !P.day.cardio && !oneADay() ? 'Evening session later today. Leave at least 6 hours between the two if you can.' : 'Rate how your tendons feel tomorrow morning. Above 3/10 means go lighter next time. Muscle soreness is normal.';
+    $('pNext').textContent = P.walkLogged ? 'Walk logged as cardio. Today’s strength session waits for a day your blood pressure is lower.' : !anyLogged ? (P.day.cardio ? 'Less than 3 minutes of cardio, so this session isn’t marked done. If you walked or rode without the timer, log it like “walked 30 min”.' : 'You skipped every set, so this session isn’t marked done. Tick it on the Train tab if you trained without the timer.') : P.part === 'am' && !P.day.cardio && !oneADay() ? 'Evening session later today. Leave at least 6 hours between the two if you can.' : 'Rate how your tendons feel tomorrow morning. Above 3/10 means go lighter next time. Muscle soreness is normal.';
     $('pDay').textContent = P.head;
     $('pAngle').hidden = true; $('pPause').hidden = true; $('pSkip').hidden = true; $('pMore').hidden = true; $('pPrev').hidden = true; $('pWtRow').hidden = true; $('pLog').hidden = true; $('pSkipEx').hidden = true; $('pHow').hidden = true; $('pSteps').hidden = true;
     $('pClose').setAttribute('aria-label', 'Close');
@@ -5265,7 +5299,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (lg) { var pb = isPB(it.logged), lt = 'Logged ' + esc(setTxt(it.logged)) + (pb ? ' <b class="pb">New best</b>' : '');
       // set only when it changes, so screen readers announce each logged set once; hands-free mode says it out loud
       if ($('pLogTxt').innerHTML !== lt) $('pLogTxt').innerHTML = lt; }
-    var last = showWt && lastFor(showIt), hint = showWt && !last && wtHint(showIt); $('pLast').hidden = !last && !hint; if (last) $('pLast').textContent = 'Last time: ' + setTxt(last); else if (hint) $('pLast').textContent = hint;
+    var last = showWt && lastFor(showIt), hint = showWt && wtHint(showIt), up = hint && /^Last week you did all/.test(hint); $('pLast').hidden = !last && !hint; if (up) $('pLast').textContent = hint; else if (last) $('pLast').textContent = 'Last time: ' + setTxt(last); else if (hint) $('pLast').textContent = hint;
     var after = '';
     if (P.stage === 'work' && it.kind !== 'cardio') after = nxt ? (it.afterKind === 'switch' ? 'Then switch sides' : it.after > MOVE + 5 ? 'Then rest ' + it.after + ' s' : 'Then move straight to the next exercise') : 'Last set of the session';
     if (P.stage === 'work' && it.kind === 'reps') after = 'Tap “Set done” if you hit your limit early. ' + after;
