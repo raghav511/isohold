@@ -20,6 +20,8 @@ let failed = 0;
         chk(`${a}${AND}${b2}`, [[A], [B]]); chk(`${a} 150g${AND}${b2} 100g`, [[A, 150], [B, 100]]);
         chk(`${DIN}${a}${WITH}${b2}`, [[A], [B]]); chk(`${a}${WITH}${b2} 300g`, [[A, 300], [B]]); chk(`${ATE}${a} 180g${WITH}${b2}`, [[A, 180], [B]]);
       });
+      // Spanish dishes named as "cut of meat": one food, never two
+      if (loc === 'es-ES') { chk('2 pechugas de pollo con patatas fritas', [['Chicken breast', 240], ['Fries']]); chk('pechuga de pollo a la plancha', [['Chicken breast']]); chk('pechuga de pavo 150 gr', [['Turkey', 150]]); chk('solomillo de cerdo 200g', [['Pork', 200]]); chk('zumo de naranja', [['Juice']]); chk('queso fresco', [['Cottage cheese']]); chk('2 kiwis y un yogur', [['Kiwi'], ['Yogurt', 150]]); }
       return { n, bad };
     }, loc);
     console.log(loc, res.n, 'lines,', res.bad.length, 'bad'); failed += res.bad.length; res.bad.slice(0, 30).forEach(x => console.log('  ' + x));
