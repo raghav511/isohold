@@ -23,7 +23,7 @@ async function open(kind, opts = {}) {
   const page = await ctx.newPage();
   const errs = [];
   page.on('pageerror', e => errs.push('pageerror: ' + e.message));
-  page.on('console', m => { if (m.type() === 'error') errs.push('console: ' + m.text()); });
+  page.on('console', m => { if (m.type() === 'error' && !/AudioContext encountered an error from the audio device/.test(m.text())) errs.push('console: ' + m.text()); }); // headless browsers have no sound device
   return { b, ctx, page, errs };
 }
 module.exports = { serve, open, ROOT };

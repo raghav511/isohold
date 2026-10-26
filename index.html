@@ -754,6 +754,11 @@ button.ring:active { transform: scale(.97); }
 .p-fig .angle.cue.hold { background: var(--hold); color: var(--hold-ink); } .p-fig .angle.cue.hold small { color: color-mix(in srgb, var(--hold-ink) 78%, transparent); }
 .p-fig .angle.cue.easy { background: var(--ok); color: var(--ok-ink); } .p-fig .angle.cue.easy small { color: color-mix(in srgb, var(--ok-ink) 78%, transparent); }
 @media (prefers-reduced-motion: no-preference) { .p-fig .angle.cue b { transition: opacity .15s; } }
+/* trust: update banner, undo in toasts, editable food items */
+.upd { position: fixed; left: 50%; transform: translateX(-50%); top: calc(env(safe-area-inset-top, 0px) + 10px); z-index: 70; display: flex; align-items: center; gap: 12px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 6px 6px 6px 16px; box-shadow: 0 8px 24px rgba(20, 30, 50, .16); font-weight: 600; font-size: 15px; max-width: calc(100% - 24px); }
+.toast { display: flex; align-items: center; gap: 12px; }
+.toast .tu { border: 0; background: color-mix(in srgb, var(--bg) 18%, transparent); color: var(--bg); font: inherit; font-weight: 700; border-radius: 999px; padding: 6px 12px; min-height: 34px; text-decoration: underline; }
+.lgc-ed { border: 0; background: none; padding: 2px 0; text-align: left; font: inherit; color: inherit; text-decoration: underline dotted; text-underline-offset: 3px; cursor: pointer; }
 /*@@endcss*/
 </style>
 <style>
@@ -2345,7 +2350,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   try { if (window.__ISOHOLD_STATE && typeof window.__ISOHOLD_STATE === 'object') store = Object.assign(store, window.__ISOHOLD_STATE); } catch (e) { }
   function save() {
     var txt = JSON.stringify(store);
-    try { localStorage.setItem('isohold.v1', txt); } catch (e) { }
+    try { localStorage.setItem('isohold.v1', txt); storageOk(); } catch (e) { storageProblem(e); }
     native({ type: 'save', data: txt });
   }
   store.cust = store.cust || {};
@@ -2496,9 +2501,12 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function toast(t) { var el = $('toast'); el.textContent = t; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { el.hidden = true; }, 3000); }
   function clearToast() { clearTimeout(toastT); $('toast').hidden = true; }
   // Move on to the next week as soon as every session of the current one is done, whatever the calendar day.
-  function checkWeek() {
+  function checkWeek(keys) {
     if (weekDone(store.week) < 12) return;
-    if (store.week < 12) { var w = store.week; store.week++; save(); selDay = 0; toast('Week ' + w + ' complete. You’re on week ' + store.week + ' now.'); }
+    if (store.week < 12) {
+      var w = store.week; store.week++; save(); selDay = 0;
+      toastUndo('Week ' + w + ' complete. You’re on week ' + store.week + ' now.', function () { store.week = w; (keys || []).forEach(function (k) { delete store.done[k]; }); selDay = nextDayIdx(); save(); renderAll(); toast('Back on week ' + w + '.'); });
+    }
     else toast('All 12 weeks complete. Retest your max holds on the Progress tab.');
   }
 
@@ -2648,8 +2656,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     else if (b.dataset.rm) { var c2 = store.cust[b.dataset.sk]; c2.add = c2.add.filter(function (x) { return x !== b.dataset.rm; }); delete c2.off[b.dataset.rm]; save(); renderTrain(); toast('Removed from this session.'); }
     else if (b.dataset.reset) { delete store.cust[b.dataset.reset]; save(); renderTrain(); toast('Back to the original plan.'); }
     else if (b.dataset.add) openAdd(b.dataset.add, b);
-    else if (b.dataset.done && /^all:/.test(b.dataset.done)) { var dd = allDays().filter(function (d) { return d.id === b.dataset.done.slice(4); })[0], nv = !isDone(dd, 'all'); store.done[doneKey(dd, 'am')] = nv; store.done[doneKey(dd, 'pm')] = nv; save(); if (nv) { var w1 = store.week; checkWeek(); if (store.week === w1) selDay = nextDayIdx(); } renderTrain(); }
-    else if (b.dataset.done) { store.done[b.dataset.done] = !store.done[b.dataset.done]; save(); if (store.done[b.dataset.done]) { var w0 = store.week; checkWeek(); if (store.week === w0) selDay = nextDayIdx(); } renderTrain(); }
+    else if (b.dataset.done && /^all:/.test(b.dataset.done)) { var dd = allDays().filter(function (d) { return d.id === b.dataset.done.slice(4); })[0], nv = !isDone(dd, 'all'), ka = doneKey(dd, 'am'), kp = doneKey(dd, 'pm'); if (nv) { store.done[ka] = store.done[kp] = Date.now(); } else { delete store.done[ka]; delete store.done[kp]; } save(); if (nv) { var w1 = store.week; checkWeek([ka, kp]); if (store.week === w1) selDay = nextDayIdx(); } renderTrain(); }
+    else if (b.dataset.done) { var dk = b.dataset.done; if (store.done[dk]) delete store.done[dk]; else store.done[dk] = Date.now(); save(); if (store.done[dk]) { var w0 = store.week; checkWeek([dk]); if (store.week === w0) selDay = nextDayIdx(); } renderTrain(); }
     else if (b.dataset.start) {
       var day = allDays().filter(function (d) { return d.id === b.dataset.start; })[0];
       if (day.cardio || store.profile) startSession(day.id, b.dataset.part); else openEquip(day, b.dataset.part, b);
@@ -2889,16 +2897,18 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     }
     return '<p class="chart-t">Sessions done per week, out of 12</p>' + s + '</svg>';
   }
-  var strSel = null, strKind = 'h';
+  var strSel = null, strKind = 'h', strEq = null;
   function renderStrength() {
     var logged = {}; store.log.forEach(function (l) { logged[l.id] = 1; });
     var ids = EX.map(function (e) { return e.id; }).filter(function (id) { return logged[id]; });
     if (!ids.length) { $('strCard').innerHTML = '<h2>Exercise history</h2><p>Enter your weight in the timer or on an exercise. After your first session, this chart shows how much you lift and for how long or how many reps.</p>'; return; }
     if (!strSel || ids.indexOf(strSel) < 0) { var last = store.log[store.log.length - 1]; strSel = last ? last.id : ids[0]; if (last) strKind = last.k; }
-    var rows = store.log.filter(function (l) { return l.id === strSel && l.k === strKind; });
+    var eqs = []; store.log.forEach(function (l) { if (l.id === strSel && l.k === strKind && eqs.indexOf(l.eq) < 0) eqs.push(l.eq); });
+    if (eqs.indexOf(strEq) < 0) { var lastE = store.log.filter(function (l) { return l.id === strSel && l.k === strKind; }).pop(); strEq = lastE ? lastE.eq : null; }
+    var rows = store.log.filter(function (l) { return l.id === strSel && l.k === strKind && l.eq === strEq && !l.sug; });
     var h = '<h2>Exercise history</h2><select id="strSel" aria-label="Exercise">' + ids.map(function (id) { return '<option value="' + id + '"' + (id === strSel ? ' selected' : '') + '>' + esc(baseName(BY[id].name)) + '</option>'; }).join('') + '</select>' +
-      '<div class="seg" role="group" aria-label="Hold or reps"><button class="h" data-k="h" aria-pressed="' + (strKind === 'h') + '">Hold</button><button class="r" data-k="r" aria-pressed="' + (strKind === 'r') + '">Reps</button></div>';
-    if (!rows.length) h += '<p class="muted">No ' + (strKind === 'h' ? 'holds' : 'rep sets') + ' logged for this exercise yet.</p>';
+      '<div class="seg" role="group" aria-label="Hold or reps"><button class="h" data-k="h" aria-pressed="' + (strKind === 'h') + '">Hold</button><button class="r" data-k="r" aria-pressed="' + (strKind === 'r') + '">Reps</button></div>' + (eqs.length > 1 ? '<div class="eqtabs" role="group" aria-label="Equipment">' + eqs.map(function (e) { return '<button data-seq="' + e + '" aria-pressed="' + (e === strEq) + '">' + (e === 'b' ? 'Barbell' : e === 'c' ? 'Cable/machine' : EQ_LABEL[e]) + '</button>'; }).join('') + '</div><p class="muted" style="font-size:14px">Weights on different equipment aren’t comparable, so each has its own chart.</p>' : '');
+    if (!rows.length) h += '<p class="muted">No ' + (strKind === 'h' ? 'holds' : 'rep sets') + ' logged with a weight you set for this exercise yet. Sets done at a suggested weight aren’t charted until you confirm the weight.</p>';
     else {
       // best set per session day
       var byDay = {}, order = [];
@@ -2930,7 +2940,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     return s + '</svg>';
   }
   $('strCard').addEventListener('change', function (e) { if (e.target.id === 'strSel') { strSel = e.target.value; renderStrength(); } });
-  $('strCard').addEventListener('click', function (e) { var b = e.target.closest('button[data-k]'); if (b) { strKind = b.dataset.k; renderStrength(); } });
+  $('strCard').addEventListener('click', function (e) { var b = e.target.closest('button[data-k]'); if (b) { strKind = b.dataset.k; renderStrength(); } var q = e.target.closest('button[data-seq]'); if (q) { strEq = q.dataset.seq; renderStrength(); } });
   function renderCov() {
     var ph = phaseOf(store.week);
     $('covNote').textContent = 'Hard sets per week for each area in week ' + store.week + '. Around 10 or more is the range linked with steady growth for most muscles.';
@@ -2990,7 +3000,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   };
   function holdMax(l) {
     var c = ET[JOINT[l.id] || 'general'], f = Math.pow(l.v / c[0], 1 / c[1]);
-    f = Math.min(1, Math.max(0.1, f));
+    f = Math.min(1, Math.max(0.35, f)); // beyond ~90 s the hold-time curve says little about maximum strength
     return { est: l.kg / f, pct: Math.round(f * 100) };
   }
   function repMax(l) {
@@ -3002,12 +3012,12 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function sameEx(a, b) { return a.id === b.id && a.k === b.k && a.eq === b.eq; }
   // A set is a personal best when its estimated max beats every earlier set of the same exercise and equipment.
   function isPB(e) {
-    if (!e || !e.kg || e.v < (e.k === 'h' ? 10 : 3)) return false; // very short holds or tiny sets are not a fair test
+    if (!e || !e.kg || e.sug || e.v < (e.k === 'h' ? 10 : 3) || (e.k === 'h' && e.v > 75)) return false; // very short holds or tiny sets are not a fair test
     var est = estOf(e), prev = 0, n = 0;
-    store.log.forEach(function (l) { if (l !== e && l.kg && l.t < e.t && sameEx(l, e)) { n++; prev = Math.max(prev, estOf(l)); } });
+    store.log.forEach(function (l) { if (l !== e && l.kg && !l.sug && l.t < e.t && sameEx(l, e)) { n++; prev = Math.max(prev, estOf(l)); } });
     return n > 0 && est > prev * 1.005;
   }
-  function setTxt(l) { return (l.kg ? kg(l.kg) + ' × ' : '') + l.v + (l.k === 'h' ? ' s' : l.v === 1 ? ' rep' : ' reps'); }
+  function setTxt(l) { return (l.kg ? kg(l.kg) + ' × ' : '') + l.v + (l.k === 'h' ? ' s' : l.v === 1 ? ' rep' : ' reps') + (l.sug ? ' (suggested weight)' : ''); }
   function lastFor(it) {
     for (var i = store.log.length - 1; i >= 0; i--) { var l = store.log[i]; if (l.t < P.start && l.id === it.id && l.k === it.wk && l.eq === it.ex.eq) return l; }
     return null;
@@ -3022,13 +3032,13 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function strengthData() {
     var m = {};
     store.log.forEach(function (l) {
-      if (!l.kg || !BY[l.id]) return;
+      if (!l.kg || !BY[l.id] || l.sug || (l.k === 'h' && (l.v < 10 || l.v > 75))) return; // very short or very long holds don't say much about maximum strength
       var isH = l.k === 'h', r = isH ? holdMax(l) : repMax(l), tags = (isH ? BY[l.id] : G[l.id]).tags;
       tags.forEach(function (tag, ti) {
         var e = m[tag] || (m[tag] = { h: null, r: null, first: {}, n: 0 }), slot = isH ? 'h' : 'r', cur = e[slot];
         var rank = ti; // primary muscle of an exercise counts first
         e.n++;
-        if (!e.first[slot] || l.t < e.first[slot].t) e.first[slot] = { t: l.t, est: r.est, id: l.id };
+        var fk = slot + l.id + l.eq; if (!e.first[fk] || l.t < e.first[fk].t) e.first[fk] = { t: l.t, est: r.est, id: l.id };
         if (!cur || rank < cur.rank || (rank === cur.rank && r.est > cur.est)) e[slot] = { est: r.est, l: l, r: r, rank: rank };
       });
     });
@@ -3075,7 +3085,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (!e || (!e.h && !e.r)) return '<div class="mdet"><b>' + name + '</b><p class="muted">No weighted sets logged yet for an exercise that works this muscle. Do a session with a weight entered and it will appear here.</p></div>';
     var out = '<div class="mdet"><b>' + name + '</b>';
     if (e.h) {
-      var l = e.h.l, v = ACT[l.id] || 'hold', un = unitNote(l.id, l.eq, 'h'), tr = e.first.h && e.first.h.t < l.t ? Math.round((e.h.est - e.first.h.est) / e.first.h.est * 100) : null;
+      var l = e.h.l, v = ACT[l.id] || 'hold', un = unitNote(l.id, l.eq, 'h'), fh = e.first['h' + l.id + l.eq], tr = fh && fh.t < l.t ? Math.round((e.h.est - fh.est) / fh.est * 100) : null;
       out += '<div class="mrow"><span class="mk-l">Max ' + VERB[v] + ' (isometric)</span><span class="mv">at least ' + fmtKg(toU(e.h.est)) + ' ' + uLab() + '</span><span class="ms">' + esc(baseName(BY[l.id].name)) + ': you held ' + kg(l.kg) + (un ? ' (' + un + ')' : '') + ' for ' + l.v + ' s, about ' + e.h.r.pct + '% of your max.' + (tr != null && tr !== 0 ? ' <b class="' + (tr > 0 ? 'up' : 'down') + '">' + (tr > 0 ? '+' : '') + tr + '% since first log</b>' : '') + '</span></div>';
     }
     if (e.r) {
@@ -3280,6 +3290,58 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     keto: [['Egg', 150, '3 eggs'], ['Chicken breast', 150, '150 g chicken'], ['Tuna', 100, 'a can of tuna'], ['Paneer', 100, '100 g paneer'], ['Cheese', 40, '2 slices of cheese'], ['Whey protein', 30, 'a scoop of whey']],
     any: [['Chicken breast', 150, '150 g chicken breast'], ['Greek yogurt', 170, 'a pot of Greek yogurt'], ['Egg', 150, '3 eggs'], ['Whey protein', 30, 'a scoop of whey'], ['Tuna', 100, 'a can of tuna'], ['Paneer', 100, '100 g paneer']]
   };
+  // ---------- trust: storage, other tabs, updates, the date ----------
+  var storageWarn = '';
+  function storageOk() { if (storageWarn === 'full') { storageWarn = ''; renderTrain(); } }
+  // A full or blocked storage area used to fail silently; now it trims what it safely can, retries, and says so.
+  function storageProblem(e) {
+    var full = e && (e.name === 'QuotaExceededError' || e.code === 22 || /quota/i.test(e.message || ''));
+    if (full) {
+      try { cput('feed', (cget('feed', []) || []).slice(-30)); } catch (x) { }
+      try { localStorage.setItem('isohold.v1', JSON.stringify(store)); return; } catch (x) { }
+    }
+    if (storageWarn !== (full ? 'full' : 'blocked')) { storageWarn = full ? 'full' : 'blocked'; setTimeout(renderTrain, 0); }
+  }
+  (function () { try { localStorage.setItem('isohold.probe', '1'); localStorage.removeItem('isohold.probe'); } catch (e) { storageWarn = 'blocked'; } })();
+  // Ask the browser to keep our data (Chrome/Android grant this; Safari keeps data for Home Screen apps)
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persisted().then(function (y) { if (!y) navigator.storage.persist(); }); } catch (e) { }
+  // Two copies open (a Safari tab and the Home Screen app, or two tabs): adopt the newer save instead of overwriting it
+  window.addEventListener('storage', function (e) {
+    if (e.key === 'isohold.v1' && e.newValue) {
+      var n; try { n = JSON.parse(e.newValue); } catch (x) { return; }
+      Object.keys(n).forEach(function (k) { store[k] = n[k]; });
+      if (!P) { selDay = nextDayIdx(); renderAll(); if (current === 'progress') renderProgress(); if (current === 'coach') renderCoach(); }
+    } else if (e.key === 'isohold.coach.feed' && e.newValue) { try { feed = JSON.parse(e.newValue) || []; if (current === 'coach') renderCoach(); } catch (x) { } }
+  });
+  // Numbers labelled "today" must not show yesterday after midnight, or after the phone wakes the app
+  var shownDay = dayStart();
+  function refreshIfStale() { if (dayStart() !== shownDay && !P) { shownDay = dayStart(); selDay = nextDayIdx(); renderAll(); if (current === 'coach') renderCoach(); if (current === 'progress') renderProgress(); } }
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) refreshIfStale(); });
+  setInterval(refreshIfStale, 60000);
+  // A newer version is online: say so, instead of quietly running the old one until the next launch
+  var APP_VERSION = '20';
+  function checkVersion() {
+    if (!navigator.onLine || !/^https?:/.test(location.protocol)) return;
+    fetch('index.html?v=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
+      var m = t.match(/var APP_VERSION = '(\d+)'/); if (!m || +m[1] <= +APP_VERSION) return;
+      var bn = $('updBanner'); if (bn) return;
+      bn = document.createElement('div'); bn.id = 'updBanner'; bn.className = 'upd'; bn.setAttribute('role', 'status');
+      bn.innerHTML = '<span>A new version of Isohold is ready.</span><button class="btn sm go" type="button">Update now</button>';
+      document.body.appendChild(bn);
+      bn.querySelector('button').addEventListener('click', function () {
+        var done = function () { location.reload(); };
+        try { if (window.caches) caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); }).then(done, done); else done(); } catch (e) { done(); }
+      });
+    }).catch(function () { });
+  }
+  setTimeout(checkVersion, 4000); document.addEventListener('visibilitychange', function () { if (!document.hidden) checkVersion(); });
+  // toast with an Undo button
+  function toastUndo(t, fn) {
+    var el = $('toast'); el.innerHTML = '<span>' + esc(t) + '</span><button type="button" class="tu">Undo</button>'; el.hidden = false;
+    el.querySelector('.tu').onclick = function () { el.hidden = true; fn(); };
+    clearTimeout(toastT); toastT = setTimeout(function () { el.hidden = true; }, 7000);
+  }
+
   // ---------- look: line-art figures ----------
   FIG.setStyle({ k: 1.45, head: 1.15, ol: 1.35, olc: 'var(--fig-ink)', olcf: 'var(--fig-far)', hl: 'var(--fig-hl)', hlf: 'var(--fig-hl-far)', shadow: 'var(--fig-shadow)',
     part: { th: 1.18, shin: 1.0, foot: 0.85, ua: 1.08, fa: 0.98, hand: 0.85, tn: 1.12, hips: 1.05, neck: 0.95 },
@@ -3289,8 +3351,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var wd = weekDone(store.week), f = sumFood(today(store.food)), tg = proteinTarget(), cm = weekCardio();
     var R = [[46, wd / 12, 'var(--hold)'], [34, tg ? f.p / tg : 0, 'var(--rep)'], [22, cm / 150, 'var(--ok)']];
     var svg = '<svg class="rings" viewBox="0 0 108 108" aria-hidden="true">' + R.map(function (r) { var c = 2 * Math.PI * r[0], k = Math.max(0, Math.min(1, r[1])); return '<circle cx="54" cy="54" r="' + r[0] + '" class="rb" style="stroke:' + r[2] + '"/><circle cx="54" cy="54" r="' + r[0] + '" class="rf" style="stroke:' + r[2] + '" stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + (c * (1 - k)).toFixed(1) + '"/>'; }).join('') + '</svg>';
-    var lg = '<ul class="rl"><li><i style="background:var(--hold)"></i><b class="num">' + wd + '</b>/12 sessions this week</li><li><i style="background:var(--rep)"></i><b class="num">' + r0(f.p) + '</b>' + (tg ? '/' + tg : '') + ' g protein today</li><li><i style="background:var(--ok)"></i><b class="num">' + cm + '</b>/150 cardio min this week</li></ul>';
-    return '<div class="hero-r" role="img" aria-label="This week: ' + wd + ' of 12 sessions, ' + r0(f.p) + ' grams of protein today, ' + cm + ' minutes of cardio this week">' + svg + lg + '</div>';
+    var lg = '<ul class="rl"><li><i style="background:var(--hold)"></i><b class="num">' + wd + '</b>/12 sessions in program week ' + store.week + '</li><li><i style="background:var(--rep)"></i><b class="num">' + r0(f.p) + '</b>' + (tg ? '/' + tg : '') + ' g protein today</li><li><i style="background:var(--ok)"></i><b class="num">' + cm + '</b>/150 cardio min, last 7 days</li></ul>';
+    return '<div class="hero-r" role="img" aria-label="' + wd + ' of 12 sessions done in program week ' + store.week + ', ' + r0(f.p) + ' grams of protein today, ' + cm + ' minutes of cardio in the last 7 days">' + svg + lg + '</div>';
   }
 
   // ---------- profile ----------
@@ -3354,7 +3416,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     return painMemo.v[id] || {};
   }
   function bodyKg() { return store.body.length ? store.body[store.body.length - 1].kg : prof().bw; }
-  function proteinTarget() { var b = bodyKg(); return b ? Math.round(b * 1.6) : null; }
+  // 1.6 g/kg; with a BMI of 30 or more, of an adjusted weight (ideal + 40% of the extra), so the target isn't inflated by body fat
+  function proteinTarget() { var b = bodyKg(), cm = prof().cm; if (!b) return null; if (cm) { var ideal = 25 * Math.pow(cm / 100, 2); if (b > ideal * 1.2) b = ideal + 0.4 * (b - ideal); } return Math.round(b * 1.6); }
   // Mifflin–St Jeor resting energy x 1.55 (training 4 days a week plus walking)
   function kcalTarget() {
     var p = prof(), b = bodyKg(); if (!b || !p.age || !p.cm || !p.sex || p.sex === 'x') return null;
@@ -3421,7 +3484,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   var NUMW = { a: 1, an: 1, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, half: 0.5, couple: 2, both: 2 };
   var TENS = { twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90 };
   function norm(t) {
-    t = ' ' + String(t || '').toLowerCase().replace(/[’']/g, '\'').replace(/×/g, 'x').replace(/½/g, '0.5').replace(/(\d),(\d)/g, '$1.$2') + ' ';
+    t = ' ' + String(t || '').toLowerCase().replace(/[’']/g, '\'').replace(/×/g, 'x').replace(/½/g, '0.5').replace(/\b(\d{1,3})((?:,\d{3})+)\b/g, function (m, a, b) { return a + b.replace(/,/g, ''); }).replace(/(\d),(\d)/g, '$1.$2') + ' ';
     t = t.replace(/\b(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:[- ](one|two|three|four|five|six|seven|eight|nine))?\b/g, function (m, a, b) { return String(TENS[a] + (b ? NUMW[b] : 0)); });
     t = t.replace(/\b(\d+) hundred(?: and)? ?(\d+)?/g, function (m, a, b) { return String(+a * 100 + (+b || 0)); });
     t = t.replace(/\b(thoda|thodi|thoda sa|little bit of|a little|a bit of|small portion of)\s+/g, '0.5 ');
@@ -3498,6 +3561,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     return { n: f[0], q: qty, u: unit || f[7], g: r0(g), p: r1(f[2] * k), c: r1(f[3] * k), f: r1(f[4] * k), k: r0(f[5] * k), fb: r1((FIBER[f[0]] || 0) * k), d: f[8] };
   }
   function parseFood(t) {
+    t = t.replace(/\b(?:no|without|minus|zero|skip(?:ped)?(?: the)?|hold the|didn'?t have|did not have|didn'?t eat|did not eat)\s+(?:any\s+)?([a-z]+(?:\s(?:milk|sugar|rice|bread|cream|oil))?)/g, ' ');
     var items = [], s = t, R = foodIndex();
     for (var j = 0; j < R.length; j++) {
       var m; while ((m = s.match(R[j][0]))) {
@@ -3515,7 +3579,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     return { items: items, left: left };
   }
   var MEALW = /\b(breakfast|lunch|dinner|snack|brunch|supper|pre-workout|post-workout)\b/;
-  function mealName(t) { var m = t.match(MEALW); if (m) return m[1].charAt(0).toUpperCase() + m[1].slice(1); var h = new Date().getHours(); return h < 11 ? 'Breakfast' : h < 15 ? 'Lunch' : h < 18 ? 'Snack' : 'Dinner'; }
+  var mealWhen = null;
+  function mealName(t) { var m = t.match(MEALW); if (m) return m[1].charAt(0).toUpperCase() + m[1].slice(1); var h = new Date(mealWhen || Date.now()).getHours(); return h < 11 ? 'Breakfast' : h < 15 ? 'Lunch' : h < 18 ? 'Snack' : 'Dinner'; }
   var AREAS_PAIN = { knee: /\bknees?\b|patella|kneecap/, back: /\b(lower )?back\b|spine|lumbar/, shoulder: /\bshoulders?\b|rotator/, elbow: /\belbows?\b|tennis elbow|golfer/, ankle: /\bankles?\b|achilles|heel|calf|calves|shin/, hip: /\bhips?\b|groin|glute/, wrist: /\bwrists?\b|forearm|hand|fingers?/, neck: /\bneck\b|traps?\b/, hamstring: /hamstrings?/ };
   var AREA_TAGS = { knee: ['Knees'], back: ['Lower back'], shoulder: ['Side delts', 'Front delts', 'Rear delts'], elbow: ['Triceps', 'Biceps'], ankle: ['Calves', 'Ankles'], hip: ['Glutes', 'Hamstrings'], wrist: ['Forearms', 'Grip'], neck: ['Traps', 'Upper back'], hamstring: ['Hamstrings'] };
   function painArea(t) { for (var k in AREAS_PAIN) if (AREAS_PAIN[k].test(t)) return k; return null; }
@@ -3548,6 +3613,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if ((m = t.match(/\b(\d)\s*(?:'|ft|foot|feet)\s*(\d{1,2})?\s*(?:"|in|inches)?\s*(?:tall)?\b/)) && /tall|height|i'?m/.test(t)) return { type: 'set_profile', cm: Math.round((+m[1] * 12 + (+m[2] || 0)) * 2.54) };
     // bodyweight
     if ((m = t.match(/\b(?:i )?(?:weigh(?:ed)?|weight (?:is|was|today)|body ?weight|bw|scale(?: says| said| reads)?|my weight)\D{0,10}(\d{2,3}(?:\.\d+)?)\s*(kg|lb)?\b/)) && !findEx(t)) return { type: 'log_bodyweight', weight: +m[1], unit: m[2] || prof().units };
+    // pain that has settled clears the warning
+    if (painArea(t) && /\b(fine|better|good|okay|ok|no pain|pain free|pain-free|gone|recovered|settled)\b/.test(t) && !/\b(not|isn'?t|no longer)\s+(fine|better|good|okay|ok)\b/.test(t)) return { type: 'log_pain', area: painArea(t), score: 0, cleared: true };
     // pain
     if (/\b(pain|painful|hurts?|hurting|sore|soreness|ache|aches|aching|achy|niggle|tweak|twinge|sharp|tender|stiff)\b/.test(t)) {
       var ar = painArea(t), sc = (m = t.match(/(\d{1,2})\s*(?:\/|out of)\s*10/)) ? +m[1] : (m = t.match(/\b(?:pain|level|at|is)\s*(\d)\b/)) ? +m[1] : /sharp|bad|really|very|severe|a lot|swollen|can'?t/.test(t) ? 6 : /mild|slight|little|bit|bit of/.test(t) ? 2 : 3;
@@ -3620,8 +3687,13 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   function bareStones(raw) { var m = norm(raw).match(/^\s*(?:i'?m\s*)?(\d{2,3}(?:\.\d+)?) kg\s*$/); return /\bst(one)?s?\b/i.test(raw) && m ? +m[1] : null; }
   var QWORDS = /^\s*(what|what's|whats|how|why|should|can|could|is|are|does|when|which|where|will|would|tell me|explain|any ideas|give me|suggest|help|(?:do|did) (?:i|you|we))\b/;
+  var PLANRE = /\b(going to|gonna|planning|plan to|want to|wanna|will (?:eat|have|do|go|try)|i'?ll (?:eat|have|do|go|try)|thinking of|tomorrow|later today|tonight i)\b/;
+  // "yesterday" / "last night": log it on that day
+  function whenOf(raw) { var w = whenOf0(raw); mealWhen = w; return w; }
+  function whenOf0(raw) { var t = String(raw).toLowerCase(), d = new Date(); if (/\byesterday\b|\blast night\b/.test(t)) { d.setDate(d.getDate() - 1); d.setHours(/night|dinner|evening/.test(t) ? 20 : 12, 0, 0, 0); return d.getTime(); } var m = t.match(/\b(\d)\s+days?\s+ago\b/); if (m) { d.setDate(d.getDate() - +m[1]); d.setHours(12, 0, 0, 0); return d.getTime(); } return null; }
   function parseText(raw) {
-    var t = norm(raw), out = { actions: [], unknown: [], question: QWORDS.test(t) || /\?\s*$/.test(raw) };
+    var t = norm(raw), out = { actions: [], unknown: [], question: QWORDS.test(t) || /\?\s*$/.test(raw), plan: PLANRE.test(t) && !/\b(did|done|had|ate|finished)\b/.test(t) };
+    if (out.plan) return out;
     if (out.question) return out;
     if (bareStones(raw)) { out.actions.push({ type: 'log_bodyweight', weight: bareStones(raw), unit: 'kg' }); return out; }
     var parts = t.split(/(?:\.(?!\d))+|[;!\n]+|,\s*(?:and\s+)?(?=[a-z])|\b(?:and then|then|also|plus|and|with|aur|n)\b/);
@@ -3689,19 +3761,20 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   if (!feed) { feed = (cget('chat', []) || []).map(function (m) { return { t: 0, r: m.role === 'user' ? 'u' : 'm', x: m.text }; }); }
   function saveFeed() { cput('feed', feed.filter(function (m) { return m.r !== 'err' && !(m.r === 'm' && !m.x); }).slice(-FEED_MAX)); }
   function pushCard(c) { c.t = c.t || Date.now(); c.r = 'card'; feed.push(c); return c; }
-  function apply(a, src, photo) {
-    var now = Date.now(), card = null, p = prof();
+  function apply(a, src, photo, when) {
+    var now = when || Date.now(), card = null, p = prof();
     switch (a.type) {
       case 'log_food': {
+        var odd = (a.items || []).filter(function (i) { return (i.kcal || i.k || 0) > 2500 || (i.protein_g || i.p || 0) > 150 || (i.grams || i.g || 0) > 3000; });
         var items = (a.items || []).map(function (i) { return i.n ? i : { n: i.name || 'Food', q: 1, u: 'g', g: r0(i.grams || 0), p: r1(i.protein_g || 0), c: r1(i.carbs_g || 0), f: r1(i.fat_g || 0), k: r0(i.kcal || 0), fb: r1(i.fiber_g || 0) }; });
         if (!items.length) return null;
         var meal = { t: now, meal: a.meal_name || mealName(''), items: items, src: src, ph: photo || null };
         store.food.push(meal); save();
         var tot = sumFood([meal]), tgt = proteinTarget(), day = sumFood(today(store.food));
         var off = items.filter(function (i) { return i.d && DIET_OK[p.diet] && DIET_OK[p.diet].indexOf(i.d) < 0; });
-        card = { k: 'food', ref: now, title: meal.meal + ': ' + r0(tot.p) + ' g protein', lines: items.map(function (i) { return foodLine(i); }),
+        card = { k: 'food', ref: now, title: meal.meal + ': about ' + r0(tot.p) + ' g protein', lines: items.map(function (i) { return foodLine(i); }),
           sub: r0(tot.k) + ' kcal · ' + (p.diet === 'keto' ? r0(tot.net) + ' g net carbs' : r0(tot.c) + ' g carbs') + ' · ' + r0(tot.f) + ' g fat' + (tgt ? '. Today: ' + r0(day.p) + ' of ' + tgt + ' g protein.' : '') + (p.diet === 'keto' ? ' Net carbs today: ' + r0(day.net) + ' of 30 g.' : ''),
-          warn: off.length ? off.map(function (i) { return i.n; }).join(', ') + (off.length > 1 ? ' don’t' : ' doesn’t') + ' fit a ' + DIETS.filter(function (d) { return d[0] === p.diet; })[0][1].toLowerCase() + ' diet. Logged anyway; tap Undo if that was a mistake.' : '',
+          warn: odd.length ? 'That estimate looks too high for one meal. Check the portions, or tap an item to set its grams.' : off.length ? off.map(function (i) { return i.n; }).join(', ') + (off.length > 1 ? ' don’t' : ' doesn’t') + ' fit a ' + DIETS.filter(function (d) { return d[0] === p.diet; })[0][1].toLowerCase() + ' diet. Logged anyway; tap Undo if that was a mistake.' : '',
           ph: photo || null, scale: 1 };
         break;
       }
@@ -3710,7 +3783,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         var kg0 = a.weight != null ? toKg(+a.weight, a.unit || p.units) : null;
         if (!a.eq && kg0 >= 40 && ex.eq !== 'b' && store.eq.indexOf('b') > -1) { var bo = parseEq(EQV[a.exercise][kind === 'h' ? 'h' : 'g']).filter(function (o) { return o.eq === 'b' && o.style === 'bar'; })[0]; if (bo) ex = V(a.exercise, kind === 'h' ? 'h' : 'g', bo); }
         if (!a.eq && ex.eq === 'c') { var alt = parseEq(EQV[a.exercise][kind === 'h' ? 'h' : 'g']).filter(function (o) { return o.eq !== 'c' && o.eq !== 'w' && store.eq.indexOf(o.eq) > -1; })[0] || parseEq(EQV[a.exercise][kind === 'h' ? 'h' : 'g']).filter(function (o) { return o.eq === 'd'; })[0]; if (alt) ex = V(a.exercise, kind === 'h' ? 'h' : 'g', alt); }
-        var kgv = a.weight != null ? toKg(+a.weight, a.unit || p.units) : getWt(a.exercise, ex, kind);
+        if (a.weight != null && toKg(+a.weight, a.unit || p.units) > 450) return { k: 'err', title: 'That weight looks wrong', lines: ['Nothing logged. Check the number and unit.'] };
+        var kgv = a.weight != null ? toKg(+a.weight, a.unit || p.units) : _getWt(a.exercise, ex, kind);
         var v = part === 'hold' ? a.seconds || null : a.reps || null; if (!v) return null;
         var vals = [], n = Math.max(1, Math.min(10, a.sets || 1)), ts = [];
         for (var i0 = 0; i0 < n; i0++) vals.push(+v); (a.more || []).forEach(function (x) { vals.push(+x); });
@@ -3729,6 +3803,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       }
       case 'log_lift': {
         if (!a.reps && !a.seconds) return null;
+        if (a.weight != null && toKg(+a.weight, a.unit || p.units) > 450) return { k: 'err', title: 'That weight looks wrong', lines: ['Nothing logged. Check the number and unit.'] };
         var lk = a.weight != null ? toKg(+a.weight, a.unit || p.units) : null, ln = Math.max(1, Math.min(10, a.sets || 1));
         store.notes.push({ t: now, k: 'lift', name: String(a.name || 'Exercise').slice(0, 40), kg: lk, reps: a.reps || null, s: a.seconds || null, sets: ln }); save();
         card = { k: 'set', ref: now, lift: 1, title: a.name || 'Exercise', lines: [ln + ' × ' + (lk ? kg(lk) + ' × ' : '') + (a.reps ? a.reps + ' reps' : a.seconds + ' s')], sub: 'Logged as an extra exercise. It’s not part of the program, so it shows under Other lifts on the Progress tab.' };
@@ -3754,11 +3829,12 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         if (!mn && km) { mn = r0(km * ({ Running: 6, Cycling: 3, Rowing: 4.5, Swimming: 25 }[a.machine] || 12)); est = true; } else if (!mn && a.steps) { mn = r0(a.steps / 110); est = true; }
         if (!mn && !km && !a.steps) return null;
         store.notes.push({ t: now, k: 'cardio', m: a.machine || 'Walking', min: mn, km: km, steps: a.steps || null, hard: !!a.hard }); save();
-        card = { k: 'cardio', ref: now, title: (a.machine || 'Walking') + (mn ? ', ' + (est ? 'about ' : '') + mn + ' min' : ''), lines: [[km ? (isLb() ? r1(km / 1.609) + ' mi' : km + ' km') : '', a.steps ? a.steps + ' steps' : '', a.hard ? 'hard effort' : ''].filter(Boolean).join(' · ') || 'Logged.'], sub: 'Cardio this week: ' + weekCardio() + ' min. The guideline is 150.' };
+        card = { k: 'cardio', ref: now, title: (a.machine || 'Walking') + (mn ? ', ' + (est ? 'about ' : '') + mn + ' min' : ''), lines: [[km ? (isLb() ? r1(km / 1.609) + ' mi' : km + ' km') : '', a.steps ? a.steps + ' steps' : '', a.hard ? 'hard effort' : ''].filter(Boolean).join(' · ') || 'Logged.'], sub: 'Cardio in the last 7 days: ' + weekCardio() + ' min, counting logged walks and finished sessions. The guideline is 150 a week.' };
         break;
       }
       case 'log_pain': {
-        store.notes.push({ t: now, k: 'pain', area: a.area || 'general', score: a.score, sharp: !!a.sharp, sore: !!a.soreness }); save();
+        store.notes.push({ t: now, k: 'pain', area: a.area || 'general', score: a.score, sharp: !!a.sharp, sore: !!a.soreness }); save(); renderTrain();
+        if (a.cleared || a.score === 0) { card = { k: 'pain', ref: now, title: areaName(a.area).replace(/^./, function (c) { return c.toUpperCase(); }) + ': no pain', lines: ['Good. Your sessions are back to normal for this area.'] }; break; }
         card = { k: 'pain', ref: now, title: (a.soreness ? 'Soreness' : 'Pain') + ', ' + areaName(a.area) + (a.score != null ? ': ' + a.score + '/10' : ''), lines: painAdvice(a), warn: a.sharp || a.score >= 7 ? 'Sharp pain, swelling, numbness or pain above 6/10: stop training that area and see a physiotherapist or doctor.' : '' };
         break;
       }
@@ -3802,7 +3878,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       }
       case 'mark_done': {
         var day = allDays()[nextDayIdx()], key = doneKey(day, a.session || 'am');
-        store.done[key] = true; save(); var w0 = store.week; checkWeek(); if (store.week === w0) selDay = nextDayIdx(); renderAll();
+        store.done[key] = Date.now(); save(); var w0 = store.week; checkWeek([key]); if (store.week === w0) selDay = nextDayIdx(); renderAll();
         card = { k: 'cfg', undo: { done: key }, title: (a.session === 'pm' ? 'Evening' : 'Morning') + ' session marked done', lines: [day.name + ', week ' + w0 + '.'] };
         break;
       }
@@ -3823,7 +3899,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       case 'navigate': { var tb = { train: 'train', training: 'train', exercise: 'exercises', exercises: 'exercises', progress: 'progress', guide: 'guide', log: 'coach', settings: 'profile', profile: 'profile' }[a.tab]; if (tb === 'profile') setTimeout(function () { openProfile(null); }, 200); else setTimeout(function () { show(tb); }, 200); return null; }
       default: return null;
     }
-    if (card) { card.src = src; pushCard(card); }
+    if (card) { card.src = src; if (when) { card.title += ' (' + (dayStart(when) === dayStart() - 864e5 ? 'yesterday' : new Date(when).toLocaleDateString(undefined, { weekday: 'long' })) + ')'; } pushCard(card); }
     return card;
   }
   function undoCard(c) {
@@ -3849,10 +3925,16 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var s = Date.now() - 7 * 864e5, m = store.notes.filter(function (n) { return n.k === 'cardio' && n.t >= s; }).reduce(function (x, n) { return x + (n.min || 0); }, 0);
     return m + cardioDoneMins(s);
   }
+  function weekSessions() { var s = Date.now() - 7 * 864e5; return Object.keys(store.done).filter(function (k) { return typeof store.done[k] === 'number' && store.done[k] >= s; }).length; }
   // minutes of cardio done in sessions completed since time s (from the program, using this week's plan)
   function cardioDoneMins(s) {
-    var n = 0, ph = phaseOf(store.week);
-    allDays().forEach(function (d) { ['am', 'pm'].forEach(function (pt) { if (store.done[doneKey(d, pt)]) n += Math.round(buildQueue(d, pt, ph).filter(function (it) { return it.kind === 'cardio'; }).reduce(function (x, it) { return x + it.dur; }, 0) / 60); }); });
+    // only sessions with a finish time in the window count, so old weeks (or ticks without a date) don't inflate it
+    var n = 0;
+    Object.keys(store.done).forEach(function (k) {
+      var v = store.done[k], m = k.match(/^w(\d+)(.+?)(am|pm)$/); if (typeof v !== 'number' || v < s || !m) return;
+      var d = allDays().filter(function (x) { return x.id === m[2]; })[0]; if (!d) return;
+      n += Math.round(buildQueue(d, m[3], phaseOf(+m[1])).filter(function (it) { return it.kind === 'cardio'; }).reduce(function (x, it) { return x + it.dur; }, 0) / 60);
+    });
     return n;
   }
   var AREA_EX = { neck: ['lateral-raise', 'oh-triceps', 'sa-row', 'rear-fly', 'suitcase'] };
@@ -3970,12 +4052,13 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     setSendState();
   }
   var CARD_IC = { food: '🍽', set: '🏋', body: '⚖', cardio: '🚶', pain: '⚠', water: '💧', sleep: '🌙', cfg: '✓', err: '!' };
+  function canUndoCfg(c, i) { if (Date.now() - c.t > 15 * 60000) return false; for (var j = i + 1; j < feed.length; j++) if (feed[j].r === 'card' && feed[j].k === 'cfg' && feed[j].undo && !feed[j].undone) return false; return true; }
   function cardHtml(c, i) {
     return '<div class="lgc ' + c.k + (c.undone ? ' undone' : '') + '"><div class="lgc-h"><span class="lgc-i" aria-hidden="true">' + CARD_IC[c.k] + '</span><b>' + esc(c.title) + '</b>' + (c.pb ? '<span class="pb">New best</span>' : '') + '</div>' +
       (c.ph ? '<img class="lg-ph" data-ph="' + c.ph + '" alt="Meal photo">' : '') +
-      (c.lines && c.lines.length ? '<ul>' + c.lines.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') + '</ul>' : '') +
+      (c.lines && c.lines.length ? '<ul>' + c.lines.map(function (l, j) { return '<li>' + (c.k === 'food' && !c.undone ? '<button class="lgc-ed" data-ed="' + i + ':' + j + '" aria-label="Change the amount of ' + esc(l.split(' (')[0]) + '">' + esc(l) + '</button>' : esc(l)) + '</li>'; }).join('') + '</ul>' : '') + (c.k === 'food' && !c.undone ? '<p class="lgc-s">Estimates. Tap an item to set its exact grams.</p>' : '') +
       (c.sub ? '<p class="lgc-s">' + esc(c.sub) + '</p>' : '') + (c.warn ? '<p class="lgc-w">' + esc(c.warn) + '</p>' : '') +
-      (c.undone ? '<p class="lgc-s">Undone.</p>' : c.k === 'err' ? '' : '<div class="lg-acts">' + (c.k === 'food' ? '<span class="lgc-l">Portion</span>' + [0.5, 1.5, 2].map(function (x) { return '<button class="btn sm quiet" data-scale="' + i + '" data-x="' + x + '">' + (x === 0.5 ? '½×' : x + '×') + '</button>'; }).join('') : '') + ((c.ref || c.undo) ? '<button class="btn sm line" data-undo="' + i + '">Undo</button>' : '') + '</div>') + '</div>';
+      (c.undone ? '<p class="lgc-s">Undone.</p>' : c.k === 'err' ? '' : '<div class="lg-acts">' + (c.k === 'food' ? '<span class="lgc-l">Portion</span>' + [0.5, 1.5, 2].map(function (x) { return '<button class="btn sm quiet" data-scale="' + i + '" data-x="' + x + '">' + (x === 0.5 ? '½×' : x + '×') + '</button>'; }).join('') : '') + ((c.ref || (c.undo && canUndoCfg(c, i))) ? '<button class="btn sm line" data-undo="' + i + '">Undo</button>' : '') + '</div>') + '</div>';
   }
   function renderDay() {
     var f = sumFood(today(store.food)), tg = proteinTarget(), kt = kcalTarget(), sets = today(store.log).length;
@@ -4012,9 +4095,10 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     text = (text || '').trim(); if (!text) return;
     $('cIn').value = ''; autoGrow();
     feed.push({ t: Date.now(), r: 'u', x: text, src: src });
-    var res = parseText(text), cards = [];
+    var when = whenOf(text), res = parseText(text.replace(/\b(yesterday|last night|this morning|this evening|tonight|today|\d+\s+days?\s+ago)\b/gi, ' ')), cards = [];
+    if (res.plan) { feed.push({ t: Date.now(), r: 'm', x: 'That sounds like a plan, so I haven’t logged it. Tell me once you’ve done it, like “had 2 eggs” or “did goblet squat 16 kg 30 s”.' }); saveFeed(); renderCoach(); scrollEnd(); return; }
     if (res.unknown.length && coach.key && navigator.onLine && !res.question) { aiText(text, src); saveFeed(); renderCoach(); scrollEnd(); return; }
-    if (!res.question) res.actions.forEach(function (a) { var c = apply(a, src); if (c) cards.push(c); });
+    if (!res.question) res.actions.forEach(function (a) { var c = apply(a, src, null, when); if (c) cards.push(c); });
     if (cards.length) {
       // anything we couldn't place goes to Gemini (if connected) so nothing is silently dropped
       if (res.unknown.length) feed.push({ t: Date.now(), r: 'm', x: 'I didn’t recognise “' + res.unknown.join('”, “') + '”. ' + (coach.key ? '' : 'Rephrase it, or connect Gemini in settings to log anything.') });
@@ -4114,10 +4198,17 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       var c2 = feed[+b.dataset.scale], m = c2 && store.food.filter(function (x) { return x.t === c2.ref; })[0]; if (!m) return;
       var x = +b.dataset.x / (c2.scale || 1); c2.scale = +b.dataset.x;
       m.items.forEach(function (it) { ['g', 'k'].forEach(function (k) { it[k] = r0(it[k] * x); }); ['p', 'c', 'f', 'q'].forEach(function (k) { it[k] = r1(it[k] * x); }); });
-      var tot = sumFood([m]); c2.title = m.meal + ': ' + r0(tot.p) + ' g protein'; c2.lines = m.items.map(foodLine); c2.sub = r0(tot.k) + ' kcal · ' + r0(tot.c) + ' g carbs · ' + r0(tot.f) + ' g fat (portion ' + (c2.scale === 0.5 ? '½' : c2.scale) + '×).';
+      var tot = sumFood([m]); c2.title = m.meal + ': about ' + r0(tot.p) + ' g protein'; c2.lines = m.items.map(foodLine); c2.sub = r0(tot.k) + ' kcal · ' + r0(tot.c) + ' g carbs · ' + r0(tot.f) + ' g fat (portion ' + (c2.scale === 0.5 ? '½' : c2.scale) + '×).';
       save(); saveFeed(); renderCoach(); return;
     }
     if (b.dataset.pick) { var q = feed[+b.dataset.pick]; pickPhotoKind(q, b.dataset.v); return; }
+    if (b.dataset.ed) {
+      var ij = b.dataset.ed.split(':'), c3 = feed[+ij[0]], meal = c3 && store.food.filter(function (x) { return x.t === c3.ref; })[0], it = meal && meal.items[+ij[1]]; if (!it) return;
+      var g = parseFloat(window.prompt('How many grams of ' + it.n + '?', it.g)); if (!(g > 0 && g < 5000)) return;
+      var k = g / (it.g || g); ['p', 'c', 'f', 'fb'].forEach(function (x) { if (it[x] != null) it[x] = r1(it[x] * k); }); it.k = r0(it.k * k); it.q = r1((it.q || 1) * k); it.g = r0(g); it.u = 'g';
+      var tt = sumFood([meal]); c3.title = meal.meal + ': about ' + r0(tt.p) + ' g protein'; c3.lines = meal.items.map(foodLine); c3.sub = r0(tt.k) + ' kcal · ' + r0(tt.c) + ' g carbs · ' + r0(tt.f) + ' g fat (edited).';
+      save(); saveFeed(); renderCoach(); renderTrain(); return;
+    }
   });
   $('lgDay').addEventListener('click', function (e) { if (e.target.closest('[data-prof]')) openProfile(e.target); });
   $('cNew').addEventListener('click', function () { if (coach.ctl) coach.ctl.abort(); feed = []; saveFeed(); renderCoach(); });
@@ -4416,6 +4507,10 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   var tipsOpen = false;
   function trainExtras() {
     var p = prof(), h = '';
+    if (storageWarn === 'blocked') h += '<div class="card warnc"><b>Your progress isn’t being saved</b><p>This browser is blocking storage (often private browsing). Open Isohold in a normal window, or add it to your Home Screen.</p></div>';
+    if (storageWarn === 'full') h += '<div class="card warnc"><b>Storage is full</b><p>Your latest changes may not be saved. Save a backup file on the Progress tab now.</p><button class="btn sm go" data-gobk="1">Save a backup</button></div>';
+    var ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (ios && !standalone() && /^https?:/.test(location.protocol) && (store.log.length || store.food.length || Object.keys(store.done).length) && !cget('nudgeHS', 0)) h += '<div class="card nudge"><b>Keep your progress safe</b><p>Safari can delete a website’s data if you don’t open it for 7 days. Add Isohold to your Home Screen (Share, then Add to Home Screen) and it keeps your data. A backup file is a good idea too.</p><div class="bk-row"><button class="btn sm go" data-inst="1">How to add it</button><button class="btn sm line" data-nohs="1">Not now</button></div></div>';
     var lastT = Math.max(0, store.log.length ? store.log[store.log.length - 1].t : 0, (store.notes.filter(function (n) { return n.k === 'cardio'; }).pop() || {}).t || 0), gap = lastT ? Math.floor((Date.now() - lastT) / 864e5) : 0;
     if (gap >= 5) h += '<div class="card nudge"><b>Welcome back</b><p>It’s been ' + gap + ' days. The plan picks up where you left off.' + (gap >= 10 ? ' After more than a week away, start with the short version or go about 20% lighter for your first two sessions.' : '') + '</p></div>';
     if (!store.profile) h += '<div class="card nudge"><b>Make it yours</b><p>Set your diet, units, equipment (home or gym) and any joints to look after. It takes a minute.</p><button class="btn sm go" data-prof="1">Set up profile</button></div>';
@@ -4435,6 +4530,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function extrasClick(e) {
     var b = e.target.closest('button'); if (!b) return;
     if (b.dataset.prof) return openProfile(b);
+    if (b.dataset.inst) return openInstall(b);
+    if (b.dataset.nohs) { cput('nudgeHS', 1); return trainExtras(); }
+    if (b.dataset.gobk) { show('progress'); setTimeout(function () { var x = $('bkFile'); if (x) { x.scrollIntoView({ block: 'center' }); x.focus(); } }, 100); return; }
     if (b.dataset.quick) { show('coach'); if (b.dataset.quick === 'cam') $('cCam').click(); else if (b.dataset.quick === 'mic') toggleMic(); else $('cIn').focus(); }
   }
   $('extras').addEventListener('click', extrasClick); $('extras').addEventListener('toggle', function (e) { if (e.target.classList.contains('tipc')) tipsOpen = e.target.open; }, true); $('fuel').addEventListener('click', extrasClick);
@@ -4578,6 +4676,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (v <= 0 || (it.kind === 'hold' && v < 5)) return;
     var w = getWt(it.id, it.ex, it.wk);
     var e = { t: Date.now(), w: store.week, id: it.id, eq: it.ex.eq, k: it.wk, kg: it.ex.eq === 'w' ? 0 : w, v: v };
+    if (e.kg && _getWt(it.id, it.ex, it.wk) == null) e.sug = 1; // you never set or confirmed this weight
     unlog(it); store.log.push(e); it.logged = e;
     if (isPB(e) && !P.pbs[it.id + it.wk]) { P.pbs[it.id + it.wk] = 1; haptic('success'); beep(988, .12); setTimeout(function () { beep(1319, .2); }, 130); }
     if (store.log.length > 4000) store.log.splice(0, store.log.length - 4000);
@@ -4586,8 +4685,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function unlog(it) { if (it && it.logged) { var i = store.log.indexOf(it.logged); if (i > -1) store.log.splice(i, 1); it.logged = null; save(); } }
   function finish() {
     var anyLogged = P.day.cardio || P.q.some(function (x) { return x.logged; });
-    if (anyLogged) partsOf(P.part).forEach(function (pt) { store.done['w' + store.week + P.day.id + pt] = true; }); save();
-    var wk0 = store.week; if (anyLogged) checkWeek(); if (store.week === wk0) selDay = nextDayIdx();
+    var dKeys = partsOf(P.part).map(function (pt) { return 'w' + store.week + P.day.id + pt; });
+    if (anyLogged) dKeys.forEach(function (k) { store.done[k] = Date.now(); }); save();
+    var wk0 = store.week; if (anyLogged) checkWeek(dKeys); if (store.week === wk0) selDay = nextDayIdx();
     P.stage = 'done'; beep(523, .2); setTimeout(function () { beep(784, .4); }, 220);
     $('pPhase').textContent = 'Done'; $('pPhase').className = 'p-phase rest';
     $('pName').textContent = anyLogged ? 'Session complete' : 'Nothing logged';
@@ -4832,7 +4932,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     $('bkConfirm').hidden = true; pending = null;
     try { pending = parseCode($('bkIn').value); } catch (e) { msg('bkMsg', e.message, 'err'); return; }
     msg('bkMsg', '', '');
-    $('bkConfirmTxt').textContent = 'This backup is on week ' + pending.week + ' with ' + countDone(pending.done) + ' done. It will replace the progress on this phone (week ' + store.week + ', ' + countDone(store.done) + ' done).';
+    var cnt = function (o) { return countDone(o.done) + ', ' + (o.log || []).length + ' sets, ' + (o.food || o.fd || []).length + ' meals, ' + (o.body || o.bw || []).length + ' weigh-ins'; };
+    $('bkConfirmTxt').textContent = 'Backup: week ' + pending.week + ', ' + cnt(pending) + '. This phone now: week ' + store.week + ', ' + cnt(store) + '. Restoring replaces what’s on this phone' + (pending.fd ? '' : ' (this backup has no meals, weigh-ins or profile, so those stay as they are)') + '.';
     $('bkConfirm').hidden = false;
   });
   $('bkNo').addEventListener('click', function () { pending = null; $('bkConfirm').hidden = true; msg('bkMsg', 'Restore cancelled.', ''); });
