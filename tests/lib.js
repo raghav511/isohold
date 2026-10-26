@@ -18,7 +18,7 @@ async function open(kind, opts = {}) {
   const b = await (kind === 'android' ? chromium : webkit).launch();
   // opts.viewport: e.g. a tablet; opts.textScale: page zoom (the CSS viewport shrinks, as with Android/iOS zoom); opts.forcedColors: high-contrast mode
   const vp = opts.viewport || dev.viewport, z = opts.textScale || 1;
-  const ctx = await b.newContext({ ...dev, viewport: { width: Math.round(vp.width / z), height: Math.round(vp.height / z) }, deviceScaleFactor: dev.deviceScaleFactor * z, colorScheme: opts.dark ? 'dark' : 'light', forcedColors: opts.forcedColors ? 'active' : 'none', ...(opts.timezoneId ? { timezoneId: opts.timezoneId } : {}), serviceWorkers: opts.sw ? 'allow' : 'block', permissions: kind === 'android' ? ['microphone', 'camera'] : [] });
+  const ctx = await b.newContext({ ...dev, viewport: { width: Math.round(vp.width / z), height: Math.round(vp.height / z) }, deviceScaleFactor: dev.deviceScaleFactor * z, colorScheme: opts.dark ? 'dark' : 'light', forcedColors: opts.forcedColors ? 'active' : 'none', ...(opts.timezoneId ? { timezoneId: opts.timezoneId } : {}), ...(opts.locale ? { locale: opts.locale } : {}), serviceWorkers: opts.sw ? 'allow' : 'block', permissions: kind === 'android' ? ['microphone', 'camera'] : [] });
   if (opts.state) await ctx.addInitScript(s => { if (!localStorage.getItem('isohold.v1')) localStorage.setItem('isohold.v1', s); }, JSON.stringify(opts.state));
   if (opts.init) await ctx.addInitScript(opts.init);
   if (opts.before) await opts.before(ctx);

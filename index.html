@@ -2737,7 +2737,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       return '<article class="sess' + (dn ? ' done' : '') + '"><div class="sess-top"><h3>Today</h3>' + (dn ? '<span class="donechip">' + I_CHECK.replace('<svg', '<svg width="18" height="18"') + 'Done</span>' : '<span class="mins num">' + mm + ' min</span>') + '</div>' +
         '<p class="sum">' + esc(sum2) + '</p>' + thumbs(day, 'all') + '<div class="sess-actions"><button class="btn ' + (dn ? 'quiet' : 'go') + ' block" data-start="' + day.id + '" data-part="all">' + (dn ? 'Do it again' : 'Start session') + '</button>' +
         '<button class="chk" data-done="all:' + day.id + '" aria-pressed="' + dn + '" aria-label="Mark today’s session as done">' + I_CHECK + '</button></div>' +
-        (day.cardio || dn || mm - sm < 4 || buildQueue(day, 'all', ph).trimNote ? '' : '<button class="textbtn shortbtn" data-start="' + day.id + '" data-part="short-all">Short on time? ' + sm + '-min version, no warm-up</button>') +
+        (day.cardio || dn || !sm || mm - sm < 4 || buildQueue(day, 'all', ph).trimNote ? '' : '<button class="textbtn shortbtn" data-start="' + day.id + '" data-part="short-all">Short on time? ' + sm + '-min version, no warm-up</button>') +
         '<details data-pk="' + day.id + 'all"' + (openPlans[day.id + 'all'] ? ' open' : '') + '><summary><span class="open-t">Show exercises</span><span class="close-t">Hide exercises</span></summary><ul class="plan">' + a.list + b.list + '</ul></details></article>';
     }
     var key = doneKey(day, part), done = !!store.done[key], m = mins(day, part, ph), name = part === 'am' ? 'Morning' : 'Evening';
@@ -2750,7 +2750,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       '<p class="sum">' + esc(sum) + '</p>' + thumbs(day, part) +
       '<div class="sess-actions"><button class="btn ' + (done ? 'quiet' : 'go') + ' block" data-start="' + day.id + '" data-part="' + part + '">' + (done ? 'Do ' + name.toLowerCase() + ' again' : 'Start ' + name.toLowerCase()) + '</button>' +
       '<button class="chk" data-done="' + key + '" aria-pressed="' + done + '" aria-label="Mark ' + name.toLowerCase() + ' as done">' + I_CHECK + '</button></div>' +
-      (day.cardio || done || m - mins(day, 'short-' + part, ph) < 4 || buildQueue(day, part, ph).trimNote ? '' : '<button class="textbtn shortbtn" data-start="' + day.id + '" data-part="short-' + part + '">Short on time? ' + mins(day, 'short-' + part, ph) + '-min version, no warm-up</button>') +
+      (day.cardio || done || !mins(day, 'short-' + part, ph) || m - mins(day, 'short-' + part, ph) < 4 || buildQueue(day, part, ph).trimNote ? '' : '<button class="textbtn shortbtn" data-start="' + day.id + '" data-part="short-' + part + '">Short on time? ' + mins(day, 'short-' + part, ph) + '-min version, no warm-up</button>') +
       '<details data-pk="' + day.id + part + '"' + (openPlans[day.id + part] ? ' open' : '') + '><summary><span class="open-t">Show exercises</span><span class="close-t">Hide exercises</span></summary><ul class="plan">' + list + '</ul></details></article>';
   }
   // small line-art pictures of what's in the session
@@ -3114,7 +3114,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
           var ho = d.ex.filter(function (id) { return has(BY[id], tag); }), gr = d.ex.filter(function (id) { return has(G[id], tag); });
           hs += ho.length * ph.sets; gsum += gr.length * ph.gs;
           var marks = ''; ho.forEach(function () { marks += '<i class="mk h"></i>'; }); gr.forEach(function () { marks += '<i class="mk r"></i>'; });
-          return '<td class="c"><span class="mks" role="img" aria-label="' + ho.length + ' holds, ' + gr.length + ' rep exercises">' + marks + '</span></td>';
+          return '<td class="c"><span class="mks" role="img" aria-label="' + ho.length + (ho.length === 1 ? ' hold, ' : ' holds, ') + gr.length + (gr.length === 1 ? ' rep exercise' : ' rep exercises') + '">' + marks + '</span></td>';
         }).join('') + '<td class="c num"><b>' + (hs + gsum) + '</b></td></tr>';
       });
     });
@@ -3126,7 +3126,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     $('tests').innerHTML = TESTS.map(function (id) {
       var t = store.tests[id] || {};
       return '<div class="test"><h3>' + esc(baseName(BY[id].name)) + '<span class="delta" id="d-' + id + '"></span></h3><div class="fields">' +
-        '<label>Weight<input id="t-' + id + '-load" data-t="' + id + '" data-k="load" value="' + esc(t.load || '') + '" placeholder="2 × 16 kg" autocomplete="off"></label>' +
+        '<label>Weight<input aria-label="' + esc(baseName(BY[id].name)) + ' test weight" id="t-' + id + '-load" data-t="' + id + '" data-k="load" value="' + esc(t.load || '') + '" placeholder="2 × 16 kg" autocomplete="off"></label>' +
         '<label>Week 1 (s)<input id="t-' + id + '-a" type="number" inputmode="numeric" min="0" data-t="' + id + '" data-k="a" value="' + esc(t.a || '') + '" placeholder="0"></label>' +
         '<label>Week 12 (s)<input id="t-' + id + '-b" type="number" inputmode="numeric" min="0" data-t="' + id + '" data-k="b" value="' + esc(t.b || '') + '" placeholder="0"></label></div></div>';
     }).join('');
@@ -3347,6 +3347,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     ['Ham', 'ham', 21, 1.5, 6, 145, 30, 'slice', 'M'],
     ['Turkey', 'turkey|turkey breast', 29, 0, 2, 135, 120, 'portion', 'M'],
     ['Salmon', 'salmon', 25, 0, 13, 208, 120, 'fillet', 'F'],
+    ['Mackerel', 'mackerel|ikan kembung|saba', 19, 0, 14, 205, 120, 'fillet', 'F'],
+    ['Sardines', 'sardines?|sardinas?', 25, 0, 11, 208, 90, 'can', 'F'],
     ['Tuna', 'tuna|canned tuna|tin of tuna', 26, 0, 1, 116, 100, 'can', 'F'],
     ['White fish', 'fish|cod|tilapia|basa|fish fillet', 20, 0, 3, 110, 150, 'fillet', 'F'],
     ['Fish curry', 'fish curry|machli', 13, 4, 8, 140, 200, 'bowl', 'F'],
@@ -3368,6 +3370,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     ['Rajma', 'rajma|kidney beans', 7, 16, 3, 120, 200, 'bowl', 'N'],
     ['Chole', 'chole|chana masala|chickpea curry|chana', 7, 18, 4, 135, 200, 'bowl', 'N'],
     ['Chickpeas', 'chickpeas|garbanzo beans', 9, 27, 2.6, 164, 160, 'cup', 'N'],
+    ['Green beans', 'green beans|french beans|string beans|runner beans', 1.8, 7, 0.2, 31, 150, 'portion', 'N'],
+    ['Cocido', 'cocido(?: madrileno)?|chickpea stew', 9, 12, 9, 170, 400, 'plate', 'M'],
     ['Black beans', 'black beans|beans|baked beans', 8, 22, 0.6, 130, 170, 'cup', 'N'],
     ['Hummus', 'hummus|houmous', 8, 14, 10, 166, 60, 'serving', 'N'],
     ['Sprouts', 'sprouts|moong sprouts|sprouted moong', 3, 6, 0.2, 30, 100, 'cup', 'N'],
@@ -3421,11 +3425,15 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     ['Salad', 'salad|green salad|veggies|vegetables', 1.5, 4, 0.2, 20, 150, 'bowl', 'N'],
     ['Cucumber', 'cucumbers?|kheera', 0.7, 3.6, 0.1, 15, 100, 'cucumber', 'N'],
     ['Vegetable curry', 'sabzi|sabji|subzi|veg curry|vegetable curry|mixed veg|bhindi|aloo gobi|palak|baingan', 2.5, 9, 5, 90, 150, 'bowl', 'N'],
-    ['Broccoli', 'broccoli|spinach|green beans', 2.8, 7, 0.4, 34, 150, 'cup', 'N'],
+    ['Broccoli', 'broccoli', 2.8, 7, 0.4, 34, 150, 'cup', 'N'],
+    ['Spinach', 'spinach|palak|kale|leafy greens', 2.9, 3.6, 0.4, 23, 100, 'cup', 'N'],
     ['Chicken salad', 'chicken salad|caesar salad', 15, 3, 8, 150, 250, 'bowl', 'M'],
     ['Pizza', 'pizzas?|slices? of pizza', 11, 33, 10, 266, 107, 'slice', 'V'],
     ['Burger', 'burgers?|cheeseburgers?', 13, 30, 12, 280, 200, 'burger', 'M'],
     ['Veggie burger', 'veggie burgers?|veg burgers?|beyond burgers?', 10, 22, 9, 220, 150, 'burger', 'N'],
+    ['Chicken sandwich', 'chicken sandwich(?:es)?|chicken wraps?|chicken rolls?|chicken subs?|chicken salad sandwich(?:es)?|chicken salad wraps?|chicken salad rolls?|chicken salad subs?|chicken mayo sandwich(?:es)?|chicken mayo wraps?|chicken mayo rolls?|chicken mayo subs?|chicken tikka sandwich(?:es)?|chicken tikka wraps?|chicken tikka rolls?|chicken tikka subs?', 13, 24, 8, 220, 200, 'sandwich', 'M'],
+    ['Fish sandwich', 'tuna sandwich(?:es)?|tuna wraps?|tuna rolls?|tuna subs?|tuna salad sandwich(?:es)?|tuna salad wraps?|tuna salad rolls?|tuna salad subs?|tuna mayo sandwich(?:es)?|tuna mayo wraps?|tuna mayo rolls?|tuna mayo subs?|sardine sandwich(?:es)?|sardine wraps?|sardine rolls?|sardine subs?|sardine salad sandwich(?:es)?|sardine salad wraps?|sardine salad rolls?|sardine salad subs?|sardine mayo sandwich(?:es)?|sardine mayo wraps?|sardine mayo rolls?|sardine mayo subs?|salmon sandwich(?:es)?|salmon wraps?|salmon rolls?|salmon subs?|salmon salad sandwich(?:es)?|salmon salad wraps?|salmon salad rolls?|salmon salad subs?|salmon mayo sandwich(?:es)?|salmon mayo wraps?|salmon mayo rolls?|salmon mayo subs?|fish sandwich(?:es)?|fish wraps?|fish rolls?|fish subs?|fish salad sandwich(?:es)?|fish salad wraps?|fish salad rolls?|fish salad subs?|fish mayo sandwich(?:es)?|fish mayo wraps?|fish mayo rolls?|fish mayo subs?', 12, 24, 9, 225, 180, 'sandwich', 'F'],
+    ['Egg sandwich', 'egg sandwich(?:es)?|egg wraps?|egg rolls?|egg subs?|egg salad sandwich(?:es)?|egg salad wraps?|egg salad rolls?|egg salad subs?|egg mayo sandwich(?:es)?|egg mayo wraps?|egg mayo rolls?|egg mayo subs?', 10, 24, 11, 235, 160, 'sandwich', 'E'],
     ['Sandwich', 'sandwich(?:es)?|subs?', 10, 30, 9, 250, 150, 'sandwich', 'V'],
     ['Samosa', 'samosas?|pakoras?|vada|vadas|bhaji', 5, 30, 17, 300, 60, 'piece', 'N'],
     ['Olive oil', 'olive oil|oil|coconut oil|mct oil', 0, 0, 100, 884, 14, 'tbsp', 'N'],
@@ -3496,7 +3504,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   document.addEventListener('visibilitychange', function () { if (!document.hidden) refreshIfStale(); });
   setInterval(refreshIfStale, 60000);
   // A newer version is online: say so, instead of quietly running the old one until the next launch
-  var APP_VERSION = '25';
+  var APP_VERSION = '26';
   function checkVersion() {
     if (!navigator.onLine || !/^https?:/.test(location.protocol)) return;
     fetch('index.html?v=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
@@ -3547,8 +3555,10 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // high blood pressure: overhead holds raise it more than the same effort at shoulder height
   // what a health flag or setting changes for one part of an exercise (wk 'h' = hold, 'r' = reps): a reason it's left out, or a note on how to do it
   var FLOOR = { hollow: 'hr', 'dead-bug': 'hr', crunch: 'hr', 'glute-bridge': 'hr', 'ham-bridge': 'hr', 'floor-press': 'hr', 'plank-db': 'hr', 'prone-y': 'hr', 'ext-rot': 'hr', 'bird-dog': 'h', 'wall-sit': 'r' };
+  function bpToday() { var b = today(store.notes).filter(function (n) { return n.k === 'bp'; }).pop(); return b && (b.sys >= 160 || b.dia >= 100) ? b : null; }
   function skipWhy(id, wk) {
-    var p = prof(), is = p.issues;
+    var p = prof(), is = p.issues, hb = bpToday();
+    if (hb) return 'your blood pressure today (' + hb.sys + '/' + hb.dia + ')';
     if (is.indexOf('bones') > -1 && (id === 'crunch' || id === 'hollow')) return 'bone health (loaded forward bending)';
     if (is.indexOf('bp') > -1 && id === 'oh-triceps') return 'blood pressure (arms overhead); kickbacks and floor presses still train the triceps';
     if (is.indexOf('knee') > -1 && ((id === 'wall-sit' && wk === 'r') || (id === 'bird-dog' && wk === 'h'))) return 'your knees (kneeling)';
@@ -3730,9 +3740,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   var NUMW = { a: 1, an: 1, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, half: 0.5, couple: 2, both: 2 };
   var TENS = { twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90 };
   // Spanish words people mix into a log ("2 huevos y tostada", "comí arroz con pollo", "5k bici 20 min")
-  var ES = [[/\b(?:a|1) la plancha\b/g, 'grilled'], [/\btortilla (?:de patatas|espa[nñ]ola)\b/g, 'spanish omelette'], [/\barroz con pollo\b/g, 'chicken rice'], [/\bcaf[eé] con leche\b/g, 'latte'], [/\b(t[eé]|tea) (?:con|with) leche\b|\btea with milk\b/g, 'chai'],
+  var ES = [[/\b(?:a|1) la plancha\b/g, 'grilled'], [/\bcocido madrileno\b|^\s*(?:1 )?cocido\s*$/g, 'chickpea stew'], [/\btortilla (?:de patatas|espa[nñ]ola)\b/g, 'spanish omelette'], [/\barroz con pollo\b/g, 'chicken rice'], [/\bcaf[eé] con leche\b/g, 'latte'], [/\b(t[eé]|tea) (?:con|with) leche\b|\btea with milk\b/g, 'chai'],
     [/\b(?:bocadillo|bocata) de [a-z]+/g, 'bocadillo'], [/\bhuevos?\b/g, 'eggs'], [/\bpollo\b/g, 'chicken'], [/\barroz\b/g, 'rice'], [/\bpan\b/g, 'bread'], [/\bleche\b/g, 'milk'], [/\bqueso\b/g, 'cheese'], [/\bat[uú]n\b/g, 'tuna'], [/\bpl[aá]tanos?\b/g, 'banana'], [/\bmanzanas?\b/g, 'apple'],
-    [/\bpatatas?\b/g, 'potatoes'], [/\blentejas\b/g, 'lentils'], [/\bgarbanzos\b/g, 'chickpeas'], [/\byogur(?:t)?\b/g, 'yogurt'], [/\btostadas?\b/g, 'toast'], [/\bjam[oó]n\b/g, 'ham'], [/\bensalada\b/g, 'salad'], [/\bpescado\b/g, 'fish'], [/\bternera\b/g, 'beef'], [/\bcerdo\b/g, 'pork'], [/\bavena\b/g, 'oats'], [/\bzumo\b/g, 'juice'], [/\bpepino\b/g, 'cucumber'], [/\baceite(?: de oliva)?\b/g, 'olive oil'], [/\bgambas\b|\blangostinos\b/g, 'prawns'], [/\bfiletes?\b/g, 'fillets'], [/\bpechugas?\b/g, 'chicken breast'], [/\bjudias\b/g, 'beans'],
+    [/\bpatatas?\b/g, 'potatoes'], [/\blentejas\b/g, 'lentils'], [/\bgarbanzos\b/g, 'chickpeas'], [/\byogur(?:t)?\b/g, 'yogurt'], [/\btostadas?\b/g, 'toast'], [/\bjam[oó]n\b/g, 'ham'], [/\bensalada\b/g, 'salad'], [/\bpescado\b/g, 'fish'], [/\bternera\b/g, 'beef'], [/\bcerdo\b/g, 'pork'], [/\bavena\b/g, 'oats'], [/\bzumo\b/g, 'juice'], [/\bpepino\b/g, 'cucumber'], [/\bjudias verdes\b/g, 'green beans'], [/\byogur(?:t)? griego\b/g, 'greek yogurt'], [/\bgalletas?\b/g, 'biscuits'], [/\b(trozos?|porciones?|raciones?)\b/g, 'slices'], [/\brevueltos?\b/g, 'scrambled'], [/\baceite(?: de oliva)?\b/g, 'olive oil'], [/\bgambas\b|\blangostinos\b/g, 'prawns'], [/\bfiletes?\b/g, 'fillets'], [/\bpechugas?\b/g, 'chicken breast'], [/\bjudias\b/g, 'beans'],
     [/\b(com[ií]|desayun[eé]|cen[eé]|almorc[eé]|he comido|tom[eé])\b/g, 'had'], [/\b(bici|bicicleta)\b/g, 'bike'], [/\b(corr[ií]|correr)\b/g, 'ran'], [/\b(camin[eé]|caminar|andar|anduve)\b/g, 'walked'], [/\bpeso\b/g, 'i weigh'],
     [/\bsentadillas?\b/g, 'squat'], [/\bflexiones\b/g, 'push ups'], [/\bdominadas\b/g, 'pull ups'], [/\bfondos\b/g, 'dips'], [/\bseries\b/g, 'sets'], [/\brepeticiones\b/g, 'reps'], [/\bpesas rusas?\b/g, 'kettlebell'], [/\b(?:me duele|dolor (?:de|en)(?: la| el)?)\b/g, 'pain'], [/\brodilla\b/g, 'knee'], [/\bespalda\b/g, 'back'], [/\bhombro\b/g, 'shoulder'],
     [/\b(?:uno|una|un)\b(?= [a-z])/g, '1'], [/\bdos\b/g, '2'], [/\btres\b/g, '3'], [/\bcuatro\b/g, '4'], [/\bcinco\b/g, '5'], [/\bseis\b/g, '6'], [/\bsiete\b/g, '7'], [/\bocho\b/g, '8'], [/\bnueve\b/g, '9'], [/\bdiez\b/g, '10'], [/\bonce\b/g, '11'], [/\bdoce\b/g, '12'], [/\bquince\b/g, '15'], [/\bveinte\b/g, '20'], [/\btreinta\b/g, '30'], [/\bmedia\b/g, '0.5'],
@@ -3740,7 +3750,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     [/\bcena\b/g, 'dinner'], [/\bdesayuno\b/g, 'breakfast'], [/\b(almuerzo|comida)\b/g, 'lunch'], [/\bmerienda\b/g, 'snack'], [/\bun vaso de\b/g, '1 glass of'], [/\buna? (?=[a-z])/g, '1 '], [/ de (?=[a-z\d])/g, ' of '],
     [/ y (?=[a-z\d])/g, ' and '], [/ con (?=[a-z\d])/g, ' with ']];
   function drinks(t) { return t.replace(/\b(coffees?|teas?)\s+with\s+(?:(?:a|1|0\.5|little|splash|dash|bit|of|some)\s+){0,4}milk\b/g, function (m, d) { return /tea/.test(d) ? 'chai' : 'white coffee'; }); }
-  function spanish(t) { if (!/[a-z]/.test(t)) return t; t = t.normalize ? t.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : t; ES.forEach(function (r) { t = t.replace(r[0], r[1]); }); return t; }
+  function spanish(t) { if (!/[a-z]/.test(t)) return t;
+    if (/^es\b/i.test(navigator.language || '')) t = t.replace(/\btortillas?\b(?! (?:de patatas|espanola|wrap))/g, 'tortilla de patatas'); t = t.normalize ? t.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : t; ES.forEach(function (r) { t = t.replace(r[0], r[1]); }); return t; }
   function norm(t) {
     t = ' ' + String(t || '').toLowerCase().replace(/[’']/g, '\'').replace(/×/g, 'x').replace(/½/g, '0.5').replace(/\b(\d{1,3})((?:,\d{3})+)\b/g, function (m, a, b) { return a + b.replace(/,/g, ''); }).replace(/(\d),(\d)/g, '$1.$2') + ' ';
     t = t.replace(/\b(one|two|three|four|five|six|seven|eight|nine) hundred(?: and)?(?: (one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen))?\b/g, function (m, a, b) { return String(NUMW[a] * 100 + (b ? NUMW[b] : 0)); });
@@ -3825,7 +3836,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   function parseFood(t) {
     t = t.replace(/\b(?:no|without|minus|zero|skip(?:ped)?(?: the)?|hold the|didn'?t have|did not have|didn'?t eat|did not eat)\s+(?:any\s+)?([a-z]+(?:\s(?:milk|sugar|rice|bread|cream|oil))?)/g, ' ');
-    t = t.replace(/^\s*([a-z][a-z ]*?[a-z])\s+(\d{1,4})\s*$/, function (m, f, n) { return +n >= 20 ? n + ' g ' + f : n + ' ' + f; }); // "huevos 3" = 3 eggs, "pollo 200" = 200 g
+    t = t.replace(/^\s*([a-z][a-z ]*?[a-z])\s+(\d{1,4}(?:\.\d+)?)\s*(slices?|pieces?|cups?|bowls?|plates?)?\s*$/, function (m, f, n, u) { return u ? n + ' ' + u + ' of ' + f : +n >= 20 ? n + ' g ' + f : n + ' ' + f; }); // "huevos 3" = 3 eggs, "pollo 200" = 200 g
     var items = [], s = t, R = foodIndex();
     for (var j = 0; j < R.length; j++) {
       var m; while ((m = s.match(R[j][0]))) {
@@ -3845,7 +3856,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     items.sort(function (a, b) { return a.at - b.at; }); items.forEach(function (i) { delete i.at; delete i.exact; });
     return { items: items, left: left };
   }
-  var MEALW = /\b(breakfast|lunch|dinner|snack|brunch|supper|pre-workout|post-workout)\b/;
+  var MEALW = /\b(breakfast|lunch|dinner|snack|brunch|supper|pre-workout|post-workout|iftar|suhoor|sehri)\b/;
   var mealWhen = null;
   function mealName(t) { var m = t.match(MEALW); if (m) return m[1].charAt(0).toUpperCase() + m[1].slice(1); var h = new Date(mealWhen || Date.now()).getHours(); return h < 5 ? 'Late meal' : h < 11 ? 'Breakfast' : h < 15 ? 'Lunch' : h < 18 ? 'Snack' : 'Dinner'; }
   var AREAS_PAIN = { knee: /\bknees?\b|patella|kneecap/, back: /\b(lower )?back\b|spine|lumbar/, shoulder: /\bshoulders?\b|rotator/, elbow: /\belbows?\b|tennis elbow|golfer/, ankle: /\bankles?\b|achilles|heel|calf|calves|shin/, hip: /\bhips?\b|groin|glute/, wrist: /\bwrists?\b|forearm|hand|fingers?/, neck: /\bneck\b|traps?\b/, hamstring: /hamstrings?/ };
@@ -4003,6 +4014,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function whenOf0(raw) { var t = String(raw).toLowerCase(), d = new Date(); if (/\byesterday\b|\blast night\b/.test(t)) { d.setDate(d.getDate() - 1); d.setHours(/night|dinner|evening/.test(t) ? 20 : 12, 0, 0, 0); return d.getTime(); } var m = t.match(/\b(\d)\s+days?\s+ago\b/); if (m) { d.setDate(d.getDate() - +m[1]); d.setHours(12, 0, 0, 0); return d.getTime(); } return null; }
   function parseText(raw) {
     var t = norm(raw), t0;
+    t = t.replace(/^(\s*(?:[a-z]+:\s*)?)([a-z][a-z ]*?) with ([a-z][a-z ]*?) (\d+(?:\.\d+)?\s*g)\s*$/, '$1$4 $2 with $3');
     do { t0 = t; t = t.replace(/(plates?(?:\s*(?:a|1|per|each)\s*side)?(?:\s*\+\s*\d+(?:\.\d+)?)*)\s+and\s+(?:1\s+)?(\d+(?:\.\d+)?)s?\b/, '$1 + $2'); } while (t !== t0);
     t = t.replace(/(\b(?:for|x)(?:\s*,?\s*\d{1,2}\b)+)\s*,?\s*and\s+(\d{1,2})\b/g, '$1 $2');
     var out = { actions: [], unknown: [], question: QWORDS.test(t) || /\?\s*$/.test(raw), plan: PLANRE.test(t) && !/\b(did|done|had|ate|finished)\b/.test(t) };
@@ -4153,7 +4165,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         if (prevB && dayStart(prevB.t) === dayStart(now) && Math.abs(prevB.kg - bk) < 0.05) { card = { k: 'body', ref: prevB.t, title: 'Already logged: ' + bwTxt(prevB.kg), lines: ['Same weight as earlier today, so nothing new was added.'] }; break; }
         store.body.push({ t: now, kg: Math.round(bk * 1000) / 1000 }); save();
         var tg = proteinTarget();
-        card = { k: 'body', ref: now, title: 'Bodyweight ' + bwTxt(bk), lines: [prevB ? (bk >= prevB.kg ? '+' : '−') + (p.units === 'st' ? r1(Math.abs(bk - prevB.kg) * 2.20462) + ' lb' : bwTxt(Math.abs(bk - prevB.kg))) + ' since ' + new Date(prevB.t).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : 'First weigh-in logged.'], sub: tg ? 'Protein target is now ' + tg + ' g a day.' : '' };
+        card = { k: 'body', ref: now, title: 'Bodyweight ' + bwTxt(bk), lines: [prevB && Math.abs(bk - prevB.kg) < 0.05 ? 'No change since ' + new Date(prevB.t).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : prevB ? (bk >= prevB.kg ? '+' : '−') + (p.units === 'st' ? r1(Math.abs(bk - prevB.kg) * 2.20462) + ' lb' : bwTxt(Math.abs(bk - prevB.kg))) + ' since ' + new Date(prevB.t).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : 'First weigh-in logged.'], sub: tg ? 'Protein target is now ' + tg + ' g a day.' : '' };
         break;
       }
       case 'log_cardio': {
@@ -4302,9 +4314,11 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function safetyAnswer(t) {
     var is = prof().issues, ex = findEx(t), nm = ex ? baseName(BY[ex.id].name) : '';
     var safeQ = /\b(safe|okay|ok|alright|allowed|good idea|bad|dangerous|risky|should i|can i)\b/.test(t);
+    var bm = t.match(/(\d{2,3})\s*(?:\/|over)\s*(\d{2,3})/);
+    if (bm && /blood pressure|\bbp\b|pressure/.test(t) && (+bm[1] >= 160 || +bm[2] >= 100)) return +bm[1] >= 180 || +bm[2] >= 110 ? '**' + bm[1] + '/' + bm[2] + ' is very high. Don’t train today.** Sit quietly for 5 minutes and measure again. If it stays this high, or you have a headache, chest pain or blurred vision, call your doctor or emergency services.' : '**' + bm[1] + '/' + bm[2] + ' is high: skip strength work today.** An easy walk is fine. Log the reading (“BP ' + bm[1] + ' over ' + bm[2] + '”) and today’s sessions leave out holds and heavy work. Measure again tomorrow; if it stays above 160/100, talk to your doctor.';
     if (/blood pressure|\bbp\b|hypertension/.test(t) || (safeQ && ex && is.indexOf('bp') > -1 && !/bone|osteo|knee/.test(t))) return (nm ? '**' + nm + ' with high blood pressure:** ' : '**Holds and blood pressure:** ') + 'holds raise blood pressure while you do them, more than moving exercises at the same effort, and it comes back down within a minute or two. They are generally fine, and over weeks isometric training tends to lower resting blood pressure, if you:\n- breathe out slowly and keep breathing the whole time; never hold your breath or strain\n- keep the effort at about 7 out of 10 (the app caps it there for you)\n- stop if you feel dizzy, get a headache or chest discomfort\n\nWhat the app already changes: arms-overhead holds are left out and rests are longer. If your blood pressure is above 160/100 or not controlled with medication, check with your doctor before heavy holds.';
     if (/osteop|bone (health|density|loss)|bones|brittle/.test(t)) return '**Osteopenia and osteoporosis:** strength training is recommended for bones: muscles pulling on bone, plus some impact, is what tells bone to get stronger. Steady holds and slow reps are a safe way to load it.\n- avoid rounding or twisting your back under load (the app leaves out weighted crunches and hollow-body holds for you)\n- impact helps: the first session of the day starts with a minute of heel drops; if your doctor is happy, progress to small hops\n- build up gradually and keep good posture\n\nIf you have had a fracture from a minor fall, ask your doctor or a physiotherapist which loads are right for you.';
-    if (/night shift|after (?:a|my|the) (?:\d+ hour )?shift|on nights|slept (?:badly|little|\d)|no sleep|exhausted|so tired/.test(t) && /\b(train|workout|session|gym|lift|should i|can i|ok|okay)\b/.test(t)) return '**Training after a night shift or little sleep:** a session is still worth it, but make it lighter:\n- keep effort around 6 out of 10, and stop a set early if form slips\n- holds are a good choice: steady, low-skill and easy on tired joints\n- if you have under 5 hours of sleep, do the short version or just walk 20 minutes\n- eat some protein afterwards, then sleep; a session after you wake up is fine too\n\nSet “My day starts at” in your profile so meals and sets after midnight count to the right day.';
+    if (/night shift|after (?:a|my|the) (?:\d+ hour )?shift|on nights|slept (?:only |just |about )?(?:badly|little|poorly|\d)|(?:only|just) \d+(?:\.\d+)? h(?:ours?)? (?:of )?sleep|no sleep|exhausted|so tired/.test(t) && /\b(train|workout|session|gym|lift|should i|can i|ok|okay)\b/.test(t)) return '**Training after a night shift or little sleep:** a session is still worth it, but make it lighter:\n- keep effort around 6 out of 10, and stop a set early if form slips\n- holds are a good choice: steady, low-skill and easy on tired joints\n- if you have under 5 hours of sleep, do the short version or just walk 20 minutes\n- eat some protein afterwards, then sleep; a session after you wake up is fine too\n\nSet “My day starts at” in your profile so meals and sets after midnight count to the right day.';
     if (/fast(ing)?\b|ramadan|roza|iftar|suhoor|sehri/.test(t)) return '**Training while fasting:** it’s fine for most people with a few changes:\n- best time: after iftar once you’ve eaten and had water (about 1–2 hours after), or a light session in the last hour before iftar so you can drink straight after\n- keep effort a bit lower than usual and stop if you feel dizzy or faint\n- split protein between iftar, a snack later in the evening and suhoor; the protein target is for the whole day, so it still counts after sunset\n- drink water steadily between iftar and suhoor\n\nTip: set “My day starts at” in your profile if you eat late, so late-night meals count to the right day. If you have diabetes or take blood-pressure medicine, check with your doctor about training while fasting.';
     if (/\bknees?\b/.test(t) && safeQ) return '**Knees:** loading the knee within a comfortable range makes it stronger, and some discomfort up to 3 out of 10 that settles by the next morning is OK. ' + (is.indexOf('knee') > -1 ? 'Because you ticked Knees, kneeling exercises are left out and squats and wall sits use a shorter bend.' : 'If your knees are sensitive, tick Knees in your profile: kneeling exercises are left out and squats use a shorter bend.') + ' Sharp pain, swelling or giving way means stop and get it checked.';
     if (safeQ && /\b(is|are) (this|it|these|that)\b.*\bsafe\b|safe for me/.test(t)) return 'The plan is adjusted for what you ticked in your profile' + (is.length ? ' (' + is.map(function (k) { return ISSUES.filter(function (x) { return x[0] === k; })[0][1].toLowerCase(); }).join(', ') + ')' : '') + '. The general rule: pain up to 3 out of 10 that settles by the next day is fine; sharp pain, dizziness or chest discomfort means stop. Ask about a specific exercise, like “is the wall sit safe for my knees?”.';
@@ -4337,6 +4351,11 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     }
     if (/\b(estimated max|e1rm|1rm|one rep max|max|best|pr|personal best|record|strongest)\b/.test(t) && /\b(my|i)\b/.test(t)) {
       var lk2 = Object.keys(LIFTNAME).filter(function (k) { return new RegExp('\\b' + k + '\\b').test(t); }).sort(function (a, b) { return b.length - a.length; })[0];
+      var pex = findEx(t);
+      if (pex && (!lk2 || pex.len > lk2.length)) {
+        var rows = store.log.filter(function (l) { return l.id === pex.id && l.kg && !l.sug; }), bestR = null; rows.forEach(function (l) { var e = estOf(l); if (!bestR || e > bestR.e) bestR = { e: e, l: l }; });
+        return rows.length ? '**' + baseName(BY[pex.id].name) + '**: estimated max about **' + kg(bestR.e) + '**, from ' + kg(bestR.l.kg) + ' for ' + bestR.l.v + (bestR.l.k === 'h' ? ' s' : ' reps') + ' on ' + dshort(bestR.l.t) + '.' : 'No weighted sets of ' + baseName(BY[pex.id].name) + ' logged yet.';
+      }
       if (lk2) { var LL = store.notes.filter(function (n) { return n.k === 'lift' && liftKey(n.name) === liftKey(LIFTNAME[lk2]); }), eb = null; LL.forEach(function (x) { var e = e1rm(x.kg, x.reps, x.rpe); if (e && (!eb || e > eb.v)) eb = { v: e, x: x }; });
         if (!LL.length) return 'No ' + LIFTNAME[lk2].toLowerCase() + ' logged yet. Log a set like “' + lk2 + ' 100 kg for 5”.';
         return '**' + LIFTNAME[lk2] + '**: ' + (eb ? 'estimated max **' + kg(eb.v) + '**, from ' + kg(eb.x.kg) + ' × ' + eb.x.reps + (eb.x.rpe ? ' @ RPE ' + eb.x.rpe : '') + ' on ' + dshort(eb.x.t) + '.' : 'no set of 10 reps or fewer yet.') + ' ' + LL.length + (LL.length === 1 ? ' entry' : ' entries') + ' logged.'; }
@@ -4348,7 +4367,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (/\b(weight|bodyweight|weigh)\b.*\b(trend|change|progress|lost|gained|going|doing|over time|history|so far)|how much do i weigh|what do i weigh|am i (losing|gaining|putting on)/.test(t)) {
       if (!store.body.length) return 'No weigh-ins yet. Say “I weigh 80 kg” after stepping on the scale.';
       var a0 = store.body[0], a1 = store.body[store.body.length - 1];
-      return 'Latest: **' + kg(a1.kg) + '** (' + new Date(a1.t).toLocaleDateString() + '). ' + (store.body.length > 1 ? 'Change since ' + new Date(a0.t).toLocaleDateString() + ': ' + (a1.kg >= a0.kg ? '+' : '−') + kg(Math.abs(a1.kg - a0.kg)) + '.' : '');
+      return 'Latest: **' + bwTxt(a1.kg) + '** (' + new Date(a1.t).toLocaleDateString() + '). ' + (store.body.length > 1 ? 'Change since ' + new Date(a0.t).toLocaleDateString() + ': ' + (Math.abs(a1.kg - a0.kg) < 0.05 ? 'no change' : (a1.kg >= a0.kg ? '+' : '−') + bwTxt(Math.abs(a1.kg - a0.kg))) + '.' : '');
     }
     if (/how many sessions|progress so far|how am i doing/.test(t)) return 'Program week ' + store.week + ' of 12: ' + weekDone(store.week) + ' of ' + weekTarget() + ' ' + unitWord(2) + ' done, ' + totalDone() + ' of ' + progTarget() + ' overall. Cardio in the last 7 days: ' + weekCardio() + ' min.';
     if ((m = t.match(/\b(?:what|how much) (?:protein|food).*\b(eat|have)\b/)) || /what (should|can) i eat|high protein|protein ideas|snack ideas/.test(t)) {
@@ -4470,6 +4489,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (res.unknown.length && coach.key && navigator.onLine && !res.question) { aiText(text, src); saveFeed(); renderCoach(); scrollEnd(); return; }
     if (!res.question) res.actions.forEach(function (a) { var c = apply(a, src, null, when); if (c) cards.push(c); });
     if (cards.length) {
+      // "slept 4 hours, should I train today?": log it, then answer the question part
+      var qs = res.unknown.filter(function (u) { return QWORDS.test(' ' + u) || /\?/.test(u); });
+      if (qs.length) { res.unknown = res.unknown.filter(function (u) { return qs.indexOf(u) < 0; }); var qa = localAnswer(text); if (qa) feed.push({ t: Date.now(), r: 'm', x: qa }); else if (!coach.key) res.unknown = res.unknown.concat(qs); else ask(); }
       // anything we couldn't place goes to Gemini (if connected) so nothing is silently dropped
       if (res.unknown.length) feed.push({ t: Date.now(), r: 'm', x: 'I didn’t recognise “' + res.unknown.join('”, “') + '”. ' + (coach.key ? '' : 'Rephrase it, or connect Gemini in settings to log anything.') });
       return done();
@@ -4825,6 +4847,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         store.eq = state.eq.sort(function (x, y) { return 'kdbcrw'.indexOf(x) - 'kdbcrw'.indexOf(y); });
         save(); closeSheet(); renderAll(); if (libBuilt) { libBuilt = false; } if (current === 'exercises') ensureLib(); if (current === 'coach') renderCoach();
         toast(first ? 'All set. Your first session is below.' : 'Profile saved.');
+        // keyboard and screen-reader users land on the first session, not the top of the page
+        setTimeout(function () { var st = $('sessions').querySelector('[data-start]'); if (first && st) st.focus(); }, 50);
       }
     });
     var p0 = p.units, cardioTouched = false, daysTouched = false, bwShown = $('pfBw').value.trim(); // what the box showed, so an untouched box (rounded for display) doesn't add a weigh-in
@@ -4896,7 +4920,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var logged = days.filter(function (d) { return d.n; });
     if (bw.length || logged.length) {
       h += '<div class="card"><h2>Body and food</h2>';
-      if (bw.length) { var b0 = bw[0], b1 = bw[bw.length - 1]; h += '<p><b>Bodyweight:</b> ' + bwTxt(b1.kg) + ' on ' + dshort(b1.t) + (bw.length > 1 ? ', ' + (b1.kg - b0.kg >= 0 ? 'up ' : 'down ') + bwTxt(Math.abs(b1.kg - b0.kg)) + ' since ' + dshort(b0.t) : '') + '.</p><ul class="olist">' + bw.slice().reverse().map(function (x) { return '<li><b>' + bwTxt(x.kg) + '</b><span>' + dshort(x.t) + '</span></li>'; }).join('') + '</ul>'; }
+      if (bw.length) { var b0 = bw[0], b1 = bw[bw.length - 1]; h += '<p><b>Bodyweight:</b> ' + bwTxt(b1.kg) + ' on ' + dshort(b1.t) + (bw.length > 1 ? (Math.abs(b1.kg - b0.kg) < 0.05 ? ', no change since ' : ', ' + (b1.kg - b0.kg >= 0 ? 'up ' : 'down ') + bwTxt(Math.abs(b1.kg - b0.kg)) + ' since ') + dshort(b0.t) : '') + '.</p><ul class="olist">' + bw.slice().reverse().map(function (x) { return '<li><b>' + bwTxt(x.kg) + '</b><span>' + dshort(x.t) + '</span></li>'; }).join('') + '</ul>'; }
       if (logged.length) { var avg = logged.reduce(function (t, d) { return t + d.p; }, 0) / logged.length, hit = tg ? logged.filter(function (d) { return d.p >= tg * 0.9; }).length : 0;
         h += '<p><b>Protein, last 7 days:</b> about ' + r0(avg) + ' g a day on the ' + logged.length + (logged.length === 1 ? ' day' : ' days') + ' you logged food' + (tg ? ', target ' + tg + ' g. On target ' + hit + ' of ' + logged.length + '.' : '.') + '</p><ul class="olist">' + days.slice().reverse().filter(function (d) { return d.n; }).map(function (d) { return '<li><b>' + r0(d.p) + ' g</b><span>' + new Date(d.t).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }) + '</span></li>'; }).join('') + '</ul>'; }
       h += '</div>';
@@ -4935,7 +4959,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // ---------- Train tab extras: setup prompt, fuel, pain reminder ----------
   var tipsOpen = false;
   function trainExtras() {
-    var p = prof(), h = '', run = savedRun();
+    var p = prof(), h = '', run = savedRun(), hb = bpToday();
+    if (hb) h += '<div class="card warnc"><b>Blood pressure ' + hb.sys + '/' + hb.dia + ' today: no strength work</b><p>' + (hb.sys >= 180 || hb.dia >= 110 ? 'That’s very high. Don’t train today. Sit quietly for 5 minutes and measure again; if it’s still this high, or you have a headache, chest pain or blurred vision, call your doctor or emergency services.' : 'Holds and heavy work are left out of today’s sessions. An easy walk is fine and can help. Measure again before your next session.') + '</p></div>';
     if ((p.issues.indexOf('bp') > -1 || (p.age || 0) >= 65) && store.log.length && weekCardio() < 60 && !cget('nudgeWalk', 0)) h += '<div class="card nudge"><b>Walk on your rest days</b><p>20–30 minutes of brisk walking most days helps blood pressure and heart health as much as the strength work. Log it like “walked 25 min”.</p><div class="bk-row"><button class="btn sm quiet" data-nowalk="1">Got it</button></div></div>';
     if (run && !P) { var rd = allDays().filter(function (d) { return d.id === run.day; })[0], nl = (run.logged || []).filter(Boolean).length;
       h += '<div class="card nudge"><b>Pick up where you left off?</b><p>' + esc(rd.name) + ', ' + ({ am: 'morning', pm: 'evening', all: 'today’s session' }[run.part.replace(/^short-/, '')]) + ': ' + nl + (nl === 1 ? ' set' : ' sets') + ' already saved, stopped ' + Math.max(1, Math.round((Date.now() - run.at) / 60000)) + ' min ago.</p><div class="bk-row"><button class="btn sm go" data-resume="1">Resume session</button><button class="btn sm quiet" data-norun="1">Not now</button></div></div>'; }
@@ -5134,7 +5159,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function unlog(it) { if (it && it.logged) { var i = store.log.indexOf(it.logged); if (i > -1) store.log.splice(i, 1); it.logged = null; save(); } }
   function finish() {
     try { localStorage.removeItem('isohold.run'); } catch (e) { }
-    var anyLogged = P.day.cardio || P.q.some(function (x) { return x.logged; });
+    // a cardio day counts when at least a few minutes were actually done, not when every part was skipped
+    var anyLogged = P.day.cardio ? (P.cardioS || 0) >= 180 : P.q.some(function (x) { return x.logged; });
     var dKeys = partsOf(P.part).map(function (pt) { return 'w' + store.week + P.day.id + pt; });
     if (anyLogged) { store.cmin = store.cmin || {}; dKeys.forEach(function (k, i) { store.done[k] = Date.now(); store.cmin[k] = i ? 0 : Math.round((P.cardioS || 0) / 60); }); } save();
     var wk0 = store.week; P.wk0 = wk0; if (anyLogged) checkWeek(dKeys); if (store.week === wk0) selDay = nextDayIdx();
@@ -5156,7 +5182,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     $('pCues').innerHTML = groups.map(function (g) { return '<li><b>' + esc(g.name) + '</b>' + (g.pb ? ' <span class="pb">New best</span>' : '') + '<br><span class="sum-sets">' + esc(g.sets.join(', ')) + '</span></li>'; }).join('');
     if (nPB) haptic('success');
     if (cuesOn()) say('Session complete' + (nPB ? '. ' + nPB + (nPB === 1 ? ' new best' : ' new bests') : '') + '. Nice work.');
-    $('pNext').textContent = !anyLogged ? 'You skipped every set, so this session isn’t marked done. Tick it on the Train tab if you trained without the timer.' : P.part === 'am' && !P.day.cardio && !oneADay() ? 'Evening session later today. Leave at least 6 hours between the two if you can.' : 'Rate how your tendons feel tomorrow morning. Above 3/10 means go lighter next time. Muscle soreness is normal.';
+    $('pNext').textContent = !anyLogged ? (P.day.cardio ? 'Less than 3 minutes of cardio, so this session isn’t marked done. If you walked or rode without the timer, log it like “walked 30 min”.' : 'You skipped every set, so this session isn’t marked done. Tick it on the Train tab if you trained without the timer.') : P.part === 'am' && !P.day.cardio && !oneADay() ? 'Evening session later today. Leave at least 6 hours between the two if you can.' : 'Rate how your tendons feel tomorrow morning. Above 3/10 means go lighter next time. Muscle soreness is normal.';
     $('pDay').textContent = P.head;
     $('pAngle').hidden = true; $('pPause').hidden = true; $('pSkip').hidden = true; $('pMore').hidden = true; $('pPrev').hidden = true; $('pWtRow').hidden = true; $('pLog').hidden = true; $('pSkipEx').hidden = true; $('pHow').hidden = true; $('pSteps').hidden = true;
     $('pClose').setAttribute('aria-label', 'Close');
@@ -5176,7 +5202,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var hadHist = history.state && history.state.player;
     P = null; $('player').hidden = true; document.body.style.overflow = ''; $('pConfirm').hidden = true;
     if (!fromPop && hadHist) { try { history.back(); } catch (e) { } }
-    renderTrain();
+    renderTrain(); setTimeout(function () { var f = $('sessions').querySelector('[data-start]') || $('tab-train'); if (f) f.focus(); }, 30); // focus back on the plan, not the page body
     native({ type: 'awake', on: false });
     ['pPause', 'pSkip', 'pMore', 'pPrev', 'pWtRow', 'pSkipEx'].forEach(function (id) { $(id).hidden = false; });
     $('pClose').setAttribute('aria-label', 'End session'); $('pAngle').hidden = false; $('pCues').className = '';
