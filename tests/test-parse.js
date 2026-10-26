@@ -74,7 +74,7 @@ const C = [
 
   // round-2 persona reports
   ['seated cable row 110 lb 12 reps', a => a[0].type === 'log_lift' && /Seated Cable Row/.test(a[0].name)],
-  ['cable row 30 kg 12 reps', a => a[0].exercise === 'sa-row' && a[0].eq === 'c'],
+  ['cable row 30 kg 12 reps', a => a[0].type === 'log_lift' && a[0].name === 'Cable Row' && a[0].weight === 30],
   ['back squat 100 kg 5 reps', a => a[0].type === 'log_lift'],
   ['romanian deadlift 60 kg 8 reps', a => a[0].exercise === 'rdl'],
   ['goblet squat 24 kg 10 reps', a => a[0].exercise === 'goblet-squat' && (a[0].eq === 'k' || a[0].eq === 'd')],
