@@ -270,6 +270,27 @@ nav.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; backgrou
 .test .delta { font-size: 15px; font-weight: 700; color: var(--muted); }
 .test .fields { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px; }
 .test label { display: grid; gap: 3px; font-size: 13px; color: var(--muted); font-weight: 700; }
+.chk-list { display: grid; gap: 8px; }
+.chk-btn { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 10px; row-gap: 2px; width: 100%; min-height: 64px; padding: 10px 14px; border: 1.5px solid var(--line); border-radius: var(--r-md); background: var(--bg); color: var(--ink); text-align: left; font: inherit; }
+.chk-btn .t { font-weight: 700; font-size: 17px; }
+.chk-btn .s, .chk-btn .r { grid-column: 1; font-size: 14px; color: var(--muted); }
+.chk-btn .r { color: var(--ink); font-weight: 600; }
+.chk-btn .chev { grid-column: 2; grid-row: 1 / span 3; width: 20px; height: 20px; }
+.chk-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.chk-head p { font-size: 16px; font-weight: 600; }
+.infobtn.lg { width: 44px; height: 44px; }
+.chk-f { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.chk-f label, .chk-ex { display: grid; gap: 3px; font-size: 13px; color: var(--muted); font-weight: 700; }
+.chk-ex select { font: inherit; font-size: 16px; min-height: 46px; padding: 8px 10px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); }
+.chk-rep { display: flex; gap: 6px; }
+.chk-rep input { flex: 1; min-width: 0; }
+.chk-mic { width: 44px; height: 44px; flex: none; border: 0; border-radius: 50%; background: var(--sunk); color: var(--ink); display: grid; place-items: center; padding: 0; }
+.chk-mic svg { width: 20px; height: 20px; }
+.chk-mic[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.chk-res { font-size: 15px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.chk-res b { font-family: var(--f-display); font-size: 30px; font-weight: 800; }
+.chk-safe { font-size: 14px; color: var(--muted); border-left: 3px solid var(--hold); padding-left: 10px; }
+.chk-how { font-size: 15px; color: var(--muted); }
 input::placeholder, textarea::placeholder { color: var(--muted); opacity: .55; }
 input, textarea { font: inherit; font-size: 16px; width: 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); }
 .cov-scroll { overflow-x: auto; margin: 0 -16px; padding: 0 16px; }
@@ -1026,13 +1047,9 @@ html.calm *, html.calm *::before, html.calm *::after { animation: none !importan
     <div class="card" id="dailyCard"></div>
     <div class="card" id="bodyNow"></div>
     <div class="card" id="allCard"></div>
+    <div class="card" id="chkCard"></div>
     <div class="card" id="mapCard"></div>
     <div class="card" id="strCard"></div>
-    <div class="card">
-      <h2>Max-hold test</h2>
-      <p>In week 1 and week 12, use the same weight and hold until your form breaks. Enter the seconds.</p>
-      <div class="tests" id="tests"></div>
-    </div>
     <div class="card">
       <h2>Muscle coverage</h2>
       <p id="covNote"></p>
@@ -1932,7 +1949,7 @@ var PHASES = [
   { n: 2, name: 'Build', weeks: [3, 4, 5], kg: 20, gs: 2, gr: 10, grt: '8–10', rir: 2, grest: 45, gt: 40, sets: 2, hold: 40, rest: 40, rpe: '7', alt: false, focus: 'Add load each week you finish all sets cleanly. The last 10 s of each hold should feel hard but steady; stop the reps 2 short of failure.' },
   { n: 3, name: 'Tendon', weeks: [6, 7, 8], kg: 24, gs: 2, gr: 12, grt: '10–12', rir: 1, grest: 45, gt: 40, sets: 2, hold: 45, rest: 40, rpe: '7–8', alt: false, focus: 'Long, heavy holds at about 70% effort build tendon stiffness. The paired reps go to 1–2 short of failure with slow lowering to drive muscle growth.' },
   { n: 4, name: 'Heavy', weeks: [9, 10, 11], kg: 28, gs: 2, gr: 8, grt: '6–8', rir: 1, grest: 60, gt: 40, sets: 3, hold: 20, rest: 45, rpe: '9', alt: true, focus: 'Heaviest loads. Hold sets 1 and 3 sit at the end position (step 3), set 2 at the mid-range angle (step 2). Reps drop to 6–8 with heavier weights.' },
-  { n: 5, name: 'Deload & Test', weeks: [12], kg: 32, gs: 1, gr: 10, grt: '10', rir: 4, grest: 45, gt: 30, sets: 2, hold: 30, rest: 30, rpe: '6', alt: false, focus: 'Back off so tendons and muscles catch up: easy holds and one light rep set. Retest your max holds with your week-1 loads.' }
+  { n: 5, name: 'Deload & Test', weeks: [12], kg: 32, gs: 1, gr: 10, grt: '10', rir: 4, grest: 45, gt: 30, sets: 2, hold: 30, rest: 30, rpe: '6', alt: false, focus: 'Back off so tendons and muscles catch up: easy holds and one light rep set. Redo your Endurance check with your week-1 weights.' }
 ];
 
 // ---- Paired muscle-growth lifts (done right after each hold) ----
@@ -2513,6 +2530,9 @@ function eqText(base, id, kind, eq, style) {
 
 // ---- Research behind the program ----
 var REFS = {
+  acsm2009: { a: 'American College of Sports Medicine, 2009', j: 'Med Sci Sports Exerc', t: 'Progression models in resistance training for healthy adults (position stand)', k: 'Local muscle endurance is trained and tested with light-to-moderate loads for many reps or long efforts; maximal strength with heavy loads.', u: 'https://doi.org/10.1249/MSS.0b013e3181915670' },
+  schoenfeld2021: { a: 'Schoenfeld et al., 2021', j: 'Sports', t: 'Loading recommendations for muscle strength, hypertrophy, and local endurance: a re-examination of the repetition continuum', k: 'Light loads taken to failure mainly improve local endurance; heavy loads are best for maximal strength.', u: 'https://doi.org/10.3390/sports9020032' },
+  nickerson2020: { a: 'Nickerson et al., 2020', j: 'J Strength Cond Res', t: 'Evaluation of load-velocity relationships and repetitions-to-failure equations in the presence of male and female spotters', k: 'Of the equations tested, Epley (weight × (1 + reps ÷ 30)) had the lowest error at loads up to 70% of the 1-rep max.', u: 'https://doi.org/10.1519/JSC.0000000000003731' },
   ishoi2016: { a: 'Ishøi et al., 2016', j: 'Scand J Med Sci Sports', t: 'Large eccentric strength increase using the Copenhagen Adduction exercise in football: a randomized controlled trial', k: '8 weeks of Copenhagen planks raised hip adduction strength by 36% in young footballers.', u: 'https://doi.org/10.1111/sms.12585' },
   haroy2019: { a: 'Harøy et al., 2019', j: 'Br J Sports Med', t: 'The Adductor Strengthening Programme prevents groin problems among male football players: a cluster-randomised controlled trial', k: 'A programme built on the Copenhagen plank cut the risk of groin problems by 41%.', u: 'https://doi.org/10.1136/bjsports-2017-098937' },
   goller2024: { a: 'Goller, Quittmann & Alt, 2024', j: 'Eur J Applied Physiology', t: 'How to activate the glutes best? Peak muscle activity of acceleration-specific pre-activation and traditional strength training exercises', k: 'A side plank with leg abduction was among the exercises that strongly activated the glute medius.', u: 'https://doi.org/10.1007/s00421-023-05400-3' },
@@ -2846,7 +2866,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       var w = store.week; store.week++; save(); selDay = 0;
       toastUndo('Week ' + w + ' complete. You’re on week ' + store.week + ' now.', function () { store.week = w; (keys || []).forEach(function (k) { delete store.done[k]; }); selDay = nextDayIdx(); save(); renderAll(); toast('Back on week ' + w + '.'); });
     }
-    else toast('All 12 weeks complete. Retest your max holds on the Progress tab.');
+    else toast('All 12 weeks complete. Redo your Endurance and Strength checks on the Progress tab.');
   }
 
   // ---------- tabs ----------
@@ -3423,7 +3443,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var td = totalDone(), n = weekDone(store.week), PT = progTarget(), WT = weekTarget();
     $('allCard').innerHTML = '<h2>Program</h2><div class="wkprog"><span class="big num">' + Math.round(td / PT * 100) + '<small>%</small></span><p class="muted">' + (td ? td + ' of ' + PT + ' ' + unitWord(2) + ' done. You’re on program week ' + store.week + ' with ' + n + ' of ' + WT + ' ' + unitWord(2) + ' done.' : 'Nothing done yet. Your first session is on the Train tab, and this fills in as you go.') + '</p></div>' +
       '<div class="ov-bar big" aria-hidden="true"><i style="width:' + (td / PT * 100).toFixed(1) + '%"></i></div>' + weekChart();
-    renderDaily(); renderMap(); renderStrength(); renderCov(); renderTests(); renderBodyNow(); progTabs();
+    renderDaily(); renderMap(); renderStrength(); renderCov(); renderChecks(); renderBodyNow(); progTabs();
   }
 
   // ---------- daily strength and endurance index ----------
@@ -3585,9 +3605,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
 
   // ---------- in-page tabs: Muscles, Strength, Body ----------
-  var ptab = 'strength', PT_OF = { dailyCard: 'strength', allCard: 'strength', strCard: 'strength', mapCard: 'muscles', bodyNow: 'body' };
+  var ptab = 'strength', PT_OF = { dailyCard: 'strength', allCard: 'strength', chkCard: 'strength', strCard: 'strength', mapCard: 'muscles', bodyNow: 'body' };
   Object.keys(PT_OF).forEach(function (id) { $(id).setAttribute('data-pt', PT_OF[id]); });
-  $('tests').closest('.card').setAttribute('data-pt', 'strength'); $('cov').closest('.card').setAttribute('data-pt', 'muscles');
+  $('cov').closest('.card').setAttribute('data-pt', 'muscles');
   function progTabs() {
     document.querySelectorAll('#progPanel > [data-pt], #progExtras > [data-pt]').forEach(function (c) { c.hidden = c.getAttribute('data-pt') !== ptab; });
     document.querySelectorAll('#progress [data-ptab]').forEach(function (b) { var on = b.getAttribute('data-ptab') === ptab; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; });
@@ -3692,27 +3712,125 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     });
     $('cov').innerHTML = h + '</tbody>';
   }
+  // ---------- checks: Endurance (hold time; was "max-hold test", data in store.tests[id]) and Strength (reps -> Epley max, store.tests._str) ----------
   var TESTS = ['wall-sit', 'plank-db', 'suitcase', 'lateral-raise'];
-  function renderTests() {
-    if (gentle()) { $('tests').innerHTML = '<p class="muted">Skipped for you: ' + (prof().issues.indexOf('bp') > -1 ? 'holding until your form breaks raises blood pressure sharply.' : prof().issues.indexOf('bones') > -1 ? 'all-out efforts aren’t needed for bone health, and steady holds load bone safely.' : 'all-out efforts aren’t needed at your age; steady holds build strength safely.') + ' Your logged holds track progress instead. Ask your doctor before any all-out test.</p>'; return; }
-    $('tests').innerHTML = TESTS.map(function (id) {
+  var STR_EX = ['goblet-squat', 'floor-press', 'sa-row', 'bo-row', 'rdl'];
+  function strHist() { var h = store.tests._str; return Array.isArray(h) ? h : []; }
+  function strOpts() {
+    return STR_EX.filter(function (id) { return G[id] && EQV[id] && !skipWhy(id, 'r') && !painFor(id).skip; })
+      .map(function (id) { return { id: id, v: V(id, 'g') }; }).filter(function (o) { return !o.v.missing && !noWt(o.v.eq) && o.v.mode !== 'time'; });
+  }
+  function strLast(id, eq, before) { var h = strHist(); for (var i = h.length - 1; i >= 0; i--) if (h[i].id === id && (!eq || h[i].eq === eq) && (!before || h[i].t < before)) return h[i]; return null; }
+  function roundW(x, eq) { var st = stepU(eq) || 1; return fromU(Math.max(st, Math.round(toU(x) / st) * st)); }
+  // a weight for ~11 clean reps: last check's weight, else from logged rep sets (assume ~2 reps were left), else the saved weight
+  function strSuggest(id, v) {
+    var c = strLast(id, v.eq); if (c) return c.kg;
+    for (var i = store.log.length - 1; i >= 0; i--) { var l = store.log[i]; if (l.id === id && l.eq === v.eq && l.k === 'r' && l.kg && l.v) return roundW(epley(l.kg, l.v + 2) / epley(1, 12), v.eq); }
+    return getWt(id, v, 'r');
+  }
+  function testName(id) { return baseName(BY[id].name); }
+  function endDone() { return TESTS.filter(function (id) { var t = store.tests[id]; return t && (+t.a > 0 || +t.b > 0); }); }
+  function chkBtn(k, t, s, r) { return '<button class="chk-btn" data-chk="' + k + '"><span class="t">' + t + '</span><span class="s">' + esc(s) + '</span>' + (r ? '<span class="r">' + esc(r) + '</span>' : '') + I_CHEV + '</button>'; }
+  function chkChange(c) { var p = strLast(c.id, c.eq, c.t); if (!p) return ''; var d = toU(c.e1) - toU(p.e1); return (d >= 0 ? ' (+' : ' (−') + Math.abs(Math.round(d * 10) / 10) + ' ' + uLab() + ' since ' + new Date(p.t).toLocaleDateString(UIL, { day: 'numeric', month: 'short' }) + ')'; }
+  function renderChecks() {
+    var done = endDone(), er = done.slice(0, 2).map(function (id) { var t = store.tests[id]; return testName(id) + ' ' + (+t.a > 0 ? t.a : '?') + (+t.b > 0 ? ' → ' + t.b : '') + ' s'; }).join(', ') + (done.length > 2 ? ', +' + (done.length - 2) + ' more' : '');
+    var h = strHist(), c = h[h.length - 1], bp = bpToday();
+    var sr = bp ? 'Not today: your blood pressure reading is high' : c && G[c.id] ? baseName(G[c.id].name) + ': max about ' + kg(c.e1) + chkChange(c) : 'Not done yet. Takes about 5 minutes.';
+    $('chkCard').innerHTML = '<h2>Checks</h2><div class="chk-list">' +
+      chkBtn('end', 'Endurance check', 'How long you can hold: endurance, not max strength', gentle() ? 'Skipped for you' : er || 'Do it in week 1 and week 12') +
+      chkBtn('str', 'Strength check', 'Your estimated max lift, from a set of reps', sr) + '</div>';
+  }
+  function chkHead(txt, k) {
+    var refs = k === 'end' ? ['schoenfeld2021', 'acsm2009'] : ['nickerson2020', 'acsm2009'];
+    var why = k === 'end' ? 'Holding until your form breaks with a weight below your max tests how long a muscle keeps going (local endurance). Maximum strength is a different quality, tested with heavy loads.' : 'Reps with a moderate weight, done close to failure, predict the most you could lift once. The Epley formula, weight × (1 + reps ÷ 30), was the most accurate at loads up to about 70% of your max.';
+    return '<div class="chk-head"><p>' + esc(txt) + '</p><button class="infobtn lg" id="chkInfo" aria-expanded="false" aria-controls="chkEv" aria-label="Research behind this check">' + I_INFO + '</button></div>' +
+      '<div class="evbox" id="chkEv" hidden><p>' + esc(why) + '</p><ul class="refs">' + refs.map(function (r0) { var r = REFS[r0]; return '<li><a href="' + r.u + '" target="_blank" rel="noopener">' + esc(r.t) + '</a><span>' + esc(r.a) + ', ' + esc(r.j) + '. ' + esc(r.k) + '</span></li>'; }).join('') + '</ul></div>';
+  }
+  function testsHtml() {
+    if (gentle()) return '<p class="muted">Skipped for you: ' + (prof().issues.indexOf('bp') > -1 ? 'holding until your form breaks raises blood pressure sharply.' : prof().issues.indexOf('bones') > -1 ? 'all-out efforts aren’t needed for bone health, and steady holds load bone safely.' : 'all-out efforts aren’t needed at your age; steady holds build strength safely.') + ' Your logged holds track progress instead. Ask your doctor before any all-out test.</p>';
+    return '<p class="chk-how">In week 1 and week 12, use the same weight and hold until your form breaks. Enter the seconds.</p><div class="tests" id="tests">' + TESTS.map(function (id) {
       var t = store.tests[id] || {};
-      return '<div class="test"><h3>' + esc(baseName(BY[id].name)) + '<span class="delta" id="d-' + id + '"></span></h3><div class="fields">' +
-        '<label>Weight<input aria-label="' + esc(baseName(BY[id].name)) + ' test weight" id="t-' + id + '-load" data-t="' + id + '" data-k="load" value="' + esc(t.load || '') + '" placeholder="2 × 16 kg" autocomplete="off"></label>' +
+      return '<div class="test"><h3>' + esc(testName(id)) + '<span class="delta" id="d-' + id + '"></span></h3><div class="fields">' +
+        '<label>Weight<input aria-label="' + esc(testName(id)) + ' check weight" id="t-' + id + '-load" data-t="' + id + '" data-k="load" value="' + esc(t.load || '') + '" placeholder="2 × 16 kg" autocomplete="off"></label>' +
         '<label>Week 1 (s)<input id="t-' + id + '-a" type="number" inputmode="numeric" min="0" data-t="' + id + '" data-k="a" value="' + esc(t.a || '') + '" placeholder="0"></label>' +
         '<label>Week 12 (s)<input id="t-' + id + '-b" type="number" inputmode="numeric" min="0" data-t="' + id + '" data-k="b" value="' + esc(t.b || '') + '" placeholder="0"></label></div></div>';
-    }).join('');
-    TESTS.forEach(delta);
+    }).join('') + '</div>';
   }
   function delta(id) {
-    var t = store.tests[id] || {}, a = +t.a, b = +t.b, el = $('d-' + id);
+    var t = store.tests[id] || {}, a = +t.a, b = +t.b, el = $('d-' + id); if (!el) return;
     if (a > 0 && b > 0) { var p = Math.round((b - a) / a * 100); el.textContent = (p >= 0 ? '+' : '') + p + '%'; el.style.color = p >= 0 ? 'var(--ok)' : 'var(--danger)'; }
-    else { el.textContent = a > 0 ? 'Retest in week 12' : 'Not tested'; el.style.color = ''; }
+    else { el.textContent = a > 0 ? 'Redo in week 12' : 'Not done'; el.style.color = ''; }
   }
-  $('tests').addEventListener('input', function (e) {
-    var i = e.target; if (!i.dataset.t) return;
-    store.tests[i.dataset.t] = store.tests[i.dataset.t] || {}; store.tests[i.dataset.t][i.dataset.k] = i.value; save(); delta(i.dataset.t);
-  });
+  function openEndurance(from) {
+    openSheet('Endurance check', chkHead('This measures how long you can hold a weight: your endurance, not your maximum strength.', 'end') + testsHtml(), false, from);
+    TESTS.forEach(delta);
+    var sb = $('sheetBody');
+    sb.addEventListener('input', function (e) {
+      var i = e.target; if (!i.dataset.t) return;
+      store.tests[i.dataset.t] = store.tests[i.dataset.t] || {}; store.tests[i.dataset.t][i.dataset.k] = i.value; save(); delta(i.dataset.t); renderChecks();
+    });
+    sb.addEventListener('click', chkInfo);
+  }
+  function chkInfo(e) { var b = e.target.closest('#chkInfo'); if (!b) return; var box = $('chkEv'), open = box.hidden; box.hidden = !open; b.setAttribute('aria-expanded', String(open)); }
+  function strHtml(sel) {
+    var head = chkHead('This estimates the most you could lift once, from how many clean reps you can do with a moderate weight.', 'str'), bp = bpToday();
+    if (bp) return head + '<p class="chk-safe" id="chkOff"><b>Not today.</b> Your blood pressure today was ' + bp.sys + '/' + bp.dia + '. Hard sets push it higher, so do this check on a day your reading is lower.</p>';
+    var opts = strOpts();
+    if (!opts.length) return head + '<p class="chk-safe" id="chkOff">This check needs a weight you can load: dumbbells, kettlebells, a barbell or a machine. Add one in your profile’s equipment.</p>';
+    var o = opts.filter(function (x) { return x.id === sel; })[0] || opts[0], v = o.v, w = strSuggest(o.id, v), last = strLast(o.id, v.eq);
+    return head +
+      '<label class="chk-ex">Exercise<select id="chkEx">' + opts.map(function (x) { return '<option value="' + x.id + '"' + (x === o ? ' selected' : '') + '>' + esc(x.v.name) + '</option>'; }).join('') + '</select></label>' +
+      '<p class="chk-how">Warm up with a few easy reps. Then pick a weight you can lift about 10–12 times and do as many clean reps as you can, stopping when you have about 1 more in you.</p>' +
+      '<div class="chk-f"><label>Weight (' + uLab() + ')<input id="chkKg" type="number" inputmode="decimal" min="0" step="any" value="' + (w ? dispW(w) : '') + '" placeholder="0"></label>' +
+      '<label>Clean reps<span class="chk-rep"><input id="chkReps" type="number" inputmode="numeric" min="1" max="30" value="' + (last ? last.reps : '') + '" placeholder="10">' +
+      (SR ? '<button type="button" class="chk-mic" id="chkMic" aria-pressed="false" aria-label="Say the number of reps">' + I_MIC + '</button>' : '') + '</span></label></div>' +
+      '<p class="chk-res" id="chkRes" aria-live="polite"></p>' +
+      '<button class="btn go block" id="chkSave">Save result</button>' +
+      '<p class="chk-safe">Stop and skip it if anything hurts. Breathe out as you lift; don’t hold your breath. Not for days your blood pressure is high.</p>';
+  }
+  function openStrength(from, sel) {
+    var cur = sel || (strHist().length ? strHist()[strHist().length - 1].id : null);
+    openSheet('Strength check', strHtml(cur), false, from);
+    var sb = $('sheetBody');
+    function calc() {
+      var r = $('chkRes'); if (!r) return null;
+      var w = fromU(parseFloat($('chkKg').value)), n = parseInt($('chkReps').value, 10), id = $('chkEx').value, v = V(id, 'g'), last = strLast(id, v.eq);
+      var lt = last ? 'Last time: ' + kg(last.e1) + ' (' + kg(last.kg) + ' × ' + last.reps + ')' : 'First time for this exercise.';
+      if (!(w > 0) || !(n >= 1 && n <= 30)) { r.innerHTML = '<span class="muted">' + esc((n > 30 ? 'Over 30 reps: use a heavier weight next time. ' : 'Enter the weight and reps. ') + lt) + '</span>'; return null; }
+      var e1 = epley(w, n), d = last ? toU(e1) - toU(last.e1) : null;
+      r.innerHTML = '<span>Estimated max</span><b class="num">' + esc(kg(e1)) + '</b><span class="muted">' + esc(d != null ? (d >= 0 ? '+' : '−') + Math.abs(Math.round(d * 10) / 10) + ' ' + uLab() + ' vs last time (' + kg(last.e1) + ')' : lt) + '</span>';
+      return { id: id, v: v, kg: w, reps: n, e1: e1 };
+    }
+    calc();
+    sb.addEventListener('input', calc);
+    sb.addEventListener('change', function (e) { if (e.target.id === 'chkEx') openStrength(from, e.target.value); });
+    sb.addEventListener('click', function (e) {
+      chkInfo(e);
+      if (e.target.closest('#chkMic')) return chkListen();
+      if (!e.target.closest('#chkSave')) return;
+      var c = calc(); if (!c) { ($('chkKg').value ? $('chkReps') : $('chkKg')).focus(); return; }
+      var now = Date.now(), rec = { t: now, id: c.id, eq: c.v.eq, kg: Math.round(c.kg * 100) / 100, reps: c.reps, e1: Math.round(c.e1 * 100) / 100 };
+      if (!Array.isArray(store.tests._str)) store.tests._str = [];
+      store.tests._str.push(rec);
+      // also a normal rep set (1 rep left = RPE 9), so the strength charts pick it up
+      store.log.push({ t: now, w: store.week, id: c.id, eq: c.v.eq, k: 'r', kg: rec.kg, v: c.reps, rpe: 9, x: 1 });
+      save(); closeSheet(); renderProgress();
+      toast('Saved. Estimated max ' + kg(c.e1) + '.');
+    });
+  }
+  function chkListen() {
+    var b = $('chkMic'); if (!SR || !b) return;
+    var r = new SR(); r.lang = navigator.language || 'en-US'; r.interimResults = false; r.continuous = false;
+    r.onresult = function (e) {
+      var t = String(e.results[e.results.length - 1][0].transcript || '').toLowerCase(), m = t.match(/\d+/), n = m ? +m[0] : null;
+      if (n == null) t.split(/\s+/).forEach(function (wd) { if (n == null && NUMW[wd] >= 1) n = NUMW[wd]; });
+      if (n != null && $('chkReps')) { $('chkReps').value = n; $('chkReps').dispatchEvent(new Event('input', { bubbles: true })); }
+      else toast('Didn’t catch a number. Type the reps instead.');
+    };
+    r.onend = function () { if ($('chkMic')) $('chkMic').setAttribute('aria-pressed', 'false'); };
+    try { r.start(); b.setAttribute('aria-pressed', 'true'); } catch (e) { toast('Voice input isn’t available here. Type the reps instead.'); }
+  }
+  $('chkCard').addEventListener('click', function (e) { var b = e.target.closest('button[data-chk]'); if (!b) return; if (b.dataset.chk === 'end') openEndurance(b); else openStrength(b); });
   function renderAll() { renderTrain(); if (current === 'progress') renderProgress(); if (libBuilt && current === 'exercises') ensureLib(); }
 
   // ---------- strength map: estimated max per muscle ----------
@@ -4094,7 +4212,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // A newer version is online: say so, instead of quietly running the old one until the next launch
   // dates follow the app's language (English), not the device's, so an English screen doesn't show "28 de octubre"
   var UIL = /^en\b/i.test(navigator.language || '') ? undefined : 'en-GB';
-  var APP_VERSION = '39';
+  var APP_VERSION = '40';
   function checkVersion() {
     if (!navigator.onLine || !/^https?:/.test(location.protocol)) return;
     fetch('index.html?v=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
@@ -5801,7 +5919,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (pn.length) lines.push('Pain notes, last 2 weeks: ' + pn.join('; ') + '.');
     lines.push('Cardio in the last 7 days: about ' + weekCardio() + ' min.');
     var t = Object.keys(store.tests).filter(function (k) { return BY[k] && store.tests[k] && (store.tests[k].a || store.tests[k].b); }).map(function (k) { var x = store.tests[k]; return BY[k].name + ': week 1 ' + (x.a || '?') + ' s, week 12 ' + (x.b || 'not yet') + ' s'; });
-    if (t.length) lines.push('Max-hold test results: ' + t.join('; ') + '.');
+    if (t.length) lines.push('Endurance check (hold time, not max strength): ' + t.join('; ') + '.');
+    var sc = strHist().slice(-3).filter(function (c) { return G[c.id]; }).map(function (c) { return new Date(c.t).toLocaleDateString() + ' ' + baseName(G[c.id].name) + ' ' + r1(c.kg) + ' kg x ' + c.reps + ' = est. max ' + r1(c.e1) + ' kg'; });
+    if (sc.length) lines.push('Strength check (Epley estimated 1-rep max): ' + sc.join('; ') + '.');
     var recent = store.log.slice(-30).filter(function (l) { return BY[l.id]; }).map(function (l) { return new Date(l.t).toLocaleDateString() + ' ' + baseName(BY[l.id].name) + (l.k === 'h' ? ' hold ' : ' reps ') + (l.kg ? r1(l.kg) + ' kg x ' : '') + l.v + (l.k === 'h' ? ' s' : ''); });
     if (recent.length) lines.push('Recent logged sets: ' + recent.join('; ') + '.');
     return lines.join('\n');
