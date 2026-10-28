@@ -78,6 +78,17 @@ section.view { display: grid; gap: 18px; }
 .view-head { display: flex; align-items: flex-end; gap: 12px; }
 .view-head { flex-wrap: wrap; row-gap: 6px; }
 .view-head .weekbtn { order: 3; }
+.bodycard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 12px 14px; display: grid; gap: 8px; }
+.bodycard svg { width: 100%; max-width: 358px; height: auto; justify-self: center; display: block; }
+.bodycard .bm-on { fill: var(--trained); } .bodycard .bm-part { fill: var(--partly); } .bodycard .bm-off { fill: var(--gap); } .bodycard .bm-gap { fill: var(--gap); stroke: var(--ink); stroke-width: 2; stroke-dasharray: 4 3; }
+.bodycard .bm-lbl { font-size: 12px; fill: var(--muted); }
+.bm-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--muted); list-style: none; margin: 0; padding: 0; }
+.bm-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.bm-gaps { display: flex; align-items: center; gap: 10px; font-size: 15px; }
+.bm-gaps p { flex: 1; }
+.bm-gaps .btn { min-height: 44px; flex: none; }
+.startbar { position: sticky; bottom: calc(var(--bar-h) + 10px + env(safe-area-inset-bottom, 0px)); z-index: 6; margin-top: 8px; }
+.startbar .btn { width: 100%; min-height: 58px; font-size: 18px; box-shadow: 0 6px 20px rgba(20, 33, 61, .18); }
 .view-head .tools { display: flex; gap: 2px; margin-left: auto; }
 .strip button.today[aria-pressed="true"] .d { color: var(--bg); }
 .view-head .tool { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 52px; min-height: 52px; padding: 2px 4px; border: 0; border-radius: 14px; background: none; color: var(--ink); font-size: 12px; font-weight: 700; }
@@ -878,6 +889,7 @@ button.ring:active { transform: scale(.97); }
   <!-- TRAIN -->
   <section class="view" id="train" aria-labelledby="tab-train">
     <div class="view-head"><h1>Today</h1><button class="weekbtn" id="weekBtn" aria-haspopup="dialog"></button><button class="xbtn prof" id="profBtn" aria-label="Your profile and settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="4" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M4.5 20.5c1.2-3.8 4-5.5 7.5-5.5s6.3 1.7 7.5 5.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button></div>
+    <div id="bodyCard" class="bodycard"></div>
     <div class="band" id="band"></div>
     <div id="extras" class="view" style="gap:12px"></div>
     <div class="overall" id="overall"></div>
@@ -885,6 +897,7 @@ button.ring:active { transform: scale(.97); }
     <div class="eqdd-wrap" id="eqddTrain"></div>
     <div id="sessions" class="view" style="gap:12px"></div>
     <div id="fuel"></div>
+    <div id="startBar" class="startbar" hidden></div>
   </section>
 
   <!-- EXERCISES -->
@@ -1663,7 +1676,7 @@ var EX = [
     avoid: 'Shrugging the shoulders forward.',
     why: 'Neutral grip shifts load to the brachialis and brachioradialis, which helps with elbow pain.' },
 
-  { id: 'suitcase', name: 'Suitcase Hold', equip: 'One heavy kettlebell', uni: true, tags: ['Mid abs', 'Grip', 'Forearms', 'Traps'], hl: ['tn', 'fa.r'],
+  { id: 'suitcase', name: 'Suitcase Hold', equip: 'One heavy kettlebell', uni: true, tags: ['Obliques', 'Mid abs', 'Grip', 'Forearms', 'Traps'], hl: ['tn', 'fa.r'],
     steps: [
       { p: { v: 'f', lR: [40, -28], aR: [4, 4], aL: [8, 8], w: { r: 'kb' } }, txt: 'Squat beside the kettlebell and grip the handle with one hand. (Shown from the front.)' },
       { p: { v: 'f', lR: [18, -10], aR: [4, 4], aL: [8, 8], w: { r: 'kb' } }, txt: 'Stand up with a flat back, keeping the bell close to your leg.' },
@@ -1672,7 +1685,7 @@ var EX = [
     avoid: 'Leaning toward or away from the bell.',
     why: 'An uneven load makes the obliques and quadratus lumborum fight to keep you upright.' },
 
-  { id: 'side-plank', name: 'Side Plank Leg Raise Hold', equip: 'Just your bodyweight', uni: true, tags: ['Side hip', 'Glutes', 'Mid abs'], hl: ['tn'],
+  { id: 'side-plank', name: 'Side Plank Leg Raise Hold', equip: 'Just your bodyweight', uni: true, tags: ['Side hip', 'Obliques', 'Glutes', 'Mid abs'], hl: ['tn'],
     steps: [
       { p: { v: 'f', t: 72, aR: [0, 90], aL: [180, 180], lR: [-72, -72], lL: [72, 72] }, txt: 'Lie on your side, elbow under your shoulder, legs straight and stacked. Lift the hips into a straight line. (Shown from the front.)' },
       { p: { v: 'f', t: 72, aR: [0, 90], aL: [180, 180], lR: [-72, -72], lL: [90, 90] }, txt: 'Keep the hips high and lift the top leg, toes pointing forward, not up.' },
@@ -2732,7 +2745,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function show(id, keepScroll) {
     if (id === 'program') id = 'train'; if (id === 'method') id = 'guide';
     if (TABS.indexOf(id) < 0) id = 'train';
-    current = id; clearToast(); if (typeof renderTools === 'function') renderTools();
+    current = id; clearToast(); if (typeof renderTools === 'function') { renderTools(); renderStartBar(); }
     TABS.forEach(function (t) { $(t).hidden = t !== id; $('tab-' + t).setAttribute('aria-selected', String(t === id)); });
     try { history.replaceState(history.state, '', '#' + id); } catch (e) { }
     if (!keepScroll) window.scrollTo(0, 0);
@@ -2742,6 +2755,66 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (id === 'guide') renderResearch();
   }
   TABS.forEach(function (t) { $('tab-' + t).addEventListener('click', function () { show(t); }); });
+
+  // ---------- body map: which muscle parts this program week has trained ----------
+  // shape: [region, x, y, w, h, radius]; front figure on the left, back on the right
+  var BM = [['head', 74, 10, 32, 32, 16], ['delts', 44, 54, 28, 24, 12], ['delts', 108, 54, 28, 24, 12], ['chest', 68, 56, 44, 30, 8], ['abs', 74, 90, 32, 56, 8], ['obliques', 62, 92, 10, 50, 5], ['obliques', 108, 92, 10, 50, 5],
+    ['biceps', 40, 80, 12, 46, 6], ['biceps', 128, 80, 12, 46, 6], ['quads', 66, 156, 22, 66, 10], ['quads', 92, 156, 22, 66, 10], ['inner', 84, 160, 12, 40, 6], ['shins', 68, 230, 16, 52, 8], ['shins', 96, 230, 16, 52, 8],
+    ['head', 252, 10, 32, 32, 16], ['rear', 222, 54, 28, 24, 12], ['rear', 286, 54, 28, 24, 12], ['upper', 246, 56, 44, 58, 8], ['lower', 252, 118, 32, 30, 8], ['triceps', 218, 80, 12, 46, 6], ['triceps', 306, 80, 12, 46, 6],
+    ['glutes', 242, 152, 26, 28, 13], ['glutes', 268, 152, 26, 28, 13], ['sidehip', 230, 152, 8, 30, 4], ['sidehip', 298, 152, 8, 30, 4], ['hams', 244, 184, 22, 46, 10], ['hams', 270, 184, 22, 46, 10], ['calves', 246, 234, 18, 48, 8], ['calves', 272, 234, 18, 48, 8]];
+  var BM_NAME = { delts: 'front and side delts', chest: 'chest', abs: 'abs', obliques: 'obliques', biceps: 'biceps', quads: 'quads', inner: 'inner thighs', shins: 'shins', rear: 'rear delts', upper: 'upper back', lower: 'lower back', triceps: 'triceps', glutes: 'glutes', sidehip: 'side hip', hams: 'hamstrings', calves: 'calves' };
+  var BM_TAG = { 'Front delts': 'delts', 'Side delts': 'delts', 'Rear delts': 'rear', 'Upper chest': 'chest', 'Chest': 'chest', 'Upper abs': 'abs', 'Mid abs': 'abs', 'Lower abs': 'abs', 'Obliques': 'obliques', 'Biceps': 'biceps', 'Forearms': 'biceps', 'Triceps': 'triceps', 'Quads': 'quads', 'Knees': 'quads', 'Inner thigh': 'inner', 'Ankles': 'shins', 'Traps': 'upper', 'Upper back': 'upper', 'Mid back': 'upper', 'Lats': 'upper', 'Lower back': 'lower', 'Glutes': 'glutes', 'Side hip': 'sidehip', 'Hamstrings': 'hams', 'Calves': 'calves' };
+  var BM_EXTRA = { 'floor-press': ['chest'], 'incline-press': ['chest'], 'tib-hold': ['shins'] };
+  function bodyWeek() {
+    var got = {};
+    store.log.forEach(function (l) {
+      if (l.w !== store.week || !ALL[l.id]) return;
+      var tags = (ALL[l.id].tags || []), main = (BM_EXTRA[l.id] || []).concat(tags.slice(0, 2).map(function (t) { return BM_TAG[t]; }));
+      tags.slice(2).forEach(function (t) { var r = BM_TAG[t]; if (r && !got[r]) got[r] = 'part'; });
+      main.forEach(function (r) { if (r) got[r] = 'on'; });
+    });
+    return got;
+  }
+  function bmSvg(got) {
+    var n = 0, list = [];
+    var sh = BM.map(function (b) {
+      var st = b[0] === 'head' ? 'off' : got[b[0]] === 'on' ? 'on' : got[b[0]] === 'part' ? 'part' : 'gap';
+      return '<rect class="bm-' + st + '" x="' + b[1] + '" y="' + b[2] + '" width="' + b[3] + '" height="' + b[4] + '" rx="' + b[5] + '"/>';
+    }).join('');
+    var on = Object.keys(BM_NAME).filter(function (r) { return got[r] === 'on'; }).map(function (r) { return BM_NAME[r]; });
+    var part = Object.keys(BM_NAME).filter(function (r) { return got[r] === 'part'; }).map(function (r) { return BM_NAME[r]; });
+    var gaps = Object.keys(BM_NAME).filter(function (r) { return !got[r]; }).map(function (r) { return BM_NAME[r]; });
+    var lab = 'Body map for program week ' + store.week + '. ' + (on.length ? 'Trained: ' + on.join(', ') + '. ' : 'Nothing trained yet. ') + (part.length ? 'Partly: ' + part.join(', ') + '. ' : '') + (gaps.length ? 'Gaps: ' + gaps.join(', ') + '.' : '');
+    return '<svg viewBox="0 0 358 300" role="img" aria-label="' + esc(lab) + '">' + sh + '<text class="bm-lbl" x="90" y="298" text-anchor="middle">Front</text><text class="bm-lbl" x="268" y="298" text-anchor="middle">Back</text></svg>';
+  }
+  function renderBody() {
+    var el = $('bodyCard'); if (!el) return;
+    var got = bodyWeek(), gaps = Object.keys(BM_NAME).filter(function (r) { return !got[r]; }), any = Object.keys(got).length;
+    var pct = Math.round(Object.keys(BM_NAME).filter(function (r) { return got[r] === 'on'; }).length / Object.keys(BM_NAME).length * 100);
+    el.innerHTML = '<h2 class="sr-only">This week, muscle by muscle</h2>' + bmSvg(got) +
+      '<ul class="bm-legend"><li><i style="background:var(--trained)"></i>Trained</li><li><i style="background:var(--partly)"></i>Partly</li><li><i style="background:var(--gap);outline:2px dashed var(--ink);outline-offset:-2px"></i>Gap this week</li><li style="margin-left:auto;font-weight:700;color:var(--ink)">' + pct + '% this week</li></ul>' +
+      (!any ? '<div class="bm-gaps"><p>Your map is empty. Each session fills in the muscles it works.</p></div>'
+        : gaps.length ? (function () { var tagOf = function (r) { return Object.keys(BM_TAG).filter(function (t) { return BM_TAG[t] === r; }); }, can = gaps.filter(function (r) { var ts = tagOf(r); return Object.keys(ALL).some(function (id) { return EQV[id] && !(V(id, 'h').missing && V(id, 'g').missing) && (ALL[id].tags || []).some(function (t) { return ts.indexOf(t) > -1; }); }); }); gaps = can.concat(gaps.filter(function (r) { return can.indexOf(r) < 0; })); return ''; })() + '<div class="bm-gaps"><p><b>' + gaps.length + ' gap' + (gaps.length === 1 ? '' : 's') + ':</b> ' + esc(gaps.slice(0, 3).map(function (r) { return BM_NAME[r]; }).join(', ')) + (gaps.length > 3 ? ' and ' + (gaps.length - 3) + ' more' : '') + '.</p><button class="btn quiet" data-gapfind="' + esc(Object.keys(BM_TAG).filter(function (t) { return BM_TAG[t] === gaps[0]; })[0] || BM_NAME[gaps[0]]) + '">Find exercises</button></div>'
+        : '<div class="bm-gaps"><p><b>Every muscle part trained this week.</b></p></div>');
+  }
+  document.addEventListener('click', function (e) {
+    var g = e.target.closest('[data-gapfind]'); if (!g) return;
+    openSearch(g); var inp = $('srchIn'); inp.value = g.dataset.gapfind; inp.dispatchEvent(new Event('input'));
+  });
+  // the next session's Start sits in thumb reach above the tab bar
+  function renderStartBar() {
+    var bar = $('startBar'); if (!bar) return;
+    var btn = [].filter.call(document.querySelectorAll('#sessions [data-start]'), function (b) { return /\bgo\b/.test(b.className); })[0];
+    if (!btn || current !== 'train') { bar.hidden = true; return; }
+    var card = btn.closest('article'), h = card && card.querySelector('h3'), m = card && card.querySelector('.mins');
+    bar.hidden = false;
+    bar.innerHTML = '<button class="btn go" data-startbar="1">Start ' + esc(((h && h.textContent) || 'session').toLowerCase()) + (m ? ', ' + esc(m.textContent) : '') + '</button>';
+  }
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('[data-startbar]')) return;
+    var btn = [].filter.call(document.querySelectorAll('#sessions [data-start]'), function (b) { return /\bgo\b/.test(b.className); })[0];
+    if (btn) btn.click();
+  });
   // Search, Help and Profile sit in the top bar of every tab (Profile replaces the old person icon)
   var TOOL_SVG = { search: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>', help: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.7M12 17h.01"/></svg>' };
   function avatarHtml() { var n = (prof().name || '').trim(); return '<span class="av" aria-hidden="true">' + (n ? esc(n[0].toUpperCase()) : '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="9" r="4"/><path d="M5 20c1.5-4 12.5-4 14 0"/></svg>') + (window.__isoUpdate ? '<i></i>' : '') + '</span>'; }
@@ -2791,6 +2864,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
 
   // ---------- train ----------
   function renderTrain() {
+    setTimeout(function () { renderBody(); renderStartBar(); }, 0);
     document.documentElement.classList.toggle('big', !!(store.profile && store.profile.big));
     var ph = phaseOf(store.week), D = allDays(); if (selDay >= D.length) selDay = nextDayIdx(); var day = D[selDay], nx = nextDayIdx();
     $('weekBtn').innerHTML = '<i style="--c:' + KC[ph.kg] + '"></i>Week ' + store.week + ' of 12';
@@ -3664,7 +3738,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // A newer version is online: say so, instead of quietly running the old one until the next launch
   // dates follow the app's language (English), not the device's, so an English screen doesn't show "28 de octubre"
   var UIL = /^en\b/i.test(navigator.language || '') ? undefined : 'en-GB';
-  var APP_VERSION = '33';
+  var APP_VERSION = '34';
   function checkVersion() {
     if (!navigator.onLine || !/^https?:/.test(location.protocol)) return;
     fetch('index.html?v=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
