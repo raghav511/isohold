@@ -35,9 +35,9 @@ const ids = (page, day) => T(page, d => { const t = window.__isoTest, dy = t.all
   // bands only: band names and band instructions
   ({ b, page, errs } = await boot({ profile: { units: 'kg', bw: 60, age: 52, sex: 'f' }, eq: ['r'] }));
   const names = await T(page, () => { const t = window.__isoTest, dy = t.allDays().find(x => x.id === 'c1'); return t.buildQueue(dy, 'pm', t.phaseOf(1)).filter(i => i.id).map(i => i.ex && i.ex.name); });
-  ok(names.includes('Band External Rotation Hold') && names.includes('Band Pull-Apart Hold') && names.includes('Band Row Hold'), 'bands: band names (' + [...new Set(names)] + ')');
+  ok(names.includes('Band External Rotation Hold') && names.includes('Band Rear-Delt Fly Hold') && names.includes('Band Row Hold'), 'bands: band names (' + [...new Set(names)] + ')');
   const steps = await T(page, () => { const t = window.__isoTest, dy = t.allDays().find(x => x.id === 'c1'); const it = t.buildQueue(dy, 'pm', t.phaseOf(1)).find(i => i.id === 'ext-rot' && i.kind === 'hold'); return it ? JSON.stringify(it.ex.steps || it.steps || '') : ''; });
-  ok(/Tie a band to a post/.test(steps), 'bands: external rotation uses band instructions');
+  ok(/Pin one end of a light band/.test(steps), 'bands: external rotation uses band instructions');
   ok(!errs.filter(e => !/Audio/.test(e)).length, 'no errors ' + errs);
   await b.close();
   srv.close(); console.log(pass + ' passed, ' + fail + ' failed'); process.exit(fail ? 1 : 0);
