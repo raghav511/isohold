@@ -22,7 +22,7 @@ const PORT = 8266, URL = `http://localhost:${PORT}/index.html`;
     ok(await p.isVisible('#coach') && /Search & log/.test(await p.textContent('#coach h1')), kind + ': Search opens Search & log');
     await p.fill('#cIn', 'shoulder'); await p.waitForTimeout(150);
     ok(/Lateral Raise/.test(await p.textContent('#cSrch')), kind + ': typing “shoulder” finds the lateral raise');
-    await p.click('#cSrch [data-sx]'); await p.waitForTimeout(250);
+    await p.click('#cSrch [data-sx="lateral-raise"]'); await p.waitForTimeout(250);
     ok(await p.isVisible('#sheet') && /Lateral Raise/.test(await p.textContent('#sheetBody')), kind + ': a search result opens that exercise');
     await p.click('#sheetClose'); await p.waitForTimeout(150); await p.fill('#cIn', '');
     await p.click('#coach .view-head [data-tool="help"]'); await p.waitForTimeout(150);

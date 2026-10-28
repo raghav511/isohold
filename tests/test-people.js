@@ -73,7 +73,7 @@ const lastCard = page => T(page, () => { const f = window.__isoTest.feed(); retu
     a = await pa('deadlift 4 plates for 5'); ok(a && a.name === 'Deadlift' && a.weight === 405 && a.reps === 5, kind + ' plates: deadlift 4 plates = 405 lb');
     a = await pa('squat 405 for 3'); ok(a && a.name === 'Back Squat' && a.weight === 405 && a.reps === 3, kind + ' "squat 405 for 3" is a back squat');
     a = await pa('bench 265x5 @RPE 8'); ok(a && a.name === 'Bench Press' && a.rpe === 8, kind + ' RPE kept, not part of the name');
-    a = await pa('cable row 40 for 12'); ok(a && a.type === 'log_lift' && a.name === 'Cable Row', kind + ' cable row is a two-arm row, not the single-arm row');
+    a = await pa('cable row 40 for 12'); ok(a && a.type === 'log_lift' && /^(Seated )?Cable Row$/.test(a.name) && a.exercise !== 'sa-row', kind + ' cable row is a two-arm row, not the single-arm row (' + (a && a.name) + ')');
     await say(page, 'deadlift 4 plates'); let c = await lastCard(page); ok(c && c.title === 'How many reps?', kind + ' weight with no reps asks for reps');
     await say(page, 'leg press 1000 lb x 10'); c = await lastCard(page); ok(c && c.k === 'set', kind + ' a 1000 lb leg press logs');
     await say(page, 'leg press 3000 lb x 10'); c = await lastCard(page); ok(c && c.k === 'err' && /looks wrong/.test(c.title), kind + ' an impossible weight shows a visible message');
