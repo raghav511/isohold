@@ -177,11 +177,10 @@ const lastCard = page => T(page, () => { const f = window.__isoTest.feed(); retu
 
   // backups keep every detail of a set
   ({ b, page, errs } = await boot(kind, { profile: P0, eq: ['d'], log: [{ t: 1, w: 1, id: 'curl', eq: 'd', k: 'r', kg: 10, v: 8, sug: 1, rpe: 8, x: 1 }] }));
-  await page.click('#tab-progress'); await page.click('#bkCopy').catch(() => {});
+  await page.click('#tab-progress'); await page.click('#bkGo'); await page.click('#bkCopy').catch(() => {});
   const code = await T(page, () => document.getElementById('bkOut').value);
-  await page.fill('#bkIn', code); await page.click('#bkRestore'); await page.waitForTimeout(100);
-  ok(/other lifts/.test(await page.textContent('#bkConfirmTxt')), 'restore confirmation counts other lifts and cardio');
-  await page.click('#bkYes'); await page.waitForTimeout(150);
+  await page.fill('#bkIn', code); await page.click('#bkRestore'); await page.waitForTimeout(150);
+  ok(/other lifts/.test(await page.textContent('#bkMsg')), 'restore message counts other lifts and cardio');
   const l = await T(page, () => window.__isoTest.store().log[0]);
   ok(l.sug === 1 && l.rpe === 8 && l.x === 1, 'backup keeps the suggested-weight flag and RPE');
   await b.close();

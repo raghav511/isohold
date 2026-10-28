@@ -108,7 +108,7 @@ async function toWork(page) { await page.click('#sessions [data-start]'); await 
   ok(new Set(f).size === 3, 'full-body days A, B and C are all different');
   await b.close();
   ({ b, page, errs } = await boot(kind, {}));
-  await page.fill('#pfAge', '68'); await page.click('.pchips[data-set="eq"] button[data-v="d"]'); await page.click('#pfSave'); await page.waitForTimeout(150);
+  await page.fill('#pfAge', '68'); await page.click('#pfNext'); await page.click('.pchips[data-set="eq"] button[data-v="d"]'); await page.click('#pfSave'); await page.waitForTimeout(150);
   ok(await T(page, () => window.__isoTest.prof().days) === 3, 'a new 68-year-old starts on 3 days a week');
   await b.close();
 

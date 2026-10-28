@@ -39,7 +39,7 @@ const T = (page, f, a) => page.evaluate(f, a);
   f = await fd('2 coffees with milk'); ok(f.length === 1 && f[0].n === 'White coffee' && f[0].q === 2, '"2 coffees with milk" is two white coffees, not a glass of milk');
   f = await fd('coffee with a splash of milk'); ok(f.length === 1 && f[0].n === 'White coffee', 'coffee with a splash of milk');
   ok(/night shift/i.test(await T(page, () => window.__isoTest.localAnswer('should I train after a 12 hour night shift') || '')), 'offline: training after a night shift');
-  await page.click('#profBtn'); await page.waitForTimeout(150); await page.click('.pchips[data-set="where"] button[data-v="gym"]'); await page.click('.pchips[data-set="where"] button[data-v="home"]'); await page.click('#pfSave'); await page.waitForTimeout(150);
+  await page.click('#profBtn'); await page.waitForTimeout(150); await page.click('#pfTab-train'); await page.click('#pfGrpEq summary'); await page.click('.pchips[data-set="where"] button[data-v="gym"]'); await page.click('.pchips[data-set="where"] button[data-v="home"]'); await page.click('#pfSave'); await page.waitForTimeout(150);
   ok(await T(page, () => !window.__isoTest.prof().cardio.some(c => /treadmill|rower|bike/.test(c))), 'switching to Home drops gym cardio machines');
   await b.close();
   srv.close(); console.log(pass + ' passed, ' + fail + ' failed'); process.exit(fail ? 1 : 0);
