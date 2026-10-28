@@ -63,7 +63,7 @@ const DAY = 864e5;
     const rec = s1.tests._str[s1.tests._str.length - 1];
     ok(rec && rec.lift === 'Bench Press' && rec.reps === 10 && Math.abs(rec.e1 - (225 / 2.20462) * (1 + 11 / 30)) < 0.05, 'bench 225 × 10 saved with reps + 1 (' + JSON.stringify(rec) + ')');
     ok(s1.notes.length === s0.notes.length + 1 && s1.notes[s1.notes.length - 1].name === 'Bench Press', 'and logged as a Bench Press set');
-    ok(/Bench Press: max about 307\.5 lb/.test(await page.locator('#chkCard').innerText()), 'card shows the bench result (' + (await page.locator('#chkCard').innerText()).replace(/\n/g, ' | ') + ')');
+    ok(/Bench Press: estimated max 307\.5 lb/.test(await page.locator('#chkCard').innerText()), 'card shows the bench result (' + (await page.locator('#chkCard').innerText()).replace(/\n/g, ' | ') + ')');
     ok(await T(page, () => document.activeElement && document.activeElement.dataset.chk === 'str'), 'focus returns to the Strength check button');
     // search "bench" finds exercises and his logged lifts
     await page.evaluate(() => document.getElementById('tab-coach').click()); await page.waitForTimeout(150);
