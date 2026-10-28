@@ -45,7 +45,7 @@ const T = (page, f, a) => page.evaluate(f, a);
     const sb = await page.locator('#sheetBody').innerText();
     ok(/skip it if anything hurts/i.test(sb) && /blood pressure/.test(sb), 'safety line present');
     const optIds = await T(page, () => [...document.querySelectorAll('#chkEx option')].map(o => o.value));
-    ok(optIds.length >= 2 && optIds.every(id => ['goblet-squat', 'floor-press', 'sa-row', 'bo-row', 'rdl'].includes(id)), 'exercise choices are loadable rep lifts (' + optIds + ')');
+    ok(optIds.length >= 2 && optIds.every(k => ['goblet-squat', 'floor-press', 'sa-row', 'bo-row', 'rdl'].includes(k.split('|')[0]) || /^lift:/.test(k)), 'exercise choices are loadable rep lifts or barbell lifts (' + optIds + ')');
     ok(+(await page.inputValue('#chkKg')) > 0, 'a weight is suggested from logged sets (' + await page.inputValue('#chkKg') + ')');
     await page.click('#chkInfo'); await page.waitForTimeout(80);
     links = await T(page, () => [...document.querySelectorAll('#chkEv a')].map(a => a.href));
@@ -53,22 +53,22 @@ const T = (page, f, a) => page.evaluate(f, a);
     ok(!/youtu/i.test(await page.innerHTML('#sheetBody')), 'no YouTube links in strength info');
     if (SHOTS) await page.screenshot({ path: SHOTS + '/strength-' + (dark ? 'dark' : 'light') + '.png' });
     if (!dark) {
-      const id = optIds[0], logN = await T(page, () => JSON.parse(localStorage.getItem('isohold.v1')).log.length);
+      const key = optIds.find(k => !/^lift:/.test(k)), id = key.split('|')[0]; await page.selectOption('#chkEx', key); await page.waitForTimeout(120); const logN = await T(page, () => JSON.parse(localStorage.getItem('isohold.v1')).log.length);
       await page.fill('#chkKg', '20'); await page.fill('#chkReps', '10'); await page.waitForTimeout(50);
-      ok(/26\.7 kg/.test(await page.textContent('#chkRes')), '20 kg × 10 reps → 26.7 kg (' + await page.textContent('#chkRes') + ')');
+      ok(/27\.3 kg/.test(await page.textContent('#chkRes')), '20 kg × 10 reps (+1 in reserve) → 27.3 kg (' + await page.textContent('#chkRes') + ')');
       await page.click('#chkSave'); await page.waitForTimeout(200);
       const s = await T(page, () => JSON.parse(localStorage.getItem('isohold.v1')));
       const h = s.tests._str || [], last = h[h.length - 1], l = s.log[s.log.length - 1];
-      ok(last && last.id === id && last.kg === 20 && last.reps === 10 && Math.abs(last.e1 - 26.67) < 0.01, 'result saved to the check history');
+      ok(last && last.id === id && last.kg === 20 && last.reps === 10 && Math.abs(last.e1 - 27.33) < 0.01, 'result saved to the check history');
       ok(s.log.length === logN + 1 && l.id === id && l.k === 'r' && l.kg === 20 && l.v === 10, 'also logged into store.log as a rep set');
-      ok(/26\.7 kg/.test(await page.locator('#chkCard').innerText()), 'card shows the latest result');
+      ok(/27\.3 kg/.test(await page.locator('#chkCard').innerText()), 'card shows the latest result');
       // second check: reps pre-filled, change shown
       await page.click('#chkCard [data-chk="str"]'); await page.waitForTimeout(150);
       ok(await page.inputValue('#chkReps') === '10' && await page.inputValue('#chkKg') === '20', 'reps and weight pre-filled from last time');
       await page.fill('#chkReps', '12'); await page.waitForTimeout(50);
       ok(/\+1\.3 kg vs last time/.test(await page.textContent('#chkRes')), 'change vs last time shown (' + await page.textContent('#chkRes') + ')');
       await page.click('#chkSave'); await page.waitForTimeout(200);
-      ok(/28 kg.*\+1\.3 kg since/.test(await page.locator('#chkCard').innerText()), 'card shows the change since last time');
+      ok(/28\.7 kg.*\+1\.3 kg since/.test(await page.locator('#chkCard').innerText()), 'card shows the change since last time');
     }
     ok(!errs.length, 'no page errors ' + (dark ? 'dark' : 'light') + ': ' + errs.join(' | '));
     await b.close();
