@@ -60,7 +60,7 @@ const base = (x) => Object.assign({}, seed, { done: {}, food: [], body: [], test
       await page.fill('#chkKg', '20'); await page.fill('#chkReps', '10'); await page.waitForTimeout(50);
       ok(/27\.3 kg/.test(await page.textContent('#chkRes')), 'Strength check 20 × 10 with 1 left = 27.3 kg (' + await page.textContent('#chkRes') + ')');
       await page.fill('#chkReps', '20'); await page.waitForTimeout(50);
-      ok(/Over 12 reps/.test(await page.textContent('#chkRes')), 'Strength check refuses an estimate past 12 reps');
+      ok(/Too many reps for a good estimate|past 12 reps/.test(await page.textContent('#chkRes')), 'Strength check refuses an estimate past 12 reps');
       await page.click('#sheetClose'); await page.waitForTimeout(100);
     } else ok(false, 'Strength check opens');
     ok(!errs.length, 'no page errors (1) ' + errs); await b.close();
