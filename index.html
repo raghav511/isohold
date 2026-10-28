@@ -1280,6 +1280,11 @@ var FIG = (function () {
     var o = points(r), dy;
     if (r.seat) dy = -(r.seat) ; else dy = FLOOR - lowest(o, r) - (r.raise || 0);
     var key = anchorKey || 'H', dx = anchorX == null ? 0 : anchorX - o[key][0];
+    if (r._g && !r.seat && o[r._g[0]]) {
+      // mid-move: keep the planted foot / hand exactly where it is, and only lift the body if something would dip into the floor
+      var c = o[r._g[0]]; dx = r._g[1] - c[0]; dy = r._g[2] - c[1];
+      var dip = lowest(o, r) + dy - FLOOR + (r.raise || 0); if (dip > 0.3) dy -= dip;
+    }
     for (var k in o) o[k] = [o[k][0] + dx, o[k][1] + dy];
     return o;
   }
@@ -1569,6 +1574,107 @@ var FIG = (function () {
     return ex;
   }
 
+
+  // ---- motion: smooth, human-like moves between key poses ----
+  // Each channel (a joint angle or a size) follows a monotone cubic through the key poses: it eases in and out,
+  // never overshoots, and carries its speed through a middle pose instead of stopping dead there.
+  // Proximal joints lead; elbows/knees follow a beat later and hands/feet/head last (seconds, scaled for short moves).
+  var LAG = { t: 0, hn: 0.12, an: [0, 0.08, 0.14], af: [0.02, 0.1, 0.14], ln: [0, 0.05, 0.1], lf: [0, 0.05, 0.1], aR: [0, 0.09], aL: [0.02, 0.11], lR: [0, 0.06], lL: [0, 0.06], shrug: 0.05, hd: 0.1 };
+  var LMAX = 0.14, LIN = { ts: 1, ls: 1, shrug: 1, hd: 1, seat: 1, rigX: 1, raise: 1 };
+  function cl(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
+  function wrap(d) { return ((d % 360) + 540) % 360 - 180; }
+  function mono(ys, xs, x) {
+    var n = ys.length, i = 0;
+    while (i < n - 2 && x > xs[i + 1]) i++;
+    function slope(j) {
+      if (j === 0 || j === n - 1) return 0;
+      var h0 = xs[j] - xs[j - 1], h1 = xs[j + 1] - xs[j], d0 = (ys[j] - ys[j - 1]) / h0, d1 = (ys[j + 1] - ys[j]) / h1;
+      return d0 * d1 <= 0 ? 0 : 3 * (h0 + h1) / ((2 * h1 + h0) / d0 + (h1 + 2 * h0) / d1);
+    }
+    var h = xs[i + 1] - xs[i], s = h > 0 ? cl((x - xs[i]) / h) : 1, s2 = s * s, s3 = s2 * s;
+    return (2 * s3 - 3 * s2 + 1) * ys[i] + (s3 - 2 * s2 + s) * h * slope(i) + (3 * s2 - 2 * s3) * ys[i + 1] + (s3 - s2) * h * slope(i + 1);
+  }
+  // where along the move each key pose sits (0..1), by how far the joints travel, so the speed through a middle pose stays even
+  function knots(keys) {
+    if (keys.length < 3) return [0, 1];
+    var d = [0], tot = 0;
+    for (var j = 1; j < keys.length; j++) {
+      var A = keys[j - 1], B = keys[j], m = 0;
+      for (var k in B) { var y = B[k], x = A[k]; if (Array.isArray(y) && Array.isArray(x)) y.forEach(function (yy, i) { m += Math.abs(wrap(yy - x[i])); }); else if (typeof y === 'number' && typeof x === 'number') m += LIN[k] ? Math.abs(y - x) * 30 : Math.abs(wrap(y - x)); }
+      tot += m; d.push(tot);
+    }
+    return d.map(function (x, j) { return tot ? Math.min(1, Math.max(0, x / tot)) : j / (keys.length - 1); }).map(function (x, j, a) { return j === 0 || j === a.length - 1 ? x : Math.min(0.75, Math.max(0.25, x)); });
+  }
+  // the planted contact shared by all the key poses: the same foot / hand / knee on the floor at the same spot in each
+  var CONTACT = ['An', 'Af', 'Tn', 'Tf', 'Ln', 'Lf', 'Ar', 'Al', 'Tr', 'Tl', 'Pn', 'Pf', 'Pr', 'Pl', 'Kn', 'Kf', 'Wn', 'Wf', 'H'];
+  function planted(ex, keys) {
+    if (keys[0].seat) return null;
+    var P = keys.map(function (r) { var c = r._pl; if (!c || c.a !== ex._anchor) c = r._pl = { a: ex._anchor, o: place(r._g ? strip(r) : r, ex._anchor, 0) }; return c.o; });
+    var cand = [ex._anchor].concat(CONTACT);
+    for (var i = 0; i < cand.length; i++) {
+      var k = cand[i], p0 = P[0][k]; if (!p0 || p0[1] < -4) continue;
+      if (P.every(function (o) { return o[k] && o[k][1] >= -4 && Math.abs(o[k][0] - p0[0]) < 1.5 && Math.abs(o[k][1] - p0[1]) < 1.5; })) return [k, p0[0], p0[1]];
+    }
+    return null;
+  }
+  function strip(r) { var o = {}; for (var k in r) if (k !== '_g' && k !== '_pl' && k !== '_seg') o[k] = r[k]; return o; }
+  // move through key poses `keys` (at knots ks), t seconds into a move lasting D seconds
+  function move(ex, keys, ks, t, D) {
+    ks = ks || knots(keys);
+    var B = keys[keys.length - 1], o = {}, sc = Math.min(1, D / 1.2), span = Math.max(0.05, D - LMAX * sc);
+    if (t >= D) return B; if (t <= 0) return keys[0];
+    function chan(key, i) {
+      var raw = keys.map(function (r) { var v = i == null ? r[key] : r[key] && r[key][i]; return v; });
+      var fb = i == null ? B[key] : B[key][i]; raw = raw.map(function (v) { return v == null ? fb : v; });
+      if (!LIN[key]) for (var j = 1; j < raw.length; j++) raw[j] = raw[j - 1] + wrap(raw[j] - raw[j - 1]);
+      var lg = LAG[key], lag = (Array.isArray(lg) ? lg[Math.min(i, lg.length - 1)] : lg || 0) * sc;
+      return mono(raw, ks, cl((t - lag) / span));
+    }
+    var x0 = cl(t / span), seg = 0; while (seg < ks.length - 2 && x0 > ks[seg + 1]) seg++;
+    for (var key in B) {
+      if (key === '_g' || key === '_pl' || key === '_seg') continue;
+      var y = B[key];
+      if (Array.isArray(y)) o[key] = y.map(function (yy, i) { return chan(key, i); });
+      else if (typeof y === 'number') o[key] = chan(key);
+      else { var nk = 0; for (var j = 1; j < ks.length; j++) if (Math.abs(ks[j] - x0) < Math.abs(ks[nk] - x0)) nk = j; o[key] = keys[nk][key]; }
+    }
+    // arms travel by reach: the direction from shoulder to wrist turns first, the elbow opens or folds a beat later and
+    // the elbow is solved from that, so a press goes up in a line and a raise sweeps an arc, with no elbow flipping
+    (B.v === 'f' ? ['aR', 'aL'] : ['an', 'af']).forEach(function (key) { if (Array.isArray(B[key])) reach(o, keys, ks, key, function (lag) { return cl((t - lag * sc) / span); }); });
+    o._seg = seg;
+    var g = planted(ex, keys); if (g) o._g = g;
+    return o;
+  }
+  function reach(o, keys, ks, key, at) {
+    var th = [], d = [], off = [], b = 0, ok = true;
+    keys.forEach(function (r) {
+      var a = r[key] || B0, W = [L.UA * Math.sin(a[0] * R) + L.FA * Math.sin(a[1] * R), L.UA * Math.cos(a[0] * R) + L.FA * Math.cos(a[1] * R)];
+      var t0 = ang(W[0], W[1]), bend = wrap(a[0] - t0);
+      th.push(th.length ? th[th.length - 1] + wrap(t0 - th[th.length - 1]) : t0); d.push(Math.hypot(W[0], W[1])); off.push(a.length > 2 ? wrap(a[2] - a[1]) : 0);
+      if (Math.abs(bend) > 3) { var sb = bend > 0 ? 1 : -1; if (b && sb !== b) ok = false; b = sb; }
+    });
+    if (!ok) return; // bent one way in one pose and the other way in another: keep the plain joint-angle path
+    var tt = mono(th, ks, at(0)), dd = mono(d, ks, at(0.08)), Q = [dd * Math.sin(tt * R), dd * Math.cos(tt * R)], sol = ik([0, 0], Q, L.UA, L.FA, b || 1);
+    var a = o[key].slice(); a[0] = sol[0]; a[1] = sol[1]; if (a.length > 2) a[2] = sol[1] + mono(off, ks, at(0.14));
+    o[key] = a;
+  }
+  var B0 = [3, 3];
+  // breathing during a hold: chest, shoulders and head rise by b units; arms come along unless the hands are on the floor
+  function breathe(o, r, b) {
+    if (!b) return o;
+    var on = function (p) { return p && p[1] > -9; }, ks;
+    if (r.v === 'f') {
+      ks = ['top', 'SR', 'SL', 'NK', 'head'];
+      ['r', 'l'].forEach(function (s) { if (!on(o['P' + s]) && !on(o['W' + s])) ks.push('E' + s, 'W' + s, 'P' + s); });
+    } else {
+      if (on(o.S) && on(o.H)) return o; // lying flat: the chest is on the floor
+      ks = ['S', 'NK', 'head', 'face'];
+      ['n', 'f'].forEach(function (s) { if (!on(o['P' + s]) && !on(o['W' + s])) ks.push('E' + s, 'W' + s, 'P' + s); });
+    }
+    ks.forEach(function (k) { if (o[k]) o[k] = [o[k][0], o[k][1] - b]; });
+    return o;
+  }
+
   function svgFor(ex, r, opts) {
     opts = opts || {};
     var vb = ex._vb, o = place(r, ex._anchor, 0);
@@ -1577,11 +1683,11 @@ var FIG = (function () {
     s += draw(r, o, opts.hl === false ? null : ex.hl, ex.props);
     return s + '</svg>';
   }
-  function inner(ex, r, hl) {
-    var o = place(r, ex._anchor, 0), vb = ex._vb;
+  function inner(ex, r, hl, b) {
+    var o = breathe(place(r, ex._anchor, 0), r, b), vb = ex._vb;
     return '<rect x="' + vb[0] + '" y="0" width="' + vb[2] + '" height="10" fill="var(--fig-mat)"/>' + seg([vb[0], 0], [vb[0] + vb[2], 0], 1.5, C.floor) + draw(r, o, hl, ex.props);
   }
-  return { prep: prep, lerp: lerp, svgFor: svgFor, inner: inner, setStyle: setStyle, frame: frame };
+  return { prep: prep, lerp: lerp, move: move, knots: knots, svgFor: svgFor, inner: inner, setStyle: setStyle, frame: frame, place: place };
 })();
 
 // ---- Exercise library ----
@@ -3227,7 +3333,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
 
   // ---------- sheets (phone back gesture closes them) ----------
-  var sheetReturn = null, sheetAnim = null, sheetHist = false;
+  var sheetReturn = null, sheetAnim = null, sheetHist = false, sheetIO = null;
   function openSheet(title, html, full, from) {
     sheetReturn = from || document.activeElement;
     // a fresh body each time, so handlers from the previous sheet (or an earlier open of this one) can't fire twice or on the wrong item
@@ -3364,6 +3470,10 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       $('dBody').innerHTML = body();
       var x = cur();
       sheetAnim = { ex: x, svg: $('dFig').querySelector('svg'), stage: $('dStage'), t0: performance.now(), lab: null };
+      // pause the figure while it is scrolled out of view
+      if (sheetIO) sheetIO.disconnect(); sheetIO = null;
+      if (!reduce && window.IntersectionObserver) { var sa = sheetAnim; sheetIO = new IntersectionObserver(function (es) { sa.off = !es[es.length - 1].isIntersecting; }); sheetIO.observe($('dFig')); }
+      kickAnim();
       if (reduce) { sheetAnim.stage.textContent = state.part === 'hold' ? 'Hold position' : 'End position'; sheetAnim.stage.className = 'stage ' + (state.part === 'hold' ? 'hold' : 'rep'); sheetAnim = null; }
     }
     paintBody();
@@ -5937,42 +6047,48 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   /*@@end*/
 
   // ---------- animation (exercise sheet) ----------
-  var lastFrame = 0;
+  // One requestAnimationFrame loop: figures are drawn every frame (60 fps), the player's clock and text every ~30 ms.
+  // It only runs while there is something to animate (the exercise sheet's figure, or a session), and skips the figure
+  // when it is scrolled out of view; the SVG is only rewritten when the picture actually changed.
+  var lastFrame = 0, animOn = false;
+  function kickAnim() { if (!animOn) { animOn = true; requestAnimationFrame(frame); } }
   function frame(now) {
-    if (now - lastFrame > 30) {
-      lastFrame = now;
-      if (sheetAnim && !$('sheetWrap').hidden) {
-        var st = sheetAnim, t = (now - st.t0) / 1000, lab, pose, hold = false;
-        if (st.ex.grow) { var rp = repPose(st.ex, t); pose = rp[0]; lab = rp[1]; }
-        else { var r = seq(st.ex, t); pose = r[0]; hold = r[2]; lab = hold ? 'Hold' : 'Step ' + (r[1] + 1); }
-        st.svg.innerHTML = FIG.inner(st.ex, pose, st.ex.hl);
-        if (lab !== st.lab) { st.lab = lab; st.stage.textContent = lab; st.stage.className = 'stage' + (hold ? ' hold' : st.ex.grow ? ' rep' : ''); $('dFig').classList.toggle('holding', hold); }
-      }
-      if (P) playerTick(now);
+    var tick = now - lastFrame > 30;
+    if (tick) lastFrame = now;
+    if (sheetAnim && !sheetAnim.off && !$('sheetWrap').hidden) {
+      var st = sheetAnim, t = (now - st.t0) / 1000, lab, pose, hold = false, br = 0;
+      if (st.ex.grow) { var rp = repPose(st.ex, t); pose = rp[0]; lab = rp[1]; }
+      else { var r = seq(st.ex, t); pose = r[0]; hold = r[2]; br = r[3]; lab = hold ? 'Hold' : 'Step ' + (r[1] + 1); }
+      var html = FIG.inner(st.ex, pose, st.ex.hl, br);
+      if (html !== st.html) { st.html = html; st.svg.innerHTML = html; }
+      if (lab !== st.lab) { st.lab = lab; st.stage.textContent = lab; st.stage.className = 'stage' + (hold ? ' hold' : st.ex.grow ? ' rep' : ''); $('dFig').classList.toggle('holding', hold); }
     }
-    requestAnimationFrame(frame);
+    if (P) { if (tick) playerTick(now); if (figLive()) drawPlayerFig(now); }
+    if (sheetAnim || P) requestAnimationFrame(frame); else animOn = false;
   }
   // ---------- animation ----------
-  function ease(k) { return k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; }
-  var CYC = 6.85;
-  function seq(ex, t) {
-    var R = ex._r, T = t % CYC;
-    if (T < 0.7) return [R[0], 0, false]; T -= 0.7;
-    if (T < 1.1) return [FIG.lerp(R[0], R[1], ease(T / 1.1)), 1, false]; T -= 1.1;
-    if (T < 0.35) return [R[1], 1, false]; T -= 0.35;
-    if (T < 1.1) return [FIG.lerp(R[1], R[2], ease(T / 1.1)), 2, false]; T -= 1.1;
-    if (T < 2.4) return [R[2], 2, true]; T -= 2.4;
-    return [FIG.lerp(R[2], R[0], ease(T / 1.2)), 0, false];
+  // The hold demo: rest in the start pose, flow through the steps into the hold in one eased movement (each joint
+  // easing in and out, the trunk leading and the hands and feet following), breathe through the hold, then return.
+  // seq() returns [pose, step index, holding, breath (units the chest rises)].
+  var BR = 4.6, IN = 2.65, HOLD = BR, BACK = 1.5, CYC = 0.6 + IN + HOLD + BACK;
+  function breath(t) { return 1.3 * (0.5 - 0.5 * Math.cos(2 * Math.PI * t / BR)); }
+  function seq(ex, t, mid) {
+    var R = ex._r, K = R.slice(0, Math.min(R.length, mid ? 2 : 3)), n = K.length - 1, T = t % CYC;
+    if (T < 0.6 || !n) return [R[0], 0, false, 0]; T -= 0.6;
+    var ck = mid ? '_ksm' : '_ks', ks = ex[ck] && ex[ck].r === R ? ex[ck].k : (ex[ck] = { r: R, k: FIG.knots(K) }).k;
+    if (T < IN) { var m = FIG.move(ex, K, ks, T, IN); return [m, m._seg == null ? n : m._seg + 1, false, 0]; } T -= IN;
+    if (T < HOLD) return [K[n], n, true, breath(T)]; T -= HOLD;
+    return [FIG.move(ex, K.slice().reverse(), ks.map(function (x) { return 1 - x; }).reverse(), T, BACK), 0, false, 0];
   }
   // one rep of a growth lift: returns [pose, label]
   function repPose(g, t) {
     var R = g._r, T = g.tempo, k = t % repDur(g), liftFirst = T[0] < T[2];
     var outL = g.lab ? g.lab[0] : g.mode === 'time' ? 'Walk' : g.fixed ? 'Snap' : liftFirst ? 'Lift' : 'Lower';
     var backL = g.lab ? g.lab[1] : g.mode === 'time' ? 'Walk' : g.fixed ? 'Hike' : liftFirst ? 'Lower' : 'Drive up';
-    var ez = g.mode === 'time' ? function (x) { return x; } : ease;
-    if (k < T[0]) return [FIG.lerp(R[0], R[1], ez(k / T[0])), outL]; k -= T[0];
+    // the tempo sets each half: the lift (concentric) is quick, the lowering (eccentric) slow, with short pauses at the ends
+    if (k < T[0]) return [FIG.move(g, [R[0], R[1]], null, k, T[0]), outL]; k -= T[0];
     if (k < T[1]) return [R[1], liftFirst ? 'Squeeze' : 'Pause']; k -= T[1];
-    if (k < T[2]) return [FIG.lerp(R[1], R[0], ez(k / T[2])), backL]; k -= T[2];
+    if (k < T[2]) return [FIG.move(g, [R[1], R[0]], null, k, T[2]), backL]; k -= T[2];
     return [R[0], g.lab ? g.lab[1] : g.mode === 'time' ? 'Walk' : 'Reset'];
   }
   // ---------- player ----------
@@ -5991,7 +6107,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var day = allDays().filter(function (d) { return d.id === dayId; })[0], ph = phaseOf(store.week);
     var q = buildQueue(day, part, ph);
     if (/^short-/.test(part) || q.oneSet) { ph = Object.create(ph); ph.sets = 1; ph.gs = 1; } clearToast();
-    P = { day: day, part: part, ph: ph, q: q, i: 0, stage: 'ready', paused: false, start: Date.now(), day0: dayStart(), pbs: {} };
+    P = { day: day, part: part, ph: ph, q: q, i: 0, stage: 'ready', paused: false, start: Date.now(), day0: dayStart(), pbs: {} }; kickAnim();
     try { if (replaceHist && history.state && history.state.sheet) history.replaceState({ player: 1 }, ''); else history.pushState({ player: 1 }, ''); } catch (e) { }
     $('pConfirm').hidden = true;
     try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) { }
@@ -6180,24 +6296,40 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     return it.kind === 'hold' ? 'End hold' : 'Set done';
   }
   function selfPaced() { return !!(store.profile && store.profile.pace === 'self'); }
+  // the player's figure is redrawn every frame while it moves: getting into position, reps, breathing in a hold,
+  // or easing from one pose to the next when the stage changes. With less motion it stays still.
+  function figLive() {
+    if (reduce || !P || !P.showEx || !P.showIt || P.paused || P.stage === 'done') return false;
+    if (P.figFrom) return true;
+    if (P.stage === 'work') return true; // reps, cardio, or breathing in a hold
+    return P.stage === 'ready' && P.showIt.kind === 'hold' && P.dur >= 5 && (performance.now() - P.t0) / 1000 < 0.6 + IN + 0.1; // getting into position
+  }
   function drawPlayerFig(now) {
-    var ex = P.showEx, it = P.showIt, fig = $('pSvg').parentNode, r, holding = false, el = (now - P.t0) / 1000;
+    var ex = P.showEx, it = P.showIt, fig = $('pSvg').parentNode, r, holding = false, el = (now - P.t0) / 1000, br = 0;
     if (it.kind === 'hold') {
       if (P.stage === 'ready' && !reduce && P.dur >= 5) {
-        r = seq(ex, Math.min(el, 4.25))[0]; if (el >= 4.25 && it.angle === 'mid') r = ex._r[1];
+        r = seq(ex, Math.min(el, 0.6 + IN), it.angle === 'mid')[0];
         var lab = el < 0.7 ? 'Start position' : el < 3.25 ? 'Move into position' : it.angle === 'mid' ? 'Mid-range hold' : 'Hold here';
         setCue(lab, el < 3.25 ? 'Step ' + (el < 0.7 ? 1 : el < 1.8 ? 2 : 3) + ' of 3' : 'Starts when the count ends', lab === 'Hold here' ? 'hold' : '');
       }
-      else if (P.stage === 'work' || P.stage === 'ready') { r = ex._r[it.angle === 'mid' ? 1 : 2]; holding = P.stage === 'work'; }
+      else if (P.stage === 'work' || P.stage === 'ready') { r = ex._r[it.angle === 'mid' ? 1 : 2]; holding = P.stage === 'work'; if (holding && !reduce) br = breath(el); }
       else r = ex._r[0];
     } else {
       var speed = it.kind === 'cardio' && it.effort === 'Hard' ? 1.45 : 1;
       if (P.stage === 'work' && !reduce) { var rp = repPose(ex, el * speed); r = rp[0]; P.repLabel = rp[1]; }
       else r = ex._r[P.stage === 'work' ? 1 : 0];
     }
-    $('pSvg').innerHTML = FIG.inner(ex, r, ex.hl);
+    // a new stage or exercise: ease from what was on screen to the new pose instead of jumping
+    var fk = P.i + ':' + P.stage;
+    if (P.figKey !== fk) { P.figFrom = P.figLast && P.figEx === ex && !reduce ? { r: P.figLast, b: P.figB || 0, t0: now } : null; P.figKey = fk; P.figEx = ex; }
+    if (P.figFrom) { var fe = (now - P.figFrom.t0) / 1000; if (fe < 0.45) { r = FIG.move(ex, [P.figFrom.r, r], null, fe, 0.45); br += P.figFrom.b * (1 - fe / 0.45); } else P.figFrom = null; }
+    P.figLast = r; P.figB = br;
+    var html = FIG.inner(ex, r, ex.hl, br);
+    if (html !== P.figHtml) { P.figHtml = html; $('pSvg').innerHTML = html; }
     fig.classList.toggle('holding', holding);
   }
+  // only touch the clock's text when it changes: rewriting it every frame replaces the node under a finger mid-tap
+  function setTxt0(el, t) { if (el.textContent !== t) el.textContent = t; }
   function playerTick(now) {
     if (P.stage === 'done') return;
     if (P.paused) { P.t0 += now - (P.pt || now); P.pt = now; return; }
@@ -6206,15 +6338,15 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var isReps = P.stage === 'work' && it.kind === 'reps';
     if (isReps) {
       var rd = repDur(it.ex), rep = Math.min(it.reps, Math.floor(el / rd) + 1);
-      $('pTime').textContent = rep; $('pTime').className = '';
+      setTxt0($('pTime'), String(rep)); $('pTime').className = '';
       frac = 1 - Math.min(1, el / (it.reps * rd));
       if (rep !== P.lastRep) { P.lastRep = rep; if (rep > 1) beep(520, 0.08, 0.15); }
       if ($('pPhase').textContent !== 'Reps') $('pPhase').textContent = 'Reps';
       setCue(P.repLabel || 'Go', tempoShort(it.ex), 'rep');
     } else if (selfPaced() && P.stage !== 'work') {
-      var tu = fmt(el); $('pTime').textContent = tu; $('pTime').className = tu.length > 3 ? 'long' : ''; frac = 1;
+      var tu = fmt(el); setTxt0($('pTime'), tu); $('pTime').className = tu.length > 3 ? 'long' : ''; frac = 1;
     } else {
-      var t = fmt(left); $('pTime').textContent = t; $('pTime').className = t.length > 3 ? 'long' : '';
+      var t = fmt(left); setTxt0($('pTime'), t); $('pTime').className = t.length > 3 ? 'long' : '';
       frac = P.dur ? left / P.dur : 0;
       if (sec !== P.lastSec) {
         P.lastSec = sec;
@@ -6225,7 +6357,6 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     $('pRing').style.strokeDashoffset = (326.7 * (1 - frac)).toFixed(1);
     var rc = P.stage === 'rest' || P.stage === 'switch' ? ' rest-c' : P.stage === 'work' && it.kind === 'cardio' ? (it.effort === 'Hard' ? '' : ' rest-c') : P.stage === 'work' && it.kind !== 'hold' ? ' rep-c' : '';
     $('pRing').setAttribute('class', 'fgc' + rc);
-    if (P.stage === 'ready' || (P.stage === 'work' && it.kind !== 'hold')) drawPlayerFig(now);
     if (left <= 0 && !(selfPaced() && P.stage !== 'work')) advance();
   }
   $('pPause').addEventListener('click', function () { if (!P) return; P.paused = !P.paused; P.pt = performance.now(); paint(); });
@@ -6325,7 +6456,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   window.__isoholdReady = performance.now();
   // read-only hooks for the automated test suite
   window.__isoTest = { today: function (l) { return today(l); }, dayStart: function (t) { return dayStart(t); }, suggestWt: function (id, kind) { return suggestWt(id, V(id, kind === 'h' ? 'h' : 'g'), kind); }, localAnswer: function (t) { return localAnswer(t); }, weekTarget: function () { return weekTarget(); }, buildQueue: buildQueue, allDays: allDays, mins: mins, V: V, chooseEq: chooseEq, pickEq: pickEq, store: function () { return store; }, strengthData: strengthData, holdMax: holdMax, repMax: repMax, phaseOf: phaseOf, blocksFor: blocksFor, wLabel: wLabel, weekDone: weekDone, isPB: isPB, parseText: parseText, parsePlayerCmd: parsePlayerCmd, handle: function (t, s) { return handle(t, s || 'text'); }, runCmd: function (t) { return runCmd(t); }, feed: function () { return feed; }, prof: prof, proteinTarget: proteinTarget, foods: FOODS, applyAction: function (a) { return apply(a, 'test'); }, dailyIdx: function () { return dailyIdx(); }, strChange: function () { return strChange(); }, epley: epley, loadTime: loadTime };
-  requestAnimationFrame(frame);
+  kickAnim();
 })();
 
 </script>
