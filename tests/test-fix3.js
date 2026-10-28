@@ -162,7 +162,8 @@ const base = (x) => Object.assign({}, seed, { done: {}, food: [], body: [], test
 
   // ---------- 7. forced colours: legends keep distinct, non-colour markers ----------
   {
-    const st = base({ notes: [lift(at(11, 1), 'Bench Press', 100, 5), lift(at(11, 15), 'Bench Press', 90, 5), lift(at(11, 1, 13), 'Back Squat', 100, 5), lift(at(11, 15, 13), 'Back Squat', 102, 5), lift(at(11, 1, 14), 'Deadlift', 100, 5), lift(at(11, 15, 14), 'Deadlift', 107, 5), lift(at(11, 1, 15), 'Lat Pulldown', 50, 10), lift(at(11, 15, 15), 'Lat Pulldown', 60, 10)] });
+    // round 13: the map uses the current estimated max (best of 6 weeks), so a drop shows once the better set is older than 6 weeks
+    const st = base({ notes: [lift(at(9, 25), 'Bench Press', 100, 5), lift(at(11, 15), 'Bench Press', 90, 5), lift(at(11, 1, 13), 'Back Squat', 100, 5), lift(at(11, 15, 13), 'Back Squat', 102, 5), lift(at(11, 1, 14), 'Deadlift', 100, 5), lift(at(11, 15, 14), 'Deadlift', 107, 5), lift(at(11, 1, 15), 'Lat Pulldown', 50, 10), lift(at(11, 15, 15), 'Lat Pulldown', 60, 10)] });
     for (const fc of [false, true]) {
       ({ b, page, errs } = await boot(st, { forcedColors: fc }));
       await page.click('#tab-progress'); await page.click('#pt-muscles'); await page.waitForTimeout(100);

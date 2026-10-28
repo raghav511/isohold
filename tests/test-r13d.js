@@ -173,6 +173,67 @@ const AUDIT = () => {
     ok(!errs.length, 'no page errors (4b) ' + errs); await b.close();
   }
 
+  // ---- 5. Fatima: one strength number for the line, the list and the map; one max on the check card; one day length ----
+  {
+    const fat = JSON.parse(require('fs').readFileSync(__dirname + '/fixtures/fatima-r13.json', 'utf8'));
+    const o = await open('android', { state: fat, viewport: { width: 800, height: 1280 }, timezoneId: 'Europe/London' });
+    ({ b, page, errs } = o);
+    await page.clock.install({ time: new Date('2027-01-05T09:00:00') });
+    await page.goto(URL); await page.waitForFunction(() => window.__isoholdReady, null, { polling: 100 });
+    const c = await T(page, () => {
+      const t = window.__isoTest, D = t.dailyIdx(), now = t.dayStart(), sd = Object.keys(D.s).map(Number).sort((a, b) => a - b), last = sd[sd.length - 1];
+      const per = {}, all = [];
+      Object.values(D.ex).filter(e => e.kind === 's' && e.ds.length >= 2 && now - e.last <= 28 * 864e5).forEach(e => {
+        const kp = e.key.split('|'), cm = kp[0] === 'r' ? t.curMaxEx(kp[1], 'r', kp[2]) : kp[0] === 'hs' ? t.curMaxEx(kp[1], 'h', kp[2]) : t.curMaxLift(e.name);
+        const pc = (cm.e / e.base - 1) * 100; all.push(pc);
+        const rs = t.exRegions(kp[1], kp[0] === 'r' ? 'r' : 'h', kp[2]).on; rs.forEach(r => (per[r] = per[r] || []).push(pc));
+      });
+      const reg = {}; Object.keys(per).forEach(r => reg[r] = Math.round(per[r].reduce((a, b) => a + b, 0) / per[r].length));
+      return { line: D.s[last], mean: 100 + all.reduce((a, b) => a + b, 0) / all.length, map: t.strChange(), reg, vals: sd.map(d => Math.round(D.s[d] * 10) / 10) };
+    });
+    ok(Math.abs(c.line - c.mean) < 0.05, 'Fatima: today\'s strength point = the average of each exercise\'s current estimated max vs its start (' + c.line.toFixed(1) + ' vs ' + c.mean.toFixed(1) + ')');
+    ok(JSON.stringify(c.map) === JSON.stringify(Object.fromEntries(Object.keys(c.map).map(r => [r, c.reg[r]]))), 'the strength map averages the same per-exercise numbers by muscle (' + JSON.stringify(c.map) + ')');
+    ok(c.map.sidehip >= 15 && c.line > 109, 'side hip +' + c.map.sidehip + '% and the line at ' + c.line.toFixed(1) + ' (was 105 → 109)');
+    ok(c.vals.every((v, i) => !i || v >= c.vals[i - 1] - 0.01), 'fewer planned reps at the same weight no longer pull the line down (' + c.vals.join(', ') + ')');
+    await page.click('#tab-progress'); await page.click('#pt-strength'); await page.waitForTimeout(300);
+    const dc = await page.locator('#dailyCard').innerText();
+    ok(/is the average of your \d+ weighted exercises against their start\. The strength map splits the same numbers by muscle: [^.]*side hip \+17%/.test(dc), 'the daily card links the line and the map (' + (dc.match(/Strength \d+ is the average[^\n]*/) || [''])[0] + ')');
+    const ck = await page.locator('#chkCard [data-chk="str"]').innerText();
+    ok(!/13\.3/.test(ck) && (ck.split('Goblet Squat:')[1].match(/max/g) || []).length === 1 && /estimated max 11\.2 kg \(from 8 kg × 12 reps/.test(ck), 'strength check card: one max, not the 8 × 20 estimate (' + ck.replace(/\n/g, ' | ') + ')');
+    // a +17% exercise moves the line
+    const mv = await T(page, () => { const t = window.__isoTest, s = t.store(), D0 = t.dailyIdx(), k0 = Math.max(...Object.keys(D0.s).map(Number)), before = D0.s[k0];
+      s.log.push({ t: Date.now() + 3600e3, w: 6, id: 'goblet-squat', eq: 'd', k: 'r', kg: 8, v: 12, rpe: 7 }); const D1 = t.dailyIdx(), k1 = Math.max(...Object.keys(D1.s).map(Number)); s.log.pop(); return [before, D1.s[k1]]; });
+    ok(mv[1] > mv[0] + 0.2, 'a stronger goblet squat set today moves the line (' + mv.map(x => x.toFixed(1)).join(' → ') + ')');
+    // the day's minutes: no time recorded → the plan's length, the same number in both views, no invented evening
+    await page.click('#tab-train'); await page.waitForTimeout(200);
+    const one = await page.locator('#splitSeg .daytot').innerText();
+    await page.click('[data-split="two"]'); await page.waitForTimeout(250);
+    const two = await page.locator('#splitSeg .daytot').innerText();
+    const n1 = (one.match(/(\d+) min/) || [])[1], n2 = (two.match(/(\d+) min/) || [])[1];
+    ok(n1 && n1 === n2 && !/evening/.test(two) && !/You did: Morning/.test(two), 'one session done: same minutes in One session and Morning + evening, no evening invented (' + one.replace(/\n/g, ' ') + ' | ' + two.replace(/\n/g, ' ') + ')');
+    // with the time the session actually took: "You did: one session, 22 min" in both views
+    await T(page, () => { const s = window.__isoTest.store(); s.took = { w6f1am: 22, w6f1pm: 0 }; });
+    await page.click('[data-split="one"]'); await page.waitForTimeout(250);
+    const one2 = await page.locator('#splitSeg .daytot').innerText();
+    await page.click('[data-split="two"]'); await page.waitForTimeout(250);
+    const two2 = await page.locator('#splitSeg .daytot').innerText();
+    ok(/You did: one session, 22 min today/.test(one2) && /You did: one session, 22 min today/.test(two2), 'the session\'s own 22 minutes in both views (' + one2.replace(/\n/g, ' ') + ' | ' + two2.replace(/\n/g, ' ') + ')');
+    await page.click('[data-split="one"]'); await page.waitForTimeout(150);
+    // exercise detail title: her day, not "Day 0, Lower Body A"
+    await page.click('#tab-exercises'); await page.waitForTimeout(300);
+    await page.locator('#lib [data-ex="goblet-squat"]').first().click(); await page.waitForTimeout(400);
+    const title = await page.textContent('#sheetTitle');
+    ok(/^Day [1-3], Full Body [ABC]$/.test(title), 'exercise detail title is her own day (' + title + ')');
+    ok(!errs.length, 'no page errors (5) ' + errs); await b.close();
+  }
+  // ---- 5b. A finished session records its own minutes ----
+  {
+    ({ b, page, errs } = await boot(base({ eq: ['d'], profile: { units: 'kg', bw: 68, age: 52, sex: 'f', where: 'home', issues: [], days: 3, split: 'one', len: 25, inv: { d: '4, 6, 8' } } })));
+    const src = await T(page, () => document.documentElement.outerHTML.indexOf('store.took[k] = i ? 0 : took0') > -1);
+    ok(src, 'finish() stores the minutes the session took');
+    await b.close();
+  }
+
   srv.close();
   console.log(`test-r13d: ${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);

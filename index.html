@@ -3477,8 +3477,23 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (typeof restView === 'function' && restView()) return '';
     if (oneADay() && !cap) return '';
     // after "Done for today": the session you finished (in the week it was done), not the next one
-    if (dv) { day = dv.day; return withWeek(dv.w, function () { return totLine(day, phaseOf(dv.w), cap, 'You did: ', ' today'); }); }
+    if (dv) { day = dv.day; var dl = didLine(day, dv.w, cap); if (dl) return dl;
+      // no time recorded (an older session, or marked done by hand): morning and evening as planned only when they really were
+      // two sessions (done at different times, in the two-session view); otherwise the plan's length, one number in both views
+      var ta = +store.done['w' + dv.w + day.id + 'am'] || 0, tb = +store.done['w' + dv.w + day.id + 'pm'] || 0;
+      if (!oneADay() && ta && tb && Math.abs(ta - tb) > 1000) return withWeek(dv.w, function () { return totLine(day, phaseOf(dv.w), cap, 'You did: ', ' today'); });
+      return withWeek(dv.w, function () { var t = mins(day, 'all', phaseOf(dv.w)); return '<p class="daytot">Today’s plan: <b>' + t + ' min</b>' + (cap ? (t <= cap ? ', within your ' + cap + '-minute limit.' : ', over your ' + cap + '-minute limit.') : '.') + '</p>'; }); }
     return totLine(day, ph, cap, more ? 'Next session: ' : '', more ? '' : ' today');
+  }
+  // what was actually done today, from the minutes each finished session took (the same number as its summary), whatever
+  // the One session / Morning + evening setting now says; null when no time was recorded
+  function didLine(day, w, cap) {
+    var tk = store.took || {}, ka = 'w' + w + day.id + 'am', kp = 'w' + w + day.id + 'pm', s0 = dayStart();
+    var a = (+store.done[ka] || 0) >= s0 ? tk[ka] : null, b = (+store.done[kp] || 0) >= s0 ? tk[kp] : null;
+    if (a == null && b == null) return '';
+    var parts = [a, b].filter(function (x) { return x > 0; }), t = (a || 0) + (b || 0);
+    var txt = parts.length === 2 ? 'Morning ' + a + ' min + evening ' + b + ' min = <b>' + t + ' min today</b>' : '<b>one session, ' + t + ' min today</b>';
+    return '<p class="daytot">You did: ' + txt + (cap ? (t <= cap ? ', within your ' + cap + '-minute limit.' : ', over your ' + cap + '-minute limit.') : '.') + '</p>';
   }
   function totLine(day, ph, cap, pre, when) {
     var a = mins(day, 'am', ph), b = mins(day, 'pm', ph), t = oneADay() ? mins(day, 'all', ph) : a + b;
@@ -3826,7 +3841,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         '<ol class="steps' + (isH ? '' : ' r') + '">' + steps + '</ol>' + notes;
     }
     var html = '<div class="seg" role="tablist"><button role="tab" class="h" data-p="hold" aria-selected="' + (part === 'hold') + '">1. Tendon hold</button><button role="tab" class="r" data-p="rep" aria-selected="' + (part !== 'hold') + '">2. Growth reps</button></div><div id="dBody" style="display:grid;gap:14px"></div>';
-    var dd = DAYS.filter(function (d) { return d.ex.indexOf(id) > -1; })[0];
+    // the first of the user's own training days that has it (Day 1-based, as on Today); none = no day label
+    var dd = allDays().filter(function (d) { return !d.cardio && [].concat.apply([], (d.am || []).concat(d.pm || [])).indexOf(id) > -1; })[0];
     openSheet(dd ? 'Day ' + (allDays().indexOf(dd) + 1) + ', ' + dd.name : BY[id].name, html, true, from);
     function paintBody() {
       $('dBody').innerHTML = body();
@@ -4032,6 +4048,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       e.ds = ds; e.first = ds[0]; e.base = e.days[ds[0]]; e.last = ds[ds.length - 1];
     });
     var mean = function (a) { return a.reduce(function (x, y) { return x + y; }, 0) / a.length; };
+    // Strength at a day is that exercise's current estimated max as of then: the best of the 6 weeks up to it (curMax's rule),
+    // so the line, "Each exercise against its start" and the strength map all use one number. A week of fewer planned reps
+    // at the same weight doesn't pull it down. Endurance is the latest day's value.
     // A day's index: every exercise of that kind done in the 4 weeks up to that day, each at its latest value against its
     // first day. An exercise joins from its second day, so a new exercise doesn't pull the line back to 100, and a day of
     // different exercises (or a lighter session type) doesn't make the line jump.
@@ -4043,12 +4062,17 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         mine.forEach(function (e) {
           var upto = e.ds.filter(function (x) { return x <= d; }); if (upto.length < 2) return;
           var ld = upto[upto.length - 1]; if (d - ld > 28 * 864e5) return;
-          r.push(e.days[ld] / e.base * 100);
+          r.push(exVal(e, d) / e.base * 100);
         });
         sr[1][d] = r.length ? mean(r) : 100;
       });
     });
     return { s: S, e: E, ex: ex };
+  }
+  // an exercise's value as of day d: strength = best day in the 6 weeks up to d (as curMax); endurance = latest day
+  function exVal(e, d) {
+    var v = null; e.ds.forEach(function (x) { if (x > d) return; if (e.kind !== 's') { v = e.days[x]; return; } if (x > d - CUR_WIN && (v == null || e.days[x] > v)) v = e.days[x]; });
+    return v;
   }
   function dShort(t) { return new Date(t).toLocaleDateString(UIL, { day: 'numeric', month: 'short' }); }
   var dlyInfoOpen = false;
@@ -4063,7 +4087,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       '<div class="dinfo" id="dlyInfo"' + (dlyInfoOpen ? '' : ' hidden') + '>' +
       '<p><b>Strength</b> is the most you could lift once, estimated the same way everywhere in the app. For a set of 1 to 12 reps with a weight: <b>weight × (1 + (reps + reps in reserve) ÷ 30)</b>. This is the Epley formula; in a 2020 comparison it had the smallest error of the common formulas. Reps in reserve = 10 − the RPE you gave (0 to 4); with no RPE the set counts as taken to your limit. For a hold of 10 to 75 seconds with a weight, your maximum comes from how long you held it. So more reps, or a longer hold, at the same weight raise it, not only a heavier weight. A slower tempo isn’t counted.</p>' +
       '<p><b>Endurance</b> is how long you can keep a moderate load up. For each hold: <b>seconds × weight</b>, with bodyweight holds counted as 1 kg. Holding longer or heavier both raise it.</p>' +
-      '<p>Each exercise, program or other lift, starts at <b>100</b> on the first day you did it and joins the average from its second day. A day’s number is the average over every exercise you did in the 4 weeks up to that day, each at its latest value. So a session of different exercises doesn’t make the line jump, and 110 means about 10% better than when you started. Days without training are left blank.</p>' +
+      '<p>Each exercise, program or other lift, starts at <b>100</b> on the first day you did it and joins the average from its second day. A day’s number is the average over every exercise you did in the 4 weeks up to that day. For strength each counts at its current estimated max then, the best of the 6 weeks up to that day, the same number as the strength map and the list below; for endurance, at its latest value. So a session of different exercises doesn’t make the line jump, and 110 means about 10% better than when you started. Days without training are left blank.</p>' +
       '<ul class="refs">' + DLY_REFS.map(function (r) { return '<li><a href="' + r[3] + '" target="_blank" rel="noopener">' + esc(r[2]) + '</a><span>' + esc(r[0]) + ', ' + esc(r[1]) + '.</span></li>'; }).join('') + '</ul></div>';
     if (trained.length < 2) {
       el.innerHTML = head + '<p class="muted">' + (trained.length ? 'One training day so far in the last 6 weeks. ' : 'No training logged in the last 6 weeks. ') + 'After two days with weighted sets or holds, this chart shows each day’s strength and endurance against your start.</p>';
@@ -4120,7 +4144,11 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var sd = trained.filter(function (d) { return d in D.s; }), flat = 0;
     for (var fi = sd.length - 1; fi >= 0 && Math.abs(D.s[sd[fi]] - D.s[sd[sd.length - 1]]) < 0.5; fi--) flat++;
     var flatTxt = flat >= 4 ? '<p class="muted dflat" style="font-size:14px">Strength has stayed at ' + Math.round(D.s[sd[sd.length - 1]]) + ' for your last ' + flat + ' training days (since ' + esc(dShort(sd[sd.length - flat])) + ') because the weights, reps and hold times you logged haven’t changed. Hold a few seconds longer or go up a weight, and it will move.</p>' : '';
-    el.innerHTML = head + '<p class="muted" style="font-size:14px">' + (days.length < 42 ? 'Since your first training day, ' + esc(dShort(days[0])) + '. ' : 'Last 6 weeks. ') + '100 = your start.</p>' + s + leg + flatTxt +
+    // the line is the average of every exercise; the strength map splits the same numbers by muscle, so say both
+    var sc = strChange(), scr = Object.keys(sc).sort(function (a2, b2) { return sc[b2] - sc[a2]; }), lastS = sd.length ? D.s[sd[sd.length - 1]] : null;
+    var nEx = Object.keys(D.ex).filter(function (k) { var e = D.ex[k]; return e.kind === 's' && e.ds.length >= 2 && sd.length && sd[sd.length - 1] - e.last <= 28 * 864e5; }).length;
+    var mapTxt = lastS != null && scr.length && nEx ? '<p class="muted dmap" style="font-size:14px">Strength ' + Math.round(lastS) + ' is the average of your ' + nEx + ' weighted exercises against their start. The strength map splits the same numbers by muscle: ' + esc(scr.slice(0, 2).map(function (r) { return BM_NAME[r] + ' ' + pcTxt(sc[r]); }).join(', ')) + (scr.length > 2 ? ' at the top, ' + esc(BM_NAME[scr[scr.length - 1]] + ' ' + pcTxt(sc[scr[scr.length - 1]])) + ' at the bottom' : '') + '.</p>' : '';
+    el.innerHTML = head + '<p class="muted" style="font-size:14px">' + (days.length < 42 ? 'Since your first training day, ' + esc(dShort(days[0])) + '. ' : 'Last 6 weeks. ') + '100 = your start.</p>' + s + leg + flatTxt + mapTxt +
       '<details class="how"><summary>Show the numbers (' + trained.length + ' days)</summary><div class="gbody">' + tbl + '</div></details>' +
       '<details class="how"><summary>Each exercise against its start (' + exs.length + ')</summary><div class="gbody">' + exl + '</div></details>';
   }
@@ -4137,30 +4165,18 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     dlyInfoOpen = !dlyInfoOpen; $('dlyInfo').hidden = !dlyInfoOpen; b.setAttribute('aria-expanded', String(dlyInfoOpen));
   });
 
-  // ---------- strength map: how each muscle region's strength changed over the last 4 weeks ----------
+  // ---------- strength map: how each muscle region's strength changed (the daily line's per-exercise numbers) ----------
   // Rep sets of 1–12 reps: Epley 1-rep estimate. Holds of 10–75 s with a weight: the hold-to-max estimate (holdMax).
-  // Per exercise: best on the latest day ÷ best on the earliest day in the 4 weeks; a region averages its exercises.
+  // Per exercise: current estimated max (best of the last 6 weeks) ÷ its first day; a region averages its exercises.
   function strChange() {
-    var from = dayStart() - 27 * 864e5, ex = {};
-    store.log.forEach(function (l) {
-      if (l.sug || !(l.kg > 0) || l.t < from || !ALL[l.id]) return;
-      var v = l.k === 'r' ? estMax(l.kg, l.v, l.rpe) : l.k === 'h' && l.v >= 10 && l.v <= 75 ? holdMax(l).est : 0;
-      if (!v) return;
-      var key = l.k + '|' + l.id + '|' + l.eq, e = ex[key] || (ex[key] = { id: l.id, k: l.k, eq: l.eq, days: {} }), d = dayStart(l.t);
-      if (!(d in e.days) || v > e.days[d]) e.days[d] = v;
-    });
-    store.notes.forEach(function (n) { // lifts logged outside the program count for the muscles they work
-      if (n.k !== 'lift' || !n.t || n.t < from) return;
-      var tags = liftTags(n.name); if (!tags.length) return;
-      var v = n.reps ? estMax(n.kg, n.reps, n.rpe) : n.kg > 0 && n.s >= 10 && n.s <= 75 ? holdMax({ id: '', kg: n.kg, v: n.s }).est : 0;
-      if (!v) return;
-      var key = 'n|' + liftKey(n.name) + (n.reps ? '' : '|h'), e = ex[key] || (ex[key] = { regs: liftRegions(n.name).on, days: {} }), d = dayStart(n.t);
-      if (!(d in e.days) || v > e.days[d]) e.days[d] = v;
-    });
-    var reg = {};
-    Object.keys(ex).forEach(function (key) {
-      var e = ex[key], ds = Object.keys(e.days).map(Number).sort(function (a, b) { return a - b; }); if (ds.length < 2) return;
-      var ch = (e.days[ds[ds.length - 1]] / e.days[ds[0]] - 1) * 100, rs = e.regs || exRegions(e.id, e.k, e.eq).on; // the muscles it mainly works, as on the body map
+    // the same per-exercise numbers as the daily strength line: current estimated max (best of the last 6 weeks) against the
+    // exercise's first day, for exercises with weighted sets on 2+ days and done in the last 4 weeks; a region averages them
+    var D = dailyIdx(), now = dayStart(), reg = {};
+    Object.keys(D.ex).forEach(function (key) {
+      var e = D.ex[key]; if (e.kind !== 's' || e.ds.length < 2 || now - e.last > 28 * 864e5) return;
+      var ch = (exVal(e, now) / e.base - 1) * 100, kp = key.split('|'), rs;
+      if (kp[0] === 'r' || kp[0] === 'hs') { if (!ALL[kp[1]]) return; rs = exRegions(kp[1], kp[0] === 'r' ? 'r' : 'h', kp[2]).on; }
+      else { if (!liftTags(e.name).length) return; rs = liftRegions(e.name).on; }
       rs.filter(function (r, i) { return r && rs.indexOf(r) === i; }).forEach(function (r) { (reg[r] = reg[r] || []).push(ch); });
     });
     var out = {}; Object.keys(reg).forEach(function (r) { out[r] = Math.round(reg[r].reduce(function (a, b) { return a + b; }, 0) / reg[r].length); });
@@ -4176,8 +4192,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function changeMap() {
     var ch = strChange(), regs = Object.keys(BM_NAME), withD = regs.filter(function (r) { return r in ch; }).sort(function (a, b) { return ch[b] - ch[a]; }), none = regs.filter(function (r) { return !(r in ch); });
     var sh = BM.map(function (b) { var st = b[0] === 'head' ? -1 : chStep(ch[b[0]]), cls = st < 0 ? 'sm-off' : 'sm-' + (st || 'none'), r = ' x="' + b[1] + '" y="' + b[2] + '" width="' + b[3] + '" height="' + b[4] + '" rx="' + b[5] + '"/>'; return '<rect class="' + cls + '"' + r + (SM_PAT[st] ? '<rect class="sm-ov" fill="url(#' + SM_PAT[st] + ')"' + r : ''); }).join('');
-    var lab = 'Strength change by muscle over the last 4 weeks. ' + (withD.length ? withD.map(function (r) { return BM_NAME[r] + ' ' + (ch[r] > 0 ? 'up ' : ch[r] < 0 ? 'down ' : 'no change, ') + Math.abs(ch[r]) + '%'; }).join(', ') + '. ' : '') + (none.length ? 'No data: ' + none.map(function (r) { return BM_NAME[r]; }).join(', ') + '.' : '');
-    return '<h2>Strength map</h2><p class="muted" style="font-size:14px">Change in your estimated maximum over the last 4 weeks, for muscles trained with a weight on at least 2 days. Your other lifts (squat, bench, deadlift…) count too.</p>' +
+    var lab = 'Strength change by muscle since you started each exercise (done in the last 4 weeks). ' + (withD.length ? withD.map(function (r) { return BM_NAME[r] + ' ' + (ch[r] > 0 ? 'up ' : ch[r] < 0 ? 'down ' : 'no change, ') + Math.abs(ch[r]) + '%'; }).join(', ') + '. ' : '') + (none.length ? 'No data: ' + none.map(function (r) { return BM_NAME[r]; }).join(', ') + '.' : '');
+    return '<h2>Strength map</h2><p class="muted" style="font-size:14px">Change in your current estimated maximum since you started each exercise, the same numbers as the strength line and “Each exercise against its start”. For muscles trained with a weight on at least 2 days, done in the last 4 weeks. Your other lifts (squat, bench, deadlift…) count too.</p>' +
       '<svg class="smap" viewBox="0 0 358 300" role="img" aria-label="' + esc(lab) + '">' + SM_DEFS + sh + '<text class="bm-lbl" x="90" y="298" text-anchor="middle">Front</text><text class="bm-lbl" x="268" y="298" text-anchor="middle">Back</text></svg>' +
       '<ul class="bm-legend smleg">' + [[1, '↓ Down', 'striped'], [2, '0–4% up', 'dotted'], [3, '5–9% up', 'lined'], [4, '10%+ up', 'solid'], [0, 'No data', 'dashed outline']].map(function (x) {
         var r = ' x="1.5" y="1.5" width="17" height="17" rx="3"/>';
@@ -4383,7 +4399,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     }
     return out;
   }
-  function strLast(id, eq, before) { var h = strHist(); for (var i = h.length - 1; i >= 0; i--) if (h[i].id === id && (!eq || h[i].eq === eq) && (!before || h[i].t < before)) return h[i]; return null; }
+  function strLast(id, eq, before) { var h = strHist(); for (var i = h.length - 1; i >= 0; i--) if (h[i].id === id && (!eq || h[i].eq === eq) && (!before || h[i].t < before) && (h[i].bw || !(h[i].reps > STR_MAX_REPS))) return h[i]; return null; }
   function roundW(x, eq) { var st = stepU(eq) || 1; return fromU(Math.max(st, Math.round(toU(x) / st) * st)); }
   // never a weight you don't own: the heaviest owned weight at or below it, else your lightest
   function ownedSnap(w, eq) { var o = owned(eq); if (!o.length) return w; var best = o[0]; o.forEach(function (x) { if (x <= (w || 0) + 0.01) best = x; }); return best; }
@@ -4413,7 +4429,12 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function renderChecks() {
     var done = endDone(), er = done.slice(0, 2).map(function (id) { var t = store.tests[id]; return testName(id) + ' ' + (+t.a > 0 ? t.a : '?') + (+t.b > 0 ? ' → ' + t.b : '') + ' s'; }).join(', ') + (done.length > 2 ? ', +' + (done.length - 2) + ' more' : '');
     var h = strHist(), c = h[h.length - 1], bp = bpToday(), cn = c ? strName(c) : '';
-    var sr = bp ? 'Not today: your blood pressure reading is high' : c && cn ? cn + (c.bw ? ': ' + c.reps + ' reps' + chkChange(c) : (function () { var cm = chkCur(c); return !cm || Math.abs(cm.e - c.e1) < 0.05 ? ': max about ' + kg(c.e1) + chkChange(c) : ': check ' + kg(c.e1) + chkChange(c) + '; current estimated max ' + kg(cm.e) + ' (from ' + maxSrc(cm) + ')'; })()) : 'Not done yet. Takes about 5 minutes.';
+    var sr = bp ? 'Not today: your blood pressure reading is high' : c && cn ? cn + (c.bw ? ': ' + c.reps + ' reps' + chkChange(c) : (function () { // one number: the current estimated max; a check past 12 reps never counts as a max
+      var cm = chkCur(c), ok = c.e1 > 0 && c.reps <= STR_MAX_REPS;
+      if (cm && ok && Math.abs(cm.e - c.e1) < 0.05) return ': estimated max ' + kg(cm.e) + chkChange(c) + ' (from ' + maxSrc(cm) + ')';
+      // the check isn't your best set: the one max, and the check as the set you did (its change vs the previous check)
+      if (cm) return ': estimated max ' + kg(cm.e) + ' (from ' + maxSrc(cm) + '). Last check ' + kg(c.kg) + ' × ' + c.reps + (ok ? chkChange(c).replace(/^ \(/, ', ').replace(/\)$/, '') : ', too many reps for an estimate');
+      return ok ? ': estimated max ' + kg(c.e1) + chkChange(c) : ': last check ' + kg(c.kg) + ' × ' + c.reps + ', too many reps for an estimate'; })()) : 'Not done yet. Takes about 5 minutes.';
     $('chkCard').innerHTML = '<h2>Checks</h2><div class="chk-list">' +
       chkBtn('end', 'Endurance check', 'How long you can hold: endurance, not max strength', gentle() ? 'Skipped for you' : er || 'Do it in week 1 and week 12') +
       chkBtn('str', 'Strength check', 'Your estimated max lift, from a set of reps', sr) + '</div>';
@@ -7159,7 +7180,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var dKeys = partsOf(P.part).map(function (pt) { return 'w' + store.week + P.day.id + pt; });
     // a walk-only day (high blood pressure) logs the walk as cardio; the strength session waits for another day
     if (anyLogged && walkOnly && !P.day.cardio) { store.notes.push({ t: Date.now(), k: 'cardio', m: 'Walking', min: Math.round((P.cardioS || 0) / 60), km: null, steps: null, hard: false }); anyLogged = false; P.walkLogged = true; }
-    else if (anyLogged) { store.cmin = store.cmin || {}; dKeys.forEach(function (k, i) { store.done[k] = Date.now(); store.cmin[k] = i ? 0 : Math.round((P.cardioS || 0) / 60); }); } save();
+    else if (anyLogged) { store.cmin = store.cmin || {}; store.took = store.took || {}; var took0 = Math.max(1, Math.round((Date.now() - P.start) / 60000));
+      // the minutes this session actually took, on its first part (one session covering the whole day: 'am' holds it all)
+      dKeys.forEach(function (k, i) { store.done[k] = Date.now(); store.cmin[k] = i ? 0 : Math.round((P.cardioS || 0) / 60); store.took[k] = i ? 0 : took0; }); } save();
     var wk0 = store.week; P.wk0 = wk0; if (anyLogged) { moreDay = 0; checkWeek(dKeys); } if (store.week === wk0) selDay = nextDayIdx();
     P.stage = 'done'; setTimeout(function () { $('pRingBtn').setAttribute('aria-label', 'Close the session'); $('pClose').focus(); }, 50); beep(523, .2); setTimeout(function () { beep(784, .4); }, 220);
     $('pPhase').textContent = 'Done'; $('pPhase').className = 'p-phase rest';
