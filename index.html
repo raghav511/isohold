@@ -33,12 +33,12 @@ button, .chip, .tabs button { -webkit-user-select: none; user-select: none; -web
    competition-kettlebell colour of the current phase, which tints today's band.
    Layout: one column (max 560px), bottom tab bar in thumb reach, sheets slide up for detail. */
 :root {
-  --bg: #f5f7fa; --surface: #ffffff; --sunk: #edf1f5; --ink: #16202e; --muted: #5b6678; --line: #e2e7ee;
-  --hold: #0b8a70; --hold-ink: #ffffff; --rep: #5b4fd6; --rep-ink: #ffffff; --ok: #1a7fcf; --ok-ink: #ffffff; --go: #087f68; --go-ink: #ffffff; --danger: #c93a2f;
+  --bg: #f7f8fa; --surface: #ffffff; --sunk: #eef1f5; --ink: #14213d; --muted: #4a5568; --line: #dde1e6;
+  --hold: #9a5209; --hold-ink: #ffffff; --rep: #3b5b8c; --rep-ink: #ffffff; --ok: #1a6fb0; --ok-ink: #ffffff; --go: #14213d; --go-ink: #ffffff; --trained: #b8650f; --partly: #f2c879; --gap: #dde1e6; --danger: #c93a2f;
   --k16: #d9a300; --k20: #7a4fc6; --k24: #23864a; --k28: #df6f19; --k32: #cf3a2f;
   --band-ink: #1a1d20;
-  --fig-ink: #1b2330; --fig-far: #a3acba; --fig-hl: #19b394; --fig-hl-far: #a8e6d6; --iron: #2a313b; --iron-hub: #8e98a6;
-  --fig-floor: #c5ced9; --fig-prop: #dfe6ee; --fig-glow: rgba(25, 179, 148, .18); --fig-mat: #e9eef4; --fig-bg: #f1f5f9; --fig-band: #e0603a; --fig-band-far: #f0a58c;
+  --fig-ink: #14213d; --fig-far: #a3acba; --fig-hl: #b8650f; --fig-hl-far: #f2c879; --iron: #2a313b; --iron-hub: #8e98a6;
+  --fig-floor: #c5ced9; --fig-prop: #dfe6ee; --fig-glow: rgba(184, 101, 15, .18); --fig-mat: #e9eef4; --fig-bg: #f1f5f9; --fig-band: #e0603a; --fig-band-far: #f0a58c;
   --fig-fill: #ffffff; --fig-fill-far: #eef2f6; --fig-shadow: rgba(30, 50, 90, .08);
   --f-display: "Lexend", "Atkinson Hyperlegible", system-ui, sans-serif;
   --f-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -46,18 +46,18 @@ button, .chip, .tabs button { -webkit-user-select: none; user-select: none; -web
   --bar-h: 62px;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #0f141a; --surface: #171e26; --sunk: #0b0f14; --ink: #e9eef3; --muted: #9aa6b4; --line: #27313c;
-  --hold: #3ccfa8; --hold-ink: #06231c; --rep: #9c95ff; --rep-ink: #120f33; --ok: #5ab4ff; --ok-ink: #04192b; --go: #2fc49d; --go-ink: #04231b; --danger: #ff7a6e;
+  --bg: #121822; --surface: #1b2330; --sunk: #0d121a; --ink: #eef1f6; --muted: #aeb8c6; --line: #2a3340;
+  --hold: #e8a43a; --hold-ink: #1a1206; --rep: #9db4e0; --rep-ink: #0d1626; --ok: #5ab4ff; --ok-ink: #04192b; --go: #e8a43a; --go-ink: #1a1206; --trained: #e8a43a; --partly: #7a5a2a; --gap: #2a3340; --danger: #ff7a6e;
   --k16: #e9b919; --k20: #9e7ce2; --k24: #47b874; --k28: #f08a36; --k32: #f05a4e;
-  --fig-ink: #e6eaf0; --fig-far: #5c6675; --fig-hl: #34d1ab; --fig-hl-far: #1f6b5a; --iron: #a3acba; --iron-hub: #27313c;
-  --fig-floor: #3a4553; --fig-prop: #222a35; --fig-glow: rgba(52, 209, 171, .2); --fig-mat: #151b23; --fig-bg: #141a22; --fig-band: #f07a55; --fig-band-far: #8a4a38;
+  --fig-ink: #eef1f6; --fig-far: #5c6675; --fig-hl: #e8a43a; --fig-hl-far: #7a5a2a; --iron: #a3acba; --iron-hub: #27313c;
+  --fig-floor: #3a4553; --fig-prop: #222a35; --fig-glow: rgba(232, 164, 58, .2); --fig-mat: #151b23; --fig-bg: #141a22; --fig-band: #f07a55; --fig-band-far: #8a4a38;
   --fig-fill: #1b222c; --fig-fill-far: #202833; --fig-shadow: rgba(0, 0, 0, .35); color-scheme: dark; } }
 :root[data-theme="dark"] {
-  --bg: #0f141a; --surface: #171e26; --sunk: #0b0f14; --ink: #e9eef3; --muted: #9aa6b4; --line: #27313c;
-  --hold: #3ccfa8; --hold-ink: #06231c; --rep: #9c95ff; --rep-ink: #120f33; --ok: #5ab4ff; --ok-ink: #04192b; --go: #2fc49d; --go-ink: #04231b; --danger: #ff7a6e;
+  --bg: #121822; --surface: #1b2330; --sunk: #0d121a; --ink: #eef1f6; --muted: #aeb8c6; --line: #2a3340;
+  --hold: #e8a43a; --hold-ink: #1a1206; --rep: #9db4e0; --rep-ink: #0d1626; --ok: #5ab4ff; --ok-ink: #04192b; --go: #e8a43a; --go-ink: #1a1206; --trained: #e8a43a; --partly: #7a5a2a; --gap: #2a3340; --danger: #ff7a6e;
   --k16: #e9b919; --k20: #9e7ce2; --k24: #47b874; --k28: #f08a36; --k32: #f05a4e;
-  --fig-ink: #e6eaf0; --fig-far: #5c6675; --fig-hl: #34d1ab; --fig-hl-far: #1f6b5a; --iron: #a3acba; --iron-hub: #27313c;
-  --fig-floor: #3a4553; --fig-prop: #222a35; --fig-glow: rgba(52, 209, 171, .2); --fig-mat: #151b23; --fig-bg: #141a22; --fig-band: #f07a55; --fig-band-far: #8a4a38;
+  --fig-ink: #eef1f6; --fig-far: #5c6675; --fig-hl: #e8a43a; --fig-hl-far: #7a5a2a; --iron: #a3acba; --iron-hub: #27313c;
+  --fig-floor: #3a4553; --fig-prop: #222a35; --fig-glow: rgba(232, 164, 58, .2); --fig-mat: #151b23; --fig-bg: #141a22; --fig-band: #f07a55; --fig-band-far: #8a4a38;
   --fig-fill: #1b222c; --fig-fill-far: #202833; --fig-shadow: rgba(0, 0, 0, .35); color-scheme: dark; }
 
 * { box-sizing: border-box; }
@@ -76,6 +76,21 @@ p { margin: 0; }
 .app { max-width: 560px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 14px calc(var(--bar-h) + env(safe-area-inset-bottom, 0px) + 24px); }
 section.view { display: grid; gap: 18px; }
 .view-head { display: flex; align-items: flex-end; gap: 12px; }
+.view-head { flex-wrap: wrap; row-gap: 6px; }
+.view-head .weekbtn { order: 3; }
+.view-head .tools { display: flex; gap: 2px; margin-left: auto; }
+.strip button.today[aria-pressed="true"] .d { color: var(--bg); }
+.view-head .tool { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 52px; min-height: 52px; padding: 2px 4px; border: 0; border-radius: 14px; background: none; color: var(--ink); font-size: 12px; font-weight: 700; }
+.view-head .tool svg { width: 22px; height: 22px; }
+.view-head .tool .av { width: 26px; height: 26px; border-radius: 13px; background: var(--ink); color: var(--bg); display: grid; place-items: center; font: 800 12px var(--f-display); position: relative; }
+.view-head .tool .av i { position: absolute; right: -3px; top: -3px; width: 10px; height: 10px; border-radius: 5px; background: var(--trained); border: 2px solid var(--bg); }
+.srch-in { width: 100%; height: 50px; border: 2px solid var(--ink); border-radius: 25px; padding: 0 18px; background: var(--surface); color: var(--ink); font: inherit; font-size: 17px; }
+.srch-g { margin: 14px 0 4px; font-size: 14px; color: var(--muted); }
+.srch-r { display: flex; flex-direction: column; align-items: flex-start; width: 100%; min-height: 56px; padding: 8px 12px; margin-top: 6px; border: 0; border-radius: 14px; background: var(--surface); text-align: left; }
+.srch-r .s { font-size: 13px; color: var(--muted); font-weight: 400; }
+.help-q { border-radius: 14px; background: var(--surface); padding: 0 14px; margin-top: 8px; }
+.help-q summary { min-height: 56px; display: flex; align-items: center; font-weight: 700; cursor: pointer; }
+.help-q p { padding-bottom: 12px; color: var(--muted); }
 .view-head h1 { font-family: var(--f-display); font-weight: 800; font-size: 40px; line-height: .95; margin-right: auto; }
 
 nav.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; background: color-mix(in srgb, var(--surface) 92%, transparent); -webkit-backdrop-filter: saturate(1.4) blur(14px); backdrop-filter: saturate(1.4) blur(14px); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
@@ -862,7 +877,7 @@ button.ring:active { transform: scale(.97); }
 <main class="app">
   <!-- TRAIN -->
   <section class="view" id="train" aria-labelledby="tab-train">
-    <div class="view-head"><h1>Train</h1><button class="weekbtn" id="weekBtn" aria-haspopup="dialog"></button><button class="xbtn prof" id="profBtn" aria-label="Your profile and settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="4" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M4.5 20.5c1.2-3.8 4-5.5 7.5-5.5s6.3 1.7 7.5 5.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button></div>
+    <div class="view-head"><h1>Today</h1><button class="weekbtn" id="weekBtn" aria-haspopup="dialog"></button><button class="xbtn prof" id="profBtn" aria-label="Your profile and settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="4" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M4.5 20.5c1.2-3.8 4-5.5 7.5-5.5s6.3 1.7 7.5 5.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button></div>
     <div class="band" id="band"></div>
     <div id="extras" class="view" style="gap:12px"></div>
     <div class="overall" id="overall"></div>
@@ -962,7 +977,7 @@ button.ring:active { transform: scale(.97); }
 <div class="toast" id="toast" role="status" hidden></div>
 <nav class="tabbar" aria-label="Sections">
   <div class="tabbar-in" role="tablist">
-    <button role="tab" id="tab-train" aria-controls="train" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="fillme" d="M8 10V7.5a4 4 0 0 1 8 0V10" fill="none" stroke="currentColor" stroke-width="2"/><circle class="fillme" cx="12" cy="15" r="6" fill="none" stroke="currentColor" stroke-width="2"/></svg>Train</button>
+    <button role="tab" id="tab-train" aria-controls="train" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="fillme" d="M8 10V7.5a4 4 0 0 1 8 0V10" fill="none" stroke="currentColor" stroke-width="2"/><circle class="fillme" cx="12" cy="15" r="6" fill="none" stroke="currentColor" stroke-width="2"/></svg>Today</button>
     <button role="tab" id="tab-exercises" aria-controls="exercises" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect class="fillme" x="4" y="4" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect class="fillme" x="13" y="4" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect class="fillme" x="4" y="13" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect class="fillme" x="13" y="13" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Exercises</button>
     <button role="tab" id="tab-coach" aria-controls="coach" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="fillme" d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4h0A1.5 1.5 0 0 1 4 14.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Log</button>
     <button role="tab" id="tab-progress" aria-controls="progress" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V13M10 20V8M16 20v-5M22 20V4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Progress</button>
@@ -2717,7 +2732,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function show(id, keepScroll) {
     if (id === 'program') id = 'train'; if (id === 'method') id = 'guide';
     if (TABS.indexOf(id) < 0) id = 'train';
-    current = id; clearToast();
+    current = id; clearToast(); if (typeof renderTools === 'function') renderTools();
     TABS.forEach(function (t) { $(t).hidden = t !== id; $('tab-' + t).setAttribute('aria-selected', String(t === id)); });
     try { history.replaceState(history.state, '', '#' + id); } catch (e) { }
     if (!keepScroll) window.scrollTo(0, 0);
@@ -2727,6 +2742,52 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (id === 'guide') renderResearch();
   }
   TABS.forEach(function (t) { $('tab-' + t).addEventListener('click', function () { show(t); }); });
+  // Search, Help and Profile sit in the top bar of every tab (Profile replaces the old person icon)
+  var TOOL_SVG = { search: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>', help: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.7M12 17h.01"/></svg>' };
+  function avatarHtml() { var n = (prof().name || '').trim(); return '<span class="av" aria-hidden="true">' + (n ? esc(n[0].toUpperCase()) : '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="9" r="4"/><path d="M5 20c1.5-4 12.5-4 14 0"/></svg>') + (window.__isoUpdate ? '<i></i>' : '') + '</span>'; }
+  function renderTools() {
+    [].forEach.call(document.querySelectorAll('.view-head'), function (h) {
+      var t = h.querySelector('.tools'); if (!t) { t = document.createElement('div'); t.className = 'tools'; h.appendChild(t); }
+      var pb = h.querySelector('#profBtn');
+      t.innerHTML = '<button class="tool" data-tool="search">' + TOOL_SVG.search + 'Search</button><button class="tool" data-tool="help">' + TOOL_SVG.help + 'Help</button>';
+      if (pb) { pb.className = 'tool'; pb.setAttribute('aria-label', 'Profile and settings'); pb.innerHTML = avatarHtml() + 'Profile'; t.appendChild(pb); }
+      else t.insertAdjacentHTML('beforeend', '<button class="tool" data-tool="profile" aria-label="Profile and settings">' + avatarHtml() + 'Profile</button>');
+    });
+  }
+  function openSearch(from) {
+    openSheet('Search', '<label><span class="sr-only">Search exercises, the guide and your log</span><input class="srch-in" id="srchIn" type="search" placeholder="Exercise, muscle, question…" autocomplete="off"></label><div id="srchOut" aria-live="polite"></div><p class="s" style="margin-top:12px;color:var(--muted)">Search works offline.</p>', true, from);
+    var inp = $('srchIn'); inp.focus();
+    inp.addEventListener('input', function () {
+      var q = inp.value.trim().toLowerCase(), out = '';
+      // everyday words find the muscles they mean
+      var SYN = { shoulder: 'delt|rotator|traps', shoulders: 'delt|rotator|traps', chest: 'chest', back: 'back|lats|traps', legs: 'quads|hamstrings|glutes|calves|thigh|hip', leg: 'quads|hamstrings|glutes|calves|thigh|hip', arms: 'biceps|triceps|forearms', arm: 'biceps|triceps|forearms', core: 'abs|obliques', abs: 'abs|obliques', hips: 'glutes|hip|thigh', hip: 'glutes|hip|thigh', bum: 'glutes', butt: 'glutes', shin: 'ankles|shin', knee: 'knees|quads' };
+      var rx = new RegExp(SYN[q] ? SYN[q] + '|' + q.replace(/[^a-z ]/g, '') : q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+      if (q.length < 2) { $('srchOut').innerHTML = ''; return; }
+      var ids = Object.keys(ALL).filter(function (id) { if (!EQV[id] || RETIRED.indexOf(id) > -1 && ADDON.indexOf(id) < 0) return false; var e = ALL[id], h = V(id, 'h'); return !(h.missing && V(id, 'g').missing) && rx.test(h.name + ' ' + (e.tags || []).join(' ')); }).slice(0, 6);
+      if (ids.length) out += '<h3 class="srch-g">Exercises</h3>' + ids.map(function (id) { var h = V(id, 'h'); return '<button class="srch-r" data-sx="' + id + '"><b>' + esc(h.name) + '</b><span class="s">' + esc((ALL[id].tags || []).slice(0, 3).join(', ')) + '</span></button>'; }).join('');
+      var gh = [].slice.call(document.querySelectorAll('#guide h2, #guide h3, #guide summary')).filter(function (x) { return x.textContent.toLowerCase().indexOf(q) > -1; }).slice(0, 4);
+      if (gh.length) out += '<h3 class="srch-g">Guide</h3>' + gh.map(function (x, i) { x.dataset.sg = x.dataset.sg || ('g' + Math.random().toString(36).slice(2, 8)); return '<button class="srch-r" data-sgo="' + x.dataset.sg + '"><b>' + esc(x.textContent.trim().slice(0, 80)) + '</b><span class="s">Works offline</span></button>'; }).join('');
+      var fl = (typeof feed !== 'undefined' && feed ? feed : []).filter(function (f) { return f.r === 'user' && f.x && f.x.toLowerCase().indexOf(q) > -1; }).slice(-3).reverse();
+      if (fl.length) out += '<h3 class="srch-g">Your log</h3>' + fl.map(function (f) { return '<button class="srch-r" data-slog="1"><b>“' + esc(f.x.slice(0, 70)) + '”</b><span class="s">' + (f.t ? esc(new Date(f.t).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })) : 'In your log') + '</span></button>'; }).join('');
+      $('srchOut').innerHTML = out || '<p class="s" style="margin-top:12px">Nothing found for “' + esc(inp.value.trim()) + '”. Try a muscle, like “shoulder”.</p>';
+    });
+    $('sheetBody').addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      if (b.dataset.sx) openExercise(b.dataset.sx, 'hold'); // replaces Search in the same sheet, so closing it doesn't also close the exercise
+      else if (b.dataset.sgo) { closeSheet(); show('guide'); var g = document.querySelector('[data-sg="' + b.dataset.sgo + '"]'); if (g) { var d = g.closest('details'); if (d) d.open = true; g.scrollIntoView({ block: 'start' }); } }
+      else if (b.dataset.slog) { closeSheet(); show('coach'); }
+    });
+  }
+  var HELP_QS = [['What do the colours on the body mean?', 'Dark orange: trained this week. Light: partly trained. Dashed outline: a gap this week, or a muscle that only steadies you.'], ['A weight feels too heavy', 'Tap − during the set, or tell Log “too heavy”. Next week starts lighter.'], ['I missed a day', 'Your plan moves on. Nothing is lost.'], ['Something hurts', 'Stop the set. Log “my knee hurts 4 out of 10” and holds that load it change.'], ['Does it work offline?', 'Yes. Only photo food logging and the optional AI coach need signal.'], ['How do I back up?', 'Profile (top right), then Backup. Keep the file somewhere safe.']];
+  function openHelp(from) {
+    openSheet('Help', HELP_QS.map(function (q) { return '<details class="help-q"><summary>' + esc(q[0]) + '</summary><p>' + esc(q[1]) + '</p></details>'; }).join('') + '<p style="margin-top:14px">Still stuck? Ask in Log, for example “how do I change my equipment”. Common questions are answered offline.</p><button class="btn quiet block" data-hlog="1" style="margin-top:10px">Ask in Log</button>', true, from);
+    $('sheetBody').addEventListener('click', function (e) { if (e.target.closest('[data-hlog]')) { closeSheet(); show('coach'); } });
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-tool]'); if (!b) return;
+    if (b.dataset.tool === 'search') openSearch(b); else if (b.dataset.tool === 'help') openHelp(b); else if (b.dataset.tool === 'profile') openProfile(b);
+  });
+
 
   // ---------- train ----------
   function renderTrain() {
@@ -3603,7 +3664,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // A newer version is online: say so, instead of quietly running the old one until the next launch
   // dates follow the app's language (English), not the device's, so an English screen doesn't show "28 de octubre"
   var UIL = /^en\b/i.test(navigator.language || '') ? undefined : 'en-GB';
-  var APP_VERSION = '32';
+  var APP_VERSION = '33';
   function checkVersion() {
     if (!navigator.onLine || !/^https?:/.test(location.protocol)) return;
     fetch('index.html?v=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
@@ -5588,6 +5649,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   renderTrain(); refreshBackup();
   show((location.hash || '').slice(1) || 'train', true);
   if (!store.profile && !store.log.length && !Object.keys(store.done).length && !window.__ISOHOLD_STATE) openProfile(null, true);
+  renderTools();
   window.__isoholdReady = performance.now();
   // read-only hooks for the automated test suite
   window.__isoTest = { today: function (l) { return today(l); }, dayStart: function (t) { return dayStart(t); }, suggestWt: function (id, kind) { return suggestWt(id, V(id, kind === 'h' ? 'h' : 'g'), kind); }, localAnswer: function (t) { return localAnswer(t); }, weekTarget: function () { return weekTarget(); }, buildQueue: buildQueue, allDays: allDays, mins: mins, V: V, chooseEq: chooseEq, pickEq: pickEq, store: function () { return store; }, strengthData: strengthData, holdMax: holdMax, repMax: repMax, phaseOf: phaseOf, blocksFor: blocksFor, wLabel: wLabel, weekDone: weekDone, isPB: isPB, parseText: parseText, parsePlayerCmd: parsePlayerCmd, handle: function (t, s) { return handle(t, s || 'text'); }, runCmd: function (t) { return runCmd(t); }, feed: function () { return feed; }, prof: prof, proteinTarget: proteinTarget, foods: FOODS, applyAction: function (a) { return apply(a, 'test'); } };
