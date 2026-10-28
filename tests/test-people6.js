@@ -29,7 +29,7 @@ const T = (page, f, a) => page.evaluate(f, a);
 
   // a cardio morning where everything was skipped is not marked done
   ({ b, page, errs } = await boot({ profile: { units: 'kg', bw: 60, age: 45, sex: 'f' }, eq: ['k'], done: { w1d1am: 1, w1d1pm: 1, w1d2am: 1, w1d2pm: 1 } }));
-  await page.click('.strip button[data-i="2"]'); await page.waitForTimeout(100);
+  await page.evaluate(() => document.querySelector('.strip button[data-i="2"]').click()); await page.waitForTimeout(100);
   await page.click('#sessions [data-start][data-part="am"]'); await page.waitForTimeout(250);
   for (let i = 0; i < 6 && await page.isVisible('#player') && await page.textContent('#pPhase') !== 'Done'; i++) { await T(page, () => document.getElementById('pSkip').click()); await page.waitForTimeout(150); }
   ok(!(await T(page, () => window.__isoTest.store().done.w1c1am)), 'a skipped cardio morning is not marked done');

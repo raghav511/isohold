@@ -9,7 +9,7 @@ const ironFigs = p => p.evaluate(() => [...document.querySelectorAll('svg')].fil
     const o = await open('android', { state: { profile: { units: 'kg', bw: 70, age: 30, sex: 'm', where: eq.includes('c') ? 'gym' : 'home' }, eq } });
     const p = o.page; await p.goto(URL); await p.waitForFunction(() => window.__isoholdReady);
     let bad = [];
-    for (let i = 0; i < 7; i++) { await p.click('.strip button[data-i="' + i + '"]').catch(() => {}); await p.waitForTimeout(80); bad = bad.concat(await ironFigs(p)); }
+    for (let i = 0; i < 7; i++) { await p.evaluate(i => document.querySelector('.strip button[data-i="' + i + '"]').click(), i).catch(() => {}); await p.waitForTimeout(80); bad = bad.concat(await ironFigs(p)); }
     ok(!bad.length, eq + ': no free-weight pictures on Today, any day (' + [...new Set(bad)] + ')');
     await p.click('#tab-exercises'); await p.waitForTimeout(250);
     const lib = await ironFigs(p);
@@ -17,7 +17,7 @@ const ironFigs = p => p.evaluate(() => [...document.querySelectorAll('svg')].fil
     if (eq.join() === 'c') {
       ok(await p.locator('#lib [data-ex="ext-rot"]').count() === 0, 'cables only: side-lying external rotation is hidden in Exercises');
       ok(/Hidden because they need equipment.*External Rotation/.test(await p.locator('#lib').innerText()), 'cables only: Exercises says what is hidden and why');
-      await p.click('#tab-train'); await p.click('.strip button[data-i="2"]').catch(() => {}); await p.waitForTimeout(100);
+      await p.click('#tab-train'); await p.evaluate(() => document.querySelector('.strip button[data-i="2"]').click()).catch(() => {}); await p.waitForTimeout(100);
       ok(/Not in this session: .*External Rotation/.test(await p.evaluate(() => (document.querySelector('[data-miss="ext-rot"]') || {}).textContent || '')), 'cables only: the plan says the external rotation was left out, without a picture');
     }
     ok(!o.errs.filter(e => !/Audio/.test(e)).length, eq + ': no errors ' + o.errs);
