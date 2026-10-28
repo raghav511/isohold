@@ -1737,7 +1737,12 @@ var DAYS = [
 ];
 // Only exercises with strong evidence (a training trial or meta-analysis for that muscle or tendon) stay in the program.
 var RETIRED = ['front-raise', 'rear-fly', 'overhead-hold', 'ext-rot', 'shrug', 'prone-y', 'sa-row', 'bo-row', 'hammer', 'ham-bridge', 'farmer', 'wrist', 'tib-hold', 'pinch'];
-var ADDON = ['sa-row', 'rear-fly'], EX_ADDON = EX.filter(function (e) { return ADDON.indexOf(e.id) > -1; });
+// Back and stabilizer add-on on the two cardio days, two alternating pairs each: rows and rear delts both days, then the rotator cuff and lower traps (day 1) or knee-bend hamstrings and shins (day 2).
+var ADDON_BY = { c1: [['sa-row', 'rear-fly'], ['ext-rot', 'prone-y']], c2: [['sa-row', 'rear-fly'], ['ham-bridge', 'tib-hold']] };
+var ADDON_TXT = { c1: 'Rows, rear delts, rotator cuff and lower traps', c2: 'Rows, rear delts, knee-bend hamstrings and shins' };
+function addonFor(day) { return ADDON_BY[day.id] || ADDON_BY.c1; }
+function addonTxt(day) { return ADDON_TXT[day.id] || ADDON_TXT.c1; }
+var ADDON = ['sa-row', 'rear-fly', 'ext-rot', 'prone-y', 'ham-bridge', 'tib-hold'], EX_ADDON = EX.filter(function (e) { return ADDON.indexOf(e.id) > -1; });
 EX = EX.filter(function (e) { return RETIRED.indexOf(e.id) < 0; });
 DAYS.forEach(function (d) { d.ex = [].concat.apply([], d.am.concat(d.pm)); });
 
@@ -1861,9 +1866,9 @@ function noWt(eq) { return eq === 'w' || eq === 'r'; }
 var EQV = {
   'front-raise': { h: 'd k b:plate', g: 'd k b:plate' },
   'lateral-raise': { h: 'd k c:cable r', g: 'd k c:cable r' },
-  'rear-fly': { h: 'd k c:cable', g: 'd k c:cable', n: { c: 'Cable Rear-Delt Fly Hold' }, gn: { c: 'Cable Rear-Delt Fly' } },
+  'rear-fly': { h: 'd k c:cable r', g: 'd k c:cable r', n: { c: 'Cable Rear-Delt Fly Hold', r: 'Band Pull-Apart Hold' }, gn: { c: 'Cable Rear-Delt Fly', r: 'Band Pull-Apart' } },
   'overhead-hold': { h: 'k d b:bar', g: 'k d b:bar', both: 'b', n: { b: 'Barbell Overhead Hold' }, gn: { b: 'Barbell Overhead Press' } },
-  'ext-rot': { h: 'd k', g: 'd k' },
+  'ext-rot': { h: 'd k r', g: 'd k r', n: { r: 'Band External Rotation Hold' }, gn: { r: 'Band External Rotation' } },
   'oh-triceps': { h: 'k d b:bar c:cable r', g: 'k d b:bar c:cable r', n: { c: 'Cable Overhead Triceps Hold' }, gn: { c: 'Cable Overhead Triceps Extension' } },
   'kickback': { h: 'd k c:cable r', g: 'd k c:cable r' },
   'hollow': { h: 'd k b:plate w', g: 'd k b:plate w' },
@@ -1874,15 +1879,15 @@ var EQV = {
   'glute-bridge': { h: 'd k b:bar c:mach w', g: 'd k b:bar c:mach w', n: { c: 'Hip Thrust Machine Hold' }, gn: { c: 'Machine Hip Thrust' }, mp: 'hip' },
   'calf-raise': { h: 'd k b:bar c:mach w', g: 'd k b:bar c:mach w', n: { c: 'Standing Calf Machine Hold' }, gn: { c: 'Standing Calf Machine Raise' }, mp: 'sh' },
   'seated-calf': { h: 'd k b:bar c:mach', g: 'd k b:bar c:mach', n: { c: 'Seated Calf Machine Hold' }, gn: { c: 'Seated Calf Machine Raise' }, mp: 'kn' },
-  'tib-hold': { h: 'd k b:plate w', g: 'd k b:plate w' },
+  'tib-hold': { h: 'd k b:plate w r', g: 'd k b:plate w r', n: { r: 'Band Shin Raise Hold' }, gn: { r: 'Band Shin Raise' } },
   'dead-bug': { h: 'k d b:plate w', g: 'k d b:plate w' },
   'shrug': { h: 'd k b:bar', g: 'd k b:bar' },
-  'prone-y': { h: 'd w', g: 'd w' },
+  'prone-y': { h: 'd w r', g: 'd w r', n: { r: 'Band Y Raise Hold' }, gn: { r: 'Band Y Raise' } },
   'floor-press': { h: 'd k b:bar w', g: 'd k b:bar w', n: { w: 'Push-Up Hold' }, gn: { w: 'Push-Up' }, poseAnchor: 'An', noProps: true,
     // a push-up: high plank, halfway, chest just above the floor
     pose: { 'h:w': [{ t: 65, an: [0, 0], ln: [-65, -65, 15] }, { t: 71, an: [-45, -3], ln: [-71, -71, 12] }, { t: 80, an: [-90, -3], ln: [-80, -80, 8] }],
       'g:w': [{ t: 65, an: [0, 0], ln: [-65, -65, 15] }, { t: 80, an: [-90, -3], ln: [-80, -80, 8] }] } },
-  'sa-row': { h: 'd k b:bar c:cable', g: 'd k b:bar c:cable', both: 'b', n: { b: 'Close-Grip Barbell Row Hold', c: 'Single-Arm Cable Row Hold' }, gn: { b: 'Close-Grip Barbell Row', c: 'Single-Arm Cable Row' } },
+  'sa-row': { h: 'd k b:bar c:cable r', g: 'd k b:bar c:cable r', both: 'b', n: { b: 'Close-Grip Barbell Row Hold', c: 'Single-Arm Cable Row Hold', r: 'Band Row Hold' }, gn: { b: 'Close-Grip Barbell Row', c: 'Single-Arm Cable Row', r: 'Band Row' } },
   'bo-row': { h: 'b:bar d k', g: 'b:bar d k', n: { b: 'Wide-Grip Barbell Row Hold' }, gn: { b: 'Wide-Grip Barbell Row' } },
   'curl': { h: 'd k b:bar c:cable r w', g: 'd k b:bar c:cable r w', n: { w: 'Towel Curl Hold' }, gn: { w: 'Towel Curl' } },
   'hammer': { h: 'd k b:bar', g: 'd k b:bar', n: { b: 'Barbell Reverse Curl Hold' }, gn: { b: 'Barbell Reverse Curl' } },
@@ -1890,7 +1895,7 @@ var EQV = {
   'crunch': { h: 'd k b:plate w', g: 'd k b:plate w' },
   'rdl': { h: 'b:bar k d c:cable r', g: 'b:bar k d c:cable r', n: { c: 'Cable Pull-Through Hold' }, gn: { c: 'Cable Pull-Through' } },
   'sl-rdl': { h: 'k d b:bar w', g: 'k d b:bar w', both: 'b' },
-  'ham-bridge': { h: 'd k b:bar w', g: 'd k b:bar w' },
+  'ham-bridge': { h: 'd k b:bar w r', g: 'd k b:bar w r', n: { r: 'Banded Long-Lever Bridge Hold' }, gn: { r: 'Banded Long-Lever Bridge' } },
   'bird-dog': { h: 'd k w', g: 'k d b:bar', gn: { d: 'Dumbbell Swing', b: 'Barbell Speed RDL' }, fig: { 'g:b': 'rdl' } },
   'farmer': { h: 'k d b:bar', g: 'k d b:bar', n: { b: 'Deadlift Lockout Hold' }, gn: { b: 'Barbell Deadlift' }, fig: { 'g:b': 'h:farmer:0,2' }, gx: { b: { mode: null, uni: false, tempo: [1, 0.5, 2.5, 0.5] } } },
   'pinch': { h: 'd b:plate', g: 'd b:plate', n: { d: 'Dumbbell Pinch Hold', b: 'Plate Pinch Hold' }, gn: { d: 'Dumbbell Pinch Carry', b: 'Plate Pinch Carry' } },
@@ -2015,6 +2020,12 @@ function chooseEq(id, kind, sel) {
 // where kind is 'h' (hold) or 'g' (reps) and key is 'k', 'd', 'bar', 'plate' or 'w'.
 // Anything not listed falls back to a word swap between kettlebell and dumbbell.
 var EQTX_NEW = {
+  'sa-row': { h: { r: { s: ['Loop a band around a sturdy post at waist height, hold one end, step back and hinge slightly.', 'Row the hand to your hip, elbow close to your side.', 'Squeeze the shoulder blade back. Hold.'], c: ['Elbow to the hip', 'Chest stays square'] } }, g: { r: { s: ['Band anchored at waist height, arm long in front, a slight hinge.', 'Row to the hip, squeeze 1 s, let the arm go long over 2–3 s.'], c: ['Let the shoulder reach forward at the start'] } } },
+  'rear-fly': { h: { r: { s: ['Hold a band in both hands at shoulder height, arms straight in front, hands shoulder-width.', 'Pull the hands apart, arms straight, until the band touches your chest.', 'Squeeze the shoulder blades together. Hold.'], c: ['Arms stay straight', 'Shoulders down, away from the ears'] } }, g: { r: { s: ['Band held at shoulder height, arms straight.', 'Pull apart to the chest, pause, return over 2–3 s.'], c: ['Move slowly; the band pulls harder near the chest'] } } },
+  'ext-rot': { h: { r: { s: ['Tie a band to a post at elbow height and stand side-on, holding it in the far hand, elbow at 90° against your side.', 'Rotate the forearm out, away from your belly, keeping the elbow pinned.', 'Stop when the forearm points straight ahead or a little past. Hold.'], c: ['Elbow never leaves your side', 'A rolled towel under the elbow helps'] } }, g: { r: { s: ['Side-on to the anchor, elbow pinned at 90°.', 'Rotate out, pause 1 s, come back over 2–3 s.'], c: ['Light band; this is a small muscle'] } } },
+  'prone-y': { h: { r: { s: ['Stand tall holding a band overhead, hands wider than shoulders in a Y, thumbs up.', 'Pull the hands apart and slightly back, keeping the arms long.', 'Hold the Y with the shoulder blades down and back. Hold.'], c: ['Ribs down, no arching', 'Shoulders away from the ears'] } }, g: { r: { s: ['Band overhead in a Y, thumbs up.', 'Pull apart, pause, return over 2–3 s.'], c: ['Small range, slow and steady'] } } },
+  'ham-bridge': { h: { r: { s: ['Lie on your back, a band across the hips with the ends held down by your hands, heels far out.', 'Dig the heels into the floor and lift the hips against the band.', 'Hold with the knees slightly bent and the hips level. Hold.'], c: ['Heels only, toes up', 'Feel the back of the thighs, not the lower back'] } }, g: { r: { s: ['Band across the hips, heels far out.', 'Lift the hips, pause, lower over 2–3 s.'], c: ['Pull the heels toward you without moving them'] } } },
+  'tib-hold': { h: { r: { s: ['Sit with legs out, a band looped over the top of one foot and tied to a table leg in front.', 'Pull the toes toward your shin against the band.', 'Stop at the top with the heel on the floor. Hold, then switch.'], c: ['Heel stays down', 'A burn on the front of the shin is normal'] } }, g: { r: { s: ['Band over the top of the foot, anchored in front.', 'Pull the toes up, pause, lower over 2–3 s.'], c: ['Full range each rep'] } } },
   'lateral-raise': { h: { r: { s: ['Stand on the middle of a band, an end in each hand at your sides.', 'Lift the arms out to the sides, leading with the elbows, against the band.', 'Stop when the arms are level with the shoulders. Hold.'], c: ['Band under the middle of both feet', 'Elbows lead', 'Shoulders down'] } }, g: { r: { s: ['Stand on the middle of a band, ends in your hands at your sides.', 'Raise out to shoulder height, pause, lower slowly over 2–3 s.'], c: ['Control it down', 'A shorter grip makes it harder'] } } },
   'oh-triceps': { h: { r: { s: ['Stand on one end of a band, the other end in both hands behind your head.', 'Press the band up until the arms are straight overhead, ribs down.', 'Bend the elbows to lower the hands behind your head until they point up. Hold.'], c: ['Elbows point up', 'Ribs down'] } }, g: { r: { s: ['Band under one foot, both hands holding the end behind your head, elbows up.', 'Straighten the arms overhead, then lower behind your head over 2–3 s.'], c: ['Elbows stay close'] } } },
   'kickback': { h: { r: { s: ['Step on a band with the front foot, an end in each hand, and hinge to about 70°.', 'Drive the elbows back until the upper arms are parallel to the floor.', 'Straighten the elbows fully against the band and squeeze. Hold.'], c: ['Upper arms stay still', 'Full lockout'] } }, g: { r: { s: ['Hinged, band under the front foot, upper arms pinned to your sides.', 'Straighten the elbows, squeeze 1 s, bend back over 2–3 s.'], c: ['Only the forearms move'] } } },
@@ -2378,7 +2389,7 @@ var EVID = {
   'crunch': { r: 'Strong', s: 'Core resistance training reduced back pain and improved function across 57 randomized trials; the hold builds upper-ab strength at its shortest position.', refs: ['guo2025', 'oranchuk2019'] },
   'rdl': { r: 'Strong', s: 'Training the hamstrings in a stretched position built more muscle in a randomized trial.', refs: ['maeo2021', 'oranchuk2019'] },
   'sl-rdl': { r: 'Strong', s: 'Stretched-position hamstring work builds more muscle, and single-leg balance training lowers ankle sprain risk.', refs: ['maeo2021', 'hubscher2010'] },
-  'ham-bridge': { r: 'Moderate', s: 'Loads the hamstrings at the knee, which hinges miss; supported by general isometric research rather than a trial of this exercise.', refs: ['oranchuk2019'] },
+  'ham-bridge': { r: 'Moderate', s: 'Loads the hamstrings at the knee, which hip hinges miss. Training the hamstrings at the knee in a stretched position built more muscle in a 12-week trial; this hold itself has not been trialled.', refs: ['maeo2021', 'oranchuk2019'] },
   'bird-dog': { r: 'Strong', s: 'Core stability training reduced back pain and improved function across 57 randomized trials; the bird dog works the back extensors and glutes with low spine compression.', refs: ['guo2025', 'mcgill2009stab'] },
   'farmer': { r: 'Moderate', s: 'Heavy carries and holds train grip, traps and trunk together in biomechanics testing; no training trial of carries on their own.', refs: ['mcgill2009carry'] },
   'pinch': { r: 'Limited', s: 'Builds thumb and pinch strength like any loaded hold; there is little research on pinch training itself.', refs: ['oranchuk2019'] },
@@ -2538,9 +2549,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var q = [];
     if (part === 'all') { var qa = buildQueue(day, 'am', ph), qp = buildQueue(day, 'pm', ph); if (qa.length && qp.length) { qa[qa.length - 1].after = 0; qp[0].first = false; } q = qa.concat(qp); if (q.length) q[q.length - 1].after = 0; return q; }
     if (/^short-/.test(part)) { var p2 = Object.create(ph); p2.sets = 1; p2.gs = 1; q = buildQueue(day, part.slice(6), p2).filter(function (it) { return it.kind !== 'cardio'; }); if (q.length) { q[0].first = true; q[q.length - 1].after = 0; } return q; }
-    if (day.cardio && part === 'pm' && prof().posture) {
-      // back & posture add-on: rows and rear-delt flies first, then the evening cardio trimmed so the day stays within the hour
-      var add = blockItems(ADDON, ph, {}), segs = day.pm(ph).map(function (x) { return x.slice(); });
+    if (day.cardio && part === 'pm' && addonOn()) {
+      // back and stabilizer add-on first, then the evening cardio trimmed so the day stays within the hour
+      var add = [].concat.apply([], addonFor(day).map(function (b) { return blockItems(b, ph, {}); })), segs = day.pm(ph).map(function (x) { return x.slice(); });
       var room = DAYCAP - qSecs(buildQueue(day, 'am', ph)) - qSecs(add) - 5, tot = segs.reduce(function (t, x) { return t + x[1]; }, 0);
       if (tot > room) segs.forEach(function (x) { x[1] = Math.max(300, Math.floor(x[1] * room / tot / 60) * 60); });
       q = add.concat(cardioItems(segs));
@@ -2734,7 +2745,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function sessionCard(day, part, ph) {
     if (part === 'all') {
       var a = planList(day, 'am', ph), b = planList(day, 'pm', ph), dn = isDone(day, 'all'), mm = mins(day, 'all', ph), sm = mins(day, 'short-all', ph);
-      var sum2 = day.cardio ? (prof().posture ? 'Rows and rear-delt flies, plus cardio: ' : '') + segSummary(buildQueue(day, 'all', ph).filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; }))[1] : MACHINE[subSeg(WARMUP[0])[0]] + ' warm-up, then ' + (a.count + b.count) + ' exercises' + (b.fin ? ', then ' + b.fin : '') + '. Using ' + eqSummary() + '.';
+      var sum2 = day.cardio ? (addonOn() ? addonTxt(day) + ', plus cardio: ' : '') + segSummary(buildQueue(day, 'all', ph).filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; }))[1] : MACHINE[subSeg(WARMUP[0])[0]] + ' warm-up, then ' + (a.count + b.count) + ' exercises' + (b.fin ? ', then ' + b.fin : '') + '. Using ' + eqSummary() + '.';
       if (!day.cardio) sum2 = trimSum(sum2, buildQueue(day, 'all', ph));
       return '<article class="sess' + (dn ? ' done' : '') + '"><div class="sess-top"><h3>Today</h3>' + (dn ? '<span class="donechip">' + I_CHECK.replace('<svg', '<svg width="18" height="18"') + 'Done</span>' : '<span class="mins num">' + mm + ' min</span>') + '</div>' +
         '<p class="sum">' + esc(sum2) + '</p>' + thumbs(day, 'all') + '<div class="sess-actions"><button class="btn ' + (dn ? 'quiet' : 'go') + ' block" data-start="' + day.id + '" data-part="all">' + (dn ? 'Do it again' : 'Start session') + '</button>' +
@@ -2745,7 +2756,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var key = doneKey(day, part), done = !!store.done[key], m = mins(day, part, ph), name = part === 'am' ? 'Morning' : 'Evening';
     var pl = planList(day, part, ph), list = pl.list, count = pl.count;
     var cc = day.cardio ? null : custFor(day, part), edits = cc ? Object.keys(cc.off).filter(function (id) { return cc.off[id] && (cc.off[id].h || cc.off[id].r); }).length + cc.add.length : 0;
-    var sum = day.cardio ? (part === 'pm' && prof().posture ? 'Rows and rear-delt flies, then ' + segSummary(buildQueue(day, 'pm', ph).filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; }))[1] : segSummary(day[part](ph).map(subSeg))[1]) : (part === 'am' ? MACHINE[subSeg(WARMUP[0])[0]] + ' warm-up, then ' : '') + count + ' exercise' + (count === 1 ? '' : 's') + (pl.fin ? ', then ' + pl.fin : '') + '. Using ' + eqSummary() + '.' + (edits ? ' Changed by you.' : '');
+    var sum = day.cardio ? (part === 'pm' && addonOn() ? addonTxt(day) + ', then ' + segSummary(buildQueue(day, 'pm', ph).filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; }))[1] : segSummary(day[part](ph).map(subSeg))[1]) : (part === 'am' ? MACHINE[subSeg(WARMUP[0])[0]] + ' warm-up, then ' : '') + count + ' exercise' + (count === 1 ? '' : 's') + (pl.fin ? ', then ' + pl.fin : '') + '. Using ' + eqSummary() + '.' + (edits ? ' Changed by you.' : '');
     if (!day.cardio) sum = trimSum(sum, buildQueue(day, part, ph));
     return '<article class="sess' + (done ? ' done' : '') + '">' +
       '<div class="sess-top"><h3>' + name + '</h3>' + (done ? '<span class="donechip">' + I_CHECK.replace('<svg', '<svg width="18" height="18"') + 'Done</span>' : '<span class="mins num">' + m + ' min</span>') + '</div>' +
@@ -2767,7 +2778,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function planList(day, part, ph) {
     var list = '', count = 0, fin = '';
     if (!day.cardio) { var tq = buildQueue(day, oneADay() ? 'all' : part, ph); trimInfo = tq.trimNote ? tq : null; if (trimInfo && trimInfo.oneSet) { ph = Object.create(ph); ph.sets = 1; ph.gs = 1; } }
-    if (day.cardio) { list = cardioRow(buildQueue(day, part, ph).filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; }), 'Cardio'); if (part === 'pm' && prof().posture) { list = '<li class="grp added"><span class="grp-t">Back & posture add-on, alternate these 2</span>' + ADDON.map(function (id) { return exRow(id, phaseOf(store.week)); }).join('') + '</li>' + list; count = 2; } }
+    if (day.cardio) { list = cardioRow(buildQueue(day, part, ph).filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; }), 'Cardio'); if (part === 'pm' && addonOn()) { list = addonFor(day).map(function (b) { return '<li class="grp added"><span class="grp-t">Back and stabilizers, alternate these 2</span>' + b.map(function (id) { return exRow(id, phaseOf(store.week)); }).join('') + '</li>'; }).join('') + list; count = 4; } }
     else {
       if (part === 'am' && !(trimInfo && trimInfo.noWarm)) list += cardioRow(WARMUP, 'Warm-up');
       var sk = day.id + part, c = custFor(day, part), nPlan = day[part].length;
@@ -2989,14 +3000,14 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   $('chips').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; filter = b.dataset.f; renderChips(); applyFilter(); });
   var libBuilt = false, libEq = '';
-  function ensureLib() { renderEqDD('eqddLib', 'Exercise names and pictures change to match.'); var lk = store.eq.join('') + (prof().posture ? '+' : ''); if (libBuilt && libEq === lk) return; libBuilt = true; libEq = lk; renderChips(); renderLib(); applyFilter(); }
+  function ensureLib() { renderEqDD('eqddLib', 'Exercise names and pictures change to match.'); var lk = store.eq.join('') + (addonOn() ? '+' : ''); if (libBuilt && libEq === lk) return; libBuilt = true; libEq = lk; renderChips(); renderLib(); applyFilter(); }
   function renderLib() {
     var seenLib = {};
     $('lib').innerHTML = DAYS.map(function (d) {
       var fresh = d.ex.filter(function (id, i) { return d.ex.indexOf(id) === i && !seenLib[id] && (seenLib[id] = 1); });
       if (!fresh.length) return '';
       return libGroup(d.id, d.name.replace(/ [AB]$/, ''), fresh);
-    }).join('') + (prof().posture ? libGroup('addon', 'Back & posture add-on', ADDON) : '');
+    }).join('') + (addonOn() ? libGroup('addon', 'Back and stabilizer add-on', ADDON) : '');
   }
   function libGroup(gid, title, fresh) {
       return '<div class="lib-group" data-g="' + gid + '"><h2>' + esc(title) + '</h2><div class="lib-list">' + fresh.map(function (id) {
@@ -3526,7 +3537,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // A newer version is online: say so, instead of quietly running the old one until the next launch
   // dates follow the app's language (English), not the device's, so an English screen doesn't show "28 de octubre"
   var UIL = /^en\b/i.test(navigator.language || '') ? undefined : 'en-GB';
-  var APP_VERSION = '30';
+  var APP_VERSION = '31';
   function checkVersion() {
     if (!navigator.onLine || !/^https?:/.test(location.protocol)) return;
     fetch('index.html?v=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
@@ -3567,10 +3578,11 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   var CARDIO_OPTS = [['treadmill', 'Treadmill'], ['rower', 'Rowing machine'], ['bike', 'Exercise bike'], ['cycle', 'Cycling outside'], ['outdoors', 'Walking outside']];
   var ISSUES = [['knee', 'Knees'], ['back', 'Lower back'], ['neck', 'Neck / upper back'], ['shoulder', 'Shoulders'], ['elbow', 'Elbows'], ['wrist', 'Hands / wrists'], ['ankle', 'Ankles / Achilles'], ['balance', 'Balance'], ['bones', 'Osteopenia / osteoporosis'], ['bp', 'High blood pressure']];
   store.food = store.food || []; store.body = store.body || []; store.notes = store.notes || [];
+  function addonOn() { var p = prof(); return p.stab !== false || !!p.posture; }
   function prof() {
     var p = store.profile || {};
     return { name: p.name || '', age: p.age || null, sex: p.sex || '', cm: p.cm || null, bw: p.bw || null, units: p.units || 'kg', diet: p.diet || 'any', where: p.where || 'home',
-      cardio: p.cardio || ['treadmill', 'rower'], issues: p.issues || [], cues: !!p.cues, goal: p.goal || 'build', pace: p.pace || 'auto', split: p.split || 'two', posture: !!p.posture, inv: p.inv || {}, nofloor: !!p.nofloor, days: p.days || 6, len: p.len || 0, dayHour: p.dayHour || 0, big: !!p.big };
+      cardio: p.cardio || ['treadmill', 'rower'], issues: p.issues || [], cues: !!p.cues, goal: p.goal || 'build', pace: p.pace || 'auto', split: p.split || 'two', posture: !!p.posture, stab: p.stab !== false, inv: p.inv || {}, nofloor: !!p.nofloor, days: p.days || 6, len: p.len || 0, dayHour: p.dayHour || 0, big: !!p.big };
   }
   // gentle mode: blood pressure, fragile bones or 65+
   // osteopenia: leave out loaded spinal flexion (crunch, hollow body)
@@ -4858,7 +4870,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       '<label><span>Kettlebells (' + (isLb() ? 'lb' : 'kg') + ')</span><input id="pfInvK" autocomplete="off" value="' + esc(p.inv.k || '') + '" placeholder="12, 16, 24"></label>' +
       '<label><span>Dumbbells, each (' + (isLb() ? 'lb' : 'kg') + ')</span><input id="pfInvD" autocomplete="off" value="' + esc(p.inv.d || '') + '" placeholder="2.5-12.5"></label>' +
       '<label><span>Barbell totals you can load (' + (isLb() ? 'lb' : 'kg') + ')</span><input id="pfInvB" autocomplete="off" value="' + esc(p.inv.b || '') + '" placeholder="20-80"></label></details>' +
-      '<label class="pf-sw"><input type="checkbox" id="pfPost"' + (p.posture ? ' checked' : '') + '><span>Add back and posture work: rows and rear-delt flies on the two cardio days (moderate evidence)</span></label>' +
+      '<label class="pf-sw"><input type="checkbox" id="pfPost"' + (p.posture || p.stab !== false ? ' checked' : '') + '><span>Back and stabilizer work on the two cardio days: rows, rear delts, rotator cuff, lower traps, knee-bend hamstrings and shins (moderate or limited evidence)</span></label>' +
       '<span class="pf-l">Cardio</span>' + chipSet('cardio', CARDIO_OPTS, first ? [] : p.cardio, true) +
       '<span class="pf-l">Diet</span>' + chipSet('diet', DIETS, p.diet) +
       '<span class="pf-l">Anything to be careful with?</span>' + chipSet('issues', ISSUES, p.issues, true) +
@@ -4896,7 +4908,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         if (cm != null && !(cm >= 100 && cm <= 250)) { msg('pfErr', 'Height should be in ' + (state.units === 'lb' ? 'inches, like 70' : 'centimetres, like 175') + '.', 'err'); return; }
         // a new user aged 60 or more who didn't pick: start with 3 full-body days, one session each
         if (first && !daysTouched && age >= 60) { state.days = '3'; state.split = 'one'; }
-        store.profile = { name: $('pfName').value.trim().slice(0, 40), age: isNaN(age) ? null : age, sex: state.sex, cm: cm, bw: bwKg ? r1(bwKg) : null, units: state.units, diet: state.diet, where: state.where, cardio: state.cardio.length ? state.cardio : ['outdoors'], issues: state.issues, cues: $('pfCues').checked, split: state.split, goal: state.goal, pace: state.pace, posture: $('pfPost').checked, days: +state.days, len: +state.len, dayHour: +state.dayHour, nofloor: $('pfFloor').checked, big: $('pfBig').checked, inv: { k: $('pfInvK').value.trim(), d: $('pfInvD').value.trim(), b: $('pfInvB').value.trim() } };
+        store.profile = { name: $('pfName').value.trim().slice(0, 40), age: isNaN(age) ? null : age, sex: state.sex, cm: cm, bw: bwKg ? r1(bwKg) : null, units: state.units, diet: state.diet, where: state.where, cardio: state.cardio.length ? state.cardio : ['outdoors'], issues: state.issues, cues: $('pfCues').checked, split: state.split, goal: state.goal, pace: state.pace, posture: $('pfPost').checked, stab: $('pfPost').checked, days: +state.days, len: +state.len, dayHour: +state.dayHour, nofloor: $('pfFloor').checked, big: $('pfBig').checked, inv: { k: $('pfInvK').value.trim(), d: $('pfInvD').value.trim(), b: $('pfInvB').value.trim() } };
         ['k', 'd', 'b'].forEach(function (e) { if (!store.profile.inv[e]) delete store.profile.inv[e]; });
         if ($('pfBw').value.trim() === bwShown && bodyKg()) { bwKg = bodyKg(); store.profile.bw = bwKg; }
         else if (bwKg && (!store.body.length || Math.abs(store.body[store.body.length - 1].kg - bwKg) > 0.05)) store.body.push({ t: Date.now(), kg: Math.round(bwKg * 1000) / 1000 });
