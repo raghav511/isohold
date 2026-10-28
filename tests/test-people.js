@@ -120,7 +120,7 @@ const lastCard = page => T(page, () => { const f = window.__isoTest.feed(); retu
   await b.close();
 
   // tablet and high contrast
-  ({ b, page, errs } = await boot(kind, { profile: P0, eq: ['d'], done: { w1d1am: Date.now(), w1d1pm: Date.now() } }, { viewport: { width: 800, height: 1280 }, forcedColors: true }));
+  ({ b, page, errs } = await boot(kind, { profile: P0, eq: ['d'], done: { w1d1am: Date.now() - 864e5, w1d1pm: Date.now() - 864e5 } }, { viewport: { width: 800, height: 1280 }, forcedColors: true }));
   ok(await page.locator('.strip button.dn svg').count() === 1, 'high contrast: a done day shows a check mark, not just colour');
   ok(/done/.test(await page.getAttribute('.strip button[data-i="0"]', 'aria-label')), 'done day is announced as done');
   await page.click('#sessions [data-start]'); await page.waitForTimeout(300);
