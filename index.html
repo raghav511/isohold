@@ -2975,19 +2975,19 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   var lastTab = 'train';
   function openLogSearch(q) { if (['train', 'exercises', 'progress'].indexOf(current) > -1) lastTab = current; show('coach'); var t = $('cIn'); if (q != null) { t.value = q; t.dispatchEvent(new Event('input')); } t.focus(); }
-  document.addEventListener('click', function (e) { if (e.target.closest('[data-back]')) show(lastTab); });
+  document.addEventListener('click', function (e) { if (!e.target.closest('[data-back]')) return; show(lastTab); var h = $(lastTab).querySelector('h1'); if (h) { h.tabIndex = -1; h.focus(); } });
   function searchHtml(raw) {
     var q = raw.trim().toLowerCase(), out = '';
     if (q.length < 2) return '';
-    var SYN = { shoulder: 'delt|rotator|traps', shoulders: 'delt|rotator|traps', chest: 'chest', back: 'back|lats|traps', legs: 'quads|hamstrings|glutes|calves|thigh|hip', leg: 'quads|hamstrings|glutes|calves|thigh|hip', arms: 'biceps|triceps|forearms', arm: 'biceps|triceps|forearms', core: 'abs|obliques', abs: 'abs|obliques', hips: 'glutes|hip|thigh', hip: 'glutes|hip|thigh', bum: 'glutes', butt: 'glutes', shin: 'ankles|shin', knee: 'knees|quads' };
+    var SYN = { shoulder: 'delt|rotator|traps', shoulders: 'delt|rotator|traps', chest: 'chest', back: 'back|lats|traps', legs: 'quads|hamstrings|glutes|calves|thigh|hip', leg: 'quads|hamstrings|glutes|calves|thigh|hip', arms: 'biceps|triceps|forearms', arm: 'biceps|triceps|forearms', core: 'abs|obliques', abs: 'abs|obliques', hips: 'glutes|hip|thigh', hip: 'glutes|hip|thigh', bum: 'glutes', butt: 'glutes', shin: 'ankles|shin', knee: 'knees|quads' , bench: 'press|chest', press: 'press', row: 'row', squat: 'squat', deadlift: 'deadlift|rdl|hinge', pierna: 'quads|hamstrings|glutes|calves|thigh|hip', piernas: 'quads|hamstrings|glutes|calves|thigh|hip', hombro: 'delt|rotator|traps', hombros: 'delt|rotator|traps', pecho: 'chest|press', espalda: 'back|lats|traps|row', brazos: 'biceps|triceps|forearms', abdominales: 'abs|obliques', gluteos: 'glutes', tendones: 'tendon', tendon: 'tendon', rodilla: 'knees|quads', columpio: 'swing', sentadilla: 'squat', remo: 'row', plancha: 'plank', zancada: 'split|lunge'};
     var rx = new RegExp(SYN[q] ? SYN[q] + '|' + q.replace(/[^a-z ]/g, '') : q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
-    var ids = Object.keys(ALL).filter(function (id) { if (!EQV[id] || RETIRED.indexOf(id) > -1 && ADDON.indexOf(id) < 0) return false; var e = ALL[id], h = V(id, 'h'); return !(h.missing && V(id, 'g').missing) && rx.test(h.name + ' ' + (e.tags || []).join(' ')); }).slice(0, 4);
+    var ids = Object.keys(ALL).filter(function (id) { if (!EQV[id] || RETIRED.indexOf(id) > -1 && ADDON.indexOf(id) < 0) return false; var e = ALL[id], h = V(id, 'h'); var g = V(id, 'g'); return !(h.missing && g.missing) && rx.test(h.name + ' ' + g.name + ' ' + baseName(h.name) + ' ' + (G[id] ? G[id].name : '') + ' ' + e.name + ' ' + (e.tags || []).join(' ')); }).slice(0, 4);
     if (ids.length) out += '<h3 class="srch-g">Exercises</h3>' + ids.map(function (id) { var h = V(id, 'h'); return '<button class="srch-r" data-sx="' + id + '"><b>' + esc(h.name) + '</b><span class="s">' + esc((ALL[id].tags || []).slice(0, 3).join(', ')) + '</span></button>'; }).join('');
     var gh = [].slice.call(document.querySelectorAll('#guide h2, #guide h3, #guide summary')).filter(function (x) { return rx.test(x.textContent); }).slice(0, 3);
     if (gh.length) out += '<h3 class="srch-g">Guide</h3>' + gh.map(function (x) { x.dataset.sg = x.dataset.sg || ('g' + Math.random().toString(36).slice(2, 8)); return '<button class="srch-r" data-sgo="' + x.dataset.sg + '"><b>' + esc(x.textContent.trim().slice(0, 80)) + '</b><span class="s">Works offline</span></button>'; }).join('');
     return out;
   }
-  function goGuide(sg) { show('guide'); var g = document.querySelector('[data-sg="' + sg + '"]'); if (g) { var d = g.closest('details'); if (d) d.open = true; g.scrollIntoView({ block: 'start' }); } }
+  function goGuide(sg) { show('guide'); var g = document.querySelector('[data-sg="' + sg + '"]'); if (g) { var d = g.closest('details'); if (d) d.open = true; g.scrollIntoView({ block: 'start' }); if (g.focus) g.focus(); } }
   // typing in Search & log shows matching exercises and guide topics; sending still logs or asks
   $('cIn').addEventListener('input', function () { $('cSrch').innerHTML = /^\d/.test(this.value.trim()) ? '' : searchHtml(this.value); });
   $('cSrch').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; if (b.dataset.sx) openExercise(b.dataset.sx, 'hold', b); else if (b.dataset.sgo) goGuide(b.dataset.sgo); });
@@ -3018,7 +3018,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   var HELP_QS = [['What do the colours on the body mean?', 'Dark orange: trained this week. Light: partly trained. Dashed outline: a gap this week, or a muscle that only steadies you.'], ['A weight feels too heavy', 'Tap − during the set, or tell Log “too heavy”. Next week starts lighter.'], ['I missed a day', 'Your plan moves on. Nothing is lost.'], ['Something hurts', 'Stop the set. Log “my knee hurts 4 out of 10” and holds that load it change.'], ['Does it work offline?', 'Yes. Only photo food logging and the optional AI coach need signal.'], ['How do I back up?', 'Profile (top right), then Backup. Keep the file somewhere safe.']];
   function openHelp(from) {
-    openSheet('Help', HELP_QS.map(function (q) { return '<details class="help-q"><summary>' + esc(q[0]) + '</summary><p>' + esc(q[1]) + '</p></details>'; }).join('') + '<h3 class="srch-g" style="margin-top:16px">Guide</h3><div class="help-guide">' + [].slice.call(document.querySelectorAll('#guide summary, #guide h2')).map(function (x) { x.dataset.sg = x.dataset.sg || ('g' + Math.random().toString(36).slice(2, 8)); var t = (x.lastElementChild || x).textContent.trim(); return '<button class="srch-r" data-hg="' + x.dataset.sg + '"><b>' + esc(t.slice(0, 70)) + '</b></button>'; }).join('') + '</div>' +
+    openSheet('Help', HELP_QS.map(function (q) { return '<details class="help-q"><summary>' + esc(q[0]) + '</summary><p>' + esc(q[1]) + '</p></details>'; }).join('') + '<h3 class="srch-g" style="margin-top:16px">Guide</h3><div class="help-guide">' + [].slice.call(document.querySelectorAll('#guide summary, #guide h2')).map(function (x) { x.dataset.sg = x.dataset.sg || ('g' + Math.random().toString(36).slice(2, 8)); var t = ((x.querySelector && x.querySelector('.gh')) || x).textContent.trim(); return '<button class="srch-r" data-hg="' + x.dataset.sg + '"><b>' + esc(t.slice(0, 70)) + '</b></button>'; }).join('') + '</div>' +
       '<p style="margin-top:14px">Still stuck? Ask in Search &amp; log, for example “how do I change my equipment”. Common questions are answered offline.</p><button class="btn quiet block" data-hlog="1" style="margin-top:10px">Ask in Search &amp; log</button>', true, from);
     $('sheetBody').addEventListener('click', function (e) { var g = e.target.closest('[data-hg]'); if (g) { closeSheet(); lastTab = ['train', 'exercises', 'progress'].indexOf(current) > -1 ? current : lastTab; setTimeout(function () { goGuide(g.dataset.hg); }, 60); } else if (e.target.closest('[data-hlog]')) { closeSheet(); openLogSearch(); } });
   }
@@ -3815,7 +3815,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       // also a normal rep set (1 rep left = RPE 9), so the strength charts pick it up
       store.log.push({ t: now, w: store.week, id: c.id, eq: c.v.eq, k: 'r', kg: rec.kg, v: c.reps, rpe: 9, x: 1 });
       save(); closeSheet(); renderProgress();
-      toast('Saved. Estimated max ' + kg(c.e1) + '.');
+      toast('Saved. Estimated max ' + kg(c.e1) + '.'); announce('Strength check saved. Estimated max ' + kg(c.e1) + '.');
+      setTimeout(function () { var h = $('chkCard') && $('chkCard').querySelector('h2'); if (h) { h.tabIndex = -1; h.focus(); } }, 120);
     });
   }
   function chkListen() {
