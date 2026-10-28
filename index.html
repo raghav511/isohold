@@ -3354,8 +3354,13 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (o && o.isConnected && o.offsetParent) { o.focus(); return; }
     var h = $(lastTab).querySelector('h1'); if (h) { h.tabIndex = -1; h.focus(); }
   });
-  var SRCH_SYN = { shoulder: 'delt|rotator|traps', shoulders: 'delt|rotator|traps', chest: 'chest', back: 'back|lats|traps', legs: 'quads|hamstrings|glutes|calves|thigh|hip', leg: 'quads|hamstrings|glutes|calves|thigh|hip', arms: 'biceps|triceps|forearms', arm: 'biceps|triceps|forearms', core: 'abs|obliques', abs: 'abs|obliques', hips: 'glutes|hip|thigh', hip: 'glutes|hip|thigh', bum: 'glutes', butt: 'glutes', shin: 'ankles|shin', knee: 'knees|quads' , bench: 'press|chest', press: 'press', row: 'row', squat: 'squat', deadlift: 'deadlift|rdl|hinge', pierna: 'quads|hamstrings|glutes|calves|thigh|hip', piernas: 'quads|hamstrings|glutes|calves|thigh|hip', hombro: 'delt|rotator|traps', hombros: 'delt|rotator|traps', pecho: 'chest|press', espalda: 'back|lats|traps|row', brazos: 'biceps|triceps|forearms', abdominales: 'abs|obliques', gluteos: 'glutes', tendones: 'tendon', tendon: 'tendon', dominadas: 'pull.?up|chin.?up|pulldown|lats', dominada: 'pull.?up|chin.?up|pulldown|lats', 'pull ups': 'pull.?up|chin.?up|pulldown|lats', pullups: 'pull.?up|chin.?up|pulldown|lats', swing: 'swing', swings: 'swing', 'kettlebell swing': 'swing', 'kettlebell swings': 'swing', rodilla: 'knees|quads', columpio: 'swing', sentadilla: 'squat', remo: 'row', plancha: 'plank', zancada: 'split|lunge', heel: 'heel|calf|calves', heels: 'heel|calf|calves', calf: 'calf|calves', calves: 'calf|calves', talon: 'heel|calf|calves', 'talón': 'heel|calf|calves', bones: 'bone|osteop', bone: 'bone|osteop', osteopenia: 'osteop|bone', osteoporosis: 'osteop|bone', huesos: 'bone|osteop', ramadan: 'ramadan|fasting|iftar', fasting: 'ramadan|fasting|iftar', fast: 'ramadan|fasting|iftar', ayuno: 'ramadan|fasting|iftar', 'push-up': 'push|floor press', pushup: 'push|floor press', pushups: 'push|floor press', flexiones: 'push|floor press' };
-  function srchRx(q) { return new RegExp(SRCH_SYN[q] ? SRCH_SYN[q] + '|' + q.replace(/[^a-z ]/g, '') : q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'); }
+  var SRCH_SYN = { shoulder: 'delt|rotator|traps', shoulders: 'delt|rotator|traps', chest: 'chest', back: 'back|lats|traps', legs: 'quads|hamstrings|glutes|calves|thigh|hip', leg: 'quads|hamstrings|glutes|calves|thigh|hip', arms: 'biceps|triceps|forearms', arm: 'biceps|triceps|forearms', core: 'abs|obliques', abs: 'abs|obliques', hips: 'glutes|hip|thigh', hip: 'glutes|hip|thigh', bum: 'glutes', butt: 'glutes', shin: 'ankles|shin', knee: 'knees|quads' , bench: 'press|chest', press: 'press', row: 'row', squat: 'squat', deadlift: 'deadlift|rdl|hinge', pierna: 'quads|hamstrings|glutes|calves|thigh|hip', piernas: 'quads|hamstrings|glutes|calves|thigh|hip', hombro: 'delt|rotator|traps', hombros: 'delt|rotator|traps', pecho: 'chest|press', espalda: 'back|lats|traps|row', brazos: 'biceps|triceps|forearms', abdominales: 'abs|obliques', gluteos: 'glutes', tendones: 'tendon', tendon: 'tendon', dominadas: 'pull.?up|chin.?up|pulldown|lats', dominada: 'pull.?up|chin.?up|pulldown|lats', 'pull ups': 'pull.?up|chin.?up|pulldown|lats', pullups: 'pull.?up|chin.?up|pulldown|lats', swing: 'swing', swings: 'swing', 'kettlebell swing': 'swing', 'kettlebell swings': 'swing', rodilla: 'knees|quads', columpio: 'swing', sentadilla: 'squat', remo: 'row', plancha: 'plank', zancada: 'split|lunge', zancadas: 'split|lunge', lunge: 'split|lunge', lunges: 'split|lunge', 'peso muerto': 'deadlift|rdl|hinge', heel: 'heel|calf|calves', heels: 'heel|calf|calves', calf: 'calf|calves', calves: 'calf|calves', talon: 'heel|calf|calves', 'talón': 'heel|calf|calves', bones: 'bone|osteop', bone: 'bone|osteop', osteopenia: 'osteop|bone', osteoporosis: 'osteop|bone', huesos: 'bone|osteop', ramadan: 'ramadan|fasting|iftar', fasting: 'ramadan|fasting|iftar', fast: 'ramadan|fasting|iftar', ayuno: 'ramadan|fasting|iftar', 'push-up': 'push|floor press', pushup: 'push|floor press', pushups: 'push|floor press', flexiones: 'push|floor press' };
+  function srchRx(q) {
+    var one = function (x) { return SRCH_SYN[x] ? SRCH_SYN[x] + '|' + x.replace(/[^a-z ]/g, '') : x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); };
+    // the Spanish lift names logging understands find the same lifts ("peso muerto", "zancadas")
+    var e = ' ' + (q.normalize ? q.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : q) + ' '; LIFT_ES.forEach(function (r) { e = e.replace(r[0], r[1]); }); e = e.trim();
+    return new RegExp(one(q) + (e && e !== q ? '|' + one(e) : ''), 'i');
+  }
   // guide cards match on their title and their body text ("heel" finds the Bones card); titles first
   function guideHits(rx) {
     var out = [];
@@ -3370,7 +3375,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     return out.sort(function (a, b) { return a.s - b.s; });
   }
   function guideBtns(hits) { return hits.map(function (x) { x.el.dataset.sg = x.el.dataset.sg || ('g' + Math.random().toString(36).slice(2, 8)); return '<button class="srch-r" data-sgo="' + x.el.dataset.sg + '"><b>' + esc(x.t.slice(0, 80)) + '</b><span class="s">' + esc(x.sub) + '</span></button>'; }).join(''); }
-  function exHits(rx, n) { return Object.keys(ALL).filter(function (id) { if (!EQV[id] || RETIRED.indexOf(id) > -1 && ADDON.indexOf(id) < 0) return false; var e = ALL[id], h = V(id, 'h'); var g = V(id, 'g'); return !(h.missing && g.missing) && rx.test(h.name + ' ' + g.name + ' ' + baseName(h.name) + ' ' + (G[id] ? G[id].name : '') + ' ' + e.name + ' ' + (e.tags || []).join(' ')); }).slice(0, n); }
+  function exHits(rx, n) { return Object.keys(ALL).filter(function (id) { if (!EQV[id] || RETIRED.indexOf(id) > -1 && ADDON.indexOf(id) < 0) return false; var e = ALL[id], h = V(id, 'h'); var g = V(id, 'g'); return !(h.missing && g.missing) && rx.test(h.name + ' ' + g.name + ' ' + baseName(h.name) + ' ' + (G[id] ? G[id].name : '') + ' ' + e.name + ' ' + (e.tags || []).join(' ')); })
+    .map(function (id, i) { var nm = V(id, 'h').name + ' ' + V(id, 'g').name + ' ' + (G[id] ? G[id].name : '') + ' ' + ALL[id].name; return [id, rx.test(nm) ? 0 : 1, i]; }).sort(function (x, y) { return x[1] - y[1] || x[2] - y[2]; }).map(function (x) { return x[0]; }).slice(0, n); } // name matches before muscle-tag matches
   // when only the rep partner matches ("swing" is Bird Dog's growth reps), name it and open its Growth reps tab
   function exBtns(ids, rx) { return ids.map(function (id) { var h = V(id, 'h'), g = V(id, 'g'), rep = rx && !g.missing && rx.test(g.name + ' ' + (G[id] ? G[id].name : '')) && !rx.test(h.name + ' ' + ALL[id].name); return '<button class="srch-r" data-sx="' + id + '"' + (rep ? ' data-sp="rep"' : '') + '><b>' + esc(rep ? baseName(g.name) : h.name) + '</b><span class="s">' + esc(rep ? 'Growth reps, paired with ' + h.name : (ALL[id].tags || []).slice(0, 3).join(', ')) + '</span></button>'; }).join(''); }
   // lifts you logged outside the program ("bench 225 x 5"): Progress > Other lifts
@@ -3977,7 +3983,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function liftSetsOf(name) {
     var k = liftKey(name);
     return store.notes.filter(function (n) { return n.k === 'lift' && n.t && liftKey(n.name) === k; })
-      .map(function (n) { return { e: estMax(n.kg, n.reps, n.rpe), t: n.t, kg: n.kg, v: n.reps, rpe: n.rpe, k: 'r', lift: 1, name: n.name }; });
+      .map(function (n) { return { e: estMax(liftLoad(n), n.reps, n.rpe), t: n.t, kg: n.kg, v: n.reps, rpe: n.rpe, k: 'r', lift: 1, name: n.name, add: n.add, ph: n.ph }; });
   }
   // a program exercise: rep sets (k 'r') or weighted holds of 10–75 s (k 'h'); eq null = any equipment
   function exSetsOf(id, k, eq) {
@@ -3987,7 +3993,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function curMaxLift(name) { return curMax(liftSetsOf(name)); }
   function curMaxEx(id, k, eq) { return curMax(exSetsOf(id, k, eq)); }
   // which set it came from: "405 lb × 3 reps @ RPE 8, 14 Dec"
-  function maxSrc(s) { return (s.kg > 0 ? kg(s.kg) + ' × ' : '') + s.v + (s.k === 'h' ? ' s' : s.v === 1 ? ' rep' : ' reps') + (s.rpe ? ' @ RPE ' + s.rpe : '') + ', ' + new Date(s.t).toLocaleDateString(UIL, { day: 'numeric', month: 'short' }); }
+  // a lift's weight as said: "bodyweight + 20 kg" for added load, "12 kg per hand" for a pair of dumbbells
+  function liftW(x) { return (x.add ? 'bodyweight + ' : '') + kg(x.kg) + (x.ph ? ' per hand' : ''); }
+  function maxSrc(s) { return (s.kg > 0 ? liftW(s) + ' × ' : '') + s.v + (s.k === 'h' ? ' s' : s.v === 1 ? ' rep' : ' reps') + (s.rpe ? ' @ RPE ' + s.rpe : '') + ', ' + new Date(s.t).toLocaleDateString(UIL, { day: 'numeric', month: 'short' }); }
   function loadTime(kgv, sec) { return sec * Math.max(kgv || 0, 1); }
   // the name of the version actually done (leg press is a version of another exercise's slot, so the slot's own name would be wrong)
   function varName(id, k, eq) {
@@ -4015,7 +4023,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     });
     store.notes.forEach(function (n) { // lifts logged outside the program
       if (n.k !== 'lift' || !n.t) return; var key = liftKey(n.name);
-      if (n.reps) { var e1 = estMax(n.kg, n.reps, n.rpe); if (e1) add('s', 'n|' + key, n.name, n.t, e1, { kg: n.kg, v: n.reps, k: 'r', rpe: n.rpe }); }
+      if (n.reps) { var e1 = estMax(liftLoad(n), n.reps, n.rpe); if (e1) add('s', 'n|' + key + (n.add ? '|w' : ''), n.name + (n.add ? ' (weighted)' : ''), n.t, e1, { kg: n.kg, v: n.reps, k: 'r', rpe: n.rpe, add: n.add }); }
       else if (n.s > 0) {
         add('e', 'nh|' + key, n.name, n.t, loadTime(n.kg, n.s), { kg: n.kg, v: n.s, k: 'h' });
         if (n.kg > 0 && n.s >= 10 && n.s <= 75) add('s', 'nhs|' + key, n.name + ' hold', n.t, holdMax({ id: '', kg: n.kg, v: n.s }).est, { kg: n.kg, v: n.s, k: 'h' });
@@ -4147,7 +4155,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     store.notes.forEach(function (n) { // lifts logged outside the program count for the muscles they work
       if (n.k !== 'lift' || !n.t || n.t < from) return;
       var tags = liftTags(n.name); if (!tags.length) return;
-      var v = n.reps ? estMax(n.kg, n.reps, n.rpe) : n.kg > 0 && n.s >= 10 && n.s <= 75 ? holdMax({ id: '', kg: n.kg, v: n.s }).est : 0;
+      var v = n.reps ? estMax(liftLoad(n), n.reps, n.rpe) : n.kg > 0 && n.s >= 10 && n.s <= 75 ? holdMax({ id: '', kg: n.kg, v: n.s }).est : 0;
       if (!v) return;
       var key = 'n|' + liftKey(n.name) + (n.reps ? '' : '|h'), e = ex[key] || (ex[key] = { regs: liftRegions(n.name).on, days: {} }), d = dayStart(n.t);
       if (!(d in e.days) || v > e.days[d]) e.days[d] = v;
@@ -5292,7 +5300,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   var ES_LIFT = [[/\bpeso muerto rumano\b/g, 'romanian deadlift'], [/\bpeso muerto sumo\b/g, 'sumo deadlift'], [/\bpeso muerto\b/g, 'deadlift'], [/\bpress (?:de |en )?banca inclinad[oa]\b/g, 'incline bench press'], [/\bpress (?:de |en )?banca(?: plana)?\b/g, 'bench press'],
     [/\bpress militar\b/g, 'overhead press'], [/\bpress (?:de )?hombros?\b/g, 'shoulder press'], [/\bjal[oó]n(?:es)?(?: (?:al|a la) (?:pecho|polea))?\b/g, 'lat pulldown'], [/\bremo (?:con |de |en )?barra\b/g, 'barbell row'], [/\bremo (?:con |de )?mancuernas?\b/g, 'dumbbell row'],
     [/\bremo (?:en |de )?(?:maquina|polea)(?: baja| alta)?\b|\bremo sentado\b/g, 'seated row'], [/\bcurl (?:de |con )?martillo\b/g, 'hammer curl'], [/\bcurl (?:de )?biceps\b/g, 'biceps curl'], [/\bcurl femoral\b/g, 'leg curl'], [/\bextensi[oó]n(?:es)? de cuadriceps\b/g, 'leg extension'],
-    [/\bsentadillas? bulgaras?\b/g, 'bulgarian split squat'], [/\bzancadas?\b/g, 'lunges'], [/\bprensa(?: de piernas| inclinada)?\b/g, 'leg press'], [/\belevaciones laterales\b/g, 'lateral raises'], [/\baperturas?(?: (?:de|con) mancuernas)?\b/g, 'chest fly'], [/\bempuje de cadera\b/g, 'hip thrust']];
+    [/\bsentadillas? bulgaras?\b/g, 'bulgarian split squat'], [/\bzancadas?\b/g, 'lunges'], [/\bprensa(?: de piernas| inclinada)?\b/g, 'leg press'], [/\belevaciones laterales\b/g, 'lateral raises'], [/\baperturas?(?: (?:de|con) mancuernas)?\b/g, 'chest fly'], [/\bempuje de cadera\b/g, 'hip thrust'],
+    // gear, effort and connector words, so they never end up in a lift's name ("zancadas con mancuernas", "2 en reserva", "luego 3x5")
+    [/\bdominadas? lastradas?\b/g, 'weighted pull ups'], [/\blastrad[oa]s?\b/g, 'weighted'], [/\bmancuernas?\b/g, 'dumbbells'], [/\b(?:con|de|en) barra\b/g, 'barbell'], [/\b(\d(?:\.5)?) (?:reps? |repeticiones )?en (?:la )?reserva\b/g, '$1 in reserve'], [/\ben (?:la )?reserva\b/g, 'in reserve'], [/\bluego\b|\bdespues\b(?! de)/g, 'then']];
   var ES = ES_LIFT.concat([[/\b(?:pinchos?|pintxos?) de tortilla(?: de patatas| espanola)?\b/g, 'spanish omelette'], [/\b(?:unas|unos)\s+(?=[a-z])/g, ''], [/\b(?:bocadillo|bocata)s? de tortilla(?: de patatas| espanola)?\b/g, 'tortilla bocadillo'], [/\bhuevos (?:rotos|estrellados)\b/g, 'broken eggs'], [/\b(?:bocadillo|bocata)s? de calamar(?:es)?\b/g, 'calamari bocadillo'], [/\b(\d+\s+)?filetes? (?:de|of) (ternera|vaca|res|buey|cerdo|lomo|pollo|pechuga|pavo|merluza|pescado|bacalao|salmon|atun)\b/g, function (m, n, k) { return (n || '') + ({ cerdo: 'pork', lomo: 'pork', pollo: 'chicken breast', pechuga: 'chicken breast', pavo: 'turkey', merluza: 'white fish', pescado: 'white fish', bacalao: 'white fish', salmon: 'salmon', atun: 'tuna' }[k] || 'steak'); }], [/\b(\d+\s+)?filetes?\b(?!\s+(?:de|of)\b)/g, function (m, n) { return (n || '') + 'steak'; }],
     [/\bpechugas? (?:de|of) pavo\b/g, 'turkey breast'], [/\b(\d+\s+)?pechugas?(?: (?:de|of) pollo)?\b/g, function (m, n) { return (n || '') + (n && +n > 1 ? 'chicken breasts' : 'chicken breast'); }], [/\bsolomillo (?:de|of) cerdo\b/g, 'pork tenderloin'], [/\bsolomillo(?: (?:de|of) (?:ternera|vaca|res))?\b/g, 'sirloin'], [/\bzumo (?:de|of) naranja\b/g, 'orange juice'], [/\bzumo (?:de|of) [a-z]+\b/g, 'juice'], [/\bqueso fresco\b|\brequeson\b/g, 'cottage cheese'], [/\bpatatas fritas\b/g, 'fries'], [/\b(?:bocadillo|bocata) de [a-z]+(?: de patatas| espanola)?/g, 'bocadillo'], [/\bmenu del dia:?\s*/g, ''], [/\bpollo asado\b/g, 'roast chicken'], [/\b(?:a|1) la plancha\b/g, 'grilled'], [/\bcocido madrileno\b|^\s*(?:1 )?cocido\s*$/g, 'chickpea stew'], [/\btortilla (?:de patatas|espa[nñ]ola)\b/g, 'spanish omelette'], [/\barroz con pollo\b/g, 'chicken rice'], [/\bcaf[eé] con leche\b/g, 'latte'], [/\b(t[eé]|tea) (?:con|with) leche\b|\btea with milk\b/g, 'chai'],
     [/\bchurros con chocolate\b/g, 'churros and hot chocolate'], [/\bhuevos?\b/g, 'eggs'], [/\bpollo\b/g, 'chicken'], [/\barroz\b/g, 'rice'], [/\bpan\b/g, 'bread'], [/\bleche\b/g, 'milk'], [/\bqueso\b/g, 'cheese'], [/\bat[uú]n\b/g, 'tuna'], [/\bpl[aá]tanos?\b/g, 'banana'], [/\bmanzanas?\b/g, 'apple'],
@@ -5434,7 +5444,49 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   var LIFTNAME = { squat: 'Back Squat', squats: 'Back Squat', 'back squat': 'Back Squat', bench: 'Bench Press', 'bench press': 'Bench Press', ohp: 'Overhead Press', 'overhead press': 'Overhead Press', dl: 'Deadlift', deadlift: 'Deadlift', deadlifts: 'Deadlift', 'sumo deadlift': 'Sumo Deadlift', 'conventional deadlift': 'Deadlift', 'conventional dl': 'Deadlift', 'back squats': 'Back Squat', 'barbell squat': 'Back Squat', 'barbell bench': 'Bench Press', 'flat bench': 'Bench Press', 'military press': 'Overhead Press', 'pull ups': 'Pull-Up', 'pullups': 'Pull-Up', 'pull up': 'Pull-Up', 'chin ups': 'Chin-Up', 'push ups': 'Push-Up', 'pushups': 'Push-Up', 'push up': 'Push-Up', dips: 'Dip', 'lat pulldown': 'Lat Pulldown', 'lat pulldowns': 'Lat Pulldown', 'barbell row': 'Barbell Row', 'bent over row': 'Barbell Row', 'seated row': 'Seated Row', 'dumbbell row': 'Dumbbell Row', 'leg press': 'Leg Press', 'romanian deadlift': 'Romanian Deadlift', 'shoulder press': 'Shoulder Press', 'incline bench press': 'Incline Bench Press', 'leg curl': 'Leg Curl', 'leg extension': 'Leg Extension', 'lunges': 'Lunge', 'chest fly': 'Chest Fly', 'weighted pull ups': 'Pull-Up', 'weighted pullups': 'Pull-Up', 'hip thrust': 'Hip Thrust', 'hip thrusts': 'Hip Thrust' };
   // "140 kg 10x3": a rep count then a small set count reads as reps x sets (10 reps, 3 sets); "3x8" stays sets x reps
   function repsXSets(a, b) { return a >= 8 && a <= 30 && a > b && b <= 6; }
-  function liftKey(n) { var k = String(n || '').toLowerCase().trim(); return (LIFTNAME[k] || n || '').toLowerCase(); }
+  // ---- THE lift-name resolver: every typed lift, every saved lift and every lookup goes through liftCanon ----
+  // More names for the same lifts (keys are lower case, after cue, gear and effort words are taken out)
+  (function (o) { Object.keys(o).forEach(function (k) { LIFTNAME[k] = o[k]; }); })({ 'pullup': 'Pull-Up', 'pull up': 'Pull-Up', 'pull-up': 'Pull-Up', 'pull-ups': 'Pull-Up', 'pullups': 'Pull-Up', 'chin up': 'Chin-Up', 'chinup': 'Chin-Up', 'chinups': 'Chin-Up', 'chin-ups': 'Chin-Up', 'chins': 'Chin-Up', 'dip': 'Dip',
+    'ssb squat': 'Safety Bar Squat', 'ssb squats': 'Safety Bar Squat', 'ssb': 'Safety Bar Squat', 'safety bar squat': 'Safety Bar Squat', 'safety bar squats': 'Safety Bar Squat', 'safety squat bar squat': 'Safety Bar Squat', 'safety squat': 'Safety Bar Squat', 'safety bar': 'Safety Bar Squat',
+    'front squat': 'Front Squat', 'front squats': 'Front Squat', 'lunge': 'Lunge', 'walking lunge': 'Lunge', 'walking lunges': 'Lunge', 'split squat': 'Split Squat', 'split squats': 'Split Squat', 'bulgarian split squat': 'Bulgarian Split Squat', 'bulgarian split squats': 'Bulgarian Split Squat', 'bulgarian': 'Bulgarian Split Squat',
+    'bench presses': 'Bench Press', 'barbell bench press': 'Bench Press', 'overhead presses': 'Overhead Press', 'standing press': 'Overhead Press', 'rdl': 'Romanian Deadlift', 'rdls': 'Romanian Deadlift', 'romanian deadlifts': 'Romanian Deadlift', 'sumo': 'Sumo Deadlift', 'sumo deadlifts': 'Sumo Deadlift',
+    'seated rows': 'Seated Row', 'barbell rows': 'Barbell Row', 'leg presses': 'Leg Press', 'dumbbell rows': 'Dumbbell Row', 'db row': 'Dumbbell Row', 'push-up': 'Push-Up', 'push-ups': 'Push-Up' });
+  // lifts done at bodyweight: a weight with them is load added to the body ("bw+20", "dominadas lastradas 20kg")
+  var BW_LIFT = { 'Pull-Up': 1, 'Chin-Up': 1, 'Dip': 1 };
+  // words about how a set was done, not what was lifted (English and Spanish)
+  var LIFT_CUE = /\b(?:belt(?:ed)?|(?:knee |elbow |wrist )?(?:sleeves|wraps)|straps|chalk|comp(?:etition)?(?: style)?|(?:long |short |\d+ ?s(?:ec(?:onds?)?)? )?paus(?:e|ed|es)|tempo|top (?:single|double|triple|set)s?|singles?|doubles?|triples?|back ?-?offs?|then|luego|despues|with|con|in (?:the )?(?:reserve|tank)|en (?:la )?reserva|reserve|reps? in reserve|rir|rpe|warm ?-?ups?|working|work sets?|sets?|reps?|series|repeticiones|each|per hand|perhand|each hand|a hand|per side|total|weighted|lastrad[oa]s?|added|plus|bw|kg|lb|lbs|kilos?|x|at|for|of|de|i|did|done|my|some|the|a|today|just|again|easy|heavy|ish|deload)\b/g;
+  var LIFT_GEAR = /\b(?:dumbbells?|dbs?|mancuernas?|barbells?|bb|barra|kettlebells?|kbs?|pesas? rusas?)\b/g;
+  var LIFT_ES = ES_LIFT.concat([[/\bdominadas?\b/g, 'pull ups'], [/\bsentadillas?\b/g, 'squat'], [/\bfondos\b/g, 'dips'], [/\bflexiones\b/g, 'push ups'], [/\bremo\b/g, 'row']]);
+  var liftCache = {};
+  function liftCanon(raw) {
+    var key = String(raw || ''); if (Object.prototype.hasOwnProperty.call(liftCache, key)) return liftCache[key];
+    var t = ' ' + key.toLowerCase().replace(/[-_/+@,.]/g, ' ') + ' '; if (t.normalize) t = t.normalize('NFD').replace(/[̀-ͯ]/g, '');
+    LIFT_ES.forEach(function (r) { t = t.replace(r[0], r[1]); });
+    t = t.replace(/[^a-z0-9 ]/g, ' ').replace(/\d+/g, ' ');
+    var tidy = function (x) { return x.replace(/\s+/g, ' ').trim(); }, look = function (x) { return LIFTNAME[x] || LIFTNAME[x.replace(/s$/, '')] || LIFTNAME[x + 's'] || null; };
+    var a = tidy(t.replace(LIFT_CUE, ' ').replace(LIFT_CUE, ' ')), g = tidy(a.replace(LIFT_GEAR, ' ')), out = look(a) || look(g);
+    if (!out) {
+      var nm = g; // equipment is data, not part of the name; an unknown name keeps its words, title-cased (a name that is only gear stays as typed)
+      out = nm ? nm.replace(/\b\w/g, function (c) { return c.toUpperCase(); }).replace(/(?!^)\b(En|Con|De|Del|Al|La|El|Y|Of|On|In)\b/g, function (w) { return w.toLowerCase(); }).replace(/\b(Rdl|Ssb|Ohp|Db|Bb|Kb)\b/g, function (w) { return w.toUpperCase(); }) : String(raw || '').trim() || 'Exercise';
+    }
+    return (liftCache[key] = out);
+  }
+  // the equipment named with a lift, kept as data (d = dumbbells, b = barbell, k = kettlebell)
+  function liftGear(t) { return /\b(?:dumbbells?|dbs?|mancuernas?)\b/.test(t) ? 'd' : /\b(?:kettlebells?|kbs?|pesas? rusas?)\b/.test(t) ? 'k' : /\b(?:barbells?|bb|barra)\b/.test(t) ? 'b' : ''; }
+  // cue words worth keeping as a note on the set ("belt", "long pause"), never in the name
+  function liftCues(t) { var c = []; [[/\bbelt(?:ed)?\b/, 'belt'], [/\b(?:knee )?sleeves\b/, 'sleeves'], [/\bwraps\b/, 'wraps'], [/\bstraps\b/, 'straps'], [/\bcomp(?:etition)?\b/, 'competition'], [/\blong paus/, 'long pause'], [/\b(?<!long )paus(?:e|ed)\b/, 'paused'], [/\btempo\b/, 'tempo']].forEach(function (x) { if (x[0].test(t)) c.push(x[1]); }); return c.join(', '); }
+  // a weighted bodyweight lift is estimated on bodyweight + the added load, so it's never compared with plain bodyweight sets
+  function liftLoad(n) { return n.add ? (n.kg || 0) + (n.bw || bodyKg() || 0) : n.kg; }
+  function liftKey(n) { return liftCanon(n).toLowerCase(); }
+  // saved lifts from before ("Press Banca", "Squat Belt", "Pull Ups Lastradas") join their lift; the typed name is kept in .was
+  (function () {
+    var ch = 0; (store.notes || []).forEach(function (n) {
+      if (n.k !== 'lift' || !n.name) return; var c = liftCanon(n.name);
+      if (c !== n.name) { if (!n.was) n.was = n.name; n.name = c; ch++; }
+      if (BW_LIFT[n.name] && n.kg > 0 && n.add == null) { n.add = 1; ch++; }
+    });
+    if (ch) try { localStorage.setItem('isohold.v1', JSON.stringify(store)); } catch (e) { }
+  })();
   function liftSpeak(t) {
     var m, rpe = null;
     if ((m = t.match(/@?\s*\brpe\s*(\d+(?:\.5)?)\b/))) { rpe = +m[1]; t = t.replace(m[0], ' '); }
@@ -5443,6 +5495,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if ((m = t.match(/\b(\d(?:\.5)?)\s*(?:reps?\s*)?(?:in (?:the )?(?:reserve|tank)|rir)\b|\brir\s*(\d(?:\.5)?)\b/))) { if (rpe == null) rpe = 10 - +(m[1] || m[2]); t = t.replace(m[0], ' '); }
     // weighted bodyweight lifts: "pullups bw+45 x5 x3" = 45 added, never a weigh-in
     t = t.replace(/\b(?:bw|body ?weight)\s*(?:\+|plus)\s*(\d+(?:\.\d+)?)\s*(kg|lb)?/, function (m0, n, u) { return ' ' + n + ' ' + (u || (isLb() ? 'lb' : 'kg')) + ' '; });
+    // "top single deadlift 140kg" = deadlift 140 kg x 1
+    t = t.replace(/\btop (single|double|triple)\s+(?:of\s+)?(?!(?:at|of|with|on)\b)([a-z][a-z ]*?)\s+(?:(?:at|of|with|on)\s+)?(\d+(?:\.\d+)?(?:\s*(?:kg|lb)\b)?)(?!\s*x)/, function (m0, k, nm, w) { return ' ' + nm + ' ' + w + ' x ' + { single: 1, double: 2, triple: 3 }[k] + ' '; });
     // "top single 425" = 425 x 1
     t = t.replace(/\btop (single|double|triple)\s+(?:(?:at|of|with)\s+)?(\d+(?:\.\d+)?(?:\s*(?:kg|lb)\b)?)/, function (m0, k, w) { return ' ' + w + ' x ' + { single: 1, double: 2, triple: 3 }[k] + ' '; }).replace(/\btop (?:set|single)\b/, ' ');
     t = t.replace(/(\d+(?:\.\d+)?)\s*(?:x\s*(\d+(?:\.\d+)?)\s*(?:kg|lb)?\s*)?plates?\b(?:\s*(?:a|1|per|each|on each)\s*side)?((?:\s*(?:plus|and|\+)\s*(?:1\s+)?\d+(?:\.\d+)?(?:\s?s)?\b(?!\s*(?:reps?|sets?)))*)(?:\s*(?:1|per|each|on each)\s*side\b)?/, function (all, n, size, extras) {
@@ -5462,11 +5516,17 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   var plateNote = '', pendingReps = null, pendingPain = null, pendingBw = null;
   function parseClause(t, ctx) {
+    // "2x12kg" with dumbbells, "12 kg each": the weight of one dumbbell, noted as per hand
+    var ph = /\bperhand\b/.test(t); if (ph) t = t.replace(/\bperhand\b/g, ' ');
     plateNote = ''; var ls = liftSpeak(t), a = parseClause0(ls.t, ctx), m;
     if (a && plateNote && (a.type === 'log_set' || a.type === 'log_lift')) a.note = plateNote;
     // a weight for a lift but no reps ("deadlift 4 plates"): ask rather than guess
-    if (!a && (m = ls.t.match(/(\d+(?:\.\d+)?)\s*(kg|lb)\b/))) { var nm = ls.t.replace(m[0], ' ').replace(/[^a-z ]/g, ' ').replace(/\s+/g, ' ').trim(); if (LIFTNAME[nm] || findEx(' ' + nm + ' ')) return { type: 'need_reps', name: LIFTNAME[nm] || baseName(BY[findEx(' ' + nm + ' ').id].name), weight: +m[1], unit: m[2] }; }
-    if (a && a.type === 'log_lift') { var k = a.name.toLowerCase().replace(/\b(barbell|bb|lb|kg)\b/g, '').replace(/\s+/g, ' ').trim(); if (LIFTNAME[k]) a.name = LIFTNAME[k]; }
+    if (!a && (m = ls.t.match(/(\d+(?:\.\d+)?)\s*(kg|lb)\b/))) { var nm = ls.t.replace(m[0], ' ').replace(/[^a-z ]/g, ' ').replace(/\s+/g, ' ').trim(); if (LIFTNAME[nm] || findEx(' ' + nm + ' ')) return { type: 'need_reps', name: LIFTNAME[nm] || baseName(BY[findEx(' ' + nm + ' ').id].name), weight: +m[1], unit: m[2] }; var cn = liftCanon(nm); if (LIFTNAME[cn.toLowerCase()]) return { type: 'need_reps', name: cn, weight: +m[1], unit: m[2] }; }
+    if (a && a.type === 'log_lift') {
+      a.name = liftCanon(a.name); var gr = liftGear(ls.t), cu = liftCues(t);
+      if (gr) a.gear = gr; if (cu) a.cue = cu; if (BW_LIFT[a.name] && a.weight != null) a.add = true;
+    }
+    if (a && (a.type === 'log_lift' || a.type === 'log_set') && ph) a.perHand = true;
     if (a && (a.type === 'log_set' || a.type === 'set_weight' || a.type === 'open_exercise') && a.exercise === 'floor-press' && /\b(push|press) ?-?ups?\b/.test(ls.t)) {
       var nums = (ls.t.replace(/\b(push|press) ?-?ups?\b/, ' ').match(/\b\d+\b/g) || []).map(Number), hold = /\bhold\b|\d\s*s\b/.test(ls.t);
       a = { type: 'log_set', exercise: 'floor-press', eq: 'w', part: hold ? 'hold' : 'reps' };
@@ -5594,6 +5654,11 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     do { t0 = t; t = t.replace(/(plates?(?:\s*(?:a|1|per|each)\s*side)?(?:\s*\+\s*\d+(?:\.\d+)?)*)\s+(?:and|plus)\s+(?:1\s+)?(\d+(?:\.\d+)?)(?:\s?s)?\b/, '$1 + $2'); } while (t !== t0);
     t = t.replace(/(\b(?:for|x)(?:\s*,?\s*\d{1,2}\b)+)\s*,?\s*and\s+(\d{1,2})\b/g, '$1 $2');
     t = t.replace(/\bback ?-?offs?(?: sets?)?\b(?:\s*(?:at|of|with)\b)?/g, ' then '); // "then backoffs 365 3x4": more sets of the lift just named
+    // a lift's effort after a comma belongs to it ("squat 405x3, 3 RIR"), and gear named with a lift isn't a second thing ("lunges with dumbbells")
+    t = t.replace(/,\s*(?=(?:@\s*\d|rpe\s*\d|rir\s*\d|\d(?:\.5)?\s*(?:reps?\s*)?(?:rir|in (?:the )?(?:reserve|tank))\b))/g, ' ');
+    t = t.replace(/\b(?:with|using|wearing)\s+(?:(?:a|the|my|2|two)\s+)?(?=(?:dumbbells?|dbs?|barbells?|bb|kettlebells?|kbs?|belt|(?:knee |wrist |elbow )?(?:sleeves|wraps)|straps|chains)\b)/g, ' ');
+    if (/\b(?:dumbbells?|dbs?|kettlebells?|kbs?)\b/.test(t)) t = t.replace(/\b2\s*x\s*(\d+(?:\.\d+)?)\s*(kg|lb)\b/g, '$1 $2 perhand ');
+    t = t.replace(/(\d+(?:\.\d+)?\s*(?:kg|lb))\s+(?:each|per hand|in each hand|a hand)\b/g, '$1 perhand ');
     var out = { actions: [], unknown: [], question: QWORDS.test(t) || (/\?\s*$/.test(raw) && !/^\s*(?:i |i'?ve |had |ate |did |slept |walked |ran |drank |my (?:bp|blood pressure|weight))/.test(t)), plan: PLANRE.test(t) && !/\b(did|done|had|ate|finished|slept|walked|weigh|weighed)\b/.test(t) };
     if (out.plan) return out;
     if (out.question) return out;
@@ -5719,6 +5784,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         var kg0 = a.weight != null ? toKg(+a.weight, a.unit || p.units) : null;
         if (!a.eq && kg0 >= 40 && ex.eq !== 'b' && store.eq.indexOf('b') > -1) { var bo = parseEq(EQV[a.exercise][kind === 'h' ? 'h' : 'g']).filter(function (o) { return o.eq === 'b' && o.style === 'bar'; })[0]; if (bo) ex = V(a.exercise, kind === 'h' ? 'h' : 'g', bo); }
         if (!a.eq && ex.eq === 'c') { var alt = parseEq(EQV[a.exercise][kind === 'h' ? 'h' : 'g']).filter(function (o) { return o.eq !== 'c' && o.eq !== 'w' && store.eq.indexOf(o.eq) > -1; })[0] || parseEq(EQV[a.exercise][kind === 'h' ? 'h' : 'g']).filter(function (o) { return o.eq === 'd'; })[0]; if (alt) ex = V(a.exercise, kind === 'h' ? 'h' : 'g', alt); }
+        // a weight was said, so it's a weighted version, never the bodyweight one that would drop it ("zancadas 12kg 10 reps")
+        if (a.weight != null && noWt(ex.eq)) { var wo = parseEq(EQV[a.exercise][kind === 'h' ? 'h' : 'g']).filter(function (o) { return !noWt(o.eq); }), wp = wo.filter(function (o) { return store.eq.indexOf(o.eq) > -1; })[0] || wo[0]; if (wp) ex = V(a.exercise, kind === 'h' ? 'h' : 'g', wp); }
         if (a.weight != null && toKg(+a.weight, a.unit || p.units) > wCap(a)) { card = { k: 'err', title: 'That weight looks wrong', lines: ['Nothing logged: ' + a.weight + ' ' + (a.unit || p.units) + ' is more than anyone lifts on this. Check the number and unit.'] }; break; }
         var kgv = a.weight != null ? toKg(+a.weight, a.unit || p.units) : _getWt(a.exercise, ex, kind);
         var v = part === 'hold' ? a.seconds || null : a.reps || null; if (!v) return null;
@@ -5728,7 +5795,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         vals.forEach(function (vv, i) { var e = { t: now + i, w: store.week, id: a.exercise, eq: ex.eq, k: kind, kg: noWt(ex.eq) ? 0 : (kgv || 0), v: vv, x: 1 }; if (a.rpe) e.rpe = a.rpe; store.log.push(e); ts.push(e.t); }); n = vals.length;
         save();
         var last = store.log[store.log.length - 1], pb = isPB(last), bwk = bodyKg(), odd = a.weight != null && ((!/kg|lb/.test(a.unitSaid || '') && kgv > Math.max(100, (bwk || 80) * (ex.eq === 'c' && ex.style === 'mach' ? 5 : 1.8))) || ((ex.eq === 'd' || ex.eq === 'k') && kgv > Math.max(40, (bwk || 80) * 0.5)));
-        card = { k: 'set', ref: ts, title: ex.name, warn: odd ? ((ex.eq === 'd' || ex.eq === 'k') && kgv > 40 ? 'That’s very heavy for one ' + (ex.eq === 'd' ? 'dumbbell' : 'kettlebell') + '. If it was a barbell, tick Barbell in your profile’s equipment; if the unit was wrong, tap Undo.' : 'That’s a lot for this exercise. ' + (p.units === 'lb' ? 'Check the number, and tap Undo if it’s wrong.' : 'If you meant ' + a.weight + ' lb, tap Undo and add the unit.')) : '', lines: [(vals.every(function (x) { return x === vals[0]; }) ? n + ' × ' + setTxt(last) : vals.map(function (x) { return setTxt({ kg: last.kg, v: x, k: kind }); }).join(', ')) + (a.rpe ? ' @ RPE ' + a.rpe : '') + (!noWt(ex.eq) && !kgv ? ' (no weight entered)' : a.weight == null && kgv ? ' (your saved weight)' : '')], pb: pb, sub: pb ? 'New personal best.' : '' };
+        card = { k: 'set', ref: ts, title: ex.name, warn: odd ? ((ex.eq === 'd' || ex.eq === 'k') && kgv > 40 ? 'That’s very heavy for one ' + (ex.eq === 'd' ? 'dumbbell' : 'kettlebell') + '. If it was a barbell, tick Barbell in your profile’s equipment; if the unit was wrong, tap Undo.' : 'That’s a lot for this exercise. ' + (p.units === 'lb' ? 'Check the number, and tap Undo if it’s wrong.' : 'If you meant ' + a.weight + ' lb, tap Undo and add the unit.')) : '', lines: [(vals.every(function (x) { return x === vals[0]; }) ? n + ' × ' + setTxt(last) : vals.map(function (x) { return setTxt({ kg: last.kg, v: x, k: kind }); }).join(', ')) + (a.rpe ? ' @ RPE ' + a.rpe : '') + (a.perHand && kgv ? ' (' + kg(kgv) + ' per hand)' : '') + (!noWt(ex.eq) && !kgv ? ' (no weight entered)' : a.weight == null && kgv ? ' (your saved weight)' : '')], pb: pb, sub: pb ? 'New personal best.' : '' };
         break;
       }
       case 'set_weight': {
@@ -5743,14 +5810,17 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         if (a.weight != null && toKg(+a.weight, a.unit || p.units) > wCap(a)) { card = { k: 'err', title: 'That weight looks wrong', lines: ['Nothing logged: ' + a.weight + ' ' + (a.unit || p.units) + ' is more than anyone lifts on this. Check the number and unit.'] }; break; }
         var lk = a.weight != null ? toKg(+a.weight, a.unit || p.units) : null, ln = Math.max(1, Math.min(10, a.sets || 1));
         // warm-ups earlier today don't set the bar for the typo check
-        var prevL = store.notes.filter(function (n) { return n.k === 'lift' && liftKey(n.name) === liftKey(a.name); }), prevOld = prevL.filter(function (n) { return dayStart(n.t) < dayStart(now); }), ne = Math.max.apply(null, [0].concat([a.reps].concat(a.more || []).map(function (r) { return e1rm(lk, r, a.rpe) || 0; }))) || null;
+        a.name = liftCanon(a.name); var isAdd = !!(a.add || (BW_LIFT[a.name] && lk > 0)), bwNow = isAdd ? bodyKg() : null, load = isAdd ? lk + (bwNow || 0) : lk;
+        // like with like: weighted pull-ups against weighted pull-ups, bodyweight sets against bodyweight sets
+        var prevL = store.notes.filter(function (n) { return n.k === 'lift' && liftKey(n.name) === liftKey(a.name) && !!n.add === isAdd; }), prevOld = prevL.filter(function (n) { return dayStart(n.t) < dayStart(now); }), ne = Math.max.apply(null, [0].concat([a.reps].concat(a.more || []).map(function (r) { return e1rm(load, r, a.rpe) || 0; }))) || null;
         // "New best": the heaviest weight yet, or the highest estimated max yet (390 x 3 @8 beats 410 x 1 @9)
         var liftPB = lk && prevL.length && (prevL.every(function (n) { return (n.kg || 0) < lk || ((n.kg || 0) === lk && (n.reps || 0) < (a.reps || 0)); }) || (ne && (function () { var pb = curMax(liftSetsOf(a.name), true); return pb ? pb.e < ne - 0.01 : prevL.every(function (n) { return (n.kg || 0) < lk; }); })()));
-        var bestPrev = Math.max.apply(null, [0].concat(prevL.map(function (n) { return n.kg || 0; }))), bestEst = Math.max.apply(null, [0].concat(prevOld.map(function (n) { return e1rm(n.kg, n.reps, n.rpe) || 0; }))), jump = bestEst && (e1rm(lk, a.reps, a.rpe) || lk) > bestEst * 1.25;
-        store.notes.push({ t: now, k: 'lift', name: String(a.name || 'Exercise').slice(0, 40), kg: lk, reps: a.reps || null, s: a.seconds || null, sets: ln, rpe: a.rpe || null });
-        (a.more || []).forEach(function (r, i) { store.notes.push({ t: now + i + 1, k: 'lift', name: String(a.name || 'Exercise').slice(0, 40), kg: lk, reps: r, s: null, sets: 1, rpe: a.rpe || null }); }); save();
+        var bestPrev = Math.max.apply(null, [0].concat(prevL.map(function (n) { return n.kg || 0; }))), bestEst = Math.max.apply(null, [0].concat(prevOld.map(function (n) { return e1rm(liftLoad(n), n.reps, n.rpe) || 0; }))), jump = bestEst && (e1rm(load, a.reps, a.rpe) || load) > bestEst * 1.25;
+        var extra = function (o) { if (isAdd) { o.add = 1; if (bwNow) o.bw = bwNow; } if (a.gear) o.eq = a.gear; if (a.perHand) o.ph = 1; if (a.cue) o.cue = a.cue; return o; };
+        store.notes.push(extra({ t: now, k: 'lift', name: String(a.name || 'Exercise').slice(0, 40), kg: lk, reps: a.reps || null, s: a.seconds || null, sets: ln, rpe: a.rpe || null }));
+        (a.more || []).forEach(function (r, i) { store.notes.push(extra({ t: now + i + 1, k: 'lift', name: String(a.name || 'Exercise').slice(0, 40), kg: lk, reps: r, s: null, sets: 1, rpe: a.rpe || null })); }); save();
         var cmNow = a.reps ? curMaxLift(a.name) : null; // the same current estimated max every other screen shows
-        card = { k: 'set', ref: now, lift: 1, title: a.name || 'Exercise', lines: [(a.more ? (a.more.length + 1) + ' sets: ' + (lk ? kg(lk) + ' × ' : '') + [a.reps].concat(a.more).join(', ') + ' reps' : ln + ' × ' + (lk ? kg(lk) + ' × ' : '') + (a.reps ? a.reps + (a.reps === 1 ? ' rep' : ' reps') : a.seconds + ' s')) + (a.rpe ? ' @ RPE ' + a.rpe : '')], sub: (a.note ? a.note + ' ' : '') + 'Logged as an extra exercise. It’s not part of the program, so it shows under Other lifts on the Progress tab.' + (cmNow ? ' Estimated max now ' + kg(cmNow.e) + ' (from ' + maxSrc(cmNow) + ').' : ''), pb: !!liftPB, warn: jump ? 'That’s more than 25% above your best (estimated max ' + kg(bestEst) + '). If it’s a typo, tap Undo.' : '' };
+        card = { k: 'set', ref: now, lift: 1, title: a.name || 'Exercise', lines: [(a.more ? (a.more.length + 1) + ' sets: ' + (lk ? liftW({ kg: lk, add: isAdd, ph: a.perHand }) + ' × ' : '') + [a.reps].concat(a.more).join(', ') + ' reps' : ln + ' × ' + (lk ? liftW({ kg: lk, add: isAdd, ph: a.perHand }) + ' × ' : '') + (a.reps ? a.reps + (a.reps === 1 ? ' rep' : ' reps') : a.seconds + ' s')) + (a.rpe ? ' @ RPE ' + a.rpe : '') + (a.cue ? ' (' + a.cue + ')' : '')], sub: (a.note ? a.note + ' ' : '') + (isAdd ? 'Added load on top of your bodyweight' + (bwNow ? ' (' + kg(bwNow) + ')' : '') + '; estimated max counts both, and is compared only with other weighted sets. ' : '') + 'Logged as an extra exercise. It’s not part of the program, so it shows under Other lifts on the Progress tab.' + (cmNow ? ' Estimated max now ' + kg(cmNow.e) + ' (from ' + maxSrc(cmNow) + ').' : ''), pb: !!liftPB, warn: jump ? 'That’s more than 25% above your best (estimated max ' + kg(bestEst) + '). If it’s a typo, tap Undo.' : '' };
         break;
       }
       case 'log_bp': {
@@ -6012,9 +6082,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         var rows = store.log.filter(function (l) { return l.id === pex.id && l.kg && !l.sug; }), bestR = curMaxEx(pex.id, 'r') || curMaxEx(pex.id, 'h');
         return rows.length && bestR ? '**' + (bestR.k === 'h' ? baseName(BY[pex.id].name) : baseName(G[pex.id].name)) + '**: estimated max about **' + kg(bestR.e) + '**, from ' + maxSrc(bestR) + ' (your best in the last 6 weeks).' : 'No weighted sets of ' + baseName(BY[pex.id].name) + ' logged yet.';
       }
-      if (lk2) { var LL = store.notes.filter(function (n) { return n.k === 'lift' && liftKey(n.name) === liftKey(LIFTN[lk2]); }), cmx = curMaxLift(LIFTN[lk2]), eb = cmx ? { v: cmx.e, x: { kg: cmx.kg, reps: cmx.v, rpe: cmx.rpe, t: cmx.t } } : null;
+      if (lk2) { var LL = store.notes.filter(function (n) { return n.k === 'lift' && liftKey(n.name) === liftKey(LIFTN[lk2]); }), cmx = curMaxLift(LIFTN[lk2]), eb = cmx ? { v: cmx.e, x: { kg: cmx.kg, reps: cmx.v, rpe: cmx.rpe, t: cmx.t, add: cmx.add, ph: cmx.ph } } : null;
         if (!LL.length) return 'No ' + LIFTN[lk2].toLowerCase() + ' logged yet. Log a set like “' + lk2 + ' 100 kg for 5”.';
-        return '**' + LIFTN[lk2] + '**: ' + (eb ? 'estimated max **' + kg(eb.v) + '**, from ' + kg(eb.x.kg) + ' × ' + eb.x.reps + (eb.x.rpe ? ' @ RPE ' + eb.x.rpe : '') + ' on ' + dshort(eb.x.t) + ' (your best in the last 6 weeks).' : 'no set of 12 reps or fewer yet.') + ' ' + LL.length + (LL.length === 1 ? ' entry' : ' entries') + ' logged.'; }
+        return '**' + LIFTN[lk2] + '**: ' + (eb ? 'estimated max **' + kg(eb.v) + '**' + (eb.x.add ? ' with bodyweight' : '') + ', from ' + liftW(eb.x) + ' × ' + eb.x.reps + (eb.x.rpe ? ' @ RPE ' + eb.x.rpe : '') + ' on ' + dshort(eb.x.t) + ' (your best in the last 6 weeks).' : 'no set of 12 reps or fewer yet.') + ' ' + LL.length + (LL.length === 1 ? ' entry' : ' entries') + ' logged.'; }
     }
     if (/\b(best|pr|personal best|record|strongest)\b/.test(t)) {
       var ex = findEx(t);
@@ -6152,6 +6222,17 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     pendingPain = null;
     if (pendingBw && /^\s*(?:yes|yeah|yep|y|si|sí|correct|right|save it|that'?s right)\b[.!]?\s*(?:save it)?\s*$/i.test(text) && Date.now() - pendingBw.t < 10 * 60000) { var bc = feed.filter(function (c) { return c.r === 'card' && c.bwAsk && !c.bwDone; }).pop(); if (bc) { feed.push({ t: Date.now(), r: 'u', x: text, src: src }); $('cIn').value = ''; autoGrow(); return bwConfirm(bc); } }
     pendingBw = null;
+    // "actually that was 275 not 2775": redo the last message with the number fixed (undoing whatever it logged)
+    var fx = text.toLowerCase().match(/^\s*(?:(?:no|oops|sorry|actually|wait|sorry,? i meant)[,!.\s]+)*(?:(?:that|it)(?:'s|’s| was| is| should (?:have )?be(?:en)?)|i meant)\s+(\d+(?:\.\d+)?)\s*(?:kg|lbs?|reps?)?\s*,?\s*(?:and\s+)?not\s+(\d+(?:\.\d+)?)\s*(?:kg|lbs?|reps?)?[.!]?\s*$/);
+    if (fx) {
+      var lu = -1; for (var fi = feed.length - 1; fi >= 0; fi--) if (feed[fi].r === 'u') { lu = fi; break; }
+      var nre = new RegExp('(^|[^\\d.])' + fx[2].replace(/\./g, '\\.') + '(?![\\d.])'), prevTxt = lu > -1 ? String(feed[lu].x || '') : '';
+      feed.push({ t: Date.now(), r: 'u', x: text, src: src }); $('cIn').value = ''; autoGrow();
+      if (!nre.test(prevTxt)) { feed.push({ t: Date.now(), r: 'm', x: 'I couldn’t find ' + fx[2] + ' in your last message, so nothing changed. Type the whole entry again with the right number.' }); saveFeed(); renderCoach(); scrollEnd(); return; }
+      feed.slice(lu + 1).forEach(function (c) { if (c.r === 'card' && !c.undone && c.k !== 'err' && c.ref != null) undoCard(c); });
+      feed.push({ t: Date.now(), r: 'm', x: 'Fixed: ' + fx[2] + ' changed to ' + fx[1] + '.' });
+      return handle(prevTxt.replace(nre, '$1' + fx[1]), src);
+    }
     $('cIn').value = ''; autoGrow();
     feed.push({ t: Date.now(), r: 'u', x: text, src: src });
     var when = whenOf(text), res = parseText(text.replace(/\b(yesterday|last night|this morning|this evening|tonight|today|\d+\s+days?\s+ago)\b/gi, ' ')), cards = [];
@@ -6772,11 +6853,11 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       var by = {}; lifts.forEach(function (l) { var k = liftKey(l.name); (by[k] = by[k] || []).push(l); });
       h += '<div class="card" data-pt="strength"><h2>Other lifts</h2><p>Exercises you logged that aren’t in the program, like your main barbell lifts. Estimated max uses sets of 1 to 12 reps: weight × (1 + (reps + reps in reserve) ÷ 30), with reps in reserve = 10 − RPE. They count on the body map and strength map too.</p><ul class="olist lifts">' + Object.keys(by).map(function (k) {
         var L = by[k], heavy = L.reduce(function (b, x) { return (x.kg || 0) > (b.kg || 0) || ((x.kg || 0) === (b.kg || 0) && (x.reps || 0) > (b.reps || 0)) ? x : b; }, L[0]), est = null, last = L[L.length - 1];
-        var cmo = curMaxLift(last.name); if (cmo) est = { v: cmo.e, x: { kg: cmo.kg, reps: cmo.v, rpe: cmo.rpe, t: cmo.t } };
-        var set = function (x) { return (x.sets > 1 ? x.sets + ' × ' : '') + (x.kg ? kg(x.kg) + ' × ' : '') + (x.reps ? x.reps + (x.reps === 1 ? ' rep' : ' reps') : x.s + ' s') + (x.rpe ? ' @ RPE ' + x.rpe : ''); };
+        var cmo = curMaxLift(last.name); if (cmo) est = { v: cmo.e, x: { kg: cmo.kg, reps: cmo.v, rpe: cmo.rpe, t: cmo.t, add: cmo.add, ph: cmo.ph } };
+        var set = function (x) { return (x.sets > 1 ? x.sets + ' × ' : '') + (x.kg ? liftW(x) + ' × ' : '') + (x.reps ? x.reps + (x.reps === 1 ? ' rep' : ' reps') : x.s + ' s') + (x.rpe ? ' @ RPE ' + x.rpe : ''); };
         var entry = function (x) { return dshort(x.t) + ': ' + set(x) + ' <button class="textbtn" data-dlift="' + x.t + '" aria-label="Delete ' + esc(x.name) + ' ' + esc(set(x)) + ' from ' + dshort(x.t) + '">Delete</button>'; }, R = L.slice().reverse();
         // the latest 4, then every older entry behind "All N entries", so any one can be deleted
-        return '<li><b>' + esc(last.name) + '</b><span>Heaviest: ' + set(heavy) + (est ? ' · estimated max <span class="emx">' + kg(est.v) + '</span> (best of the last 6 weeks, from ' + kg(est.x.kg) + ' × ' + est.x.reps + (est.x.rpe ? ' @ RPE ' + est.x.rpe : '') + ', ' + dshort(est.x.t) + ')' : '') + '</span><span class="lrec">' + R.slice(0, 4).map(entry).join('<br>') + (R.length > 4 ? '<details><summary>All ' + R.length + ' entries</summary>' + R.slice(4).map(entry).join('<br>') + '</details>' : '') + '</span></li>';
+        return '<li><b>' + esc(last.name) + '</b><span>Heaviest: ' + set(heavy) + (est ? ' · estimated max <span class="emx">' + kg(est.v) + '</span> (best of the last 6 weeks, from ' + liftW(est.x) + ' × ' + est.x.reps + (est.x.rpe ? ' @ RPE ' + est.x.rpe : '') + ', ' + dshort(est.x.t) + ')' : '') + '</span><span class="lrec">' + R.slice(0, 4).map(entry).join('<br>') + (R.length > 4 ? '<details><summary>All ' + R.length + ' entries</summary>' + R.slice(4).map(entry).join('<br>') + '</details>' : '') + '</span></li>';
       }).join('') + '</ul></div>';
     }
     if (bp.length) h += '<div class="card" data-pt="body"><h2>Blood pressure</h2><ul class="olist">' + bp.slice(-6).reverse().map(function (n) { return '<li><b>' + n.sys + '/' + n.dia + '</b><span>' + dshort(n.t) + (n.pulse ? ' · pulse ' + n.pulse : '') + '</span></li>'; }).join('') + '</ul></div>';
