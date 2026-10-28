@@ -52,7 +52,7 @@ const T = (page, f, a) => page.evaluate(f, a);
   ok(/your heaviest: lower each rep over 4 seconds/.test(seen), 'all reps at your heaviest: the session says how to keep progressing');
   ok(await T(page, () => (window.__spoken || []).some(x => /your heaviest/.test(x))), 'the progression nudge is spoken');
   await page.click('#pClose'); await page.click('#pEndYes').catch(() => {});
-  await page.click('#tab-guide'); ok(/Training while fasting/.test(await page.locator('#guide').innerText()) && /Osteopenia and osteoporosis/.test(await page.locator('#guide').innerText()), 'Guide has Bones and Ramadan cards');
+  await page.evaluate(() => document.getElementById('tab-guide').click()); ok(/Training while fasting/.test(await page.locator('#guide').innerText()) && /Osteopenia and osteoporosis/.test(await page.locator('#guide').innerText()), 'Guide has Bones and Ramadan cards');
   ok(!errs.filter(e => !/Audio/.test(e)).length, 'no errors ' + errs);
   await b.close();
   srv.close(); console.log(pass + ' passed, ' + fail + ' failed'); process.exit(fail ? 1 : 0);

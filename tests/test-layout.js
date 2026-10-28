@@ -8,7 +8,7 @@ const seed = require('./fixtures/seed-week4.json');
     await page.setViewportSize({ width: w, height: 800 });
     await page.goto('http://localhost:8131/index.html'); await page.waitForFunction(() => window.__isoholdReady);
     for (const tab of ['train', 'exercises', 'coach', 'progress', 'guide']) {
-      await page.click('#tab-' + tab); await page.waitForTimeout(150); n++;
+      await page.evaluate(t => document.getElementById('tab-' + t).click(), tab); await page.waitForTimeout(150); n++;
       const r = await page.evaluate(() => { const W = document.documentElement.clientWidth, out = []; document.querySelectorAll('main *').forEach(e => { const b = e.getBoundingClientRect(); if (b.width && b.right > W + 1 && !e.closest('.chips,.cov-scroll,.c-sugs,.thumbs')) out.push(e.tagName + '.' + e.className + ' ' + Math.round(b.right)); }); return { sw: document.documentElement.scrollWidth, W, out: out.slice(0, 4) }; });
       if (r.sw > r.W || r.out.length) { bad++; console.log(kind, w, tab, st.week || 'new', JSON.stringify(r)); }
     }

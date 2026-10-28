@@ -80,7 +80,7 @@ async function toWork(page) { await page.click('#sessions [data-start]'); await 
   // offline weight question; welcome-back counts ticked sessions
   await T(page, () => { const s = window.__isoTest.store(); s.body = [{ t: Date.now() - 20 * 864e5, kg: 72 }, { t: Date.now() - 864e5, kg: 70 }]; s.log = [{ t: Date.now() - 9 * 864e5, w: 1, id: 'curl', eq: 'd', k: 'h', kg: 8, v: 30 }]; s.done.w1d1am = Date.now() - 3600e3; });
   ok(/Latest/.test(await T(page, () => window.__isoTest.localAnswer('how is my weight going') || '')), '"how is my weight going" is answered offline');
-  await page.click('#tab-coach'); await page.click('#tab-train'); await page.waitForTimeout(100);
+  await page.evaluate(() => document.getElementById('tab-coach').click()); await page.click('#tab-train'); await page.waitForTimeout(100);
   ok(!/It’s been \d+ days|Welcome back/.test(await page.locator('#train').innerText()), 'no "welcome back" right after ticking a session');
   await b.close();
 

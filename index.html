@@ -90,6 +90,13 @@ section.view { display: grid; gap: 18px; }
 .startbar { position: sticky; bottom: calc(var(--bar-h) + 10px + env(safe-area-inset-bottom, 0px)); z-index: 6; margin-top: 8px; }
 .startbar .btn { width: 100%; min-height: 58px; font-size: 18px; box-shadow: 0 6px 20px rgba(20, 33, 61, .18); }
 .view-head .tools { display: flex; gap: 2px; margin-left: auto; }
+nav.tabbar .tabbar-in { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.view-head .tool.back { flex-direction: row; gap: 4px; padding: 0 10px 0 4px; margin-left: -8px; font-size: 15px; }
+.c-off { background: var(--ink); color: var(--bg); border-radius: var(--r-md); padding: 10px 12px; font-weight: 700; font-size: 14px; }
+.c-srch:empty { display: none; }
+.c-srch { display: grid; gap: 6px; }
+.c-srch .srch-g { margin: 6px 0 0; }
+.help-guide { display: grid; gap: 6px; margin-top: 8px; }
 .strip button.today[aria-pressed="true"] .d { color: var(--bg); }
 .view-head .tool { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 52px; min-height: 52px; padding: 2px 4px; border: 0; border-radius: 14px; background: none; color: var(--ink); font-size: 12px; font-weight: 700; }
 .view-head .tool svg { width: 22px; height: 22px; }
@@ -943,14 +950,16 @@ button.ring:active { transform: scale(.97); }
 
   <!-- LOG: type, speak or snap a photo; coach answers here too -->
   <section class="view coach" id="coach" aria-labelledby="tab-coach" hidden>
-    <div class="view-head"><h1>Log</h1><button class="weekbtn" id="cNew" hidden>Clear</button><button class="xbtn" id="cSet" aria-label="Gemini settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button></div>
+    <div class="view-head"><button class="tool back" data-back aria-label="Back"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg>Back</button><h1>Search &amp; log</h1><button class="weekbtn" id="cNew" hidden>Clear</button><button class="xbtn" id="cSet" aria-label="Gemini settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button></div>
+    <p class="c-off" id="cOff" role="status" hidden>Offline. Typed logs and search still work and save on this phone. Photos wait until you’re back online.</p>
     <div class="card lgday" id="lgDay"></div>
     <div class="msgs" id="cMsgs" aria-live="polite"></div>
+    <div class="c-srch" id="cSrch" aria-live="polite"></div>
     <div class="c-sugs" id="cSugs"></div>
     <div class="listen" id="lgListen" hidden role="status"><span class="dot" aria-hidden="true"></span><span id="lgListenT">Listening…</span><button class="textbtn" id="lgListenX">Stop</button></div>
     <form class="composer" id="cForm">
       <button type="button" class="cam" id="cCam" aria-label="Photo of a meal, scale or machine display"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.8l1.4-2h4.6l1.4 2h1.8A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12.5" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
-      <textarea id="cIn" rows="1" placeholder="Log or ask anything" aria-label="Log or ask anything"></textarea>
+      <textarea id="cIn" rows="1" placeholder="Search, log or ask" aria-label="Search, log or ask"></textarea>
       <button class="send mic" id="cSend" type="submit" aria-label="Speak"></button>
     </form>
     <input type="file" id="cFile" accept="image/*" hidden>
@@ -958,7 +967,7 @@ button.ring:active { transform: scale(.97); }
 
   <!-- GUIDE -->
   <section class="view" id="guide" aria-labelledby="tab-guide" hidden>
-    <div class="view-head"><h1>Guide</h1></div>
+    <div class="view-head"><button class="tool back" data-back aria-label="Back"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg>Back</button><h1>Guide</h1></div>
     <p class="guide-intro">Each hold is followed by a rep exercise for the same muscles. The hold strengthens the tendon; the reps, taken close to failure, build muscle. Every exercise comes round twice a week. Each day is split into a morning and an evening session of about 20 to 35 minutes, 60 minutes at most.</p>
     <div class="gl" id="gl">
       <details><summary><span class="gb">30–45 s</span><span class="gh">Tendons like long, heavy tension</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Tendons adapt to how hard and how long they are strained. Holds of 30–45 seconds at about 70% of your best effort raise tendon stiffness more than quick reps. Reviews of training studies find that holds at 70% effort or more make tendons stiffer and stronger, and holds at long muscle lengths build the most muscle. An early 6-person study suggested holds also relieve tendon pain instantly, but larger trials since then found ordinary reps work just as well for pain.</p></div></details>
@@ -993,9 +1002,9 @@ button.ring:active { transform: scale(.97); }
   <div class="tabbar-in" role="tablist">
     <button role="tab" id="tab-train" aria-controls="train" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="fillme" d="M8 10V7.5a4 4 0 0 1 8 0V10" fill="none" stroke="currentColor" stroke-width="2"/><circle class="fillme" cx="12" cy="15" r="6" fill="none" stroke="currentColor" stroke-width="2"/></svg>Today</button>
     <button role="tab" id="tab-exercises" aria-controls="exercises" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect class="fillme" x="4" y="4" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect class="fillme" x="13" y="4" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect class="fillme" x="4" y="13" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect class="fillme" x="13" y="13" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Exercises</button>
-    <button role="tab" id="tab-coach" aria-controls="coach" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="fillme" d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4h0A1.5 1.5 0 0 1 4 14.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Log</button>
+    <button role="tab" id="tab-coach" hidden aria-controls="coach" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="fillme" d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4h0A1.5 1.5 0 0 1 4 14.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Log</button>
     <button role="tab" id="tab-progress" aria-controls="progress" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V13M10 20V8M16 20v-5M22 20V4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Progress</button>
-    <button role="tab" id="tab-guide" aria-controls="guide" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="fillme" d="M5 4h9a5 5 0 0 1 5 5v11H8a3 3 0 0 1-3-3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 9h6M9 13h6" stroke="var(--surface)" stroke-width="2" stroke-linecap="round"/></svg>Guide</button>
+    <button role="tab" id="tab-guide" hidden aria-controls="guide" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="fillme" d="M5 4h9a5 5 0 0 1 5 5v11H8a3 3 0 0 1-3-3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 9h6M9 13h6" stroke="var(--surface)" stroke-width="2" stroke-linecap="round"/></svg>Guide</button>
   </div>
 </nav>
 
@@ -2801,7 +2810,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   document.addEventListener('click', function (e) {
     var g = e.target.closest('[data-gapfind]'); if (!g) return;
-    openSearch(g); var inp = $('srchIn'); inp.value = g.dataset.gapfind; inp.dispatchEvent(new Event('input'));
+    openLogSearch(g.dataset.gapfind);
   });
   // the next session's Start sits in thumb reach above the tab bar
   function renderStartBar() {
@@ -2829,6 +2838,25 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       else t.insertAdjacentHTML('beforeend', '<button class="tool" data-tool="profile" aria-label="Profile and settings">' + avatarHtml() + 'Profile</button>');
     });
   }
+  var lastTab = 'train';
+  function openLogSearch(q) { if (['train', 'exercises', 'progress'].indexOf(current) > -1) lastTab = current; show('coach'); var t = $('cIn'); if (q != null) { t.value = q; t.dispatchEvent(new Event('input')); } t.focus(); }
+  document.addEventListener('click', function (e) { if (e.target.closest('[data-back]')) show(lastTab); });
+  function searchHtml(raw) {
+    var q = raw.trim().toLowerCase(), out = '';
+    if (q.length < 2) return '';
+    var SYN = { shoulder: 'delt|rotator|traps', shoulders: 'delt|rotator|traps', chest: 'chest', back: 'back|lats|traps', legs: 'quads|hamstrings|glutes|calves|thigh|hip', leg: 'quads|hamstrings|glutes|calves|thigh|hip', arms: 'biceps|triceps|forearms', arm: 'biceps|triceps|forearms', core: 'abs|obliques', abs: 'abs|obliques', hips: 'glutes|hip|thigh', hip: 'glutes|hip|thigh', bum: 'glutes', butt: 'glutes', shin: 'ankles|shin', knee: 'knees|quads' };
+    var rx = new RegExp(SYN[q] ? SYN[q] + '|' + q.replace(/[^a-z ]/g, '') : q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    var ids = Object.keys(ALL).filter(function (id) { if (!EQV[id] || RETIRED.indexOf(id) > -1 && ADDON.indexOf(id) < 0) return false; var e = ALL[id], h = V(id, 'h'); return !(h.missing && V(id, 'g').missing) && rx.test(h.name + ' ' + (e.tags || []).join(' ')); }).slice(0, 4);
+    if (ids.length) out += '<h3 class="srch-g">Exercises</h3>' + ids.map(function (id) { var h = V(id, 'h'); return '<button class="srch-r" data-sx="' + id + '"><b>' + esc(h.name) + '</b><span class="s">' + esc((ALL[id].tags || []).slice(0, 3).join(', ')) + '</span></button>'; }).join('');
+    var gh = [].slice.call(document.querySelectorAll('#guide h2, #guide h3, #guide summary')).filter(function (x) { return rx.test(x.textContent); }).slice(0, 3);
+    if (gh.length) out += '<h3 class="srch-g">Guide</h3>' + gh.map(function (x) { x.dataset.sg = x.dataset.sg || ('g' + Math.random().toString(36).slice(2, 8)); return '<button class="srch-r" data-sgo="' + x.dataset.sg + '"><b>' + esc(x.textContent.trim().slice(0, 80)) + '</b><span class="s">Works offline</span></button>'; }).join('');
+    return out;
+  }
+  function goGuide(sg) { show('guide'); var g = document.querySelector('[data-sg="' + sg + '"]'); if (g) { var d = g.closest('details'); if (d) d.open = true; g.scrollIntoView({ block: 'start' }); } }
+  // typing in Search & log shows matching exercises and guide topics; sending still logs or asks
+  $('cIn').addEventListener('input', function () { $('cSrch').innerHTML = /^\d/.test(this.value.trim()) ? '' : searchHtml(this.value); });
+  $('cSrch').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; if (b.dataset.sx) openExercise(b.dataset.sx, 'hold', b); else if (b.dataset.sgo) goGuide(b.dataset.sgo); });
+  $('cForm').addEventListener('submit', function () { $('cSrch').innerHTML = ''; });
   function openSearch(from) {
     openSheet('Search', '<label><span class="sr-only">Search exercises, the guide and your log</span><input class="srch-in" id="srchIn" type="search" placeholder="Exercise, muscle, question…" autocomplete="off"></label><div id="srchOut" aria-live="polite"></div><p class="s" style="margin-top:12px;color:var(--muted)">Search works offline.</p>', true, from);
     var inp = $('srchIn'); inp.focus();
@@ -2842,7 +2870,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       if (ids.length) out += '<h3 class="srch-g">Exercises</h3>' + ids.map(function (id) { var h = V(id, 'h'); return '<button class="srch-r" data-sx="' + id + '"><b>' + esc(h.name) + '</b><span class="s">' + esc((ALL[id].tags || []).slice(0, 3).join(', ')) + '</span></button>'; }).join('');
       var gh = [].slice.call(document.querySelectorAll('#guide h2, #guide h3, #guide summary')).filter(function (x) { return x.textContent.toLowerCase().indexOf(q) > -1; }).slice(0, 4);
       if (gh.length) out += '<h3 class="srch-g">Guide</h3>' + gh.map(function (x, i) { x.dataset.sg = x.dataset.sg || ('g' + Math.random().toString(36).slice(2, 8)); return '<button class="srch-r" data-sgo="' + x.dataset.sg + '"><b>' + esc(x.textContent.trim().slice(0, 80)) + '</b><span class="s">Works offline</span></button>'; }).join('');
-      var fl = (typeof feed !== 'undefined' && feed ? feed : []).filter(function (f) { return f.r === 'user' && f.x && f.x.toLowerCase().indexOf(q) > -1; }).slice(-3).reverse();
+      var fl = (typeof feed !== 'undefined' && feed ? feed : []).filter(function (f) { return f.r === 'u' && f.x && f.x.toLowerCase().indexOf(q) > -1; }).slice(-3).reverse();
       if (fl.length) out += '<h3 class="srch-g">Your log</h3>' + fl.map(function (f) { return '<button class="srch-r" data-slog="1"><b>“' + esc(f.x.slice(0, 70)) + '”</b><span class="s">' + (f.t ? esc(new Date(f.t).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })) : 'In your log') + '</span></button>'; }).join('');
       $('srchOut').innerHTML = out || '<p class="s" style="margin-top:12px">Nothing found for “' + esc(inp.value.trim()) + '”. Try a muscle, like “shoulder”.</p>';
     });
@@ -2855,12 +2883,13 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   var HELP_QS = [['What do the colours on the body mean?', 'Dark orange: trained this week. Light: partly trained. Dashed outline: a gap this week, or a muscle that only steadies you.'], ['A weight feels too heavy', 'Tap − during the set, or tell Log “too heavy”. Next week starts lighter.'], ['I missed a day', 'Your plan moves on. Nothing is lost.'], ['Something hurts', 'Stop the set. Log “my knee hurts 4 out of 10” and holds that load it change.'], ['Does it work offline?', 'Yes. Only photo food logging and the optional AI coach need signal.'], ['How do I back up?', 'Profile (top right), then Backup. Keep the file somewhere safe.']];
   function openHelp(from) {
-    openSheet('Help', HELP_QS.map(function (q) { return '<details class="help-q"><summary>' + esc(q[0]) + '</summary><p>' + esc(q[1]) + '</p></details>'; }).join('') + '<p style="margin-top:14px">Still stuck? Ask in Log, for example “how do I change my equipment”. Common questions are answered offline.</p><button class="btn quiet block" data-hlog="1" style="margin-top:10px">Ask in Log</button>', true, from);
-    $('sheetBody').addEventListener('click', function (e) { if (e.target.closest('[data-hlog]')) { closeSheet(); show('coach'); } });
+    openSheet('Help', HELP_QS.map(function (q) { return '<details class="help-q"><summary>' + esc(q[0]) + '</summary><p>' + esc(q[1]) + '</p></details>'; }).join('') + '<h3 class="srch-g" style="margin-top:16px">Guide</h3><div class="help-guide">' + [].slice.call(document.querySelectorAll('#guide summary, #guide h2')).map(function (x) { x.dataset.sg = x.dataset.sg || ('g' + Math.random().toString(36).slice(2, 8)); var t = (x.lastElementChild || x).textContent.trim(); return '<button class="srch-r" data-hg="' + x.dataset.sg + '"><b>' + esc(t.slice(0, 70)) + '</b></button>'; }).join('') + '</div>' +
+      '<p style="margin-top:14px">Still stuck? Ask in Search &amp; log, for example “how do I change my equipment”. Common questions are answered offline.</p><button class="btn quiet block" data-hlog="1" style="margin-top:10px">Ask in Search &amp; log</button>', true, from);
+    $('sheetBody').addEventListener('click', function (e) { var g = e.target.closest('[data-hg]'); if (g) { closeSheet(); lastTab = ['train', 'exercises', 'progress'].indexOf(current) > -1 ? current : lastTab; setTimeout(function () { goGuide(g.dataset.hg); }, 60); } else if (e.target.closest('[data-hlog]')) { closeSheet(); openLogSearch(); } });
   }
   document.addEventListener('click', function (e) {
     var b = e.target.closest('[data-tool]'); if (!b) return;
-    if (b.dataset.tool === 'search') openSearch(b); else if (b.dataset.tool === 'help') openHelp(b); else if (b.dataset.tool === 'profile') openProfile(b);
+    if (b.dataset.tool === 'search') openLogSearch(); else if (b.dataset.tool === 'help') openHelp(b); else if (b.dataset.tool === 'profile') openProfile(b);
   });
 
 
@@ -3740,7 +3769,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // A newer version is online: say so, instead of quietly running the old one until the next launch
   // dates follow the app's language (English), not the device's, so an English screen doesn't show "28 de octubre"
   var UIL = /^en\b/i.test(navigator.language || '') ? undefined : 'en-GB';
-  var APP_VERSION = '35';
+  var APP_VERSION = '36';
   function checkVersion() {
     if (!navigator.onLine || !/^https?:/.test(location.protocol)) return;
     fetch('index.html?v=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
@@ -4694,14 +4723,19 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     h += feed.slice(start).map(function (m, j) {
       var i = start + j;
       if (m.r === 'u') return '<div class="msg u">' + (m.ph ? '<img class="lg-ph" data-ph="' + m.ph + '" alt="Your photo">' : '') + (m.x ? esc(m.x) : '') + '</div>';
-      if (m.r === 'err') return '<div class="msg err"><b>' + esc(m.title) + '</b><span>' + esc(m.x) + '</span>' + (m.retry ? '<div><button class="btn sm line" data-retry="' + i + '">Try again</button></div>' : '') + '</div>';
+      if (m.r === 'err') return '<div class="msg err"><b>' + esc(m.title) + '</b><span>' + esc(m.x) + '</span>' + (m.retry ? '<div><button class="btn sm line" data-retry="' + i + '">Try again</button> <button class="btn sm line" data-typeit="1">Type it instead</button></div>' : '') + '</div>';
       if (m.r === 'card') return cardHtml(m, i);
       if (m.r === 'ask') return '<div class="msg m"><p>' + esc(m.x) + '</p><div class="lg-acts">' + m.opts.map(function (o) { return '<button class="btn sm line" data-pick="' + i + '" data-v="' + o[0] + '">' + esc(o[1]) + '</button>'; }).join('') + '</div></div>';
       return '<div class="msg m" data-i="' + i + '">' + (m.x ? md(m.x) : '<span class="typing" aria-label="Working on it"><i></i><i></i><i></i></span>') + '</div>';
     }).join('');
     $('cMsgs').innerHTML = h;
     [].forEach.call($('cMsgs').querySelectorAll('img[data-ph]'), function (im) { getPhoto(im.dataset.ph).then(function (d) { if (d) im.src = d; else im.remove(); }); });
-    $('cSugs').innerHTML = feed.length > 2 ? '' : SUGS_LOG.map(function (s) { return '<button data-sug="1">' + esc(s) + '</button>'; }).join('');
+    // one-tap logs: what you log most often (twice or more in two weeks), else starter ideas
+    var since = Date.now() - 14 * 864e5, cnt = {};
+    feed.forEach(function (m) { if (m.r === 'u' && m.x && m.t > since && m.x.length < 60 && !/\?$/.test(m.x.trim())) { var k = m.x.trim().toLowerCase(); cnt[k] = cnt[k] || { n: 0, x: m.x.trim() }; cnt[k].n++; } });
+    var mine = Object.keys(cnt).filter(function (k) { return cnt[k].n >= 2; }).sort(function (a, b) { return cnt[b].n - cnt[a].n; }).slice(0, 3).map(function (k) { return cnt[k].x; });
+    var sugs = mine.length ? mine : feed.length > 2 ? [] : SUGS_LOG;
+    $('cSugs').innerHTML = sugs.length ? '<span class="sr-only">One-tap logs</span>' + sugs.map(function (s) { return '<button data-sug="1">' + esc(s) + '</button>'; }).join('') : '';
     $('cNew').hidden = !feed.length;
     setSendState();
   }
@@ -4851,6 +4885,10 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     // after sending, keep the cursor in the box (screen readers and keyboards don't get dropped to the top of the page)
     if ($('cIn').value.trim()) { handle($('cIn').value, 'text'); $('cIn').focus({ preventScroll: true }); } else toggleMic();
   });
+  $('cMsgs').addEventListener('click', function (e) { if (e.target.closest('[data-typeit]')) { var t = $('cIn'); t.focus(); t.placeholder = 'Type what you ate, e.g. chicken, rice and salad'; } });
+  // a clear offline banner, not a silent failure
+  function paintOffline() { var b = $('cOff'); if (b) b.hidden = navigator.onLine; }
+  window.addEventListener('online', paintOffline); window.addEventListener('offline', paintOffline); paintOffline();
   $('cSugs').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) handle(b.textContent, 'text'); });
   $('cMsgs').addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
