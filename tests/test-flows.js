@@ -43,9 +43,9 @@ const ok = (c, m) => { if (!c) { fails.push(m); console.log('FAIL', m); } else p
     await page.evaluate(() => document.getElementById('tab-coach').click()); await page.fill('#cIn', 'I weigh 160 lb'); await page.click('#cSend'); await page.waitForTimeout(200);
     const bw = await page.evaluate(() => window.__isoTest.store().body.slice(-1)[0].kg); ok(Math.abs(bw - 72.6) < .1, kind + ' lb bodyweight stored as kg (' + bw + ')');
     // backup round trip includes food and profile
-    await page.click('#tab-progress'); const code = await page.inputValue('#bkOut');
+    await page.click('#tab-progress'); await page.click('#bkGo'); const code = await page.inputValue('#bkOut');
     await page.evaluate(() => { const s = window.__isoTest.store(); s.food = []; s.profile = null; });
-    await page.fill('#bkIn', code); await page.click('#bkRestore'); await page.click('#bkYes');
+    await page.fill('#bkIn', code); await page.click('#bkRestore'); await page.waitForTimeout(150);
     const after = await page.evaluate(() => { const s = window.__isoTest.store(); return [s.food.length, s.profile && s.profile.units]; });
     ok(after[0] === 1 && after[1] === 'lb', kind + ' backup restores food and profile');
     ok(errs.length === 0, kind + ' no console errors ' + errs.join('; '));

@@ -16,7 +16,7 @@ const ids = (page, day) => T(page, d => { const t = window.__isoTest, dy = t.all
   q = await ids(page, 'c2');
   ok(['sa-row', 'rear-fly', 'ham-bridge', 'tib-hold'].every(id => q.includes(id)) && !q.includes('ext-rot'), 'cardio day 2: rows, rear delts, knee-bend hamstrings, shins');
   ok(await T(page, () => { const t = window.__isoTest, dy = t.allDays().find(x => x.id === 'c1'); const qq = t.buildQueue(dy, 'pm', t.phaseOf(1)); return qq.some(i => i.kind === 'cardio'); }), 'the cardio still follows the add-on');
-  await page.click('.strip button[data-i="2"]').catch(() => {}); await page.waitForTimeout(150);
+  await page.evaluate(() => document.querySelector('.strip button[data-i="2"]').click()).catch(() => {}); await page.waitForTimeout(150);
   const txt = await page.locator('#sessions').innerText();
   ok(/Back and stabilizers/.test(txt) || /rotator cuff/.test(txt), 'the plan names the add-on');
   await page.click('#sessions [data-start][data-part="pm"]'); await page.waitForTimeout(300);
