@@ -195,6 +195,7 @@ nav.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; backgrou
 .xbtn svg { width: 18px; height: 18px; }
 .sheet-body > * { min-width: 0; }
 .sheet-body select { width: 100%; max-width: 100%; }
+.sheet-body > .chips { min-height: 46px; overflow-y: hidden; align-items: center; }
 .sheet-body { grid-template-columns: minmax(0, 1fr); overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 4px max(16px, env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); display: grid; gap: 16px; align-content: start; }
 
 .weeks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
@@ -1036,6 +1037,7 @@ html.calm *, html.calm *::before, html.calm *::after { animation: none !importan
 .bodycard .bm-ring { fill: none; stroke: var(--ink); stroke-width: 2.5; }
 .bm-legend i.tdy { background: repeating-linear-gradient(45deg, var(--ink) 0 1.5px, transparent 1.5px 4px); outline: 2px solid var(--ink); outline-offset: 1px; }
 .bm-today { font-size: 15px; }
+.bm-def { font-size: 14px; margin: 0; }
 .wk-h { font-family: var(--f-display); font-weight: 700; font-size: 18px; margin-bottom: -6px; }
 .wkdays { display: grid; gap: 6px; }
 .wkdays button { display: grid; grid-template-columns: 40px minmax(0, 1fr); align-items: center; gap: 12px; min-height: 56px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); text-align: left; font: inherit; }
@@ -3246,17 +3248,14 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   // Monday of this calendar week (Monday to Sunday), at the user's day-start hour
   function weekStart(t) { var s0 = dayStart(t), off = (new Date(s0).getDay() + 6) % 7; return off ? dayStart(s0 - off * 864e5 + 6 * 3600e3) : s0; }
+  // One count for the body map, the Today line and the coverage table: sets done this week (covDone) against the sets
+  // your plan has per week (covPlan), per body-map region. Trained (fully) = done reaches planned (2 sets for a part your
+  // plan doesn't train); partly = some sets, fewer than that; gap = no sets.
+  var FULL_TXT = 'Fully trained means you\u2019ve done all the sets your plan has for that part this week (2 sets if your plan has none).';
+  function covTarget(r, plan) { return plan[r] > 0 ? plan[r] : 2; }
   function bodyWeek() {
-    var got = {}, ws = weekStart();
-    function mark(rg) { rg.part.forEach(function (r) { if (!got[r]) got[r] = 'part'; }); rg.on.forEach(function (r) { got[r] = 'on'; }); }
-    store.log.forEach(function (l) {
-      if ((l.d || l.t) < ws || !ALL[l.id]) return;
-      mark(exRegions(l.id, l.k, l.eq));
-    });
-    store.notes.forEach(function (n) {
-      if (n.k !== 'lift' || !n.t || n.t < ws) return;
-      mark(liftRegions(n.name));
-    });
+    var got = {}, done = covDone(), plan = covPlan();
+    Object.keys(BM_NAME).forEach(function (r) { var d = done[r] || 0; if (d >= covTarget(r, plan) - 0.01) got[r] = 'on'; else if (d > 0) got[r] = 'part'; });
     return got;
   }
   // the muscle parts a day's exercises work most (first two tags of each), in body-map order
@@ -3294,6 +3293,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     el.innerHTML = '<h2 class="sr-only">This week, muscle by muscle</h2>' + bmSvg(got, tdy) +
       '<p class="bm-today"><b>' + (mv ? 'Next session:' : dv ? 'Today (done):' : 'Today:') + '</b> ' + esc(tdTxt) + '</p>' +
       '<ul class="bm-legend" aria-hidden="true"><li><i class="tdy"></i>Today</li><li><i style="background:var(--trained)"></i>Trained</li><li><i style="background:var(--partly)"></i>Partly</li><li><i style="background:var(--gap);outline:2px dashed var(--ink);outline-offset:-2px"></i>Gap this week</li><li style="margin-left:auto;font-weight:700;color:var(--ink)">' + pct + '% fully trained this week</li></ul>' +
+      '<p class="bm-def muted">' + esc(FULL_TXT) + '</p>' +
       // the key as one sentence for screen readers (the list of swatch names means nothing when heard)
       '<p class="sr-only">' + esc(pct + '% of muscle parts fully trained this week' + (partly.length ? ', ' + partly.length + ' partly' : '') + (gaps.length ? ', ' + gaps.length + (gaps.length === 1 ? ' gap' : ' gaps') : '') + '. On the map, dark means trained, light means partly trained, a dashed outline is a gap, and hatching with a dark outline marks today\u2019s session.') + '</p>' +
       (!any ? '<div class="bm-gaps"><p>Your map is empty. Each session fills in the muscles it works.</p></div>'
@@ -3432,7 +3432,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       else if (b.dataset.slift) { closeSheet(); show('progress'); }
     });
   }
-  var HELP_QS = [['What do the colours on the body mean?', 'Dark orange: trained this week. Light: partly trained. Dashed outline: a gap this week, or a muscle that only steadies you.'], ['A weight feels too heavy', 'Tap − during the set, or tell Log “too heavy”. Next week starts lighter.'], ['I missed a day', 'Your plan moves on. Nothing is lost.'], ['Something hurts', 'Stop the set. Log “my knee hurts 4 out of 10” and holds that load it change.'], ['Does it work offline?', 'Yes. Only photo food logging and the optional AI coach need signal.'], ['How do I back up?', 'Profile (top right), then Backup. Keep the file somewhere safe.']];
+  var HELP_QS = [['What do the colours on the body mean?', 'Dark orange: fully trained this week, meaning you\u2019ve done all the sets your plan has for that part (2 if it has none). Light: partly trained, some of those sets. Dashed outline: a gap this week, or a muscle that only steadies you.'], ['A weight feels too heavy', 'Tap − during the set, or tell Log “too heavy”. Next week starts lighter.'], ['I missed a day', 'Your plan moves on. Nothing is lost.'], ['Something hurts', 'Stop the set. Log “my knee hurts 4 out of 10” and holds that load it change.'], ['Does it work offline?', 'Yes. Only photo food logging and the optional AI coach need signal.'], ['How do I back up?', 'Profile (top right), then Backup. Keep the file somewhere safe.']];
   function openHelp(from) {
     openSheet('Help', HELP_QS.map(function (q) { return '<details class="help-q"><summary>' + esc(q[0]) + '</summary><p>' + esc(q[1]) + '</p></details>'; }).join('') + '<h3 class="srch-g" style="margin-top:16px">Guide</h3><div class="help-guide">' + [].slice.call(document.querySelectorAll('#guide summary, #guide h2')).map(function (x) { x.dataset.sg = x.dataset.sg || ('g' + Math.random().toString(36).slice(2, 8)); var t = ((x.querySelector && x.querySelector('.gh')) || x).textContent.trim(); return '<button class="srch-r" data-hg="' + x.dataset.sg + '"><b>' + esc(t.slice(0, 70)) + '</b></button>'; }).join('') + '</div>' +
       '<p style="margin-top:14px">Still stuck? Ask in Search &amp; log, for example “how do I change my equipment”. Common questions are answered offline.</p><button class="btn quiet block" data-hlog="1" style="margin-top:10px">Ask in Search &amp; log</button>', true, from);
@@ -3657,16 +3657,21 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function openAdd(sk, from) {
     var day = allDays().filter(function (d) { return sk.indexOf(d.id) === 0; })[0], part = sk.slice(day.id.length);
     var inSession = {}; blocksFor(day, part).forEach(function (b) { b.forEach(function (id) { inSession[id] = 1; }); });
-    var h = '<p class="muted">Tap an exercise to add its hold and reps to your ' + (part === 'am' ? 'morning' : 'evening') + ' session. It stays in this session every week until you remove it.</p>' +
+    // the user's own training days, numbered from 1 as on Today, each with the exercises of both its halves
+    var AD = allDays().filter(function (d) { return !d.cardio; }).map(function (d) {
+      var ids = []; (d.ex || [].concat.apply([], (d.am || []).concat(d.pm || []))).forEach(function (id) { if (ids.indexOf(id) < 0 && BY[id]) ids.push(id); });
+      return { id: d.id, name: d.name, n: allDays().indexOf(d) + 1, ex: ids };
+    }), hasCardio = allDays().some(function (d) { return d.cardio; });
+    var h = '<p class="muted">Tap an exercise to add its hold and reps to ' + (oneADay() ? 'your session' : 'your ' + (part === 'am' ? 'morning' : 'evening') + ' session') + ' on ' + esc(day.name) + '. It stays in this session every week until you remove it.</p>' +
       '<div class="chips" id="addChips">' + AREAS.map(function (t) { return '<button class="chip" data-af="' + t + '" aria-pressed="' + (t === 'All') + '">' + t + '</button>'; }).join('') + '</div>' +
-      DAYS.map(function (d) {
-        return '<div class="lib-group" data-ag="' + d.id + '"><h2>Day ' + (allDays().indexOf(d) + 1) + ', ' + esc(d.name) + '</h2><div class="lib-list">' + d.ex.map(function (id) {
+      AD.map(function (d) {
+        return '<div class="lib-group" data-ag="' + d.id + '"><h2>Day ' + d.n + ', ' + esc(d.name) + '</h2><div class="lib-list">' + d.ex.map(function (id) {
           var v = V(id, 'h'), on = inSession[id];
           return '<button class="row" data-addid="' + id + '"' + (on ? ' disabled' : '') + '>' + figSvg(v, 2) + '<span><span class="t">' + esc(v.name) + '</span><span class="s">' + (on ? 'Already in this session' : 'Then <b>' + esc(V(id, 'g').name) + '</b>') + '</span><span class="s m">' + esc(v.tags.slice(0, 3).join(', ')) + '</span></span><span class="plus" aria-hidden="true">' + (on ? '' : '+') + '</span></button>';
         }).join('') + '</div></div>';
       }).join('') +
       // the cardio days' add-on holds, so a plan without cardio days can still use them
-      '<div class="lib-group" data-ag="addon"><h2>Add-on holds (cardio days)</h2><div class="lib-list">' + addonIds().map(function (id) {
+      '<div class="lib-group" data-ag="addon"><h2>' + (hasCardio ? 'Add-on holds (from your cardio days)' : 'Add-on holds (not in your plan yet)') + '</h2><div class="lib-list">' + addonIds().map(function (id) {
         var v = V(id, 'h'), on = inSession[id]; if (v.missing && V(id, 'g').missing) return '';
         return '<button class="row" data-addid="' + id + '"' + (on ? ' disabled' : '') + '>' + figSvg(v, 2) + '<span><span class="t">' + esc(v.name) + '</span><span class="s">' + (on ? 'Already in this session' : 'Then <b>' + esc(V(id, 'g').name) + '</b>') + '</span><span class="s m">' + esc(v.tags.slice(0, 3).join(', ')) + '</span></span><span class="plus" aria-hidden="true">' + (on ? '' : '+') + '</span></button>';
       }).join('') + '</div></div>';
@@ -3677,7 +3682,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       if (c) {
         var f = c.dataset.af;
         body.querySelectorAll('[data-af]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === c)); });
-        DAYS.concat([{ id: 'addon', ex: addonIds() }]).forEach(function (d) { var any = false; d.ex.forEach(function (id) { var ok = f === 'All' || has(BY[id], f) || has(G[id], f), el = body.querySelector('[data-ag="' + d.id + '"] [data-addid="' + id + '"]'); if (!el) return; el.hidden = !ok; if (ok) any = true; }); body.querySelector('[data-ag="' + d.id + '"]').hidden = !any; });
+        AD.concat([{ id: 'addon', ex: addonIds() }]).forEach(function (d) { var any = false; d.ex.forEach(function (id) { var ok = f === 'All' || has(BY[id], f) || has(G[id], f), el = body.querySelector('[data-ag="' + d.id + '"] [data-addid="' + id + '"]'); if (!el) return; el.hidden = !ok; if (ok) any = true; }); body.querySelector('[data-ag="' + d.id + '"]').hidden = !any; });
         return;
       }
       var b = e.target.closest('button[data-addid]'); if (!b || b.disabled) return;
@@ -4296,6 +4301,15 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       return { d: d, n: i + 1, q: buildQueue(d, 'all', ph).filter(function (it) { return it.kind !== 'cardio' && it.id && ALL[it.id] && (!it.side || /1$/.test(it.side)); }) };
     }).filter(function (x) { return x.q.length; });
   }
+  // planned sets per week for each region: every set in each training day's queue whose exercise mainly works it
+  var covPlanMemo;
+  function covPlan() {
+    var key = store.week + ':' + JSON.stringify(store.profile || {}) + ':' + JSON.stringify(store.cust || {}) + ':' + store.eq.join() + ':' + store.notes.length + ':' + Math.floor(Date.now() / 6e4);
+    if (covPlanMemo && covPlanMemo.k === key) return covPlanMemo.v;
+    var plan = {};
+    covDays().forEach(function (x) { x.q.forEach(function (it) { exRegions(it.id, it.wk, it.ex && it.ex.eq).on.forEach(function (r) { plan[r] = (plan[r] || 0) + 1; }); }); });
+    covPlanMemo = { k: key, v: plan }; return plan;
+  }
   function covDone() {
     var ws = weekStart(), done = {};
     store.log.forEach(function (l) {
@@ -4312,7 +4326,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function covLab(r) { var n = BM_NAME[r] || r; return n.charAt(0).toUpperCase() + n.slice(1); }
   function renderCov() {
     var cd = covDays(), done = covDone(), span = cd.length + 3;
-    $('covNote').innerHTML = '<b>Planned</b>: hard sets in your plan for program week ' + store.week + ', for each of your ' + cd.length + ' training ' + (cd.length === 1 ? 'day' : 'days') + '. <b>Done</b>: sets you logged this week, Monday to Sunday, other lifts included. A set counts for the muscles its exercise mainly works, the same muscle groups as the body map and strength map. Around 10 or more a week is linked with steady growth for most muscles.';
+    $('covNote').innerHTML = '<b>Planned</b>: hard sets in your plan for program week ' + store.week + ', for each of your ' + cd.length + ' training ' + (cd.length === 1 ? 'day' : 'days') + '. <b>Done</b>: sets you logged this week, Monday to Sunday, other lifts included. A set counts for the muscles its exercise mainly works, the same muscle groups as the body map and strength map. ' + esc(FULL_TXT) + ' Around 10 or more a week is linked with steady growth for most muscles.';
     var h = '<caption class="sr-only">Muscle coverage: planned sets for each training day and for the week, and sets done this week</caption><thead><tr><th scope="col">Area</th>' +
       cd.map(function (x) { return '<th scope="col" class="c">Day ' + x.n + '<small>' + esc(x.d.name) + '</small></th>'; }).join('') +
       '<th scope="col" class="c"><span class="cv-long">Planned</span><span class="cv-short" aria-hidden="true">Plan</span><small><span class="cv-long">per week</span><span class="cv-short" aria-hidden="true">/ week</span></small></th><th scope="col" class="c cv-done">Done<small><span class="cv-long">this week</span><span class="cv-short" aria-hidden="true">this wk</span></small></th></tr></thead><tbody>';
@@ -4566,8 +4580,12 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     return n > 0 && est > prev * 1.005;
   }
   function setTxt(l) { return (l.kg ? kg(l.kg) + ' × ' : '') + l.v + (l.k === 'h' ? ' s' : l.v === 1 ? ' rep' : ' reps') + (l.sug ? ' (suggested weight)' : ''); }
+  // "Last time": the same exercise, equipment version and part (hold or reps). A set that only used an old suggested
+  // weight which differs from today's weight says nothing useful, so it's hidden.
   function lastFor(it) {
-    for (var i = store.log.length - 1; i >= 0; i--) { var l = store.log[i]; if (l.t < P.start && l.id === it.id && l.k === it.wk && l.eq === it.ex.eq) return l; }
+    for (var i = store.log.length - 1; i >= 0; i--) { var l = store.log[i]; if (l.t < P.start && l.id === it.id && l.k === it.wk && l.eq === it.ex.eq) {
+      if (l.sug && it.ex && !noWt(it.ex.eq)) { var cw = getWt(it.id, it.ex, it.wk); if (cw != null && Math.abs(cw - (l.kg || 0)) > 0.01) return null; }
+      return l; } }
     return null;
   }
   function haptic(style) { native({ type: 'haptic', style: style }); try { if (navigator.vibrate) navigator.vibrate(style === 'success' ? [25, 60, 25] : 15); } catch (e) { } }
@@ -5050,10 +5068,17 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var b = bodyKg(), p = prof(); if (!b || noWt(ex.eq)) return null;
     var f = (kind === 'r' && SWING[id]) || START[id]; if (!f) return null;
     var v = b * f * (p.sex === 'f' ? 0.62 : 1) * ((p.age || 0) >= 70 ? 0.6 : (p.age || 0) >= 60 ? 0.75 : 1) * (gentle() ? 0.85 : 1);
-    if (ex.eq === 'b') v = ex.style === 'plate' ? Math.max(2.5, v) : Math.max(20, v * 2);
+    return floorSug(id, ex, baseSug(ex, v));
+  }
+  // the bodyweight-based start for this equipment, before the bar's own weight is added as a floor
+  function baseSug(ex, v) {
+    if (ex.eq === 'b') v = ex.style === 'plate' ? v : v * 2;
     if (ex.eq === 'c') v = ex.style === 'mach' ? v * 2.5 : v * 1.15;
     return v;
   }
+  // arm isolation on a bar uses a light fixed or EZ bar (about 10 kg), not the 20 kg Olympic bar
+  var EZ = { 'oh-triceps': 1, curl: 1 };
+  function floorSug(id, ex, v) { return ex.eq === 'b' ? (ex.style === 'plate' ? Math.max(2.5, v) : Math.max(EZ[id] ? 10 : 20, v)) : v; }
   // How far above a beginner's start you already lift (1 to 2.5), from what you've logged: other lifts against
   // beginner one-rep norms (× bodyweight), and program sets whose weight you chose against their cautious start.
   // Never in the gentle plan. The median, so one odd entry doesn't decide it.
@@ -5085,10 +5110,61 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (w == null) for (var i = store.log.length - 1; i >= 0; i--) { var l = store.log[i]; if (l.id === id && l.eq === ex.eq && l.k === 'r' && l.kg > 0 && !l.sug) { w = l.kg; break; } }
     return w > 0 ? snapSug(w * HOLD_OF_REPS, ex) : null;
   }
+  // First weights scaled from a RELATED logged lift, per movement (never one level for every exercise): a ratio of that
+  // lift's 10-rep working weight (its current estimated max × 0.75). Entries are [group, ratio, same]; same = the same
+  // movement pattern (leg press from a logged leg press), which may go up to the ratio. Any other lift is also capped at
+  // 2.5× its cautious start, and nothing is ever above the related lift's own working weight. No related lift: the
+  // standard start. Dumbbell and kettlebell ratios ('*') are per hand. Not used in the gentle plan.
+  var REL_RE = { press: /bench|chest press|floor press|incline press/, ohp: /overhead press|\bohp\b|shoulder press|military|push press/, row: /\brows?\b/,
+    pull: /pull.?down|pull.?up|chin.?up/, squat: /^(?!.*(split|bulgarian)).*squat/, legpress: /leg press/, deadlift: /^(?!.*(romanian|stiff|single)).*(deadlift|rack pull)/,
+    rdl: /romanian|\brdl\b|stiff.?leg/, hip: /hip thrust|glute bridge/ };
+  var REL = {
+    'oh-triceps': { '*': [['press', .3], ['ohp', .45]] },
+    kickback: { '*': [['press', .12], ['ohp', .18]] },
+    'floor-press': { b: [['press', .8, 1]], '*': [['press', .35]] },
+    'lateral-raise': { '*': [['ohp', .14], ['press', .08]] },
+    'rear-fly': { '*': [['row', .1], ['pull', .08]] },
+    curl: { b: [['row', .35], ['pull', .3]], c: [['row', .3], ['pull', .25]], '*': [['row', .18], ['pull', .15]] },
+    'sa-row': { b: [['row', .8, 1], ['pull', .6]], '*': [['row', .45], ['pull', .4]] },
+    'goblet-squat': { b: [['squat', .6], ['legpress', .3]], c: [['squat', .9, 1], ['legpress', .5]], '*': [['squat', .3], ['legpress', .15]] },
+    'wall-sit': { c: [['legpress', .8, 1], ['squat', 1.2]], '*': [['squat', .25], ['legpress', .12]] },
+    'split-squat': { '*': [['squat', .2], ['legpress', .1]] },
+    'glute-bridge': { b: [['hip', .9, 1], ['deadlift', .6]], c: [['hip', .9, 1], ['deadlift', .6]], '*': [['hip', .35], ['deadlift', .25]] },
+    rdl: { b: [['rdl', 1, 1], ['deadlift', .7, 1], ['squat', .6]], c: [['rdl', .4], ['deadlift', .3]], '*': [['rdl', .45], ['deadlift', .3]] },
+    'sl-rdl': { b: [['rdl', .5], ['deadlift', .35]], '*': [['rdl', .22], ['deadlift', .15]] },
+    suitcase: { b: [['deadlift', .5]], '*': [['deadlift', .35]] }
+  };
+  var ISO_CAP = 2.5;
+  // the 10-rep working weight of the strongest current lift in a group (Other lifts), or null
+  function relWork(g) {
+    var re = REL_RE[g], best = null, seen = {};
+    store.notes.forEach(function (n) {
+      if (n.k !== 'lift' || !n.reps || !(n.kg > 0)) return; var k = liftKey(n.name); if (seen[k] || !re.test(k) || /upright/.test(k)) return; seen[k] = 1;
+      var c = curMaxLift(n.name); if (c && c.e > 0 && (!best || c.e > best.e)) best = { e: c.e, name: n.name };
+    });
+    return best ? { w: best.e * 0.75, name: best.name, g: g } : null;
+  }
+  // the first weight before rounding and where it came from: { v, hi, from, ratio, std } (from null = the standard start)
+  function scaledSug(id, ex, kind) {
+    var b = bodyKg(), p = prof(), std = rawSug(id, ex, kind); if (std == null) return null;
+    var out = { v: std, from: null, std: std }, rl = REL[id]; if (!rl || gentle() || !b) return out;
+    var list = rl[ex.eq] || rl['*']; if (!list) return out;
+    for (var i = 0; i < list.length; i++) {
+      var r = relWork(list[i][0]); if (!r) continue;
+      var base = baseSug(ex, b * ((kind === 'r' && SWING[id]) || START[id]) * (p.sex === 'f' ? 0.62 : 1) * ((p.age || 0) >= 70 ? 0.6 : (p.age || 0) >= 60 ? 0.75 : 1));
+      var hi = list[i][2] ? r.w : Math.min(r.w, Math.max(std, ISO_CAP * base));
+      out = { v: Math.min(hi, Math.max(Math.min(base, std), list[i][1] * r.w)), hi: hi, from: r, ratio: list[i][1], std: std }; break;
+    }
+    return out;
+  }
   function suggestWt(id, ex, kind) {
-    var v = rawSug(id, ex, kind); if (v == null) return null;
-    v *= trainLevel();
-    return snapSug(v, ex);
+    var s = scaledSug(id, ex, kind); if (!s) return null;
+    if (!s.from) return snapSug(s.v, ex);
+    var v = snapSug(floorSug(id, ex, s.v), ex); if (owned(ex.eq).length) return v;
+    // rounding up never takes it over the cap or the related lift (but never below the bar itself)
+    var fl = Math.max(1, floorSug(id, ex, 0)), st = isLb() ? fromU(5) : ex.eq === 'k' ? 4 : ex.eq === 'd' ? (v <= 10 ? 1 : 2) : 2.5;
+    while (v > s.hi + 0.01 && v - st >= fl - 0.01) v = Math.round((v - st) * 100) / 100;
+    return v;
   }
   function snapSug(v, ex) {
     var o = owned(ex.eq);
@@ -5104,6 +5180,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       var lh = null; for (var i = store.log.length - 1; i >= 0; i--) { var l = store.log[i]; if (l.id === id && l.eq === ex.eq && l.k === 'h' && l.kg) { lh = l; break; } }
       if (!lh || lh.sug) { var fr = holdFromReps(id, ex); if (fr) return fr; }
     }
+    // a weight only ever logged as the app's own suggestion follows the current suggestion (an older, unsafe one isn't kept)
+    if (store.wt[wkey(id, ex, kind)] == null && !noWt(ex.eq)) { var ll = null; for (var j = store.log.length - 1; j >= 0; j--) { var q = store.log[j]; if (q.id === id && q.eq === ex.eq && q.k === kind && q.kg) { ll = q; break; } }
+      if (ll && ll.sug) { var sg = suggestWt(id, ex, kind); if (sg != null && sg > 0) return sg; } }
     var v = _getWt(id, ex, kind); return v != null ? v : suggestWt(id, ex, kind);
   };
   function wtHint(it) {
@@ -7362,7 +7441,11 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   renderTools();
   window.__isoholdReady = performance.now();
   // read-only hooks for the automated test suite
-  window.__isoTest = { progressLine: function (it, hint, mem) { return progressLine(it, hint, mem); }, today: function (l) { return today(l); }, dayStart: function (t) { return dayStart(t); }, suggestWt: function (id, kind) { return suggestWt(id, V(id, kind === 'h' ? 'h' : 'g'), kind); }, localAnswer: function (t) { return localAnswer(t); }, weekTarget: function () { return weekTarget(); }, buildQueue: buildQueue, allDays: allDays, mins: mins, V: V, chooseEq: chooseEq, pickEq: pickEq, store: function () { return store; }, strengthData: strengthData, holdMax: holdMax, repMax: repMax, phaseOf: phaseOf, blocksFor: blocksFor, wLabel: wLabel, weekDone: weekDone, isPB: isPB, parseText: parseText, parsePlayerCmd: parsePlayerCmd, handle: function (t, s) { return handle(t, s || 'text'); }, runCmd: function (t) { return runCmd(t); }, feed: function () { return feed; }, prof: prof, proteinTarget: proteinTarget, foods: FOODS, applyAction: function (a) { return apply(a, 'test'); }, dailyIdx: function () { return dailyIdx(); }, strChange: function () { return strChange(); }, epley: epley, loadTime: loadTime, estMax: estMax, liftTags: liftTags, exRegions: exRegions, liftRegions: liftRegions, BM_NAME: BM_NAME, weekStart: function (t) { return weekStart(t); }, bodyWeek: function () { return bodyWeek(); }, covDays: covDays, covDone: covDone, exName: exName, rpeTxt: rpeTxt, curMax: curMax, curMaxLift: curMaxLift, curMaxEx: curMaxEx, modTxt: modTxt, libNote: libNote, repAlt: repAlt, painAdvice: painAdvice, trainLevel: trainLevel, getWt: function (id, kind, eq) { var kk = kind === 'h' ? 'h' : 'g', o = eq ? parseEq(EQV[id][kk]).filter(function (x) { return x.eq === eq; })[0] : null; return getWt(id, V(id, kk, o || undefined), kind === 'h' ? 'h' : 'r'); }, skipWhy: skipWhy };
+  window.__isoTest = { progressLine: function (it, hint, mem) { return progressLine(it, hint, mem); }, today: function (l) { return today(l); }, dayStart: function (t) { return dayStart(t); }, suggestWt: function (id, kind) { return suggestWt(id, V(id, kind === 'h' ? 'h' : 'g'), kind); }, localAnswer: function (t) { return localAnswer(t); }, weekTarget: function () { return weekTarget(); }, buildQueue: buildQueue, allDays: allDays, mins: mins, V: V, chooseEq: chooseEq, pickEq: pickEq, store: function () { return store; }, strengthData: strengthData, holdMax: holdMax, repMax: repMax, phaseOf: phaseOf, blocksFor: blocksFor, wLabel: wLabel, weekDone: weekDone, isPB: isPB, parseText: parseText, parsePlayerCmd: parsePlayerCmd, handle: function (t, s) { return handle(t, s || 'text'); }, runCmd: function (t) { return runCmd(t); }, feed: function () { return feed; }, prof: prof, proteinTarget: proteinTarget, foods: FOODS, applyAction: function (a) { return apply(a, 'test'); }, dailyIdx: function () { return dailyIdx(); }, strChange: function () { return strChange(); }, epley: epley, loadTime: loadTime, estMax: estMax, liftTags: liftTags, exRegions: exRegions, liftRegions: liftRegions, BM_NAME: BM_NAME, weekStart: function (t) { return weekStart(t); }, bodyWeek: function () { return bodyWeek(); }, covDays: covDays, covDone: covDone, exName: exName, rpeTxt: rpeTxt, curMax: curMax, curMaxLift: curMaxLift, curMaxEx: curMaxEx, modTxt: modTxt, libNote: libNote, repAlt: repAlt, painAdvice: painAdvice, trainLevel: trainLevel, getWt: function (id, kind, eq) { var kk = kind === 'h' ? 'h' : 'g', o = eq ? parseEq(EQV[id][kk]).filter(function (x) { return x.eq === eq; })[0] : null; return getWt(id, V(id, kk, o || undefined), kind === 'h' ? 'h' : 'r'); }, skipWhy: skipWhy,
+    // the first weight for one equipment version, with where it came from (round 13 audit)
+    sugFor: function (id, kind, eq) { var kk = kind === 'h' ? 'h' : 'g', o = parseEq(EQV[id][kk]).filter(function (x) { return x.eq === eq; })[0]; if (!o) return null; var ex = V(id, kk, o); if (ex.eq !== eq) return null; var k = kind === 'h' ? 'h' : 'r', s = scaledSug(id, ex, k); if (!s) return null; var p = prof(), b = bodyKg();
+      return { v: suggestWt(id, ex, k), from: s.from ? s.from.name : null, relW: s.from ? s.from.w : null, std: s.std, stdSnap: snapSug(s.std, ex), base: baseSug(ex, b * ((k === 'r' && SWING[id]) || START[id] || 0) * (p.sex === 'f' ? 0.62 : 1)) }; },
+    lastTxt: function (it) { var keep = P; if (!P) P = { start: Date.now() }; try { var l = lastFor(it); return l ? setTxt(l) : null; } finally { P = keep; } } };
   kickAnim();
 })();
 
