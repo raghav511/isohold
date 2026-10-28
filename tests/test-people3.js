@@ -100,7 +100,7 @@ const lastCard = page => T(page, () => window.__isoTest.feed().filter(x => x.r =
   ({ b, page, errs } = await boot(kind, { profile: Object.assign({}, P0, { days: 3, len: 15 }), eq: ['d'] }));
   await T(page, () => document.querySelectorAll('#sessions details').forEach(d => d.open = true));
   const st = await page.locator('#sessions').innerText();
-  ok(/no warm-up/.test(st) && !/\nWarm-up\n/.test(st), 'a warm-up cut for time is not listed');
+  ok(/a 3-minute warm-up/.test(st) && !/no warm-up/.test(st) && /\nWarm-up\n[^\n]*3 min/.test(st), 'a warm-up shortened for time is listed at 3 minutes');
   await b.close();
 
   srv.close(); console.log(pass + ' passed, ' + fail + ' failed'); process.exit(fail ? 1 : 0);

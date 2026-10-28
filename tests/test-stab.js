@@ -18,7 +18,7 @@ const ids = (page, day) => T(page, d => { const t = window.__isoTest, dy = t.all
   ok(await T(page, () => { const t = window.__isoTest, dy = t.allDays().find(x => x.id === 'c1'); const qq = t.buildQueue(dy, 'pm', t.phaseOf(1)); return qq.some(i => i.kind === 'cardio'); }), 'the cardio still follows the add-on');
   await page.evaluate(() => document.querySelector('.strip button[data-i="2"]').click()).catch(() => {}); await page.waitForTimeout(150);
   const txt = await page.locator('#sessions').innerText();
-  ok(/Back and stabilizers/.test(txt) || /rotator cuff/.test(txt), 'the plan names the add-on');
+  ok(/Add-on holds for lats/.test(txt), 'the plan names the add-on');
   await page.click('#sessions [data-start][data-part="pm"]'); await page.waitForTimeout(300);
   ok(await page.isVisible('#player') && /Row|Delt|Rotation|Y Raise/.test(await page.textContent('#player')), 'the add-on starts in the session player');
   await page.click('#pClose'); await page.click('#pEndYes').catch(() => {}); await page.waitForTimeout(150);
