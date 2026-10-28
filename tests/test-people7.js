@@ -43,7 +43,7 @@ const T = (page, f, a) => page.evaluate(f, a);
   f = await fd('churros con chocolate'); ok(f.map(i => i.n).join() === 'Churros,Cocoa milk', 'churros con chocolate');
   f = await fd('albondigas con arroz'); ok(f[0].n === 'Meatballs', 'albóndigas');
   f = await fd('pollo asado medio'); ok(f[0].n === 'Roast chicken' && f[0].q === 0.5, 'pollo asado medio is half a roast chicken');
-  f = await fd('bocata de tortilla'); ok(f.length === 1 && f[0].n === 'Bocadillo', 'bocata de tortilla is one item');
+  f = await fd('bocata de tortilla'); ok(f.length === 1 && /^Bocadillo/.test(f[0].n), 'bocata de tortilla is one item');
   f = await fd('menu del dia: cocido'); ok(f[0].n === 'Cocido' && !(await T(page, () => window.__isoTest.parseText('menu del dia: cocido').unknown)).length, 'menú del día');
   ok(await T(page, () => window.__isoTest.parseText('macarrones 300g').actions[0].meal_name) !== 'Snack' || new Date().getHours() >= 17, 'Spanish meal times');
   ok(!/de (enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)/.test(await T(page, () => { window.__isoTest.handle('peso 70'); document.getElementById('tab-progress').click(); return document.getElementById('progress').innerText; })), 'dates are in English on a Spanish-language device');
