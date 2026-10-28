@@ -1217,6 +1217,17 @@ var FIG = (function () {
       var wx = Math.min(o.S[0], o.H[0]) - 5.5;
       s += '<rect x="' + (wx - 30).toFixed(1) + '" y="-260" width="30" height="262" fill="' + C.prop + '"/>' + seg([wx, -260], [wx, 0], 1.5, C.floor);
     }
+    if (props && props.indexOf('bench') > -1 && r.v === 'f' && o.Al) {
+      // a bench under the top ankle (Copenhagen plank)
+      var by = o.Al[1] + 5;
+      s += '<rect x="' + (o.Al[0] - 26).toFixed(1) + '" y="' + by.toFixed(1) + '" width="52" height="' + (-by).toFixed(1) + '" rx="3" fill="' + C.prop + '" stroke="' + C.far + '" stroke-width="2"/>';
+    }
+    if (props && props.indexOf('incline') > -1 && r.v !== 'f') {
+      // an incline bench pad behind the torso, from the seat to above the shoulders
+      var dd = [o.S[0] - o.H[0], o.S[1] - o.H[1]], dl = Math.hypot(dd[0], dd[1]) || 1; dd = [dd[0] / dl, dd[1] / dl];
+      var nb = [dd[1], -dd[0]]; if (nb[1] < 0) nb = [-nb[0], -nb[1]];
+      s += seg(add(o.H, nb, 8), add(add(o.S, nb, 8), dd, 8), 9, C.prop) + seg(add(add(o.H, nb, 8), dd, 18), [add(add(o.H, nb, 8), dd, 18)[0], 0], 4, C.far);
+    }
     if (props && props.indexOf('tread') > -1) {
       var bx = o.H[0];
       s += '<rect x="' + (bx - 62).toFixed(1) + '" y="-1" width="118" height="9" rx="4" fill="' + C.far + '"/>' + seg([bx + 56, 3], [bx + 64, -72], 4, C.far) + seg([bx + 64, -72], [bx + 44, -70], 4, C.far);
@@ -1646,6 +1657,38 @@ var EX = [
     avoid: 'Leaning toward or away from the bell.',
     why: 'An uneven load makes the obliques and quadratus lumborum fight to keep you upright.' },
 
+  { id: 'side-plank', name: 'Side Plank Leg Raise Hold', equip: 'Just your bodyweight', uni: true, tags: ['Side hip', 'Glutes', 'Mid abs'], hl: ['tn'],
+    steps: [
+      { p: { v: 'f', t: 72, aR: [0, 90], aL: [180, 180], lR: [-72, -72], lL: [72, 72] }, txt: 'Lie on your side, elbow under your shoulder, legs straight and stacked. Lift the hips into a straight line. (Shown from the front.)' },
+      { p: { v: 'f', t: 72, aR: [0, 90], aL: [180, 180], lR: [-72, -72], lL: [90, 90] }, txt: 'Keep the hips high and lift the top leg, toes pointing forward, not up.' },
+      { p: { v: 'f', t: 72, aR: [0, 90], aL: [180, 180], lR: [-72, -72], lL: [106, 106] }, txt: 'Stop with the top leg a little above hip height. Hold, then switch sides.' }],
+    cues: ['Hips stay high and stacked', 'Toes point forward', 'Push the floor away with the forearm'],
+    avoid: 'Rolling the hips backwards or letting them sag.',
+    why: 'Lifting the top leg in a side plank works the glute medius, the side-hip muscle that keeps the knee and pelvis steady on one leg.' },
+  { id: 'copenhagen', name: 'Copenhagen Plank Hold', equip: 'A bench, sofa or sturdy chair', uni: true, tags: ['Inner thigh', 'Mid abs'], hl: ['tn'], props: ['bench'],
+    steps: [
+      { p: { v: 'f', t: 100, aR: [0, 90], aL: [180, 180], lR: [-20, -110], lL: [100, 100] }, txt: 'Lie on your side with the top foot or knee on a bench, elbow under your shoulder, bottom knee on the floor. (Shown from the front.)' },
+      { p: { v: 'f', t: 96, aR: [0, 90], aL: [180, 180], lR: [-50, -50], lL: [96, 96] }, txt: 'Press the top leg down into the bench and lift your hips until the body is straight.' },
+      { p: { v: 'f', t: 96, aR: [0, 90], aL: [180, 180], lR: [-64, -64], lL: [96, 96] }, txt: 'Let the bottom foot just touch or float beside the bench. Hold, then switch sides.' }],
+    cues: ['Squeeze the bench with the top leg', 'Hips in line with shoulders', 'Knee on the bench is the easier version'],
+    avoid: 'Hips dropping. Start with the knee on the bench, not the foot.',
+    why: 'Works the inner-thigh (adductor) muscles while they steady the pelvis. In trials it built adductor strength and cut groin problems.' },
+  { id: 'pallof', name: 'Pallof Press Hold', equip: 'A resistance band', tags: ['Obliques', 'Mid abs'], hl: ['tn'],
+    steps: [
+      { p: { ln: [4, -2], lf: [-6, -2], an: [20, 160], af: [20, 160] }, txt: 'Tie a band to a post at chest height. Stand side-on to it, feet hip-width, hands at your chest holding the band.' },
+      { p: { ln: [4, -2], lf: [-6, -2], an: [60, 100], af: [60, 100] }, txt: 'Brace and press the hands straight out in front of your chest.' },
+      { p: { ln: [4, -2], lf: [-6, -2], an: [90, 90], af: [90, 90] }, txt: 'Arms straight. Don’t let the band twist you towards the post. Hold, then face the other way.' }],
+    cues: ['Hands stay in the middle of your chest', 'Ribs down, glutes tight', 'Breathe slowly'],
+    avoid: 'Twisting towards the anchor or leaning away from it.',
+    why: 'Trains the obliques and deep core to stop the trunk rotating, which planks and crunches don’t do.' },
+  { id: 'incline-press', name: 'Incline Press Hold', equip: 'Two dumbbells and an incline bench', tags: ['Upper chest', 'Front delts', 'Triceps'], hl: ['ua', 'J_sh'], props: ['incline'],
+    steps: [
+      { p: { t: -55, seat: 40, an: [15, 145], af: [17, 145], ln: [90, 0], lf: [88, 2], w: { n: 'db', f: 'db' } }, txt: 'Set the bench to about 45°. Sit back with the dumbbells at the sides of your upper chest.' },
+      { p: { t: -55, seat: 40, an: [145, 145], af: [147, 147], ln: [90, 0], lf: [88, 2], w: { n: 'db', f: 'db' } }, txt: 'Press them up over your upper chest until the arms are straight.' },
+      { p: { t: -55, seat: 40, an: [70, 145], af: [72, 145], ln: [90, 0], lf: [88, 2], w: { n: 'db', f: 'db' } }, txt: 'Lower halfway, elbows at about 90°, and hold there.' }],
+    cues: ['Shoulder blades back and down', 'Elbows about 45° from your sides', 'Feet flat'],
+    avoid: 'Arching the lower back off the bench.',
+    why: 'A 30–45° incline shifts the work towards the upper (clavicular) chest, which flat and floor presses reach least.' },
   { id: 'crunch', name: 'Weighted Crunch Hold', equip: 'One dumbbell', tags: ['Upper abs', 'Mid abs'], hl: ['tn'],
     steps: [
       { p: { t: -90, ln: { ik: [41, 0], b: 1 }, an: { ikt: [34, 10], b: -1 }, w: { n: 'db' } }, txt: 'Lie on your back, knees bent, hugging a dumbbell to your chest.' },
@@ -1738,11 +1781,11 @@ var DAYS = [
 // Only exercises with strong evidence (a training trial or meta-analysis for that muscle or tendon) stay in the program.
 var RETIRED = ['front-raise', 'rear-fly', 'overhead-hold', 'ext-rot', 'shrug', 'prone-y', 'sa-row', 'bo-row', 'hammer', 'ham-bridge', 'farmer', 'wrist', 'tib-hold', 'pinch'];
 // Back and stabilizer add-on on the two cardio days, two alternating pairs each: rows and rear delts both days, then the rotator cuff and lower traps (day 1) or knee-bend hamstrings and shins (day 2).
-var ADDON_BY = { c1: [['sa-row', 'rear-fly'], ['ext-rot', 'prone-y']], c2: [['sa-row', 'rear-fly'], ['ham-bridge', 'tib-hold']] };
-var ADDON_TXT = { c1: 'Rows, rear delts, rotator cuff and lower traps', c2: 'Rows, rear delts, knee-bend hamstrings and shins' };
+var ADDON_BY = { c1: [['sa-row', 'rear-fly'], ['ext-rot', 'prone-y'], ['incline-press', 'pallof']], c2: [['sa-row', 'rear-fly'], ['ham-bridge', 'tib-hold'], ['side-plank', 'copenhagen']] };
+var ADDON_TXT = { c1: 'Rows, rear delts, rotator cuff, lower traps, upper chest and anti-rotation core', c2: 'Rows, rear delts, knee-bend hamstrings, shins, side hip and inner thigh' };
 function addonFor(day) { return ADDON_BY[day.id] || ADDON_BY.c1; }
 function addonTxt(day) { return ADDON_TXT[day.id] || ADDON_TXT.c1; }
-var ADDON = ['sa-row', 'rear-fly', 'ext-rot', 'prone-y', 'ham-bridge', 'tib-hold'], EX_ADDON = EX.filter(function (e) { return ADDON.indexOf(e.id) > -1; });
+var ADDON = ['sa-row', 'rear-fly', 'ext-rot', 'prone-y', 'incline-press', 'pallof', 'ham-bridge', 'tib-hold', 'side-plank', 'copenhagen'], EX_ADDON = EX.filter(function (e) { return ADDON.indexOf(e.id) > -1; });
 EX = EX.filter(function (e) { return RETIRED.indexOf(e.id) < 0; });
 DAYS.forEach(function (d) { d.ex = [].concat.apply([], d.am.concat(d.pm)); });
 
@@ -1769,6 +1812,10 @@ var GROW = {
   'kickback': { name: 'Triceps Kickback', tempo: UP, steps: [{ i: 1, txt: 'Hinged forward, upper arms pinned parallel to the floor.' }, { i: 2, txt: 'Straighten the elbows, squeeze 1 s, bend back over 2–3 s.' }], cues: ['Upper arm does not move', 'Full lockout'] },
   'hollow': { name: 'Lying Leg Raise', tempo: UP, tags: ['Lower abs', 'Mid abs'],
     steps: [{ p: { t: -90, an: [-90, -90], ln: [98, 98, 170], w: { n: 'db' } }, txt: 'Lie on your back, low back pressed down, legs hovering. Arms overhead holding a light dumbbell on the floor.' }, { p: { t: -90, an: [-90, -90], ln: [176, 176, 92], w: { n: 'db' } }, txt: 'Raise the legs to vertical, curl the hips slightly up, then lower over 2–3 s.' }], cues: ['Low back never lifts', 'Bend the knees to make it easier'] },
+  'side-plank': { name: 'Side Plank Leg Raise', uni: true, tempo: UP, steps: [{ i: 0, txt: 'Hips up in a side plank, legs stacked.' }, { i: 2, txt: 'Lift the top leg, pause 1 s, lower over 2–3 s.' }], cues: ['Hips stay high'] },
+  'copenhagen': { name: 'Copenhagen Plank Raise', uni: true, tempo: UP, steps: [{ i: 0, txt: 'Top leg on the bench, hips on the floor.' }, { i: 2, txt: 'Lift the hips, pause 1 s, lower over 2–3 s.' }], cues: ['Press down into the bench'] },
+  'pallof': { name: 'Pallof Press', tempo: UP, steps: [{ i: 0, txt: 'Side-on to the band, hands at your chest.' }, { i: 2, txt: 'Press out, pause 2 s, bring back over 2 s.' }], cues: ['No twisting'] },
+  'incline-press': { name: 'Incline Dumbbell Press', tempo: DN, steps: [{ i: 1, txt: 'Dumbbells pressed up over your upper chest.' }, { i: 0, txt: 'Lower over 2–3 s to your chest, pause, press up.' }], cues: ['Control the way down'] },
   'plank-db': { name: 'Renegade Row', uni: true, tempo: UP, tags: ['Mid abs', 'Lats', 'Mid back', 'Grip'],
     steps: [{ i: 2, txt: 'High plank on the dumbbells, feet wide for balance.' }, { p: { t: 61, an: [-68, 18], af: [0, 0], ln: [-61, -61, 15], wg: true, w: { n: 'db', f: 'db' } }, txt: 'Row one dumbbell to the ribs without twisting. Lower over 2–3 s. Do all reps, then switch.' }], cues: ['Hips stay square', 'Wider feet = easier'] },
 
@@ -1866,9 +1913,13 @@ function noWt(eq) { return eq === 'w' || eq === 'r'; }
 var EQV = {
   'front-raise': { h: 'd k b:plate', g: 'd k b:plate' },
   'lateral-raise': { h: 'd k c:cable r', g: 'd k c:cable r' },
-  'rear-fly': { h: 'd k c:cable r', g: 'd k c:cable r', n: { c: 'Cable Rear-Delt Fly Hold', r: 'Band Pull-Apart Hold' }, gn: { c: 'Cable Rear-Delt Fly', r: 'Band Pull-Apart' } },
+  'rear-fly': { h: 'd k c:cable r', g: 'd k c:cable r', n: { c: 'Cable Rear-Delt Fly Hold', r: 'Band Rear-Delt Fly Hold' }, gn: { c: 'Cable Rear-Delt Fly', r: 'Band Rear-Delt Fly' } },
   'overhead-hold': { h: 'k d b:bar', g: 'k d b:bar', both: 'b', n: { b: 'Barbell Overhead Hold' }, gn: { b: 'Barbell Overhead Press' } },
   'ext-rot': { h: 'd k r', g: 'd k r', n: { r: 'Band External Rotation Hold' }, gn: { r: 'Band External Rotation' } },
+  'side-plank': { h: 'w r', g: 'w r', n: { w: 'Side Plank Leg Raise Hold', r: 'Banded Side Plank Leg Raise Hold' }, gn: { w: 'Side Plank Leg Raise', r: 'Banded Side Plank Leg Raise' } },
+  'copenhagen': { h: 'w', g: 'w', n: { w: 'Copenhagen Plank Hold' }, gn: { w: 'Copenhagen Plank Raise' } },
+  'pallof': { h: 'r c:cable', g: 'r c:cable', n: { r: 'Pallof Press Hold', c: 'Cable Pallof Press Hold' }, gn: { r: 'Pallof Press', c: 'Cable Pallof Press' } },
+  'incline-press': { h: 'd k b:bar c:mach', g: 'd k b:bar c:mach', n: { b: 'Incline Barbell Press Hold', c: 'Incline Machine Press Hold' }, gn: { b: 'Incline Barbell Press', c: 'Incline Machine Press' } },
   'oh-triceps': { h: 'k d b:bar c:cable r', g: 'k d b:bar c:cable r', n: { c: 'Cable Overhead Triceps Hold' }, gn: { c: 'Cable Overhead Triceps Extension' } },
   'kickback': { h: 'd k c:cable r', g: 'd k c:cable r' },
   'hollow': { h: 'd k b:plate w', g: 'd k b:plate w' },
@@ -2020,10 +2071,11 @@ function chooseEq(id, kind, sel) {
 // where kind is 'h' (hold) or 'g' (reps) and key is 'k', 'd', 'bar', 'plate' or 'w'.
 // Anything not listed falls back to a word swap between kettlebell and dumbbell.
 var EQTX_NEW = {
-  'sa-row': { h: { r: { s: ['Loop a band around a sturdy post at waist height, hold one end, step back and hinge slightly.', 'Row the hand to your hip, elbow close to your side.', 'Squeeze the shoulder blade back. Hold.'], c: ['Elbow to the hip', 'Chest stays square'] } }, g: { r: { s: ['Band anchored at waist height, arm long in front, a slight hinge.', 'Row to the hip, squeeze 1 s, let the arm go long over 2–3 s.'], c: ['Let the shoulder reach forward at the start'] } } },
-  'rear-fly': { h: { r: { s: ['Hold a band in both hands at shoulder height, arms straight in front, hands shoulder-width.', 'Pull the hands apart, arms straight, until the band touches your chest.', 'Squeeze the shoulder blades together. Hold.'], c: ['Arms stay straight', 'Shoulders down, away from the ears'] } }, g: { r: { s: ['Band held at shoulder height, arms straight.', 'Pull apart to the chest, pause, return over 2–3 s.'], c: ['Move slowly; the band pulls harder near the chest'] } } },
-  'ext-rot': { h: { r: { s: ['Tie a band to a post at elbow height and stand side-on, holding it in the far hand, elbow at 90° against your side.', 'Rotate the forearm out, away from your belly, keeping the elbow pinned.', 'Stop when the forearm points straight ahead or a little past. Hold.'], c: ['Elbow never leaves your side', 'A rolled towel under the elbow helps'] } }, g: { r: { s: ['Side-on to the anchor, elbow pinned at 90°.', 'Rotate out, pause 1 s, come back over 2–3 s.'], c: ['Light band; this is a small muscle'] } } },
-  'prone-y': { h: { r: { s: ['Stand tall holding a band overhead, hands wider than shoulders in a Y, thumbs up.', 'Pull the hands apart and slightly back, keeping the arms long.', 'Hold the Y with the shoulder blades down and back. Hold.'], c: ['Ribs down, no arching', 'Shoulders away from the ears'] } }, g: { r: { s: ['Band overhead in a Y, thumbs up.', 'Pull apart, pause, return over 2–3 s.'], c: ['Small range, slow and steady'] } } },
+  'side-plank': { h: { r: { s: ['Loop a band just above the knees. Lie on your side, elbow under your shoulder, and lift the hips into a straight line.', 'Keep the hips high and lift the top leg against the band.', 'Stop a little above hip height. Hold, then switch sides.'], c: ['Hips stay high', 'Toes point forward'] } }, g: { r: { s: ['Band above the knees, hips up in a side plank.', 'Lift the top leg against the band, pause, lower over 2–3 s.'], c: ['Keep the band tight at the bottom'] } } },
+  'sa-row': { h: { r: { s: ['Stand on one end of a band with the front foot, hinge forward and brace the free hand on the front knee, band hanging in the working hand.', 'Row the hand to your hip, elbow close to your side.', 'Squeeze the shoulder blade back. Hold.'], c: ['Elbow to the hip', 'Chest stays square'] } }, g: { r: { s: ['Hinged, band under the front foot, arm hanging long.', 'Row to the hip, squeeze 1 s, let the arm go long over 2–3 s.'], c: ['Let the shoulder reach forward at the start'] } } },
+  'rear-fly': { h: { r: { s: ['Stand on the middle of a band, cross the ends, and hinge to about 45° with an end in each hand.', 'Sweep the arms out to the sides against the band, elbows soft.', 'Stop with the arms in a T. Squeeze the shoulder blades together. Hold.'], c: ['Keep the hinge angle', 'Shoulders down, away from the ears'] } }, g: { r: { s: ['Hinged, band crossed under the feet.', 'Sweep out to a T, pause, lower over 2–3 s.'], c: ['Move slowly; the band pulls harder at the top'] } } },
+  'ext-rot': { h: { r: { s: ['Lie on your side. Pin one end of a light band under your bottom hand on the floor and hold the other end in the top hand, elbow at 90° against your side.', 'Keep the elbow glued to your ribs and rotate the forearm up against the band.', 'Stop just short of vertical. Hold, then switch sides.'], c: ['Elbow never leaves your side', 'A rolled towel under the elbow helps'] } }, g: { r: { s: ['Side-lying, band pinned under the bottom hand, top elbow at 90°.', 'Rotate up, pause 1 s, come back over 2–3 s.'], c: ['Light band; this is a small muscle'] } } },
+  'prone-y': { h: { r: { s: ['Lie face down holding a light band between your hands, arms overhead in a Y, thumbs up.', 'Pull the hands slightly apart to tension the band and lift the arms off the floor.', 'Hold the Y with the shoulder blades down and back. Hold.'], c: ['Forehead stays down', 'Shoulders away from the ears'] } }, g: { r: { s: ['Face down, band between the hands, arms in a Y.', 'Lift the arms, pause, lower over 2–3 s.'], c: ['Small range, slow and steady'] } } },
   'ham-bridge': { h: { r: { s: ['Lie on your back, a band across the hips with the ends held down by your hands, heels far out.', 'Dig the heels into the floor and lift the hips against the band.', 'Hold with the knees slightly bent and the hips level. Hold.'], c: ['Heels only, toes up', 'Feel the back of the thighs, not the lower back'] } }, g: { r: { s: ['Band across the hips, heels far out.', 'Lift the hips, pause, lower over 2–3 s.'], c: ['Pull the heels toward you without moving them'] } } },
   'tib-hold': { h: { r: { s: ['Sit with legs out, a band looped over the top of one foot and tied to a table leg in front.', 'Pull the toes toward your shin against the band.', 'Stop at the top with the heel on the floor. Hold, then switch.'], c: ['Heel stays down', 'A burn on the front of the shin is normal'] } }, g: { r: { s: ['Band over the top of the foot, anchored in front.', 'Pull the toes up, pause, lower over 2–3 s.'], c: ['Full range each rep'] } } },
   'lateral-raise': { h: { r: { s: ['Stand on the middle of a band, an end in each hand at your sides.', 'Lift the arms out to the sides, leading with the elbows, against the band.', 'Stop when the arms are level with the shoulders. Hold.'], c: ['Band under the middle of both feet', 'Elbows lead', 'Shoulders down'] } }, g: { r: { s: ['Stand on the middle of a band, ends in your hands at your sides.', 'Raise out to shoulder height, pause, lower slowly over 2–3 s.'], c: ['Control it down', 'A shorter grip makes it harder'] } } },
@@ -2323,6 +2375,11 @@ function eqText(base, id, kind, eq, style) {
 
 // ---- Research behind the program ----
 var REFS = {
+  ishoi2016: { a: 'Ishøi et al., 2016', j: 'Scand J Med Sci Sports', t: 'Large eccentric strength increase using the Copenhagen Adduction exercise in football: a randomized controlled trial', k: '8 weeks of Copenhagen planks raised hip adduction strength by 36% in young footballers.', u: 'https://doi.org/10.1111/sms.12585' },
+  haroy2019: { a: 'Harøy et al., 2019', j: 'Br J Sports Med', t: 'The Adductor Strengthening Programme prevents groin problems among male football players: a cluster-randomised controlled trial', k: 'A programme built on the Copenhagen plank cut the risk of groin problems by 41%.', u: 'https://doi.org/10.1136/bjsports-2017-098937' },
+  goller2024: { a: 'Goller, Quittmann & Alt, 2024', j: 'Eur J Applied Physiology', t: 'How to activate the glutes best? Peak muscle activity of acceleration-specific pre-activation and traditional strength training exercises', k: 'A side plank with leg abduction was among the exercises that strongly activated the glute medius.', u: 'https://doi.org/10.1007/s00421-023-05400-3' },
+  trebs2010: { a: 'Trebs, Brandenburg & Pitney, 2010', j: 'J Strength Cond Res', t: 'An electromyography analysis of 3 muscles surrounding the shoulder joint during the performance of a chest press exercise at several angles', k: 'The upper (clavicular) chest was most active at a 44° incline.', u: 'https://doi.org/10.1519/JSC.0b013e3181ddfae7' },
+  albarello2022: { a: 'Albarello et al., 2022', j: 'J Electromyogr Kinesiol', t: 'Non-uniform excitation of pectoralis major induced by changes in bench press inclination leads to uneven variations in the cross-sectional area', k: 'A 45° incline press worked and swelled the upper chest more; a flat press favoured the lower chest.', u: 'https://doi.org/10.1016/j.jelekin.2022.102722' },
   oranchuk2019: { a: 'Oranchuk et al., 2019', j: 'Scand J Med Sci Sports', t: 'Isometric training and long-term adaptations: effects of muscle length, intensity, and intent (systematic review)', k: 'Holds at long muscle lengths build more muscle and carry over better to full movements. Holds at 70% effort or more are needed to change tendons.', u: 'https://pubmed.ncbi.nlm.nih.gov/30580468/' },
   lazarczuk2022: { a: 'Lazarczuk et al., 2022', j: 'Sports Medicine', t: 'Mechanical, material and morphological adaptations of healthy lower limb tendons to mechanical loading (meta-analysis)', k: 'Resistance training, including isometric training, makes tendons stiffer and thicker; heavier, higher-strain training changes tendon material more.', u: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9474511/' },
   bohm2015: { a: 'Bohm, Mersmann & Arampatzis, 2015', j: 'Sports Medicine Open', t: 'Human tendon adaptation in response to mechanical loading (systematic review and meta-analysis)', k: 'Tendons adapt to high loads held for a few seconds at a time; the type of contraction matters less than the load.', u: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4532714/' },
@@ -2366,6 +2423,10 @@ var EVID = {
   'rear-fly': { r: 'Moderate', s: 'Bent-over arm raises strongly work the rear delts and middle trapezius in muscle-activity studies; no training trial yet.', refs: ['ekstrom2003'] },
   'overhead-hold': { r: 'Moderate', s: 'Heavy overhead holds build lockout strength and load the shoulder tendons at 70% effort or more; evidence is from general isometric and tendon research.', refs: ['oranchuk2019', 'bohm2015'] },
   'ext-rot': { r: 'Moderate', s: 'Produced the highest rotator-cuff activity of common external-rotation exercises in muscle-activity testing; no training trial in healthy lifters.', refs: ['reinold2004'] },
+  'side-plank': { r: 'Moderate', s: 'A side plank with the top leg lifted strongly activated the glute medius in a muscle-activity study; there is no training trial of this exact exercise.', refs: ['goller2024'] },
+  'copenhagen': { r: 'Strong', s: 'In randomised trials it raised inner-thigh strength by about 36% in 8 weeks and cut groin problems by 41% over a season.', refs: ['ishoi2016', 'haroy2019'] },
+  'pallof': { r: 'Limited', s: 'Builds anti-rotation control like other trunk-stability holds; no trial or muscle-activity study of the Pallof press itself was found.', refs: ['mcgill2009stab'] },
+  'incline-press': { r: 'Moderate', s: 'Pressing on a 30–45° incline works the upper (clavicular) chest more than a flat press, in muscle-activity and ultrasound studies; no long-term growth trial yet.', refs: ['trebs2010', 'albarello2022'] },
   'oh-triceps': { r: 'Strong', s: 'Overhead (stretched) triceps work grew the triceps about 1.4× more than pushdowns, and isometric elbow-extension training increased triceps volume.', refs: ['maeo2023', 'kanehisa2002'] },
   'kickback': { r: 'Strong', s: 'Isometric elbow-extension training increased triceps size and strength in a 10-week trial. Paired with the overhead stretch work for the long head.', refs: ['kanehisa2002', 'maeo2023'] },
   'hollow': { r: 'Strong', s: 'Core training reduced back pain and improved function across 57 randomized trials; the hollow hold trains the abs to resist back arching.', refs: ['guo2025', 'mcgill2009stab'] },
@@ -2721,7 +2782,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   function exRow(id, ph, sk, off, added) {
     var h = V(id, 'h'), g = V(id, 'g'), wh = getWt(id, h, 'h'), wg = getWt(id, g, 'r'), o = (off && off[id]) || {};
-    if (h.missing && g.missing) return '<div class="rw off"><button class="row" data-ex="' + id + '">' + figSvg(h, 2) + '<span><span class="t">' + esc(baseName(h.name)) + '</span><span class="s miss">Left out: needs ' + esc(needsTxt(id, 'h')) + '</span></span></button></div>';
+    // never draw an exercise with equipment the user doesn't have: a text line says what was left out and why
+    if (h.missing && g.missing) return '<p class="s miss" data-miss="' + id + '">Not in this session: ' + esc(baseName(h.name)) + ' (needs ' + esc(needsTxt(id, 'h')) + ')</p>';
     var both = o.h && o.r, pn = painFor(id);
     if (pn.skip || safetySkip(id)) return '';
     var sh = skipWhy(id, 'h'), sr = skipWhy(id, 'r'), md = modTxt(id, 'h');
@@ -2778,7 +2840,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function planList(day, part, ph) {
     var list = '', count = 0, fin = '';
     if (!day.cardio) { var tq = buildQueue(day, oneADay() ? 'all' : part, ph); trimInfo = tq.trimNote ? tq : null; if (trimInfo && trimInfo.oneSet) { ph = Object.create(ph); ph.sets = 1; ph.gs = 1; } }
-    if (day.cardio) { list = cardioRow(buildQueue(day, part, ph).filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; }), 'Cardio'); if (part === 'pm' && addonOn()) { list = addonFor(day).map(function (b) { return '<li class="grp added"><span class="grp-t">Back and stabilizers, alternate these 2</span>' + b.map(function (id) { return exRow(id, phaseOf(store.week)); }).join('') + '</li>'; }).join('') + list; count = 4; } }
+    if (day.cardio) { list = cardioRow(buildQueue(day, part, ph).filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; }), 'Cardio'); if (part === 'pm' && addonOn()) { list = addonFor(day).map(function (b) { return '<li class="grp added"><span class="grp-t">Back and stabilizers, alternate these 2</span>' + b.map(function (id) { return exRow(id, phaseOf(store.week)); }).join('') + '</li>'; }).join('') + list; count = [].concat.apply([], addonFor(day)).length; } }
     else {
       if (part === 'am' && !(trimInfo && trimInfo.noWarm)) list += cardioRow(WARMUP, 'Warm-up');
       var sk = day.id + part, c = custFor(day, part), nPlan = day[part].length;
@@ -3001,15 +3063,19 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   $('chips').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; filter = b.dataset.f; renderChips(); applyFilter(); });
   var libBuilt = false, libEq = '';
   function ensureLib() { renderEqDD('eqddLib', 'Exercise names and pictures change to match.'); var lk = store.eq.join('') + (addonOn() ? '+' : ''); if (libBuilt && libEq === lk) return; libBuilt = true; libEq = lk; renderChips(); renderLib(); applyFilter(); }
+  var libHidden = [];
   function renderLib() {
-    var seenLib = {};
+    var seenLib = {}; libHidden = [];
     $('lib').innerHTML = DAYS.map(function (d) {
       var fresh = d.ex.filter(function (id, i) { return d.ex.indexOf(id) === i && !seenLib[id] && (seenLib[id] = 1); });
       if (!fresh.length) return '';
       return libGroup(d.id, d.name.replace(/ [AB]$/, ''), fresh);
     }).join('') + (addonOn() ? libGroup('addon', 'Back and stabilizer add-on', ADDON) : '');
+    if (libHidden.length) $('lib').innerHTML += '<p class="s miss lib-hidden">Hidden because they need equipment you haven\u2019t selected: ' + esc(libHidden.map(function (id) { return baseName(BY[id].name) + ' (' + needsTxt(id, 'h') + ')'; }).join(', ')) + '. Add equipment in Profile.</p>';
   }
   function libGroup(gid, title, fresh) {
+      fresh = fresh.filter(function (id) { var x = !(V(id, 'h').missing && V(id, 'g').missing); if (!x && libHidden.indexOf(id) < 0) libHidden.push(id); return x; });
+      if (!fresh.length) return '';
       return '<div class="lib-group" data-g="' + gid + '"><h2>' + esc(title) + '</h2><div class="lib-list">' + fresh.map(function (id) {
         var h = V(id, 'h'), g = V(id, 'g'), ev = EVID[id];
         return '<button class="row" data-ex="' + id + '">' + figSvg(h, 2) + '<span><span class="t">' + esc(h.name) + '</span><span class="s">Then <b>' + esc(g.name) + '</b></span><span class="s m">' + esc(h.tags.slice(0, 3).join(', ')) + (ev ? ' <i class="ev-dot ev-' + ev.r.toLowerCase() + '" title="' + ev.r + ' evidence"></i>' : '') + '</span></span>' + I_CHEV + '</button>';
@@ -3537,7 +3603,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // A newer version is online: say so, instead of quietly running the old one until the next launch
   // dates follow the app's language (English), not the device's, so an English screen doesn't show "28 de octubre"
   var UIL = /^en\b/i.test(navigator.language || '') ? undefined : 'en-GB';
-  var APP_VERSION = '31';
+  var APP_VERSION = '32';
   function checkVersion() {
     if (!navigator.onLine || !/^https?:/.test(location.protocol)) return;
     fetch('index.html?v=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
