@@ -120,12 +120,12 @@ const base = (x) => Object.assign({}, seed, { done: {}, food: [], body: [], test
     ({ b, page, errs } = await boot(st));
     const W = await T(page, () => { const t = window.__isoTest; return { ws: t.weekStart(), got: t.bodyWeek(), tags: ['squat', 'bench press', 'deadlift', 'overhead press', 'lat pulldown', 'hip thrust', 'seated cable row', 'Dominadas'].map(n => t.liftTags(n)) }; });
     ok(W.ws === new Date(2026, 11, 14, 4).getTime(), 'calendar week starts Monday at the day-start hour (4:00)');
-    ok(W.got.quads === 'on' && W.got.glutes === 'on', 'Tuesday’s goblet squat (program week 1, now week 2) still counts this calendar week');
+    ok(!!W.got.quads && !!W.got.glutes, 'Tuesday’s goblet squat (program week 1, now week 2) still counts this calendar week');
     ok(!W.got.calves, 'a set at 2:00 on Monday belongs to Sunday (day starts at 4:00), so not this week');
-    ok(W.got.chest === 'on' && W.got.triceps === 'on' && W.got.delts === 'on' && W.got.hams === 'on' && W.got.lower === 'on' && W.got.upper === 'on' && W.got.biceps === 'on', 'bench, OHP, deadlift and pulldown fill chest, triceps, delts, hamstrings, lower back, back and biceps');
+    ok(['chest', 'triceps', 'delts', 'hams', 'lower', 'upper', 'biceps'].every(r => W.got[r]), 'bench, OHP, deadlift and pulldown fill chest, triceps, delts, hamstrings, lower back, back and biceps');
     ok(JSON.stringify(W.tags) === JSON.stringify([['Quads', 'Glutes'], ['Chest', 'Triceps', 'Front delts'], ['Hamstrings', 'Glutes', 'Lower back'], ['Front delts', 'Triceps'], ['Lats', 'Mid back', 'Biceps'], ['Glutes'], ['Lats', 'Mid back', 'Biceps'], ['Lats', 'Mid back', 'Biceps']]), 'lift names map to muscles ' + JSON.stringify(W.tags));
     const lab = await page.getAttribute('#bodyCard svg', 'aria-label');
-    ok(/Monday to Sunday/.test(lab) && /Trained:[^.]*chest/.test(lab) && !/program week/.test(lab), 'Today map label: calendar week, chest trained');
+    ok(/Monday to Sunday/.test(lab) && /(Trained|Partly):[^.]*chest/.test(lab) && !/program week/.test(lab), 'Today map label: calendar week, chest trained (partly until its planned sets are done)');
     ok(!/Your map is empty/.test(await page.locator('#bodyCard').innerText()), 'Today map is not empty after a session earlier this week');
     const ch = await T(page, () => window.__isoTest.strChange());
     ok(ch.chest > 0 && ch.glutes > 0 && ch.upper > 0, 'strength map counts other lifts: chest +' + ch.chest + '%, glutes +' + ch.glutes + '%, back +' + ch.upper + '%');
@@ -134,7 +134,7 @@ const base = (x) => Object.assign({}, seed, { done: {}, food: [], body: [], test
     ok(/chest up/.test(ml), 'strength map label lists chest from bench: ' + ml.slice(0, 120));
     ok(/Bench Press/.test(await page.locator('#mapCard .mlist').textContent()), 'muscle-by-muscle list names the bench press');
     // 5. coverage: 4-day plan, real names, planned vs done
-    const cov = await T(page, () => { const th = [...document.querySelectorAll('#cov thead th')].map(x => x.innerText.replace(/\s+/g, ' ').trim()); const row = n => [...document.querySelectorAll('#cov tbody tr')].find(r => r.querySelector('td') && r.querySelector('th').textContent === n); const cells = r => [...r.querySelectorAll('td')].map(td => td.innerText.replace(/\s+/g, ' ').trim()); return { th, quads: cells(row('Quads')), chest: cells(row('Chest')), glutes: cells(row('Glutes')) }; });
+    const cov = await T(page, () => { const th = [...document.querySelectorAll('#cov thead th')].map(x => x.innerText.replace(/\s+/g, ' ').trim()); const row = n => [...document.querySelectorAll('#cov tbody tr')].find(r => r.querySelector('td') && r.querySelector('th').firstChild.textContent.trim() === n); const cells = r => [...r.querySelectorAll('td')].map(td => td.innerText.replace(/\s+/g, ' ').trim()); return { th, quads: cells(row('Quads')), chest: cells(row('Chest')), glutes: cells(row('Glutes')) }; });
     ok(!cov.th.some(h => /Day 0/.test(h)) && cov.th.length === 1 + 4 + 2 && /Day 1 Upper Body & Core A/.test(cov.th[1]) && /Day 4 Lower Body B/.test(cov.th[4]), 'coverage columns are the 4 plan days with names: ' + cov.th.join(' | '));
     ok(/Planned/.test(cov.th[5]) && /Done/.test(cov.th[6]), 'planned and done are separate, labelled columns');
     const num = c => parseInt(c, 10) || 0;
@@ -147,11 +147,11 @@ const base = (x) => Object.assign({}, seed, { done: {}, food: [], body: [], test
     const st = base({ profile: prof({ days: 3, split: 'one', len: 25 }), log: [L(at(11, 15), 'glute-bridge', 'h', 'd', 8, 30), L(at(11, 15, 12, 2), 'glute-bridge', 'h', 'd', 8, 30)] });
     ({ b, page, errs } = await boot(st, { textScale: 1.5 }));
     await page.click('#tab-progress'); await page.click('#pt-muscles'); await page.waitForTimeout(100);
-    const c = await T(page, () => { const th = [...document.querySelectorAll('#cov thead th')].map(x => x.innerText.replace(/\s+/g, ' ').trim()); const cols = th.length; const dayCols = [1, 2, 3].map(i => [...document.querySelectorAll('#cov tbody tr')].filter(r => r.querySelectorAll('td').length).map(r => r.querySelectorAll('td')[i - 1].innerText.trim()).join('|')); const n = document.querySelector('#cov .cv-n'), mk = document.querySelector('#cov .mk'); const gl = [...document.querySelectorAll('#cov tbody tr')].find(r => r.querySelector('td') && r.querySelector('th').textContent === 'Glutes'); return { th, cols, dup: new Set(dayCols).size !== dayCols.length, nfs: parseFloat(getComputedStyle(n).fontSize), mkw: mk.getBoundingClientRect().width, gl: [...gl.querySelectorAll('td')].map(td => td.innerText.trim()) }; });
+    const c = await T(page, () => { const th = [...document.querySelectorAll('#cov thead th')].map(x => x.innerText.replace(/\s+/g, ' ').trim()); const cols = th.length; const dayCols = [1, 2, 3].map(i => [...document.querySelectorAll('#cov tbody tr')].filter(r => r.querySelectorAll('td').length).map(r => r.querySelectorAll('td')[i - 1].innerText.trim()).join('|')); const n = document.querySelector('#cov .cv-n'), mk = document.querySelector('#cov .mk'), dl = document.querySelector('#cov .cv-dl'), fold = !!(dl && getComputedStyle(dl).display !== 'none'); const gl = [...document.querySelectorAll('#cov tbody tr')].find(r => r.querySelector('td') && r.querySelector('th').firstChild.textContent.trim() === 'Glutes'); return { th, cols, dup: new Set(dayCols).size !== dayCols.length, nfs: parseFloat(getComputedStyle(n).fontSize), mkw: mk.getBoundingClientRect().width, fold, gl: [...gl.querySelectorAll('td')].map(td => td.innerText.trim()) }; });
     ok(c.cols === 6 && /Full Body A/.test(c.th[1]) && /Full Body B/.test(c.th[2]) && /Full Body C/.test(c.th[3]), '3-day plan: 3 named day columns ' + c.th.join(' | '));
     ok(!c.dup, 'no two day columns are identical');
     ok(parseInt(c.gl[4], 10) === 2 && parseInt(c.gl[3], 10) < 20, 'glutes: done 2, planned ' + c.gl[3] + ' (not 60)');
-    ok(c.nfs >= 16 && c.mkw >= 10, 'numbers ' + c.nfs + ' px and marks ' + c.mkw + ' px at large text');
+    ok(c.nfs >= 16 && (c.mkw >= 10 || c.fold), 'numbers ' + c.nfs + ' px and marks ' + c.mkw + ' px (or the folded layout) at large text');
     ok(await T(page, () => document.documentElement.scrollWidth <= innerWidth + 1), 'no sideways page scroll at 150% text');
     // 9. "Strength" tab label stays on one line at 150%
     const one = await T(page, () => { const bt = document.getElementById('pt-strength'), r = document.createRange(); r.selectNodeContents(bt); const lines = new Set([...r.getClientRects()].filter(x => x.width > 1).map(x => Math.round(x.top))); return { lines: lines.size, sw: bt.scrollWidth, cw: bt.clientWidth, txt: bt.textContent }; });
@@ -162,7 +162,8 @@ const base = (x) => Object.assign({}, seed, { done: {}, food: [], body: [], test
 
   // ---------- 7. forced colours: legends keep distinct, non-colour markers ----------
   {
-    const st = base({ notes: [lift(at(11, 1), 'Bench Press', 100, 5), lift(at(11, 15), 'Bench Press', 90, 5), lift(at(11, 1, 13), 'Back Squat', 100, 5), lift(at(11, 15, 13), 'Back Squat', 102, 5), lift(at(11, 1, 14), 'Deadlift', 100, 5), lift(at(11, 15, 14), 'Deadlift', 107, 5), lift(at(11, 1, 15), 'Lat Pulldown', 50, 10), lift(at(11, 15, 15), 'Lat Pulldown', 60, 10)] });
+    // round 13: the map uses the current estimated max (best of 6 weeks), so a drop shows once the better set is older than 6 weeks
+    const st = base({ notes: [lift(at(9, 25), 'Bench Press', 100, 5), lift(at(11, 15), 'Bench Press', 90, 5), lift(at(11, 1, 13), 'Back Squat', 100, 5), lift(at(11, 15, 13), 'Back Squat', 102, 5), lift(at(11, 1, 14), 'Deadlift', 100, 5), lift(at(11, 15, 14), 'Deadlift', 107, 5), lift(at(11, 1, 15), 'Lat Pulldown', 50, 10), lift(at(11, 15, 15), 'Lat Pulldown', 60, 10)] });
     for (const fc of [false, true]) {
       ({ b, page, errs } = await boot(st, { forcedColors: fc }));
       await page.click('#tab-progress'); await page.click('#pt-muscles'); await page.waitForTimeout(100);
@@ -184,10 +185,11 @@ const base = (x) => Object.assign({}, seed, { done: {}, food: [], body: [], test
     const st = base({ eq: ['d'], profile: prof({ days: 4, issues: [] }) });
     ({ b, page, errs } = await boot(st));
     const REG = ['delts', 'chest', 'abs', 'obliques', 'biceps', 'quads', 'inner', 'shins', 'rear', 'upper', 'lower', 'triceps', 'glutes', 'sidehip', 'hams', 'calves'];
-    const want = (on, part) => Object.fromEntries(REG.map(r => [r, on.includes(r) ? 'on' : part.includes(r) ? 'part' : 'gap']));
+    // round 13: one count with the coverage table, so a region the sets mainly work is trained or partly (vs its planned sets), helpers alone leave a gap
+    const want = (on, part) => Object.fromEntries(REG.map(r => [r, on.includes(r) ? 'set' : 'gap']));
     const check = async (name, setup, arg, on, part) => {
       const got = await T(page, setup, arg);
-      const exp = want(on, part), diff = REG.filter(r => (got.map[r] || 'gap') !== exp[r]).map(r => r + ': got ' + (got.map[r] || 'gap') + ', want ' + exp[r]);
+      const exp = want(on, part), st = r => got.map[r] ? 'set' : 'gap', diff = REG.filter(r => st(r) !== exp[r]).map(r => r + ': got ' + (got.map[r] || 'gap') + ', want ' + exp[r]);
       ok(!diff.length, name + ' → body map region by region' + (got.note ? ' (' + got.note + ')' : '') + (diff.length ? ': ' + diff.join('; ') : ''));
     };
     // a whole program day: every set of the day's queue, as the player logs it
@@ -208,7 +210,7 @@ const base = (x) => Object.assign({}, seed, { done: {}, food: [], body: [], test
     await page.click('#tab-progress'); await page.click('#tab-train'); await page.waitForTimeout(100);
     ok(!/Trained:/.test(await page.getAttribute('#bodyCard svg', 'aria-label')), 'Today map starts empty');
     await T(page, () => window.__isoTest.handle('bench press 60 kg x 8')); await page.waitForTimeout(150);
-    ok(/Trained:[^.]*chest/.test(await page.getAttribute('#bodyCard svg', 'aria-label')), 'a bench press typed in Search & log shows on the Today map straight away');
+    ok(/(Trained|Partly):[^.]*chest/.test(await page.getAttribute('#bodyCard svg', 'aria-label')), 'a bench press typed in Search & log shows on the Today map straight away');
     ok(!errs.length, 'no page errors (region audit) ' + errs); await b.close();
   }
 

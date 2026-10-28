@@ -72,7 +72,7 @@ const J = x => JSON.stringify(x);
     ok((await T(page, n => window.__isoTest.liftRegions(n).on, n)).indexOf(r) > -1, 'lifts saved before under Spanish names map too: ' + n);
   await T(page, () => { window.__isoTest.handle('press banca 60kg 8 reps'); window.__isoTest.handle('jalón al pecho 50kg 10 reps'); });
   const got = await T(page, () => window.__isoTest.bodyWeek());
-  ok(got.chest === 'on' && got.triceps === 'on' && got.upper === 'on' && got.biceps === 'on', 'Today map: chest, triceps, upper back, biceps from the typed Spanish lifts: ' + J(got));
+  ok(['chest', 'triceps', 'upper', 'biceps'].every(r => got[r] === 'on' || got[r] === 'part'), 'Today map: chest, triceps, upper back, biceps from the typed Spanish lifts: ' + J(got));
   a = await A('remo invertido en anillas 3x10'); ok(a[0] && a[0].type === 'log_lift' && !/\bEn\b/.test(a[0].name), 'small words stay lower case in a typed name: ' + (a[0] && a[0].name));
 
   // 4. search

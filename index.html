@@ -85,8 +85,9 @@ section.view { display: grid; gap: 18px; }
 .bodycard .bm-lbl { font-size: 12px; fill: var(--muted); }
 .bm-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--muted); list-style: none; margin: 0; padding: 0; }
 .bm-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
-.bm-gaps { display: flex; align-items: center; gap: 10px; font-size: 15px; }
-.bm-gaps p { flex: 1; }
+.bm-gaps { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 15px; }
+/* with large text the button drops below the words instead of squeezing them to one word per line */
+.bm-gaps p { flex: 1 1 11em; min-width: 0; }
 .bm-gaps .btn { min-height: 44px; flex: none; }
 .startbar { position: sticky; bottom: calc(var(--bar-h) + 10px + env(safe-area-inset-bottom, 0px)); z-index: 6; margin-top: 8px; }
 .startbar .btn { width: 100%; min-height: 58px; font-size: 18px; box-shadow: 0 6px 20px rgba(20, 33, 61, .18); }
@@ -194,7 +195,25 @@ nav.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; backgrou
 .xbtn { width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--sunk); display: grid; place-items: center; padding: 0; flex: none; }
 .xbtn svg { width: 18px; height: 18px; }
 .sheet-body > * { min-width: 0; }
+/* nested grids in sheets (the exercise sheet body) shrink to the phone too, and long words wrap instead of pushing the sheet wider (large text) */
+#dBody { grid-template-columns: minmax(0, 1fr); } #dBody > *, .d-top > *, .wtbox > * { min-width: 0; }
+.sheet-body { overflow-wrap: break-word; }
+.wtbox { flex-wrap: wrap; }
+.wt-u { display: none; } .d-top h3 { overflow-wrap: anywhere; }
+/* twice the text size on a small phone (about 180 CSS px): rows stack their picture above the words, toolbars and buttons wrap, so nothing runs off the right edge */
+@media (max-width: 260px) {
+  main .row, main .lib-list .row, main .lib-list .row[data-addid] { grid-template-columns: minmax(0, 1fr); }
+  main .row svg.chev { display: none; }
+  .view-head .tool { min-width: 44px; }
+  .wkprog { flex-wrap: wrap; }
+  main .gbody { overflow-wrap: anywhere; }
+  main .chk-btn { grid-template-columns: minmax(0, 1fr); padding: 8px; } main .chk-btn svg.chev { display: none; } main .chk-btn > span { overflow-wrap: anywhere; }
+  .bm-gaps .btn, main .btn { white-space: normal; max-width: 100%; height: auto; }
+}
+/* twice the text size on a small phone (about 180 px wide): smaller title, the unit moves into the label so the − / + row fits */
+@media (max-width: 260px) { .d-meta .d-top h3 { font-size: 22px; } .wtbox { padding: 8px; } .wtbox .stepper { grid-template-columns: 44px minmax(28px, 1fr) 44px; gap: 1px; width: 100%; } .stepper > span { display: none; } .wtbox .wt-u { display: inline; } }
 .sheet-body select { width: 100%; max-width: 100%; }
+.sheet-body > .chips { min-height: 46px; overflow-y: hidden; align-items: center; }
 .sheet-body { grid-template-columns: minmax(0, 1fr); overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 4px max(16px, env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); display: grid; gap: 16px; align-content: start; }
 
 .weeks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
@@ -202,6 +221,7 @@ nav.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; backgrou
 .weeks button::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 4px; border-radius: 0 3px 3px 0; background: var(--c); }
 .weeks .n { font-family: var(--f-display); font-weight: 800; font-size: 26px; line-height: 1; }
 .weeks .p { font-size: 12px; color: var(--muted); font-weight: 700; }
+.weeks .n .wk-w { font-size: 13px; font-weight: 600; }
 .weeks button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
 .weeks button[aria-pressed="true"] .p { color: color-mix(in srgb, var(--bg) 70%, transparent); }
 .phases { display: grid; gap: 10px; }
@@ -319,6 +339,10 @@ table.cov .cv-done { background: var(--bg); border-left: 2px solid var(--line); 
 table.cov td, table.cov th { padding-left: 3px; padding-right: 3px; }
 .mk { display: inline-block; width: 11px; height: 11px; }
 table.cov .cv-short { display: none; }
+/* very large text on a phone: the day columns fold into a line under each area, so Planned and Done stay on screen */
+table.cov .cv-dl { display: none; }
+@media (max-width: 240px) { .cov-scroll { margin: 0 -10px; padding: 0 4px; } table.cov tbody th[scope=row] { hyphens: auto; -webkit-hyphens: auto; overflow-wrap: anywhere; } }
+@media (max-width: 300px) { table.cov .cv-day { display: none; } table.cov .cv-dl { display: block; font-size: 12px; color: var(--muted); font-weight: 400; } table.cov .mks { display: none; } }
 .cov-cue { font-size: 14px; font-weight: 700; color: var(--ink); margin: 0; }
 .cov-scroll.more { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent); }
 /* phones (360–412 px): shorter headings and narrower rows of set marks, so Day 3, Planned and Done fit without scrolling */
@@ -332,7 +356,7 @@ table.cov .cv-short { display: none; }
 /* words are never split; if the table is still too wide (many training days, very large text) it scrolls, with the cue above it */
 table.cov thead th { white-space: nowrap; } table.cov thead th small { white-space: normal; }
 .mk.h { border-radius: 50%; background: var(--hold); } .mk.r { border-radius: 2px; background: var(--rep); }
-.legend { display: flex; gap: 14px; font-size: 13px; color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: var(--muted); }
 .legend span { display: inline-flex; gap: 6px; align-items: center; }
 .bk textarea { font-size: 13px; line-height: 1.4; word-break: break-all; resize: vertical; }
 .bk-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
@@ -564,10 +588,12 @@ details.how .gbody { display: grid; gap: 10px; font-size: 15px; }
 @keyframes pulse { 0%, 100% { opacity: .55 } 50% { opacity: 1 } }
 .holding [data-glow] { animation: pulse 1.2s ease-in-out infinite; }
 
-@media (min-width: 760px) {
+@media (min-width: 760px) and (orientation: landscape) {
   .p-main { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: center; }
   .p-fig svg { max-height: 60vh; }
 }
+/* a tablet upright (on a shelf, seen from 2 m): the figure spans the full width on top, the timer and cues below it */
+@media (min-width: 600px) and (orientation: portrait) and (min-height: 900px) { .p-fig svg { max-height: 42vh; } }
 @media (max-height: 700px) { .p-fig svg { max-height: 28vh; } .ring { width: 104px; height: 104px; } .ring b { font-size: 46px; } }
 @media (prefers-reduced-motion: reduce) { .holding [data-glow] { animation: none; } .sheet { animation: none; } .btn:active { transform: none; } }
 /*@@css*/
@@ -1038,6 +1064,7 @@ html.calm *, html.calm *::before, html.calm *::after { animation: none !importan
 .bodycard .bm-ring { fill: none; stroke: var(--ink); stroke-width: 2.5; }
 .bm-legend i.tdy { background: repeating-linear-gradient(45deg, var(--ink) 0 1.5px, transparent 1.5px 4px); outline: 2px solid var(--ink); outline-offset: 1px; }
 .bm-today { font-size: 15px; }
+.bm-def { font-size: 14px; margin: 0; }
 .wk-h { font-family: var(--f-display); font-weight: 700; font-size: 18px; margin-bottom: -6px; }
 .wkdays { display: grid; gap: 6px; }
 .wkdays button { display: grid; grid-template-columns: 40px minmax(0, 1fr); align-items: center; gap: 12px; min-height: 56px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); text-align: left; font: inherit; }
@@ -1121,7 +1148,7 @@ html.calm *, html.calm *::before, html.calm *::after { animation: none !importan
   <!-- LOG: type, speak or snap a photo; coach answers here too -->
   <section class="view coach" id="coach" aria-labelledby="tab-coach" hidden>
     <div class="view-head"><button class="tool back" data-back aria-label="Back"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg>Back</button><h1>Search &amp; log</h1><button class="weekbtn" id="cNew" hidden>Clear</button><button class="xbtn" id="cSet" aria-label="Gemini settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button></div>
-    <p class="c-off" id="cOff" role="status" hidden>Offline. Typed logs and search still work and save on this phone. Photos wait until you’re back online.</p>
+    <p class="c-off" id="cOff" role="status" hidden>Offline. Typed logs and search still work and save on this device. Photos wait until you’re back online.</p>
     <div class="card lgday" id="lgDay"></div>
     <div class="msgs" id="cMsgs" aria-live="polite"></div>
     <div class="c-srch" id="cSrch"></div>
@@ -1681,7 +1708,7 @@ var FIG = (function () {
     }
     return null;
   }
-  function strip(r) { var o = {}; for (var k in r) if (k !== '_g' && k !== '_pl' && k !== '_seg') o[k] = r[k]; return o; }
+  function strip(r) { var o = {}; for (var k in r) if (k !== '_g' && k !== '_pl' && k !== '_seg' && k !== '_near') o[k] = r[k]; return o; }
   // move through key poses `keys` (at knots ks), t seconds into a move lasting D seconds
   function move(ex, keys, ks, t, D) {
     ks = ks || knots(keys);
@@ -1696,7 +1723,7 @@ var FIG = (function () {
     }
     var x0 = cl(t / span), seg = 0; while (seg < ks.length - 2 && x0 > ks[seg + 1]) seg++;
     for (var key in B) {
-      if (key === '_g' || key === '_pl' || key === '_seg') continue;
+      if (key === '_g' || key === '_pl' || key === '_seg' || key === '_near') continue;
       var y = B[key];
       if (Array.isArray(y)) o[key] = y.map(function (yy, i) { return chan(key, i); });
       else if (typeof y === 'number') o[key] = chan(key);
@@ -1706,6 +1733,8 @@ var FIG = (function () {
     // the elbow is solved from that, so a press goes up in a line and a raise sweeps an arc, with no elbow flipping
     (B.v === 'f' ? ['aR', 'aL'] : ['an', 'af']).forEach(function (key) { if (Array.isArray(B[key])) reach(o, keys, ks, key, function (lag) { return cl((t - lag * sc) / span); }); });
     o._seg = seg;
+    // the key pose the drawing is closest to right now (limbs lag the timeline a little), so a "Step 2" badge never shows over the step 1 pose
+    var xl = cl((t - LMAX * sc * 0.5) / span), near = 0; for (var q = 1; q < ks.length; q++) if (Math.abs(ks[q] - xl) < Math.abs(ks[near] - xl)) near = q; o._near = near;
     var g = planted(ex, keys); if (g) o._g = g;
     return o;
   }
@@ -2906,7 +2935,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var p = PLAN[id]; return p ? p[kind === 'h' ? 'h' : 'g'] : chooseEq(id, kind, store.eq);
   }
   function V(id, kind, eqOpt) {
-    var o = eqOpt || pickEq(id, kind), key = id + kind + o.eq + o.style + (o.missing ? '!' : '');
+    var o = eqOpt || pickEq(id, kind), md = modFor(id, kind), key = id + kind + o.eq + o.style + (o.missing ? '!' : '') + (md ? '~' + md.key : '');
     if (!VC[key]) {
       var base0 = kind === 'h' ? BY[id] : G[id], ps = EQV[id].pose && EQV[id].pose[(kind === 'h' ? 'h' : 'g') + ':' + o.eq];
       if (ps) {
@@ -2915,7 +2944,10 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         nb.pre = null; nb.anchor = EQV[id].poseAnchor || base0.anchor; if (EQV[id].noProps) nb.props = null;
         FIG.prep(nb); base0 = nb;
       }
+      var mlp = md && modLastPose(md, id, kind, o.eq, base0);
+      if (mlp) { var mb = Object.create(base0); mb.steps = base0.steps.map(function (st, i, a) { var c = {}, k; for (k in st) c[k] = st[k]; if (i === a.length - 1) c.p = mlp; else if (i && md.mid && kind === 'h' && o.eq !== 'c') c.p = md.mid(st.p); return c; }); FIG.prep(mb); base0 = mb; }
       VC[key] = makeVariant(base0, id, kind, o);
+      if (md) applyMod(VC[key], md);
       if (VC[key]._r[0].rig) FIG.frame(VC[key]);
       // some versions borrow another exercise's pictures (e.g. the barbell speed RDL uses the RDL figure)
       // 'rdl' = that exercise's same kind; 'h:farmer:0,2' = the farmer hold's steps 0 and 2
@@ -3004,6 +3036,18 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     segs = segsFor(segs);
     return segs.map(function (s, k) { return { ex: cFig(s[0]), m: s[0], kind: 'cardio', dur: s[1], effort: s[2], txt: s[3], seg: k + 1, segs: segs.length, first: k === 0, after: 0, afterKind: 'rest' }; });
   }
+  // the warm-up inside a home strength session: march on the spot or round the room, not a walk outside in the middle of a session
+  var MARCH_TXT = { Easy: 'Easy march on the spot', Brisk: 'Brisk march on the spot, knees a little higher', Steady: 'Brisk march on the spot, you can still talk', 'Zone 2': 'Brisk march on the spot, you can still talk', Hard: 'Fast march on the spot, knees high' };
+  function homeWarm(items) {
+    if (prof().where === 'gym') return items;
+    return items.map(function (it) {
+      if (it.m !== 'out') return it;
+      var f = Object.create(it.ex); f.name = 'March on the spot';
+      f.cues = ['March on the spot, or walk around the room', 'Swing the arms to set the pace', 'Lift the knees a little higher for the brisk parts'];
+      f.steps = (it.ex.steps || []).map(function (st, i) { var c = {}, k; for (k in st) c[k] = st[k]; c.txt = i ? 'Keep the pace steady.' : 'March on the spot, arms swinging.'; return c; });
+      return Object.assign({}, it, { ex: f, indoor: true, txt: MARCH_TXT[it.effort] || 'March on the spot' });
+    });
+  }
   function custFor(day, part) { var k = day.id + part; return store.cust[k] || { off: {}, add: [] }; }
   function blockItems(b0, ph, off) {
     var q = []; off = off || {};
@@ -3079,7 +3123,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         var pmq = []; blocksFor(day, 'pm').forEach(function (b) { pmq = pmq.concat(blockItems(b, ph, custFor(day, 'pm').off)); });
         var wOver = wuSecs + 10 + qSecs(q) + qSecs(pmq) - DAYCAP;
         if (wOver > 0) { var keep = Math.max(180, wuSecs - wOver) / wuSecs; wu.forEach(function (s) { s[1] = Math.round(s[1] * keep / 10) * 10; }); }
-        q = cardioItems(wu).concat(q);
+        q = homeWarm(cardioItems(wu)).concat(q);
       }
       if (part === 'pm') {
         // keep the whole day within 60 minutes: trim the easy/steady parts of the rowing finisher if needed
@@ -3151,7 +3195,23 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function progTarget() { return weekTarget() * 12; }
   function weekDone(w) { var n = 0; allDays().forEach(function (d) { var a = store.done['w' + w + d.id + 'am'], b = store.done['w' + w + d.id + 'pm']; if (oneADay()) { if (a && b) n++; } else n += (a ? 1 : 0) + (b ? 1 : 0); }); return n; }
   function totalDone() { var n = 0; for (var w = 1; w <= 12; w++) n += weekDone(w); return n; }
-  function nextDayIdx() { var D = allDays(); for (var i = 0; i < D.length; i++) if (!store.done[doneKey(D[i], 'am')] || !store.done[doneKey(D[i], 'pm')]) return i; return 0; }
+  // The next day to train: a day you started but didn't finish this week, else the day after the last one you did
+  // (in any week, so jumping ahead a week keeps the A, B, C rotation going), skipping days already done this week
+  function nextDayIdx() {
+    var D = allDays(), n = D.length, i;
+    function full(j) { return store.done[doneKey(D[j], 'am')] && store.done[doneKey(D[j], 'pm')]; }
+    for (i = 0; i < n; i++) if (!full(i) && (store.done[doneKey(D[i], 'am')] || store.done[doneKey(D[i], 'pm')])) return i;
+    var best = null;
+    Object.keys(store.done || {}).forEach(function (k) {
+      var m = /^w(\d+)(.+?)(am|pm)$/.exec(k), v = store.done[k]; if (!m || !v) return;
+      var j = -1; for (var q = 0; q < n; q++) if (D[q].id === m[2]) j = q; if (j < 0) return;
+      var c = { w: +m[1], t: typeof v === 'number' ? v : 0, j: j };
+      if (!best || (c.t && best.t ? c.t > best.t : c.w > best.w || (c.w === best.w && c.j > best.j))) best = c;
+    });
+    var start = best ? (best.j + 1) % n : 0;
+    for (i = 0; i < n; i++) { var j2 = (start + i) % n; if (!full(j2)) return j2; }
+    return 0;
+  }
   var selDay = nextDayIdx();
   var LIGHT_INK = { 20: 1, 24: 1, 32: 1 };
   var I_CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -3185,7 +3245,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (id === 'exercises') ensureLib();
     if (id === 'progress') { autoPtab(); renderProgress(); }
     if (id === 'coach') renderCoach();
-    if (id === 'guide') renderResearch();
+    if (id === 'guide') { orderGuide(); renderResearch(); }
   }
   TABS.forEach(function (t) { $('tab-' + t).addEventListener('click', function () { show(t); }); });
 
@@ -3250,17 +3310,14 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   // Monday of this calendar week (Monday to Sunday), at the user's day-start hour
   function weekStart(t) { var s0 = dayStart(t), off = (new Date(s0).getDay() + 6) % 7; return off ? dayStart(s0 - off * 864e5 + 6 * 3600e3) : s0; }
+  // One count for the body map, the Today line and the coverage table: sets done this week (covDone) against the sets
+  // your plan has per week (covPlan), per body-map region. Trained (fully) = done reaches planned (2 sets for a part your
+  // plan doesn't train); partly = some sets, fewer than that; gap = no sets.
+  var FULL_TXT = 'Fully trained means you\u2019ve done all the sets your plan has for that part this week (2 sets if your plan has none).';
+  function covTarget(r, plan) { return plan[r] > 0 ? plan[r] : 2; }
   function bodyWeek() {
-    var got = {}, ws = weekStart();
-    function mark(rg) { rg.part.forEach(function (r) { if (!got[r]) got[r] = 'part'; }); rg.on.forEach(function (r) { got[r] = 'on'; }); }
-    store.log.forEach(function (l) {
-      if ((l.d || l.t) < ws || !ALL[l.id]) return;
-      mark(exRegions(l.id, l.k, l.eq));
-    });
-    store.notes.forEach(function (n) {
-      if (n.k !== 'lift' || !n.t || n.t < ws) return;
-      mark(liftRegions(n.name));
-    });
+    var got = {}, done = covDone(), plan = covPlan();
+    Object.keys(BM_NAME).forEach(function (r) { var d = done[r] || 0; if (d >= covTarget(r, plan) - 0.01) got[r] = 'on'; else if (d > 0) got[r] = 'part'; });
     return got;
   }
   // the muscle parts a day's exercises work most (first two tags of each), in body-map order
@@ -3300,6 +3357,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     el.innerHTML = '<h2 class="sr-only">This week, muscle by muscle</h2>' + bmSvg(got, tdy) +
       '<p class="bm-today"><b>' + (mv ? 'Next session:' : dv ? 'Today (done):' : 'Today:') + '</b> ' + esc(tdTxt) + '</p>' +
       '<ul class="bm-legend" aria-hidden="true"><li><i class="tdy"></i>Today</li><li><i style="background:var(--trained)"></i>Trained</li><li><i style="background:var(--partly)"></i>Partly</li><li><i style="background:var(--gap);outline:2px dashed var(--ink);outline-offset:-2px"></i>Gap this week</li>' + (said ? '' : '<li style="margin-left:auto;font-weight:700;color:var(--ink)">' + pct + '% fully trained this week</li>') + '</ul>' +
+      '<p class="bm-def muted">' + esc(FULL_TXT) + '</p>' +
       // the key as one sentence for screen readers (the list of swatch names means nothing when heard)
       '<p class="sr-only">' + esc((said ? '' : pct + '% of muscle parts fully trained this week' + (partly.length ? ', ' + partly.length + ' partly' : '') + (gaps.length ? ', ' + gaps.length + (gaps.length === 1 ? ' gap' : ' gaps') : '') + '. ') + 'On the map, dark means trained, light means partly trained, a dashed outline is a gap, and hatching with a dark outline marks today\u2019s session.') + '</p>' +
       (!any ? '<div class="bm-gaps"><p>Your map is empty. Each session fills in the muscles it works.</p></div>'
@@ -3374,7 +3432,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       var sm = d.querySelector('summary'); if (!sm) return;
       var gb = sm.querySelector('.gb'), gh = sm.querySelector('.gh'), title = gb && gh ? gb.textContent.trim() + ': ' + gh.textContent.trim() : sm.textContent.trim();
       var body = d.textContent.slice(sm.textContent.length).replace(/\s+/g, ' ').trim(), m = body.match(rx), snip = '';
-      if (m) { var a = Math.max(0, body.lastIndexOf('. ', m.index) + 2), z = body.indexOf('. ', m.index); snip = body.slice(a > m.index ? 0 : a, z < 0 ? body.length : z + 1); if (snip.length > 90) snip = snip.slice(0, 88) + '…'; }
+      if (m) { var li = body.lastIndexOf('. ', m.index), a = li < 0 ? 0 : li + 2, z = body.indexOf('. ', m.index); snip = body.slice(a > m.index ? 0 : a, z < 0 ? body.length : z + 1); if (snip.length > 90) snip = snip.slice(0, 88) + '…'; }
       if (rx.test(title)) out.push({ el: sm, t: title, s: 0, sub: 'Guide' }); else if (m) out.push({ el: sm, t: title, s: 1, sub: snip });
     });
     [].slice.call(document.querySelectorAll('#guide h2, #guide h3')).forEach(function (h) { if (rx.test(h.textContent)) out.push({ el: h, t: h.textContent.trim(), s: 0, sub: 'Guide' }); });
@@ -3444,8 +3502,22 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       else if (b.dataset.slift) { closeSheet(); show('progress'); }
     });
   }
-  var HELP_QS = [['What do the colours on the body mean?', 'Dark orange: trained this week. Light: partly trained. Dashed outline: a gap this week, or a muscle that only steadies you.'], ['A weight feels too heavy', 'Tap − during the set, or tell Log “too heavy”. Next week starts lighter.'], ['I missed a day', 'Your plan moves on. Nothing is lost.'], ['Something hurts', 'Stop the set. Log “my knee hurts 4 out of 10” and holds that load it change.'], ['Does it work offline?', 'Yes. Only photo food logging and the optional AI coach need signal.'], ['How do I back up?', 'Profile (top right), then Backup. Keep the file somewhere safe.']];
+  var HELP_QS = [['What do the colours on the body mean?', 'Solid dark fill (orange): fully trained this week, meaning you\u2019ve done all the sets your plan has for that part (2 if it has none). Pale fill: partly trained, some of those sets. Dashed outline with no fill: a gap this week, or a muscle that only steadies you. Hatching (diagonal lines) with a dark outline: what today\u2019s session trains. The fills and lines tell them apart without colour.'], ['A weight feels too heavy', 'Tap − during the set, or tell Log “too heavy”. Next week starts lighter.'], ['I missed a day', 'Your plan moves on. Nothing is lost.'], ['Something hurts', 'Stop the set. Log “my knee hurts 4 out of 10” and holds that load it change.'], ['Does it work offline?', 'Yes. Only photo food logging and the optional AI coach need signal.'], ['How do I back up?', 'Profile (top right), then Backup. Keep the file somewhere safe.']];
+  // Guide topics in order of relevance to your settings: what applies to you first, what doesn't (two sessions a day when you do one, bones without osteopenia) last
+  function orderGuide() {
+    var gl = $('gl'); if (!gl) return; var p = prof(), is = p.issues || [], one = oneADay();
+    var rank = function (t) {
+      if (/^Why two short sessions/.test(t)) return one ? 2 : 0;
+      if (/^Osteopenia/.test(t)) return is.indexOf('bones') > -1 ? -1 : 2;
+      if (/^Never hold your breath/.test(t)) return is.indexOf('bp') > -1 ? -1 : 0;
+      if (/^The pain rule/.test(t)) return is.some(function (x) { return x !== 'bp' && x !== 'bones'; }) ? -1 : 0;
+      return 0;
+    };
+    var ds = [].slice.call(gl.children).map(function (d, i) { var h = d.querySelector('.gh'); if (d.dataset.go == null) d.dataset.go = i; return { d: d, r: rank(h ? h.textContent.trim() : ''), i: +d.dataset.go }; });
+    ds.sort(function (a, b) { return a.r - b.r || a.i - b.i; }).forEach(function (x) { gl.appendChild(x.d); });
+  }
   function openHelp(from) {
+    orderGuide();
     openSheet('Help', HELP_QS.map(function (q) { return '<details class="help-q"><summary>' + esc(q[0]) + '</summary><p>' + esc(q[1]) + '</p></details>'; }).join('') + '<h3 class="srch-g" style="margin-top:16px">Guide</h3><div class="help-guide">' + [].slice.call(document.querySelectorAll('#guide summary, #guide h2')).map(function (x) { x.dataset.sg = x.dataset.sg || ('g' + Math.random().toString(36).slice(2, 8)); var t = ((x.querySelector && x.querySelector('.gh')) || x).textContent.trim(); return '<button class="srch-r" data-hg="' + x.dataset.sg + '"><b>' + esc(t.slice(0, 70)) + '</b></button>'; }).join('') + '</div>' +
       '<p style="margin-top:14px">Still stuck? Ask in Search &amp; log, for example “how do I change my equipment”. Common questions are answered offline.</p><button class="btn quiet block" data-hlog="1" style="margin-top:10px">Ask in Search &amp; log</button>', true, from);
     $('sheetBody').addEventListener('click', function (e) { var g = e.target.closest('[data-hg]'); if (g) { closeSheet(); lastTab = ['train', 'exercises', 'progress'].indexOf(current) > -1 ? current : lastTab; var opener = from && from.isConnected ? from : $(lastTab).querySelector('[data-tool="help"]'); setTimeout(function () { goGuide(g.dataset.hg, opener); }, 60); } else if (e.target.closest('[data-hlog]')) { closeSheet(); openLogSearch(); } });
@@ -3489,8 +3561,23 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (typeof restView === 'function' && restView()) return '';
     if (oneADay() && !cap) return '';
     // after "Done for today": the session you finished (in the week it was done), not the next one
-    if (dv) { day = dv.day; return withWeek(dv.w, function () { return totLine(day, phaseOf(dv.w), cap, 'You did: ', ' today'); }); }
+    if (dv) { day = dv.day; var dl = didLine(day, dv.w, cap); if (dl) return dl;
+      // no time recorded (an older session, or marked done by hand): morning and evening as planned only when they really were
+      // two sessions (done at different times, in the two-session view); otherwise the plan's length, one number in both views
+      var ta = +store.done['w' + dv.w + day.id + 'am'] || 0, tb = +store.done['w' + dv.w + day.id + 'pm'] || 0;
+      if (!oneADay() && ta && tb && Math.abs(ta - tb) > 1000) return withWeek(dv.w, function () { return totLine(day, phaseOf(dv.w), cap, 'You did: ', ' today'); });
+      return withWeek(dv.w, function () { var t = mins(day, 'all', phaseOf(dv.w)); return '<p class="daytot">Today’s plan: <b>' + t + ' min</b>' + (cap ? (t <= cap ? ', within your ' + cap + '-minute limit.' : ', over your ' + cap + '-minute limit.') : '.') + '</p>'; }); }
     return totLine(day, ph, cap, more ? 'Next session: ' : '', more ? '' : ' today');
+  }
+  // what was actually done today, from the minutes each finished session took (the same number as its summary), whatever
+  // the One session / Morning + evening setting now says; null when no time was recorded
+  function didLine(day, w, cap) {
+    var tk = store.took || {}, ka = 'w' + w + day.id + 'am', kp = 'w' + w + day.id + 'pm', s0 = dayStart();
+    var a = (+store.done[ka] || 0) >= s0 ? tk[ka] : null, b = (+store.done[kp] || 0) >= s0 ? tk[kp] : null;
+    if (a == null && b == null) return '';
+    var parts = [a, b].filter(function (x) { return x > 0; }), t = (a || 0) + (b || 0);
+    var txt = parts.length === 2 ? 'Morning ' + a + ' min + evening ' + b + ' min = <b>' + t + ' min today</b>' : '<b>one session, ' + t + ' min today</b>';
+    return '<p class="daytot">You did: ' + txt + (cap ? (t <= cap ? ', within your ' + cap + '-minute limit.' : ', over your ' + cap + '-minute limit.') : '.') + '</p>';
   }
   function totLine(day, ph, cap, pre, when) {
     var a = mins(day, 'am', ph), b = mins(day, 'pm', ph), t = oneADay() ? mins(day, 'all', ph) : a + b;
@@ -3669,16 +3756,21 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function openAdd(sk, from) {
     var day = allDays().filter(function (d) { return sk.indexOf(d.id) === 0; })[0], part = sk.slice(day.id.length);
     var inSession = {}; blocksFor(day, part).forEach(function (b) { b.forEach(function (id) { inSession[id] = 1; }); });
-    var h = '<p class="muted">Tap an exercise to add its hold and reps to your ' + (part === 'am' ? 'morning' : 'evening') + ' session. It stays in this session every week until you remove it.</p>' +
+    // the user's own training days, numbered from 1 as on Today, each with the exercises of both its halves
+    var AD = allDays().filter(function (d) { return !d.cardio; }).map(function (d) {
+      var ids = []; (d.ex || [].concat.apply([], (d.am || []).concat(d.pm || []))).forEach(function (id) { if (ids.indexOf(id) < 0 && BY[id]) ids.push(id); });
+      return { id: d.id, name: d.name, n: allDays().indexOf(d) + 1, ex: ids };
+    }), hasCardio = allDays().some(function (d) { return d.cardio; });
+    var h = '<p class="muted">Tap an exercise to add its hold and reps to ' + (oneADay() ? 'your session' : 'your ' + (part === 'am' ? 'morning' : 'evening') + ' session') + ' on ' + esc(day.name) + '. It stays in this session every week until you remove it.</p>' +
       '<div class="chips" id="addChips">' + AREAS.map(function (t) { return '<button class="chip" data-af="' + t + '" aria-pressed="' + (t === 'All') + '">' + t + '</button>'; }).join('') + '</div>' +
-      DAYS.map(function (d) {
-        return '<div class="lib-group" data-ag="' + d.id + '"><h2>Day ' + (allDays().indexOf(d) + 1) + ', ' + esc(d.name) + '</h2><div class="lib-list">' + d.ex.map(function (id) {
+      AD.map(function (d) {
+        return '<div class="lib-group" data-ag="' + d.id + '"><h2>Day ' + d.n + ', ' + esc(d.name) + '</h2><div class="lib-list">' + d.ex.map(function (id) {
           var v = V(id, 'h'), on = inSession[id];
           return '<button class="row" data-addid="' + id + '"' + (on ? ' disabled' : '') + '>' + figSvg(v, 2) + '<span><span class="t">' + esc(v.name) + '</span><span class="s">' + (on ? 'Already in this session' : 'Then <b>' + esc(V(id, 'g').name) + '</b>') + '</span><span class="s m">' + esc(v.tags.slice(0, 3).join(', ')) + '</span></span><span class="plus" aria-hidden="true">' + (on ? '' : '+') + '</span></button>';
         }).join('') + '</div></div>';
       }).join('') +
       // the cardio days' add-on holds, so a plan without cardio days can still use them
-      '<div class="lib-group" data-ag="addon"><h2>Add-on holds (cardio days)</h2><div class="lib-list">' + addonIds().map(function (id) {
+      '<div class="lib-group" data-ag="addon"><h2>' + (hasCardio ? 'Add-on holds (from your cardio days)' : 'Add-on holds (not in your plan yet)') + '</h2><div class="lib-list">' + addonIds().map(function (id) {
         var v = V(id, 'h'), on = inSession[id]; if (v.missing && V(id, 'g').missing) return '';
         return '<button class="row" data-addid="' + id + '"' + (on ? ' disabled' : '') + '>' + figSvg(v, 2) + '<span><span class="t">' + esc(v.name) + '</span><span class="s">' + (on ? 'Already in this session' : 'Then <b>' + esc(V(id, 'g').name) + '</b>') + '</span><span class="s m">' + esc(v.tags.slice(0, 3).join(', ')) + '</span></span><span class="plus" aria-hidden="true">' + (on ? '' : '+') + '</span></button>';
       }).join('') + '</div></div>';
@@ -3689,7 +3781,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       if (c) {
         var f = c.dataset.af;
         body.querySelectorAll('[data-af]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === c)); });
-        DAYS.concat([{ id: 'addon', ex: addonIds() }]).forEach(function (d) { var any = false; d.ex.forEach(function (id) { var ok = f === 'All' || has(BY[id], f) || has(G[id], f), el = body.querySelector('[data-ag="' + d.id + '"] [data-addid="' + id + '"]'); if (!el) return; el.hidden = !ok; if (ok) any = true; }); body.querySelector('[data-ag="' + d.id + '"]').hidden = !any; });
+        AD.concat([{ id: 'addon', ex: addonIds() }]).forEach(function (d) { var any = false; d.ex.forEach(function (id) { var ok = f === 'All' || has(BY[id], f) || has(G[id], f), el = body.querySelector('[data-ag="' + d.id + '"] [data-addid="' + id + '"]'); if (!el) return; el.hidden = !ok; if (ok) any = true; }); body.querySelector('[data-ag="' + d.id + '"]').hidden = !any; });
         return;
       }
       var b = e.target.closest('button[data-addid]'); if (!b || b.disabled) return;
@@ -3736,15 +3828,18 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     // the phase, and what changes when the next phase starts (this used to sit on Today)
     var ph0 = phaseOf(store.week), nx0 = store.week < 12 ? phaseOf(store.week + 1) : null;
     var phTxt = ph0.name + ' phase: holds ' + ph0.sets + ' × ' + ph0.hold + ' s, then ' + ph0.gs + ' × ' + ph0.grt + ' reps.' + (nx0 && nx0.n !== ph0.n ? ' From week ' + (store.week + 1) + ': ' + nx0.name + ' phase, holds of ' + nx0.hold + ' s' + (nx0.gr !== ph0.gr ? ' and ' + nx0.grt + ' reps' : '') + '.' : '');
+    // each day's short summary leads with what that day trains and the others don't, so Full Body C doesn't read the same as A
+    var dRegs = D.map(function (d) { return d.cardio ? [] : dayRegions(d); }), rCount = {};
+    dRegs.forEach(function (rs) { rs.forEach(function (r) { rCount[r] = (rCount[r] || 0) + 1; }); });
     var h = '<p class="fine wk-ph">' + esc(phTxt) + '</p><h3 class="wk-h">This week</h3><div class="wkdays" role="group" aria-label="Days of program week ' + store.week + '">' + D.map(function (d, i) {
-      var a = store.done[doneKey(d, 'am')], b = store.done[doneKey(d, 'pm')], regs = dayRegions(d).map(function (r) { return BM_NAME[r]; });
+      var a = store.done[doneKey(d, 'am')], b = store.done[doneKey(d, 'pm')], regs = dayRegions(d).map(function (r, k) { return [r, k]; }).sort(function (x, y) { return (rCount[x[0]] || 0) - (rCount[y[0]] || 0) || x[1] - y[1]; }).map(function (x) { return BM_NAME[x[0]]; });
       var st = a && b ? 'Done' : (i === nx ? 'Up next' : '') + (a || b ? (i === nx ? ', ' : '') + (oneADay() ? 'half done' : (a ? 'morning' : 'evening') + ' done') : '');
       st = st.replace(/^./, function (c) { return c.toUpperCase(); });
       // short: the first four muscle parts, then a count
       var what = d.cardio ? 'Cardio' + (regs.length ? ', plus back and core work' : '') : (regs.length > 4 ? regs.slice(0, 4).join(', ') + ' and ' + (regs.length - 4) + ' more' : regs.join(', ')).replace(/^./, function (c) { return c.toUpperCase(); });
       return '<button data-day="' + i + '" class="' + (a && b ? 'dn' : '') + '" aria-pressed="' + (i === selDay) + '" aria-label="Day ' + (i + 1) + (st ? ', ' + st.toLowerCase() : '') + ': ' + esc(d.cardio ? what : regs.join(', ')) + '"><span class="n" aria-hidden="true">' + (a && b ? I_CHECK : i + 1) + '</span><span class="t" aria-hidden="true"><b>' + esc(what) + '</b><small>' + (st ? '<span class="st">' + st + '</span> · ' : '') + esc(d.name) + '</small></span></button>';
     }).join('') + '</div><div class="wk-ov"><div class="overall">' + $('overall').innerHTML + '</div><div class="eqdd-wrap" id="eqddWeek"></div></div><h3 class="wk-h">Change week</h3><div class="weeks">';
-    for (var w = 1; w <= 12; w++) { var ph = phaseOf(w), c = weekDone(w); h += '<button data-w="' + w + '" style="--c:' + KC[ph.kg] + '" aria-pressed="' + (w === store.week) + '"><span class="n">' + w + '</span><span class="p">' + ph.name.replace(' & Test', '') + (c ? ', ' + c + '/12' : '') + '</span></button>'; }
+    for (var w = 1; w <= 12; w++) { var ph = phaseOf(w), c = weekDone(w); h += '<button data-w="' + w + '" style="--c:' + KC[ph.kg] + '" aria-pressed="' + (w === store.week) + '" aria-label="Week ' + w + ' of 12, ' + ph.name + ' phase' + (c ? ', ' + c + ' of ' + weekTarget() + ' ' + unitWord(2) + ' done' : '') + '"><span class="n"><small class="wk-w">Week </small>' + w + '</span><span class="p">' + ph.name.replace(' & Test', '') + (c ? ', ' + c + ' of ' + weekTarget() + ' done' : '') + '</span></button>'; }
     h += '</div><p class="fine">The program moves to the next week by itself once all ' + weekTarget() + ' ' + unitWord(2) + ' of a week are done, whichever days you do them on. Pick a week here to jump ahead or go back.</p><div class="phases">' + PHASES.map(function (p) {
       var wk = p.weeks.length > 1 ? 'Weeks ' + p.weeks[0] + ' to ' + p.weeks[p.weeks.length - 1] : 'Week ' + p.weeks[0];
       return '<div class="phase" style="--c:' + KC[p.kg] + '"><b>' + p.name + '</b><span class="muted" style="font-size:14px;font-weight:700">' + wk + '. Holds ' + p.sets + ' × ' + p.hold + ' s, reps ' + p.gs + ' × ' + p.grt + '.</span><p>' + esc(p.focus) + '</p></div>';
@@ -3810,7 +3905,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     function xid() { return state.part === 'hold' ? id : repAlt(id) || id; }
     function cur() { var kind = state.part === 'hold' ? 'h' : 'g'; var o = state.eq[kind] || pickEq(xid(), kind); return V(xid(), kind, o); }
     function body() {
-      var isH = state.part === 'hold', x = cur(), kind = isH ? 'h' : 'r', w = getWt(xid(), x, kind), ln = libNote(id), alt = !isH && repAlt(id);
+      var isH = state.part === 'hold', x = cur(), kind = isH ? 'h' : 'r', w = getWt(xid(), x, kind), ln = libNote(id, state.part), alt = !isH && repAlt(id);
       var opts = eqOptions(xid(), isH ? 'h' : 'g'), mine = opts.filter(function (o) { return store.eq.indexOf(o.eq) > -1 || o.eq === 'w' || o.eq === x.eq; });
       if (mine.length) opts = mine;
       var eqTabs = '<div class="eqtabs" role="group" aria-label="Equipment">' + opts.map(function (o) {
@@ -3820,10 +3915,10 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         var last = i === x.steps.length - 1, lab = isH ? (last ? 'Hold' : String(i + 1)) : (i ? 'End' : 'Start');
         return '<li class="' + (last ? 'final' : '') + '"><div class="sf">' + FIG.svgFor(x, x._r[i], { label: x.name + ', ' + lab }) + '<span>' + lab + '</span></div><p>' + esc(st.txt) + '</p></li>';
       }).join('');
-      var rxTxt = isH ? 'Week ' + store.week + ': ' + rx(x, ph) + ' at RPE ' + rpeTxt(id, ph) : 'Week ' + store.week + ': ' + grx(x, ph) + (x.mode === 'time' ? '' : ', ' + rirTxt(ph).toLowerCase());
-      var wtBox = noWt(x.eq) ? '' : '<div class="wtbox"><label for="dWt">' + esc(wLabel(x)) + '</label><div class="stepper"><button data-d="-1" aria-label="Less weight">−</button><input id="dWt" type="number" inputmode="decimal" step="0.5" min="0" placeholder="0" value="' + (w == null ? '' : dispW(w)) + '"><span>' + uLab() + '</span><button data-d="1" aria-label="More weight">+</button></div></div>';
+      var rxTxt = isH ? 'Week ' + store.week + ': ' + rx(x, ph) + ' at ' + rpeLab(rpeTxt(id, ph)) : 'Week ' + store.week + ': ' + grx(x, ph) + (x.mode === 'time' ? '' : ', ' + rirTxt(ph).toLowerCase());
+      var wtBox = noWt(x.eq) ? '' : '<div class="wtbox"><label for="dWt">' + esc(wLabel(x)) + '<span class="wt-u">, ' + uLab() + '</span></label><div class="stepper"><button data-d="-1" aria-label="Less weight">−</button><input id="dWt" type="number" inputmode="decimal" step="0.5" min="0" placeholder="0" value="' + (w == null ? '' : dispW(w)) + '"><span>' + uLab() + '</span><button data-d="1" aria-label="More weight">+</button></div></div>';
       var notes = '<div class="notes"><span class="k">Cues</span><ul>' + x.cues.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('') + '</ul>' +
-        (isH ? '<p><span class="k">Avoid: </span>' + esc(BY[id].avoid) + '</p><p><span class="k">Why: </span>' + esc(BY[id].why) + '</p>' : '<p><span class="k">Tempo: </span>' + esc(tempoTxt(x)) + '</p>') + '</div>';
+        (isH ? '<p><span class="k">Avoid: </span>' + esc(BY[id].avoid) + '</p><p><span class="k">Why: </span>' + esc(x.why || BY[id].why) + '</p>' : '<p><span class="k">Tempo: </span>' + esc(tempoTxt(x)) + '</p>') + '</div>';
       var ev = EVID[id];
       return (ln ? '<p class="s mod d-safe">' + esc(ln) + (alt ? '. Do the ' + esc(x.name) + ' to a chair instead: sit down until you touch the chair, then stand up' : '') + '.</p>' : '') + eqTabs + '<div class="dfig" id="dFig">' + FIG.svgFor(x, x._r[isH ? 2 : 1], { label: x.name + ', animated' }) + '<span class="stage" id="dStage"></span></div>' +
         '<div class="d-meta"><div class="d-top"><h3>' + esc(x.name) + '</h3><button class="infobtn" id="dInfo" aria-expanded="false" aria-controls="dEv" aria-label="Research behind this exercise">' + I_INFO + '</button></div><span class="d-rx ' + (isH ? 'h' : 'r') + '">' + esc(rxTxt) + '</span>' +
@@ -3833,8 +3928,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         '<ol class="steps' + (isH ? '' : ' r') + '">' + steps + '</ol>' + notes;
     }
     var html = '<div class="seg" role="tablist"><button role="tab" class="h" data-p="hold" aria-selected="' + (part === 'hold') + '">1. Tendon hold</button><button role="tab" class="r" data-p="rep" aria-selected="' + (part !== 'hold') + '">2. Growth reps</button></div><div id="dBody" style="display:grid;gap:14px"></div>';
-    var dd = DAYS.filter(function (d) { return d.ex.indexOf(id) > -1; })[0];
-    openSheet(dd ? 'Day ' + (allDays().indexOf(dd) + 1) + ', ' + dd.name : BY[id].name, html, true, from);
+    // the plan day it belongs to in your plan (3 days a week uses Full Body days), or just its name when it isn't in your plan
+    var ad = allDays(), dd = ad.filter(function (d) { return (d.ex || []).indexOf(id) > -1; })[0];
+    openSheet(dd ? 'Day ' + (ad.indexOf(dd) + 1) + ', ' + dd.name : BY[id].name, html, true, from);
     function paintBody() {
       $('dBody').innerHTML = body();
       var x = cur();
@@ -3891,15 +3987,22 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   // what your plan does with an exercise, said in the Exercises tab too: left out (and why), or how to do it safely
   function whyTxt(r) { return r === 'your knees (kneeling)' ? 'kneeling, for your knees' : r === 'no floor work' ? 'floor work, as you asked' : 'for ' + r; }
-  function libNote(id) {
+  // part: 'hold' or 'rep' on the exercise sheet's tabs, so each tab only carries the notes for the exercise it shows; none in the list (both)
+  function libNote(id, part) {
     var pn = painFor(id), both = safetySkip(id), sh = skipWhy(id, 'h'), sr = skipWhy(id, 'r');
     if (pn.skip) return 'Left out of your plan for now: ' + areaName(pn.area) + ' pain';
     if (both) return 'Left out of your plan: ' + whyTxt(both);
     var out = [];
-    if (sh) out.push('Hold left out of your plan: ' + whyTxt(sh));
-    if (sr) out.push((repAlt(id) ? 'Kneeling ' + V(id, 'g').name + ' left out of your plan: ' : 'Reps left out of your plan: ') + whyTxt(sr));
-    var md = (sh ? '' : modTxt(id, 'h')) || (sr ? '' : modTxt(id, 'r')); if (md) out.push(md);
+    if (sh && part !== 'rep') out.push('Hold left out of your plan: ' + whyTxt(sh));
+    if (sr && part !== 'hold') out.push((repAlt(id) ? 'Kneeling ' + V(id, 'g').name + ' left out of your plan: ' : 'Reps left out of your plan: ') + whyTxt(sr));
+    var md = part === 'hold' ? (sh ? '' : modTxt(id, 'h')) : part === 'rep' ? (sr ? '' : modTxt(id, 'r')) : (sh ? '' : modTxt(id, 'h')) || (sr ? '' : modTxt(id, 'r')); if (md) out.push(md);
+    var bars = barsNote(id); if (bars) out.push(bars);
     return out.join('. ');
+  }
+  // the bodyweight Dip Hold needs bars: at home (where you said you have none) say how to do it on chairs instead
+  function barsNote(id) {
+    if (id !== 'dip-hold' || skipWhy(id, 'h') || pickEq(id, 'h').eq !== 'w' || prof().where === 'gym') return '';
+    return 'Needs dip bars, which you don\u2019t have at home: use two sturdy chairs back to back, hands on the seat edges, or skip it';
   }
   var libRN = false; // the add-on's Reverse Nordic is shown once, as the Wall Sit's reps
   function libGroup(gid, title, fresh) {
@@ -4042,6 +4145,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       e.ds = ds; e.first = ds[0]; e.base = e.days[ds[0]]; e.last = ds[ds.length - 1];
     });
     var mean = function (a) { return a.reduce(function (x, y) { return x + y; }, 0) / a.length; };
+    // Strength at a day is that exercise's current estimated max as of then: the best of the 6 weeks up to it (curMax's rule),
+    // so the line, "Each exercise against its start" and the strength map all use one number. A week of fewer planned reps
+    // at the same weight doesn't pull it down. Endurance is the latest day's value.
     // A day's index: every exercise of that kind done in the 4 weeks up to that day, each at its latest value against its
     // first day. An exercise joins from its second day, so a new exercise doesn't pull the line back to 100, and a day of
     // different exercises (or a lighter session type) doesn't make the line jump.
@@ -4053,12 +4159,17 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         mine.forEach(function (e) {
           var upto = e.ds.filter(function (x) { return x <= d; }); if (upto.length < 2) return;
           var ld = upto[upto.length - 1]; if (d - ld > 28 * 864e5) return;
-          r.push(e.days[ld] / e.base * 100);
+          r.push(exVal(e, d) / e.base * 100);
         });
         sr[1][d] = r.length ? mean(r) : 100;
       });
     });
     return { s: S, e: E, ex: ex };
+  }
+  // an exercise's value as of day d: strength = best day in the 6 weeks up to d (as curMax); endurance = latest day
+  function exVal(e, d) {
+    var v = null; e.ds.forEach(function (x) { if (x > d) return; if (e.kind !== 's') { v = e.days[x]; return; } if (x > d - CUR_WIN && (v == null || e.days[x] > v)) v = e.days[x]; });
+    return v;
   }
   function dShort(t) { return new Date(t).toLocaleDateString(UIL, { day: 'numeric', month: 'short' }); }
   var dlyInfoOpen = false;
@@ -4073,7 +4184,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       '<div class="dinfo" id="dlyInfo"' + (dlyInfoOpen ? '' : ' hidden') + '>' +
       '<p><b>Strength</b> is the most you could lift once, estimated the same way everywhere in the app. For a set of 1 to 12 reps with a weight: <b>weight × (1 + (reps + reps in reserve) ÷ 30)</b>. This is the Epley formula; in a 2020 comparison it had the smallest error of the common formulas. Reps in reserve = 10 − the RPE you gave (0 to 4); with no RPE the set counts as taken to your limit. For a hold of 10 to 75 seconds with a weight, your maximum comes from how long you held it. So more reps, or a longer hold, at the same weight raise it, not only a heavier weight. A slower tempo isn’t counted.</p>' +
       '<p><b>Endurance</b> is how long you can keep a moderate load up. For each hold: <b>seconds × weight</b>, with bodyweight holds counted as 1 kg. Holding longer or heavier both raise it.</p>' +
-      '<p>Each exercise, program or other lift, starts at <b>100</b> on the first day you did it and joins the average from its second day. A day’s number is the average over every exercise you did in the 4 weeks up to that day, each at its latest value. So a session of different exercises doesn’t make the line jump, and 110 means about 10% better than when you started. Days without training are left blank.</p>' +
+      '<p>Each exercise, program or other lift, starts at <b>100</b> on the first day you did it and joins the average from its second day. A day’s number is the average over every exercise you did in the 4 weeks up to that day. For strength each counts at its current estimated max then, the best of the 6 weeks up to that day, the same number as the strength map and the list below; for endurance, at its latest value. So a session of different exercises doesn’t make the line jump, and 110 means about 10% better than when you started. Days without training are left blank.</p>' +
       '<ul class="refs">' + DLY_REFS.map(function (r) { return '<li><a href="' + r[3] + '" target="_blank" rel="noopener">' + esc(r[2]) + '</a><span>' + esc(r[0]) + ', ' + esc(r[1]) + '.</span></li>'; }).join('') + '</ul></div>';
     if (trained.length < 2) {
       el.innerHTML = head + '<p class="muted">' + (trained.length ? 'One training day so far in the last 6 weeks. ' : 'No training logged in the last 6 weeks. ') + 'After two days with weighted sets or holds, this chart shows each day’s strength and endurance against your start.</p>';
@@ -4130,7 +4241,11 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var sd = trained.filter(function (d) { return d in D.s; }), flat = 0;
     for (var fi = sd.length - 1; fi >= 0 && Math.abs(D.s[sd[fi]] - D.s[sd[sd.length - 1]]) < 0.5; fi--) flat++;
     var flatTxt = flat >= 4 ? '<p class="muted dflat" style="font-size:14px">Strength has stayed at ' + Math.round(D.s[sd[sd.length - 1]]) + ' for your last ' + flat + ' training days (since ' + esc(dShort(sd[sd.length - flat])) + ') because the weights, reps and hold times you logged haven’t changed. Hold a few seconds longer or go up a weight, and it will move.</p>' : '';
-    el.innerHTML = head + '<p class="muted" style="font-size:14px">' + (days.length < 42 ? 'Since your first training day, ' + esc(dShort(days[0])) + '. ' : 'Last 6 weeks. ') + '100 = your start.</p>' + s + leg + flatTxt +
+    // the line is the average of every exercise; the strength map splits the same numbers by muscle, so say both
+    var sc = strChange(), scr = Object.keys(sc).sort(function (a2, b2) { return sc[b2] - sc[a2]; }), lastS = sd.length ? D.s[sd[sd.length - 1]] : null;
+    var nEx = Object.keys(D.ex).filter(function (k) { var e = D.ex[k]; return e.kind === 's' && e.ds.length >= 2 && sd.length && sd[sd.length - 1] - e.last <= 28 * 864e5; }).length;
+    var mapTxt = lastS != null && scr.length && nEx ? '<p class="muted dmap" style="font-size:14px">Strength ' + Math.round(lastS) + ' is the average of your ' + nEx + ' weighted exercises against their start. The strength map splits the same numbers by muscle: ' + esc(scr.slice(0, 2).map(function (r) { return BM_NAME[r] + ' ' + pcTxt(sc[r]); }).join(', ')) + (scr.length > 2 ? ' at the top, ' + esc(BM_NAME[scr[scr.length - 1]] + ' ' + pcTxt(sc[scr[scr.length - 1]])) + ' at the bottom' : '') + '.</p>' : '';
+    el.innerHTML = head + '<p class="muted" style="font-size:14px">' + (days.length < 42 ? 'Since your first training day, ' + esc(dShort(days[0])) + '. ' : 'Last 6 weeks. ') + '100 = your start.</p>' + s + leg + flatTxt + mapTxt +
       '<details class="how"><summary>Show the numbers (' + trained.length + ' days)</summary><div class="gbody">' + tbl + '</div></details>' +
       '<details class="how"><summary>Each exercise against its start (' + exs.length + ')</summary><div class="gbody">' + exl + '</div></details>';
   }
@@ -4147,30 +4262,18 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     dlyInfoOpen = !dlyInfoOpen; $('dlyInfo').hidden = !dlyInfoOpen; b.setAttribute('aria-expanded', String(dlyInfoOpen));
   });
 
-  // ---------- strength map: how each muscle region's strength changed over the last 4 weeks ----------
+  // ---------- strength map: how each muscle region's strength changed (the daily line's per-exercise numbers) ----------
   // Rep sets of 1–12 reps: Epley 1-rep estimate. Holds of 10–75 s with a weight: the hold-to-max estimate (holdMax).
-  // Per exercise: best on the latest day ÷ best on the earliest day in the 4 weeks; a region averages its exercises.
+  // Per exercise: current estimated max (best of the last 6 weeks) ÷ its first day; a region averages its exercises.
   function strChange() {
-    var from = dayStart() - 27 * 864e5, ex = {};
-    store.log.forEach(function (l) {
-      if (l.sug || !(l.kg > 0) || l.t < from || !ALL[l.id]) return;
-      var v = l.k === 'r' ? estMax(l.kg, l.v, l.rpe) : l.k === 'h' && l.v >= 10 && l.v <= 75 ? holdMax(l).est : 0;
-      if (!v) return;
-      var key = l.k + '|' + l.id + '|' + l.eq, e = ex[key] || (ex[key] = { id: l.id, k: l.k, eq: l.eq, days: {} }), d = dayStart(l.t);
-      if (!(d in e.days) || v > e.days[d]) e.days[d] = v;
-    });
-    store.notes.forEach(function (n) { // lifts logged outside the program count for the muscles they work
-      if (n.k !== 'lift' || !n.t || n.t < from) return;
-      var tags = liftTags(n.name); if (!tags.length) return;
-      var v = n.reps ? estMax(liftLoad(n), n.reps, n.rpe) : n.kg > 0 && n.s >= 10 && n.s <= 75 ? holdMax({ id: '', kg: n.kg, v: n.s }).est : 0;
-      if (!v) return;
-      var key = 'n|' + liftKey(n.name) + (n.reps ? '' : '|h'), e = ex[key] || (ex[key] = { regs: liftRegions(n.name).on, days: {} }), d = dayStart(n.t);
-      if (!(d in e.days) || v > e.days[d]) e.days[d] = v;
-    });
-    var reg = {};
-    Object.keys(ex).forEach(function (key) {
-      var e = ex[key], ds = Object.keys(e.days).map(Number).sort(function (a, b) { return a - b; }); if (ds.length < 2) return;
-      var ch = (e.days[ds[ds.length - 1]] / e.days[ds[0]] - 1) * 100, rs = e.regs || exRegions(e.id, e.k, e.eq).on; // the muscles it mainly works, as on the body map
+    // the same per-exercise numbers as the daily strength line: current estimated max (best of the last 6 weeks) against the
+    // exercise's first day, for exercises with weighted sets on 2+ days and done in the last 4 weeks; a region averages them
+    var D = dailyIdx(), now = dayStart(), reg = {};
+    Object.keys(D.ex).forEach(function (key) {
+      var e = D.ex[key]; if (e.kind !== 's' || e.ds.length < 2 || now - e.last > 28 * 864e5) return;
+      var ch = (exVal(e, now) / e.base - 1) * 100, kp = key.split('|'), rs;
+      if (kp[0] === 'r' || kp[0] === 'hs') { if (!ALL[kp[1]]) return; rs = exRegions(kp[1], kp[0] === 'r' ? 'r' : 'h', kp[2]).on; }
+      else { if (!liftTags(e.name).length) return; rs = liftRegions(e.name).on; }
       rs.filter(function (r, i) { return r && rs.indexOf(r) === i; }).forEach(function (r) { (reg[r] = reg[r] || []).push(ch); });
     });
     var out = {}; Object.keys(reg).forEach(function (r) { out[r] = Math.round(reg[r].reduce(function (a, b) { return a + b; }, 0) / reg[r].length); });
@@ -4186,8 +4289,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function changeMap() {
     var ch = strChange(), regs = Object.keys(BM_NAME), withD = regs.filter(function (r) { return r in ch; }).sort(function (a, b) { return ch[b] - ch[a]; }), none = regs.filter(function (r) { return !(r in ch); });
     var sh = BM.map(function (b) { var st = b[0] === 'head' ? -1 : chStep(ch[b[0]]), cls = st < 0 ? 'sm-off' : 'sm-' + (st || 'none'), r = ' x="' + b[1] + '" y="' + b[2] + '" width="' + b[3] + '" height="' + b[4] + '" rx="' + b[5] + '"/>'; return '<rect class="' + cls + '"' + r + (SM_PAT[st] ? '<rect class="sm-ov" fill="url(#' + SM_PAT[st] + ')"' + r : ''); }).join('');
-    var lab = 'Strength change by muscle over the last 4 weeks. ' + (withD.length ? withD.map(function (r) { return BM_NAME[r] + ' ' + (ch[r] > 0 ? 'up ' : ch[r] < 0 ? 'down ' : 'no change, ') + Math.abs(ch[r]) + '%'; }).join(', ') + '. ' : '') + (none.length ? 'No data: ' + none.map(function (r) { return BM_NAME[r]; }).join(', ') + '.' : '');
-    return '<h2>Strength map</h2><p class="muted" style="font-size:14px">Change in your estimated maximum over the last 4 weeks, for muscles trained with a weight on at least 2 days. Your other lifts (squat, bench, deadlift…) count too.</p>' +
+    var lab = 'Strength change by muscle since you started each exercise (done in the last 4 weeks). ' + (withD.length ? withD.map(function (r) { return BM_NAME[r] + ' ' + (ch[r] > 0 ? 'up ' : ch[r] < 0 ? 'down ' : 'no change, ') + Math.abs(ch[r]) + '%'; }).join(', ') + '. ' : '') + (none.length ? 'No data: ' + none.map(function (r) { return BM_NAME[r]; }).join(', ') + '.' : '');
+    return '<h2>Strength map</h2><p class="muted" style="font-size:14px">Change in your current estimated maximum since you started each exercise, the same numbers as the strength line and “Each exercise against its start”. For muscles trained with a weight on at least 2 days, done in the last 4 weeks. Your other lifts (squat, bench, deadlift…) count too.</p>' +
       '<svg class="smap" viewBox="0 0 358 300" role="img" aria-label="' + esc(lab) + '">' + SM_DEFS + sh + '<text class="bm-lbl" x="90" y="298" text-anchor="middle">Front</text><text class="bm-lbl" x="268" y="298" text-anchor="middle">Back</text></svg>' +
       '<ul class="bm-legend smleg">' + [[1, '↓ Down', 'striped'], [2, '0–4% up', 'dotted'], [3, '5–9% up', 'lined'], [4, '10%+ up', 'solid'], [0, 'No data', 'dashed outline']].map(function (x) {
         var r = ' x="1.5" y="1.5" width="17" height="17" rx="3"/>';
@@ -4311,6 +4414,15 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       return { d: d, n: i + 1, q: buildQueue(d, 'all', ph).filter(function (it) { return it.kind !== 'cardio' && it.id && ALL[it.id] && (!it.side || /1$/.test(it.side)); }) };
     }).filter(function (x) { return x.q.length; });
   }
+  // planned sets per week for each region: every set in each training day's queue whose exercise mainly works it
+  var covPlanMemo;
+  function covPlan() {
+    var key = store.week + ':' + JSON.stringify(store.profile || {}) + ':' + JSON.stringify(store.cust || {}) + ':' + store.eq.join() + ':' + store.notes.length + ':' + Math.floor(Date.now() / 6e4);
+    if (covPlanMemo && covPlanMemo.k === key) return covPlanMemo.v;
+    var plan = {};
+    covDays().forEach(function (x) { x.q.forEach(function (it) { exRegions(it.id, it.wk, it.ex && it.ex.eq).on.forEach(function (r) { plan[r] = (plan[r] || 0) + 1; }); }); });
+    covPlanMemo = { k: key, v: plan }; return plan;
+  }
   function covDone() {
     var ws = weekStart(), done = {};
     store.log.forEach(function (l) {
@@ -4327,23 +4439,24 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function covLab(r) { var n = BM_NAME[r] || r; return n.charAt(0).toUpperCase() + n.slice(1); }
   function renderCov() {
     var cd = covDays(), done = covDone(), span = cd.length + 3;
-    $('covNote').innerHTML = '<b>Planned</b>: hard sets in your plan for program week ' + store.week + ', for each of your ' + cd.length + ' training ' + (cd.length === 1 ? 'day' : 'days') + '. <b>Done</b>: sets you logged this week, Monday to Sunday, other lifts included. A set counts for the muscles its exercise mainly works, the same muscle groups as the body map and strength map. Around 10 or more a week is linked with steady growth for most muscles.';
+    $('covNote').innerHTML = '<b>Planned</b>: hard sets in your plan for program week ' + store.week + ', for each of your ' + cd.length + ' training ' + (cd.length === 1 ? 'day' : 'days') + '. <b>Done</b>: sets you logged this week, Monday to Sunday, other lifts included. A set counts for the muscles its exercise mainly works, the same muscle groups as the body map and strength map. ' + esc(FULL_TXT) + ' Around 10 or more a week is linked with steady growth for most muscles.';
     var h = '<caption class="sr-only">Muscle coverage: planned sets for each training day and for the week, and sets done this week</caption><thead><tr><th scope="col">Area</th>' +
-      cd.map(function (x) { return '<th scope="col" class="c">Day ' + x.n + '<small>' + esc(x.d.name) + '</small></th>'; }).join('') +
+      cd.map(function (x) { return '<th scope="col" class="c cv-day">Day ' + x.n + '<small>' + esc(x.d.name) + '</small></th>'; }).join('') +
       '<th scope="col" class="c"><span class="cv-long">Planned</span><span class="cv-short" aria-hidden="true">Plan</span><small><span class="cv-long">per week</span><span class="cv-short" aria-hidden="true">/ week</span></small></th><th scope="col" class="c cv-done">Done<small><span class="cv-long">this week</span><span class="cv-short" aria-hidden="true">this wk</span></small></th></tr></thead><tbody>';
     COV_GROUPS.forEach(function (g) {
       h += '<tr><th scope="colgroup" class="grp" colspan="' + span + '">' + g[0] + '</th></tr>';
       g[1].forEach(function (tag) {
-        var tot = 0, cells = cd.map(function (x) {
+        var tot = 0, perDay = [], cells = cd.map(function (x) {
           var ho = 0, gr = 0;
           x.q.forEach(function (it) { if (exRegions(it.id, it.wk, it.ex && it.ex.eq).on.indexOf(tag) > -1) { if (it.wk === 'h') ho++; else gr++; } });
-          tot += ho + gr;
-          if (!ho && !gr) return '<td class="c cv-0"><span aria-hidden="true">–</span><span class="sr-only">0</span></td>';
+          tot += ho + gr; perDay.push(ho + gr);
+          if (!ho && !gr) return '<td class="c cv-0 cv-day"><span aria-hidden="true">–</span><span class="sr-only">0</span></td>';
           var marks = '', i; for (i = 0; i < Math.min(ho, 4); i++) marks += '<i class="mk h"></i>'; for (i = 0; i < Math.min(gr, 4); i++) marks += '<i class="mk r"></i>';
-          return '<td class="c"><b class="cv-n">' + (ho + gr) + '</b><span class="mks" aria-hidden="true">' + marks + '</span><span class="sr-only">: ' + ho + (ho === 1 ? ' hold set, ' : ' hold sets, ') + gr + (gr === 1 ? ' lift set' : ' lift sets') + '</span></td>';
+          return '<td class="c cv-day"><b class="cv-n">' + (ho + gr) + '</b><span class="mks" aria-hidden="true">' + marks + '</span><span class="sr-only">: ' + ho + (ho === 1 ? ' hold set, ' : ' hold sets, ') + gr + (gr === 1 ? ' lift set' : ' lift sets') + '</span></td>';
         }).join('');
         var dn = Math.round(done[tag] || 0);
-        h += '<tr data-reg="' + tag + '"><th scope="row">' + covLab(tag) + '</th>' + cells + '<td class="c num"><b class="cv-n">' + tot + '</b></td><td class="c num cv-done"><b class="cv-n">' + dn + '</b></td></tr>';
+        var dl = cd.map(function (x, k) { return 'Day ' + x.n + ': ' + perDay[k]; }).join(', ');
+        h += '<tr data-reg="' + tag + '"><th scope="row">' + covLab(tag) + '<small class="cv-dl">' + dl + '</small></th>' + cells + '<td class="c num"><b class="cv-n">' + tot + '</b></td><td class="c num cv-done"><b class="cv-n">' + dn + '</b></td></tr>';
       });
     });
     $('cov').innerHTML = h + '</tbody>';
@@ -4384,7 +4497,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     }
     return out;
   }
-  function strLast(id, eq, before) { var h = strHist(); for (var i = h.length - 1; i >= 0; i--) if (h[i].id === id && (!eq || h[i].eq === eq) && (!before || h[i].t < before)) return h[i]; return null; }
+  function strLast(id, eq, before) { var h = strHist(); for (var i = h.length - 1; i >= 0; i--) if (h[i].id === id && (!eq || h[i].eq === eq) && (!before || h[i].t < before) && (h[i].bw || !(h[i].reps > STR_MAX_REPS))) return h[i]; return null; }
   function roundW(x, eq) { var st = stepU(eq) || 1; return fromU(Math.max(st, Math.round(toU(x) / st) * st)); }
   // never a weight you don't own: the heaviest owned weight at or below it, else your lightest
   function ownedSnap(w, eq) { var o = owned(eq); if (!o.length) return w; var best = o[0]; o.forEach(function (x) { if (x <= (w || 0) + 0.01) best = x; }); return best; }
@@ -4414,7 +4527,12 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function renderChecks() {
     var done = endDone(), er = done.slice(0, 2).map(function (id) { var t = store.tests[id]; return testName(id) + ' ' + (+t.a > 0 ? t.a : '?') + (+t.b > 0 ? ' → ' + t.b : '') + ' s'; }).join(', ') + (done.length > 2 ? ', +' + (done.length - 2) + ' more' : '');
     var h = strHist(), c = h[h.length - 1], bp = bpToday(), cn = c ? strName(c) : '';
-    var sr = bp ? 'Not today: your blood pressure reading is high' : c && cn ? cn + (c.bw ? ': ' + c.reps + ' reps' + chkChange(c) : (function () { var cm = chkCur(c); return !cm || Math.abs(cm.e - c.e1) < 0.05 ? ': max about ' + kg(c.e1) + chkChange(c) : ': check ' + kg(c.e1) + chkChange(c) + '; current estimated max ' + kg(cm.e) + ' (from ' + maxSrc(cm) + ')'; })()) : 'Not done yet. Takes about 5 minutes.';
+    var sr = bp ? 'Not today: your blood pressure reading is high' : c && cn ? cn + (c.bw ? ': ' + c.reps + ' reps' + chkChange(c) : (function () { // one number: the current estimated max; a check past 12 reps never counts as a max
+      var cm = chkCur(c), ok = c.e1 > 0 && c.reps <= STR_MAX_REPS;
+      if (cm && ok && Math.abs(cm.e - c.e1) < 0.05) return ': estimated max ' + kg(cm.e) + chkChange(c) + ' (from ' + maxSrc(cm) + ')';
+      // the check isn't your best set: the one max, and the check as the set you did (its change vs the previous check)
+      if (cm) return ': estimated max ' + kg(cm.e) + ' (from ' + maxSrc(cm) + '). Last check ' + kg(c.kg) + ' × ' + c.reps + (ok ? chkChange(c).replace(/^ \(/, ', ').replace(/\)$/, '') : ', too many reps for an estimate');
+      return ok ? ': estimated max ' + kg(c.e1) + chkChange(c) : ': last check ' + kg(c.kg) + ' × ' + c.reps + ', too many reps for an estimate'; })()) : 'Not done yet. Takes about 5 minutes.';
     $('chkCard').innerHTML = '<h2>Checks</h2><div class="chk-list">' +
       chkBtn('end', 'Endurance check', 'How long you can hold: endurance, not max strength', gentle() ? 'Skipped for you' : er || 'Do it in week 1 and week 12') +
       chkBtn('str', 'Strength check', 'Your estimated max lift, from a set of reps', sr) + '</div>';
@@ -4581,8 +4699,12 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     return n > 0 && est > prev * 1.005;
   }
   function setTxt(l) { return (l.kg ? kg(l.kg) + ' × ' : '') + l.v + (l.k === 'h' ? ' s' : l.v === 1 ? ' rep' : ' reps') + (l.sug ? ' (suggested weight)' : ''); }
+  // "Last time": the same exercise, equipment version and part (hold or reps). A set that only used an old suggested
+  // weight which differs from today's weight says nothing useful, so it's hidden.
   function lastFor(it) {
-    for (var i = store.log.length - 1; i >= 0; i--) { var l = store.log[i]; if (l.t < P.start && l.id === it.id && l.k === it.wk && l.eq === it.ex.eq) return l; }
+    for (var i = store.log.length - 1; i >= 0; i--) { var l = store.log[i]; if (l.t < P.start && l.id === it.id && l.k === it.wk && l.eq === it.ex.eq) {
+      if (l.sug && it.ex && !noWt(it.ex.eq)) { var cw = getWt(it.id, it.ex, it.wk); if (cw != null && Math.abs(cw - (l.kg || 0)) > 0.01) return null; }
+      return l; } }
     return null;
   }
   function haptic(style) { native({ type: 'haptic', style: style }); try { if (navigator.vibrate) navigator.vibrate(style === 'success' ? [25, 60, 25] : 15); } catch (e) { } }
@@ -4910,12 +5032,13 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // fibre per 100 g, for net carbs
   var FIBER = { 'Avocado': 7, 'Broccoli': 2.6, 'Salad': 2, 'Vegetable curry': 3, 'Almonds': 12.5, 'Mixed nuts': 7, 'Peanuts': 8.5, 'Peanut butter': 6, 'Chia seeds': 34, 'Berries': 2.4, 'Fruit': 2, 'Apple': 2.4, 'Banana': 2.6, 'Orange': 2.4, 'Black beans': 7, 'Chickpeas': 7.6, 'Chole': 6, 'Rajma': 6, 'Lentils': 8, 'Dal': 4, 'Dal makhani': 4, 'Hummus': 6, 'Edamame': 5, 'Oats': 10, 'Granola': 6, 'Bread': 2.7, 'Roti': 4, 'Brown rice': 1.8, 'Quinoa': 2.8, 'Sweet potato': 3, 'Potato': 2, 'Sprouts': 1.8, 'Tempeh': 5, 'Soya chunks': 13, 'Protein bar': 10, 'Keto protein bar': 30, 'Pasta': 1.8, 'Khichdi': 2, 'Sambar': 2, 'Idli': 1.5, 'Dosa': 1.5, 'Poha': 1.5, 'Upma': 1.5 };
   var DIET_OK = {
-    any: 'NVEFM', vegetarian: 'NV', eggetarian: 'NVE', vegan: 'N', pescatarian: 'NVEF', keto: 'NVEFM'
+    any: 'NVEFM', halal: 'NVEFM', vegetarian: 'NV', eggetarian: 'NVE', vegan: 'N', pescatarian: 'NVEF', keto: 'NVEFM'
   };
   // Quick protein ideas per diet: [food name, grams, label]
   var PROTEIN_IDEAS = {
     vegan: [['Tofu', 150, '150 g tofu'], ['Soya chunks', 30, '30 g soya chunks (dry)'], ['Plant protein', 30, 'a scoop of pea protein'], ['Dal', 200, 'a bowl of dal'], ['Tempeh', 100, '100 g tempeh'], ['Edamame', 100, 'a cup of edamame']],
-    vegetarian: [['Paneer', 100, '100 g paneer'], ['Greek yogurt', 170, 'a pot of Greek yogurt'], ['Whey protein', 30, 'a scoop of whey'], ['Dal', 200, 'a bowl of dal'], ['Soya chunks', 30, '30 g soya chunks (dry)'], ['Milk', 250, 'a glass of milk']],
+    vegetarian: [['Paneer', 100, '100 g paneer'], ['Dal', 200, 'a bowl of dal'], ['Yogurt', 200, 'a bowl of curd (dahi)'], ['Soya chunks', 30, '30 g soya chunks (dry)'], ['Chole', 200, 'a bowl of chana'], ['Milk', 250, 'a glass of milk'], ['Peanuts', 30, 'a handful of peanuts']],
+    halal: [['Chicken breast', 150, '150 g halal chicken breast'], ['Egg', 150, '3 eggs'], ['Lentils', 200, 'a cup of lentils'], ['Yogurt', 200, 'a bowl of yogurt'], ['Tuna', 100, 'a can of tuna'], ['Chickpeas', 160, 'a cup of chickpeas']],
     eggetarian: [['Egg', 150, '3 eggs'], ['Paneer', 100, '100 g paneer'], ['Greek yogurt', 170, 'a pot of Greek yogurt'], ['Whey protein', 30, 'a scoop of whey'], ['Soya chunks', 30, '30 g soya chunks (dry)']],
     pescatarian: [['Tuna', 100, 'a can of tuna'], ['Salmon', 120, 'a salmon fillet'], ['Egg', 150, '3 eggs'], ['Greek yogurt', 170, 'a pot of Greek yogurt'], ['Whey protein', 30, 'a scoop of whey']],
     keto: [['Egg', 150, '3 eggs'], ['Chicken breast', 150, '150 g chicken'], ['Tuna', 100, 'a can of tuna'], ['Paneer', 100, '100 g paneer'], ['Cheese', 40, '2 slices of cheese'], ['Whey protein', 30, 'a scoop of whey']],
@@ -4952,7 +5075,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // A newer version is online: say so, instead of quietly running the old one until the next launch
   // dates follow the app's language (English), not the device's, so an English screen doesn't show "28 de octubre"
   var UIL = /^en\b/i.test(navigator.language || '') ? undefined : 'en-GB';
-  var APP_VERSION = '51';
+  var APP_VERSION = '52';
   function checkVersion() {
     if (!navigator.onLine || !/^https?:/.test(location.protocol)) return;
     fetch('index.html?v=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
@@ -4989,7 +5112,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
 
   // ---------- profile ----------
-  var DIETS = [['any', 'Anything'], ['vegetarian', 'Vegetarian'], ['eggetarian', 'Vegetarian + eggs'], ['vegan', 'Vegan'], ['pescatarian', 'Pescatarian'], ['keto', 'Keto / low-carb']];
+  var DIETS = [['any', 'Anything'], ['vegetarian', 'Vegetarian'], ['eggetarian', 'Vegetarian + eggs'], ['vegan', 'Vegan'], ['pescatarian', 'Pescatarian'], ['halal', 'Halal'], ['keto', 'Keto / low-carb']];
   var CARDIO_OPTS = [['treadmill', 'Treadmill'], ['rower', 'Rowing machine'], ['bike', 'Exercise bike'], ['cycle', 'Cycling outside'], ['outdoors', 'Walking outside']];
   var ISSUES = [['knee', 'Knees'], ['back', 'Lower back'], ['neck', 'Neck / upper back'], ['shoulder', 'Shoulders'], ['elbow', 'Elbows'], ['wrist', 'Hands / wrists'], ['ankle', 'Ankles / Achilles'], ['balance', 'Balance'], ['bones', 'Osteopenia / osteoporosis'], ['bp', 'High blood pressure']];
   store.food = store.food || []; store.body = store.body || []; store.notes = store.notes || [];
@@ -5022,8 +5145,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   var NECK_TXT = 'Neck: push at no more than a third of your effort, and stop if you feel pain, dizziness or tingling into the arm. New or severe neck pain: see a clinician first';
   // the kneeling Reverse Nordic (the add-on's bodyweight version, and the Wall Sit's reps unless they're on the leg press)
   function kneelRep(id, wk) {
-    if (id === 'rev-nordic') return V(id, wk === 'h' ? 'h' : 'g').eq === 'w';
-    return id === 'wall-sit' && wk === 'r' && V(id, 'g').eq !== 'c';
+    if (id === 'rev-nordic') return pickEq(id, wk === 'h' ? 'h' : 'g').eq === 'w';
+    return id === 'wall-sit' && wk === 'r' && pickEq(id, 'g').eq !== 'c';
   }
   var FALL_TXT = 'Falls: lean back only a short way, with your hands ready to catch yourself and a sofa or cushion behind you. Or swap to the band or machine leg extension, done seated';
   // a safe partner for reps the plan leaves out (the Wall Sit's kneeling Reverse Nordic with sore knees or no floor work)
@@ -5031,13 +5154,52 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (id !== 'wall-sit' || !skipWhy(id, 'r') || bpToday()) return null;
     var a = 'goblet-squat'; return G[a] && EQV[a] && !V(a, 'g').missing && !skipWhy(a, 'r') && !painFor(a).skip ? a : null;
   }
-  function modTxt(id, wk) { var is = prof().issues; if ((is.indexOf('bones') > -1 || (prof().age || 0) >= 65) && kneelRep(id, wk)) return FALL_TXT; if (id === 'neck-hold' && wk === 'h' && (is.indexOf('neck') > -1 || gentle())) return NECK_TXT; if (id === 'dip-hold' && gentle()) return 'Gentle: stay near the top with the elbows only slightly bent, or keep your toes on the floor to take some weight'; if (id === 'pushup-plus' && is.indexOf('wrist') > -1) return 'Wrists: do it on your fists, or standing with your hands on a wall'; if (id === 'sl-balance' && (gentle() || is.indexOf('balance') > -1)) return 'Balance: stand next to a wall or chair and touch it whenever you need to'; if (is.indexOf('knee') > -1 && KNEE_MOD[id]) return KNEE_MOD[id]; if (is.indexOf('bones') > -1 && id === 'bird-dog' && wk !== 'h') return 'Bones: the hips do the work and the back stays flat, a safe way to load the spine and hips'; return ''; }
+  // which health note changes how to do this exercise ('' = none); modTxt says it, modSpec changes the steps, drawing and cues to match
+  function modKey(id, wk) { var is = prof().issues; if ((is.indexOf('bones') > -1 || (prof().age || 0) >= 65) && kneelRep(id, wk)) return 'fall'; if (id === 'neck-hold' && wk === 'h' && (is.indexOf('neck') > -1 || gentle())) return 'neck'; if (id === 'dip-hold' && gentle()) return 'gentle'; if (id === 'pushup-plus' && is.indexOf('wrist') > -1) return 'wrist'; if (id === 'sl-balance' && (gentle() || is.indexOf('balance') > -1)) return 'balance'; if (is.indexOf('knee') > -1 && KNEE_MOD[id]) return 'knee'; if (is.indexOf('bones') > -1 && id === 'bird-dog' && wk !== 'h') return 'bones'; return ''; }
+  function modTxt(id, wk) { var k = modKey(id, wk); return k === 'fall' ? FALL_TXT : k === 'neck' ? NECK_TXT : k === 'gentle' ? 'Gentle: stay near the top with the elbows only slightly bent, or keep your toes on the floor to take some weight' : k === 'wrist' ? 'Wrists: do it on your fists, or standing with your hands on a wall' : k === 'balance' ? 'Balance: stand next to a wall or chair and touch it whenever you need to' : k === 'knee' ? KNEE_MOD[id] : k === 'bones' ? 'Bones: the hips do the work and the back stays flat, a safe way to load the spine and hips' : ''; }
+  // How a note rewrites the exercise itself, so the numbered steps, the drawing and the spoken cues never contradict it
+  // sub: text swaps for steps and cues; mid: the hold's middle drawing; last: 'mid' draws the final (hold) position as the shallower middle one, or a pose; cue: an extra cue; why: replaces the Why line
+  function modSpec(id, k) {
+    var K = k + ':' + id;
+    switch (K) {
+      case 'knee:wall-sit': return { sub: [[/Stop with thighs parallel and shins vertical \(knees at 90°\)/, 'Stop when the knees are bent about 45° (thighs well above parallel), shins vertical'], [/Stop with the knees at about 90°/, 'Stop with the knees bent only about 45°'], [/knees bent about 90°/, 'knees bent only about 45°'], [/Slide down the wall slowly/, 'Slide down the wall slowly, only a short way'], [/lower the platform under control/, 'lower the platform a short way under control']], last: { h: function (p) { return Object.assign({}, p, { ln: [48, 3] }); }, 'h:c': 'mid', 'g:c': 'mid' }, mid: function (p) { return Object.assign({}, p, { ln: [38, 14] }); }, cue: 'Knees bent only about 45°', why: 'Wall-sit holds load the quads and the patellar tendon. With sore knees a shallow 45° sit still trains them, with much less pressure behind the kneecap than 90°.' };
+      case 'knee:goblet-squat': return { sub: [[/(F|f)eet just wider than hips/, function (m, f) { return (f === 'F' ? 'Stand in front of a chair, f' : 'in front of a chair, f') + 'eet just wider than hips'; }], [/Sit the hips down and back/, 'Sit the hips down and back towards the chair'], [/Stop with the thighs parallel to the floor/, 'Stop as soon as you touch the chair (thighs above parallel)'], [/Stop when the thighs are parallel to the platform or a little below/, 'Stop with the knees bent only about 45°'], [/Sit down over 2–3 s, pause 1 s at the bottom/, 'Sit down to the chair over 2–3 s, touch it lightly'], [/Lower over 2–3 s to a deep squat, pause/, 'Lower over 2–3 s, knees bent only about 45°'], [/Go as deep as your form allows/, 'Only as low as the chair']], last: 'mid', cue: 'Only down to the chair', why: 'Squat holds build the quads and knee tendons. With sore knees, stopping at a chair keeps the bend comfortable and still trains them.' };
+      case 'knee:split-squat': return { sub: [[/(L|l)ong split stance/, function (m, a) { return (a === 'L' ? 'S' : 's') + 'hort split stance, a hand on a wall'; }], [/Stop with the back knee just above the floor and front knee at 90°/, 'Stop with the front knee bent only about 45°, back knee well above the floor'], [/until the back knee nearly touches/, 'until the front knee is bent about 45°'], [/Lower straight down, torso tall, both knees bending/, 'Lower a short way, torso tall']], last: { h: function (p) { return Object.assign({}, p, { ln: [48, 0], lf: [-14, -45, 70] }); }, g: 'mid' }, cue: 'Front knee bent only about 45°', why: 'Single-leg holds build knee control. With sore knees a short stance and a 45° bend keep the load comfortable.' };
+      case 'knee:suitcase': return { sub: [[/Squat beside (the kettlebell|the dumbbell|a barbell)/, 'Bend your knees only as far as is comfortable beside $1 (set it on a step if the floor is too far),'], [/Squat down over 2–3 s with shoulders level, tap the (bell|weight) to the floor/, 'Bend down over 2–3 s with shoulders level, only as far as is comfortable'], [/Squat down over 2–3 s with shoulders level, touch the plates to the floor/, 'Bend down over 2–3 s with shoulders level, only as far as is comfortable']], cue: 'Bend the knees only as far as is comfortable' };
+      case 'gentle:dip-hold': return { sub: [[/slowly bend the elbows to lower yourself/, 'bend the elbows only a little. Keep your toes on the floor to take some weight if you need'], [/Stop with the upper arms about level with the floor, chest leaning forward/, 'Stop near the top, elbows only slightly bent'], [/Lower over 2–3 s until the upper arms are about level with the floor/, 'Lower over 2–3 s a short way, elbows only slightly bent']], last: 'mid', cue: 'Stay near the top' };
+      case 'wrist:pushup-plus': return { sub: [[/hands under the shoulders/, 'on your fists under the shoulders (or standing, hands on a wall)'], [/^High plank, arms straight/, 'High plank on your fists (or hands on a wall), arms straight'], [/pin the ends under your hands/, 'pin the ends under your fists']], cue: 'Fists, or hands on a wall: wrists straight' };
+      case 'balance:sl-balance': return { sub: [[/Shift your weight onto one foot and lift the other\./, 'Stand beside a wall or chair. Shift your weight onto one foot and lift the other, touching the wall whenever you need.'], [/Touch a wall for balance if needed\./, 'Touch a wall or chair for balance whenever you need.']], cue: 'Touch the wall whenever you need' };
+      case 'fall:rev-nordic': return { sub: [[/lean the whole body back from the knees/, 'lean back only a short way from the knees, hands ready to catch yourself'], [/Stop when the front of the thighs work hard, well before you lose control/, 'Stop after a short lean, well before you lose control, with a sofa or cushion behind you']], last: { h: 'mid' } };
+      case 'fall:wall-sit': return { sub: [[/Lean back from the knees over 2–3 s/, 'Lean back only a short way from the knees over 2–3 s, hands ready to catch yourself']], last: { g: function (p) { return Object.assign({}, p, { t: -18, ln: [18, -90, -90] }); } } };
+    }
+    return null;
+  }
+  var modBusy = false; // modKey asks which equipment you use, which can build a variant: don't recurse
+  function modFor(id, kind) { if (!store.profile || modBusy) return null; modBusy = true; var k; try { k = modKey(id, kind === 'h' ? 'h' : 'r'); } finally { modBusy = false; } var m = k ? modSpec(id, k) : null; if (m) m.key = k; return m; }
+  function modLastPose(m, id, kind, eq, base0) {
+    var L = m.last; if (!L) return null; var k = kind === 'h' ? 'h' : 'g', f = typeof L === 'object' ? (L[k + ':' + eq] || (eq === 'c' ? null : L[k])) : (eq === 'c' && !(EQV[id].pose && EQV[id].pose[k + ':c']) ? null : L);
+    if (!f) return null;
+    var st = base0.steps, lastP = st[st.length - 1].p;
+    if (typeof f === 'function') return f(lastP);
+    // 'mid': the hold's middle (shallower) position; for reps, the hold's middle step in the same equipment
+    if (k === 'h') return st[1].p;
+    var ps = EQV[id].pose && EQV[id].pose['h:' + eq]; return ps ? ps[1] : BY[id].steps[1].p;
+  }
+  function applyMod(v, m) {
+    function sw(t) { (m.sub || []).forEach(function (s) { t = t.replace(s[0], s[1]); }); return t; }
+    v.steps = v.steps.map(function (st) { var c = {}, key; for (key in st) c[key] = st[key]; c.txt = sw(st.txt); return c; });
+    var cues = (v.cues || []).map(sw); if (m.cue && cues.indexOf(m.cue) < 0) cues.unshift(m.cue); v.cues = cues;
+    if (m.why) v.why = m.why; v.mod = m.key;
+  }
   // target effort for a hold: the phase RPE ("7–8" in weeks 5–8), capped at 7 in gentle mode; the neck hold is always light
   function rpeTxt(id, ph) {
     if (id === 'neck-hold') return '3–4';
     var r = String(ph.rpe), lo = parseFloat(r);
     return gentle() && lo >= 7 ? '7' : r;
   }
+  // "RPE 7" in plain words, said once where the target is shown: how hard it should feel, out of 10
+  function rpeGloss(r) { var n = parseFloat(r); return n <= 4 ? 'easy, you could go on a long time' : n <= 6 ? 'moderate, you could keep going' : n < 8 ? 'hard but steady, about 3 more seconds left in you' : n < 9 ? 'very hard, about 2 more seconds left' : 'almost nothing left'; }
+  function rpeLab(r) { return 'RPE ' + r + ' (effort ' + r + ' of 10: ' + rpeGloss(r) + ')'; }
   function gentle() { var p = prof(); return p.issues.indexOf('bp') > -1 || p.issues.indexOf('bones') > -1 || (p.age || 0) >= 65; }
   // bodyweight as a number in the profile's unit, to 0.1 like a scale (not the 0.5 lb steps of a weight you lift): 197.4 lb stays 197.4
   function bwNum(v) { return v == null ? '' : r1(toU(v)); }
@@ -5065,10 +5227,17 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var b = bodyKg(), p = prof(); if (!b || noWt(ex.eq)) return null;
     var f = (kind === 'r' && SWING[id]) || START[id]; if (!f) return null;
     var v = b * f * (p.sex === 'f' ? 0.62 : 1) * ((p.age || 0) >= 70 ? 0.6 : (p.age || 0) >= 60 ? 0.75 : 1) * (gentle() ? 0.85 : 1);
-    if (ex.eq === 'b') v = ex.style === 'plate' ? Math.max(2.5, v) : Math.max(20, v * 2);
+    return floorSug(id, ex, baseSug(ex, v));
+  }
+  // the bodyweight-based start for this equipment, before the bar's own weight is added as a floor
+  function baseSug(ex, v) {
+    if (ex.eq === 'b') v = ex.style === 'plate' ? v : v * 2;
     if (ex.eq === 'c') v = ex.style === 'mach' ? v * 2.5 : v * 1.15;
     return v;
   }
+  // arm isolation on a bar uses a light fixed or EZ bar (about 10 kg), not the 20 kg Olympic bar
+  var EZ = { 'oh-triceps': 1, curl: 1 };
+  function floorSug(id, ex, v) { return ex.eq === 'b' ? (ex.style === 'plate' ? Math.max(2.5, v) : Math.max(EZ[id] ? 10 : 20, v)) : v; }
   // How far above a beginner's start you already lift (1 to 2.5), from what you've logged: other lifts against
   // beginner one-rep norms (× bodyweight), and program sets whose weight you chose against their cautious start.
   // Never in the gentle plan. The median, so one odd entry doesn't decide it.
@@ -5100,10 +5269,61 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (w == null) for (var i = store.log.length - 1; i >= 0; i--) { var l = store.log[i]; if (l.id === id && l.eq === ex.eq && l.k === 'r' && l.kg > 0 && !l.sug) { w = l.kg; break; } }
     return w > 0 ? snapSug(w * HOLD_OF_REPS, ex) : null;
   }
+  // First weights scaled from a RELATED logged lift, per movement (never one level for every exercise): a ratio of that
+  // lift's 10-rep working weight (its current estimated max × 0.75). Entries are [group, ratio, same]; same = the same
+  // movement pattern (leg press from a logged leg press), which may go up to the ratio. Any other lift is also capped at
+  // 2.5× its cautious start, and nothing is ever above the related lift's own working weight. No related lift: the
+  // standard start. Dumbbell and kettlebell ratios ('*') are per hand. Not used in the gentle plan.
+  var REL_RE = { press: /bench|chest press|floor press|incline press/, ohp: /overhead press|\bohp\b|shoulder press|military|push press/, row: /\brows?\b/,
+    pull: /pull.?down|pull.?up|chin.?up/, squat: /^(?!.*(split|bulgarian)).*squat/, legpress: /leg press/, deadlift: /^(?!.*(romanian|stiff|single)).*(deadlift|rack pull)/,
+    rdl: /romanian|\brdl\b|stiff.?leg/, hip: /hip thrust|glute bridge/ };
+  var REL = {
+    'oh-triceps': { '*': [['press', .3], ['ohp', .45]] },
+    kickback: { '*': [['press', .12], ['ohp', .18]] },
+    'floor-press': { b: [['press', .8, 1]], '*': [['press', .35]] },
+    'lateral-raise': { '*': [['ohp', .14], ['press', .08]] },
+    'rear-fly': { '*': [['row', .1], ['pull', .08]] },
+    curl: { b: [['row', .35], ['pull', .3]], c: [['row', .3], ['pull', .25]], '*': [['row', .18], ['pull', .15]] },
+    'sa-row': { b: [['row', .8, 1], ['pull', .6]], '*': [['row', .45], ['pull', .4]] },
+    'goblet-squat': { b: [['squat', .6], ['legpress', .3]], c: [['squat', .9, 1], ['legpress', .5]], '*': [['squat', .3], ['legpress', .15]] },
+    'wall-sit': { c: [['legpress', .8, 1], ['squat', 1.2]], '*': [['squat', .25], ['legpress', .12]] },
+    'split-squat': { '*': [['squat', .2], ['legpress', .1]] },
+    'glute-bridge': { b: [['hip', .9, 1], ['deadlift', .6]], c: [['hip', .9, 1], ['deadlift', .6]], '*': [['hip', .35], ['deadlift', .25]] },
+    rdl: { b: [['rdl', 1, 1], ['deadlift', .7, 1], ['squat', .6]], c: [['rdl', .4], ['deadlift', .3]], '*': [['rdl', .45], ['deadlift', .3]] },
+    'sl-rdl': { b: [['rdl', .5], ['deadlift', .35]], '*': [['rdl', .22], ['deadlift', .15]] },
+    suitcase: { b: [['deadlift', .5]], '*': [['deadlift', .35]] }
+  };
+  var ISO_CAP = 2.5;
+  // the 10-rep working weight of the strongest current lift in a group (Other lifts), or null
+  function relWork(g) {
+    var re = REL_RE[g], best = null, seen = {};
+    store.notes.forEach(function (n) {
+      if (n.k !== 'lift' || !n.reps || !(n.kg > 0)) return; var k = liftKey(n.name); if (seen[k] || !re.test(k) || /upright/.test(k)) return; seen[k] = 1;
+      var c = curMaxLift(n.name); if (c && c.e > 0 && (!best || c.e > best.e)) best = { e: c.e, name: n.name };
+    });
+    return best ? { w: best.e * 0.75, name: best.name, g: g } : null;
+  }
+  // the first weight before rounding and where it came from: { v, hi, from, ratio, std } (from null = the standard start)
+  function scaledSug(id, ex, kind) {
+    var b = bodyKg(), p = prof(), std = rawSug(id, ex, kind); if (std == null) return null;
+    var out = { v: std, from: null, std: std }, rl = REL[id]; if (!rl || gentle() || !b) return out;
+    var list = rl[ex.eq] || rl['*']; if (!list) return out;
+    for (var i = 0; i < list.length; i++) {
+      var r = relWork(list[i][0]); if (!r) continue;
+      var base = baseSug(ex, b * ((kind === 'r' && SWING[id]) || START[id]) * (p.sex === 'f' ? 0.62 : 1) * ((p.age || 0) >= 70 ? 0.6 : (p.age || 0) >= 60 ? 0.75 : 1));
+      var hi = list[i][2] ? r.w : Math.min(r.w, Math.max(std, ISO_CAP * base));
+      out = { v: Math.min(hi, Math.max(Math.min(base, std), list[i][1] * r.w)), hi: hi, from: r, ratio: list[i][1], std: std }; break;
+    }
+    return out;
+  }
   function suggestWt(id, ex, kind) {
-    var v = rawSug(id, ex, kind); if (v == null) return null;
-    v *= trainLevel();
-    return snapSug(v, ex);
+    var s = scaledSug(id, ex, kind); if (!s) return null;
+    if (!s.from) return snapSug(s.v, ex);
+    var v = snapSug(floorSug(id, ex, s.v), ex); if (owned(ex.eq).length) return v;
+    // rounding up never takes it over the cap or the related lift (but never below the bar itself)
+    var fl = Math.max(1, floorSug(id, ex, 0)), st = isLb() ? fromU(5) : ex.eq === 'k' ? 4 : ex.eq === 'd' ? (v <= 10 ? 1 : 2) : 2.5;
+    while (v > s.hi + 0.01 && v - st >= fl - 0.01) v = Math.round((v - st) * 100) / 100;
+    return v;
   }
   function snapSug(v, ex) {
     var o = owned(ex.eq);
@@ -5119,6 +5339,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       var lh = null; for (var i = store.log.length - 1; i >= 0; i--) { var l = store.log[i]; if (l.id === id && l.eq === ex.eq && l.k === 'h' && l.kg) { lh = l; break; } }
       if (!lh || lh.sug) { var fr = holdFromReps(id, ex); if (fr) return fr; }
     }
+    // a weight only ever logged as the app's own suggestion follows the current suggestion (an older, unsafe one isn't kept)
+    if (store.wt[wkey(id, ex, kind)] == null && !noWt(ex.eq)) { var ll = null; for (var j = store.log.length - 1; j >= 0; j--) { var q = store.log[j]; if (q.id === id && q.eq === ex.eq && q.k === kind && q.kg) { ll = q; break; } }
+      if (ll && ll.sug) { var sg = suggestWt(id, ex, kind); if (sg != null && sg > 0) return sg; } }
     var v = _getWt(id, ex, kind); return v != null ? v : suggestWt(id, ex, kind);
   };
   function wtHint(it) {
@@ -5149,7 +5372,10 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   function bodyKg() { return store.body.length ? store.body[store.body.length - 1].kg : prof().bw; }
   // 1.6 g/kg; with a BMI of 30 or more, of an adjusted weight (ideal + 40% of the extra), so the target isn't inflated by body fat
-  function proteinTarget() { var b = bodyKg(), cm = prof().cm; if (!b) return null; if (cm) { var ideal = 25 * Math.pow(cm / 100, 2); if (b > ideal * 1.2) b = ideal + 0.4 * (b - ideal); } return Math.round(b * 1.6); }
+  function proteinBase() { var b = bodyKg(), cm = prof().cm; if (!b) return null; if (cm) { var ideal = 25 * Math.pow(cm / 100, 2); if (b > ideal * 1.2) return { kg: ideal + 0.4 * (b - ideal), adj: true }; } return { kg: b, adj: false }; }
+  function proteinTarget() { var b = proteinBase(); return b ? Math.round(b.kg * 1.6) : null; }
+  // where the number comes from, in one short sentence
+  function proteinWhy() { var b = proteinBase(); if (!b) return ''; return 'Your target is 1.6 g of protein per kg of ' + (b.adj ? 'an adjusted bodyweight (' + bwTxt(b.kg) + ', as your BMI is high)' : 'bodyweight (' + bwTxt(b.kg) + ')') + ', the amount linked with the most muscle gain from strength training.'; }
   // Mifflin–St Jeor resting energy x 1.55 (training 4 days a week plus walking)
   function kcalTarget() {
     var p = prof(), b = bodyKg(); if (!b || !p.age || !p.cm || !p.sex || p.sex === 'x') return null;
@@ -5255,6 +5481,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var txt = s[3];
     if (to !== m) txt = (SUBTXT[to] && SUBTXT[to][s[2]]) || (to === 'walk' ? 'Brisk walk, 5.5–6 km/h' : to === 'out' ? 'Brisk walk' : 'Steady pedalling');
     if (to === 'bike' && have.indexOf('bike') < 0) txt = txt.replace(/resistance/g, 'gear').replace(/pedalling/g, 'riding');
+    if (prof().issues.indexOf('knee') > -1) txt = txt.replace(/ uphill or up stairs/, ', on the flat'); // stairs and hills are hard on sore knees
     return [to, s[1], s[2], mphTxt(txt)];
   }
   var MACHINE = { walk: 'Treadmill', row: 'Rower', bike: 'Bike', out: 'Walk', heel: 'Heel drops' };
@@ -5271,8 +5498,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     return out;
   }
   function segsFor(segs) { return bpSegs(segs.map(subSeg)); }
-  // the walking picture without the hills-and-stairs cue on a high blood pressure day
-  function cFig(m) { var f = CARDIO_FIG[m]; if (!bpToday() || !f) return f; var o = Object.create(f); o.cues = f.cues.map(function (c) { return c.replace(/; add hills or stairs for the hard parts/, ', on the flat'); }); return o; }
+  // the walking picture without the hills-and-stairs cue on a high blood pressure day, or with sore knees
+  function cFig(m) { var f = CARDIO_FIG[m]; if (!f || !(bpToday() || prof().issues.indexOf('knee') > -1)) return f; var o = Object.create(f); o.cues = f.cues.map(function (c) { return c.replace(/; add hills or stairs for the hard parts/, ', on the flat'); }); return o; }
 
   // ---------- photos (kept on the phone, in IndexedDB) ----------
   var PDB = null;
@@ -5574,7 +5801,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (/\b(i'?m|i am|training|train|working out)\b.*\bat (the )?gym\b/.test(t)) return { type: 'set_equipment', equipment: ['k', 'd', 'b', 'c'], where: 'gym' };
     if (/\b(i'?m|i am|training|train|working out)\b.*\bat home\b/.test(t)) return { type: 'set_profile', where: 'home' };
     // profile facts
-    if ((m = t.match(/\bi'?m (?:a |now )?(vegan|vegetarian|eggetarian|pescatarian|keto|on keto|low[- ]carb)\b/)) || (m = t.match(/\b(vegan|vegetarian|eggetarian|pescatarian|keto)\b (diet|now)/))) return { type: 'set_profile', diet: /keto|low/.test(m[1]) ? 'keto' : m[1] };
+    if ((m = t.match(/\bi'?m (?:a |now )?(vegan|vegetarian|eggetarian|pescatarian|halal|keto|on keto|low[- ]carb)\b/)) || (m = t.match(/\b(vegan|vegetarian|eggetarian|pescatarian|halal|keto)\b (diet|now)/)) || (m = t.match(/\bi (?:only )?eat (halal)\b/))) return { type: 'set_profile', diet: /keto|low/.test(m[1]) ? 'keto' : m[1] };
     if ((m = t.match(/\b(?:use|switch to|in|show)\s+(pounds|lb|kilos|kg|kilograms|metric|imperial)\b/))) return { type: 'set_profile', units: /lb|pound|imperial/.test(m[1]) ? 'lb' : 'kg' };
     if ((m = t.match(/\bi'?m (\d{2}) ?(?:years?|yrs?|y\.?o\.?)?\b(?: old)?/)) && /years|yrs|old|\bage\b|i'?m \d{2}\s*$/.test(t) && !/\b(kg|lb|min|s)\b/.test(t)) return { type: 'set_profile', age: +m[1] };
     if ((m = t.match(/\b(?:my )?age (?:is )?(\d{2})\b/))) return { type: 'set_profile', age: +m[1] };
@@ -5876,6 +6103,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         break;
       }
       case 'log_pain': {
+        // "back pain 3/10" right after "my back twinges on the swing": it's the same pain, so keep the exercise you named
+        if (!a.exercise) { var prevP = store.notes.filter(function (n) { return n.k === 'pain' && n.area === (a.area || 'general') && n.ex && now - n.t < 3 * 3600e3; }).pop(); if (prevP) a = Object.assign({}, a, { exercise: prevP.ex }); }
         var pnote = { t: now, k: 'pain', area: a.area || 'general', score: a.score == null ? null : a.score, sharp: !!a.sharp, sore: !!a.soreness }; if (a.exercise) pnote.ex = a.exercise;
         store.notes.push(pnote); save(); renderTrain();
         if (a.cleared || a.score === 0) { card = { k: 'pain', ref: now, title: areaName(a.area).replace(/^./, function (c) { return c.toUpperCase(); }) + ': no pain', lines: ['Good. Your sessions are back to normal for this area.'] }; break; }
@@ -6096,6 +6325,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (!/\bmy\b/.test(t) && /\b(what|whats|what's|which) (is|are|does|do|band)\b|\bmean(s|ing)?\b|\bhow (do|can) i (make|get|turn)\b|\b(can|could) you read\b|\bread (it|this|the [a-z]+) (aloud|out)\b/.test(t)) { for (var gi = 0; gi < GLOSS.length; gi++) if (GLOSS[gi][0].test(t)) return GLOSS[gi][1]; }
     if (/protein|macros?|calories|kcal|eaten|ate today|food today|carbs/.test(t)) {
       var s = 'Today so far: **' + r0(f.p) + ' g protein**' + (tg ? ' of ' + tg + ' g' : '') + ', ' + r0(f.k) + ' kcal' + (kcalTarget() ? ' of about ' + kcalTarget() : '') + ', ' + (prof().diet === 'keto' ? r0(f.net) + ' g net carbs (' + r0(f.c) + ' g total)' : r0(f.c) + ' g carbs') + ', ' + r0(f.f) + ' g fat.';
+      if (tg) s += ' ' + proteinWhy();
       if (tg && f.p < tg) s += '\n\nTo close the gap of ' + r0(tg - f.p) + ' g, try: ' + ideas(tg - f.p).join('; ') + '.';
       if (!tg) s += '\n\nTell me your bodyweight (“I weigh 75 kg”) to get a daily protein target.';
       return s;
@@ -6152,7 +6382,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       meal_name: { type: 'STRING' }, items: { type: 'ARRAY', items: { type: 'OBJECT', properties: { name: { type: 'STRING' }, grams: { type: 'NUMBER' }, protein_g: { type: 'NUMBER' }, carbs_g: { type: 'NUMBER' }, fat_g: { type: 'NUMBER' }, fiber_g: { type: 'NUMBER' }, kcal: { type: 'NUMBER' } }, required: ['name', 'grams', 'protein_g', 'kcal'] } },
       minutes: { type: 'NUMBER' }, distance_km: { type: 'NUMBER' }, machine: { type: 'STRING' }, area: { type: 'STRING', enum: ['knee', 'back', 'shoulder', 'elbow', 'ankle', 'hip', 'wrist', 'neck', 'hamstring', 'general'] }, score: { type: 'NUMBER' },
       ml: { type: 'NUMBER' }, hours: { type: 'NUMBER' }, equipment: { type: 'ARRAY', items: { type: 'STRING', enum: ['k', 'd', 'b', 'c', 'r', 'w'] } }, session: { type: 'STRING', enum: ['am', 'pm'] },
-      diet: { type: 'STRING', enum: ['any', 'vegetarian', 'eggetarian', 'vegan', 'pescatarian', 'keto'] }, age: { type: 'NUMBER' }, name: { type: 'STRING', description: 'For log_lift: the exercise name' }, sys: { type: 'NUMBER' }, dia: { type: 'NUMBER' }, pulse: { type: 'NUMBER' }
+      diet: { type: 'STRING', enum: ['any', 'vegetarian', 'eggetarian', 'vegan', 'pescatarian', 'halal', 'keto'] }, age: { type: 'NUMBER' }, name: { type: 'STRING', description: 'For log_lift: the exercise name' }, sys: { type: 'NUMBER' }, dia: { type: 'NUMBER' }, pulse: { type: 'NUMBER' }
     }, required: ['type'] } }
   }, required: ['reply', 'actions'] };
   function actionPrompt(kind) {
@@ -6538,7 +6768,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var up = stage === 'ready' && it.kind === 'reps' && progressLine(it, wtHint(it), P);
     if (up) { say(up); return; }
     if (stage === 'ready' && it.m === 'heel') say('Heel drops for bone health, one minute. Rise onto your toes, then drop onto your heels.');
-    else if (stage === 'ready') { var eff = effortLine(it, P); if (it.kind === 'cardio') say((it.first ? '' : 'Next: ') + MACHINE[it.m || 'walk'] + ', ' + (it.effort || '').toLowerCase() + ', ' + spokenDur(it.dur)); else say(it.ex.name + (it.side ? ', ' + it.side : '') + '. ' + (it.kind === 'hold' ? it.dur + ' second hold' : it.reps + ' reps') + (eff ? '. ' + eff : '') + (it.mod && !(eff && it.id === 'neck-hold') ? '. ' + it.mod.replace(/^Knees: /, '') : '') + (it.pain ? '. ' + areaName(it.pain.area).replace(/^./, function (c) { return c.toUpperCase(); }) + ' pain: go lighter, and stop if it passes 3 out of 10' : '')); }
+    else if (stage === 'ready') { var eff = effortLine(it, P); if (it.kind === 'cardio') say((it.first ? '' : 'Next: ') + (it.indoor ? it.ex.name : MACHINE[it.m || 'walk']) + ', ' + (it.effort || '').toLowerCase() + ', ' + spokenDur(it.dur)); else say(it.ex.name + (it.side ? ', ' + it.side : '') + '. ' + (it.kind === 'hold' ? it.dur + ' second hold' : it.reps + ' reps') + (eff ? '. ' + eff : '') + (it.mod && !(eff && it.id === 'neck-hold') ? '. ' + it.mod.replace(/^Knees: /, '') : '') + (it.pain ? '. ' + areaName(it.pain.area).replace(/^./, function (c) { return c.toUpperCase(); }) + ' pain: go lighter, and stop if it passes 3 out of 10' : '')); }
     else if (stage === 'work') say(it.kind === 'hold' ? (gentle() ? 'Hold, and keep breathing' : 'Hold') : it.kind === 'cardio' ? (it.effort === 'Hard' ? 'Go hard' : it.effort === 'Impact' ? 'Heel drops: up on your toes, then drop' : 'Go') : 'Go');
     else if (stage === 'rest') say(nxt ? 'Rest. Next: ' + nxt.ex.name : 'Rest');
     else if (stage === 'switch') say('Switch sides');
@@ -6818,13 +7048,13 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   // Backup tab: status, back up (code, file, share), restore (code or file) with undo
   function bkWhen(t) { var d = Math.floor((dayStart() - dayStart(t)) / 864e5); return d <= 0 ? 'today' : d === 1 ? 'yesterday' : d + ' days ago (' + dshort(t) + ')'; }
-  function bkStatus() { return store.bkAt ? 'Last backup: ' + bkWhen(store.bkAt) + '.' : 'No backup saved from this phone yet.'; }
+  function bkStatus() { return store.bkAt ? 'Last backup: ' + bkWhen(store.bkAt) + '.' : 'No backup saved from this device yet.'; }
   function bkCount(o) { var nt = o.notes || o.nt || [], k = function (t) { return nt.filter(function (n) { return n.k === t; }).length; }; return countDone(o.done) + ', ' + (o.log || []).length + ' sets, ' + k('lift') + ' other lifts, ' + k('cardio') + ' cardio logs, ' + (o.food || o.fd || []).length + ' meals, ' + (o.body || o.bw || []).length + ' weigh-ins'; }
   function bkFname() { return 'isohold-backup-' + new Date().toISOString().slice(0, 10) + '.txt'; }
   function bkDone(id, t) { store.bkAt = Date.now(); save(); msg(id, t, 'ok'); var s = $('bkStatus'); if (s) s.textContent = bkStatus(); }
   function renderPfBk() {
     var box = $('pfBk'); if (!box) return;
-    box.innerHTML = '<div class="pf-stat"><b id="bkStatus">' + esc(bkStatus()) + '</b><span>This phone: week ' + store.week + ', ' + esc(bkCount(store)) + '.</span></div>' +
+    box.innerHTML = '<div class="pf-stat"><b id="bkStatus">' + esc(bkStatus()) + '</b><span>This device: week ' + store.week + ', ' + esc(bkCount(store)) + '.</span></div>' +
       '<p class="muted pf-n">Your progress is stored only on this device. Back it up every week or two and keep it somewhere safe, like Notes or your email.</p>' +
       '<h3 class="pf-h">Back up</h3>' +
       '<div class="bk-row"><button class="btn sm" id="bkCopy">Copy backup code</button><button class="btn sm line" id="bkFile">Save backup file</button>' + (navigator.share ? '<button class="btn sm line" id="bkShare">Share…</button>' : '') + '</div>' +
@@ -6834,7 +7064,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       '<label for="bkIn" class="pf-l">Paste a backup code</label><textarea id="bkIn" rows="2" placeholder="Paste a code starting with ISOHOLD1:"></textarea>' +
       '<div class="bk-row"><button class="btn sm line" id="bkRestore">Restore</button><label class="btn sm line">Restore from a file<input type="file" id="bkFileIn" accept=".txt,text/plain" hidden></label></div>' +
       '<p class="bk-msg" id="bkMsg" role="status"></p>' +
-      '<p class="fine">Restoring replaces what’s on this phone; you can undo it straight after. Meal photos stay on the phone they were taken on.</p>';
+      '<p class="fine">Restoring replaces what’s on this device; you can undo it straight after. Meal photos stay on the device they were taken on.</p>';
     refreshBackup();
     $('bkCopy').addEventListener('click', function () {
       refreshBackup();
@@ -6987,7 +7217,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (!store.profile) h += '<div class="card nudge"><b>Make it yours</b><p>Set your diet, units, equipment (home or gym) and any joints to look after. It takes a minute.</p><button class="btn sm go" data-prof="1">Set up profile</button></div>';
     activePain().forEach(function (n) { h += '<div class="card warnc"><b>' + esc(areaName(n.area).replace(/^./, function (c) { return c.toUpperCase(); })) + ': ' + n.score + '/10 ' + (Date.now() - n.t < 864e5 ? 'today' : 'yesterday') + '</b><p>' + esc(painAdvice(n)[0]) + '</p></div>'; });
     var tips = [];
-    if (p.issues.indexOf('bp') > -1) tips.push(['Blood pressure', 'Breathe steadily through every hold, never hold your breath, and keep holds at RPE 7 or below. Stop if you feel dizzy or get a headache. Check heavy isometric work with your doctor.']);
+    if (p.issues.indexOf('bp') > -1) tips.push(['Blood pressure', 'Breathe steadily through every hold, never hold your breath, and keep holds at RPE 7 or below (effort 7 of 10: hard but steady, never straining). Stop if you feel dizzy or get a headache. Check heavy isometric work with your doctor.']);
     if (p.issues.indexOf('bones') > -1) tips.push(['Bone health', 'Loading is good for bones: steady holds and slow reps are a safe way to do it. Avoid twisting or rounding your back under load, and build up gradually.']);
     if (p.issues.indexOf('knee') > -1) tips.push(['Knees', 'Kneeling moves are left out and squats, split squats and wall sits use a shorter bend. Some discomfort up to 3 out of 10 that settles by the next morning is fine; sharp pain, swelling or the knee giving way means stop.']);
     if (p.issues.indexOf('balance') > -1) tips.push(['Balance', 'Do single-leg and split-squat work next to a wall or sturdy chair and touch it whenever you need to. That still trains balance.']);
@@ -7147,9 +7377,10 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var R = ex._r, K = R.slice(0, Math.min(R.length, mid ? 2 : 3)), n = K.length - 1, T = t % CYC;
     if (T < 0.6 || !n) return [R[0], 0, false, 0]; T -= 0.6;
     var ck = mid ? '_ksm' : '_ks', ks = ex[ck] && ex[ck].r === R ? ex[ck].k : (ex[ck] = { r: R, k: FIG.knots(K) }).k;
-    if (T < IN) { var m = FIG.move(ex, K, ks, T, IN); return [m, m._seg == null ? n : m._seg + 1, false, 0]; } T -= IN;
+    if (T < IN) { var m = FIG.move(ex, K, ks, T, IN); return [m, m._near != null ? m._near : m === K[0] ? 0 : m._seg == null ? n : m._seg + 1, false, 0]; } T -= IN;
     if (T < HOLD) return [K[n], n, true, breath(T)]; T -= HOLD;
-    return [FIG.move(ex, K.slice().reverse(), ks.map(function (x) { return 1 - x; }).reverse(), T, BACK), 0, false, 0];
+    var mb = FIG.move(ex, K.slice().reverse(), ks.map(function (x) { return 1 - x; }).reverse(), T, BACK);
+    return [mb, mb._near != null ? n - mb._near : 0, false, 0];
   }
   // one rep of a growth lift: returns [pose, label]
   function repPose(g, t) {
@@ -7251,7 +7482,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var dKeys = partsOf(P.part).map(function (pt) { return 'w' + store.week + P.day.id + pt; });
     // a walk-only day (high blood pressure) logs the walk as cardio; the strength session waits for another day
     if (anyLogged && walkOnly && !P.day.cardio) { store.notes.push({ t: Date.now(), k: 'cardio', m: 'Walking', min: Math.round((P.cardioS || 0) / 60), km: null, steps: null, hard: false }); anyLogged = false; P.walkLogged = true; }
-    else if (anyLogged) { store.cmin = store.cmin || {}; dKeys.forEach(function (k, i) { store.done[k] = Date.now(); store.cmin[k] = i ? 0 : Math.round((P.cardioS || 0) / 60); }); } save();
+    else if (anyLogged) { store.cmin = store.cmin || {}; store.took = store.took || {}; var took0 = Math.max(1, Math.round((Date.now() - P.start) / 60000));
+      // the minutes this session actually took, on its first part (one session covering the whole day: 'am' holds it all)
+      dKeys.forEach(function (k, i) { store.done[k] = Date.now(); store.cmin[k] = i ? 0 : Math.round((P.cardioS || 0) / 60); store.took[k] = i ? 0 : took0; }); } save();
     var wk0 = store.week; P.wk0 = wk0; if (anyLogged) { moreDay = 0; checkWeek(dKeys); } if (store.week === wk0) selDay = nextDayIdx();
     P.stage = 'done'; setTimeout(function () { $('pRingBtn').setAttribute('aria-label', 'Close the session'); $('pClose').focus(); }, 50); beep(523, .2); setTimeout(function () { beep(784, .4); }, 220);
     $('pPhase').textContent = 'Done'; $('pPhase').className = 'p-phase rest';
@@ -7321,7 +7554,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       $('pSets').innerHTML = d;
       // the sets shown are the sets this session runs (the day's limit can take one off: "Hold set 1 of 1" reads "1 × 30 s", not "2 × 30 s")
       var phS = Object.create(ph); if (showIt.kind === 'hold') phS.sets = showIt.sets; else phS.gs = showIt.sets;
-      $('pRx').textContent = (showIt.kind === 'hold' ? (showIt.pain ? showIt.dur + ' s (shortened)' : rx(ex, phS)) + ' at RPE ' + rpeTxt(showIt.id, ph) : grx(ex, phS) + (showIt.kind === 'reps' ? ', ' + rirTxt(ph).toLowerCase() : '')) + (showIt.pain ? '. ' + areaName(showIt.pain.area).replace(/^./, function (c) { return c.toUpperCase(); }) + ' ' + showIt.pain.score + '/10: go about 20% lighter, stop above 3/10.' : '') + (showIt.mod ? '. ' + showIt.mod + '.' : '');
+      $('pRx').textContent = (showIt.kind === 'hold' ? (showIt.pain ? showIt.dur + ' s (shortened)' : rx(ex, phS)) + ' at ' + rpeLab(rpeTxt(showIt.id, ph)) : grx(ex, phS) + (showIt.kind === 'reps' ? ', ' + rirTxt(ph).toLowerCase() : '')) + (showIt.pain ? '. ' + areaName(showIt.pain.area).replace(/^./, function (c) { return c.toUpperCase(); }) + ' ' + showIt.pain.score + '/10: go about 20% lighter, stop above 3/10.' : '') + (showIt.mod ? '. ' + showIt.mod + '.' : '');
       var ang = $('pAngle');
       if (P.stage === 'rest' || P.stage === 'switch') setCue(P.stage === 'switch' ? 'Switch sides' : 'Rest', 'Next: start position', '');
       else if (showIt.kind === 'hold') setCue(P.stage === 'work' ? (showIt.angle === 'mid' ? 'Hold mid-range' : 'Hold') : 'Get into position', P.stage === 'work' ? 'Keep breathing, stay still' : (showIt.angle === 'mid' ? 'Mid-range hold' : 'Then hold'), P.stage === 'work' ? 'hold' : '');
@@ -7535,7 +7768,11 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   renderTools();
   window.__isoholdReady = performance.now();
   // read-only hooks for the automated test suite
-  window.__isoTest = { progressLine: function (it, hint, mem) { return progressLine(it, hint, mem); }, today: function (l) { return today(l); }, dayStart: function (t) { return dayStart(t); }, suggestWt: function (id, kind) { return suggestWt(id, V(id, kind === 'h' ? 'h' : 'g'), kind); }, localAnswer: function (t) { return localAnswer(t); }, weekTarget: function () { return weekTarget(); }, buildQueue: buildQueue, allDays: allDays, mins: mins, V: V, chooseEq: chooseEq, pickEq: pickEq, store: function () { return store; }, strengthData: strengthData, holdMax: holdMax, repMax: repMax, phaseOf: phaseOf, blocksFor: blocksFor, wLabel: wLabel, weekDone: weekDone, isPB: isPB, parseText: parseText, parsePlayerCmd: parsePlayerCmd, handle: function (t, s) { return handle(t, s || 'text'); }, runCmd: function (t) { return runCmd(t); }, feed: function () { return feed; }, prof: prof, proteinTarget: proteinTarget, foods: FOODS, applyAction: function (a) { return apply(a, 'test'); }, dailyIdx: function () { return dailyIdx(); }, strChange: function () { return strChange(); }, epley: epley, loadTime: loadTime, estMax: estMax, liftTags: liftTags, exRegions: exRegions, liftRegions: liftRegions, BM_NAME: BM_NAME, weekStart: function (t) { return weekStart(t); }, bodyWeek: function () { return bodyWeek(); }, covDays: covDays, covDone: covDone, exName: exName, rpeTxt: rpeTxt, curMax: curMax, curMaxLift: curMaxLift, curMaxEx: curMaxEx, modTxt: modTxt, libNote: libNote, repAlt: repAlt, painAdvice: painAdvice, trainLevel: trainLevel, getWt: function (id, kind, eq) { var kk = kind === 'h' ? 'h' : 'g', o = eq ? parseEq(EQV[id][kk]).filter(function (x) { return x.eq === eq; })[0] : null; return getWt(id, V(id, kk, o || undefined), kind === 'h' ? 'h' : 'r'); }, skipWhy: skipWhy };
+  window.__isoTest = { seq: seq, cFig: cFig, subSeg: subSeg, nextDayIdx: nextDayIdx, progressLine: function (it, hint, mem) { return progressLine(it, hint, mem); }, today: function (l) { return today(l); }, dayStart: function (t) { return dayStart(t); }, suggestWt: function (id, kind) { return suggestWt(id, V(id, kind === 'h' ? 'h' : 'g'), kind); }, localAnswer: function (t) { return localAnswer(t); }, weekTarget: function () { return weekTarget(); }, buildQueue: buildQueue, allDays: allDays, mins: mins, V: V, chooseEq: chooseEq, pickEq: pickEq, store: function () { return store; }, strengthData: strengthData, holdMax: holdMax, repMax: repMax, phaseOf: phaseOf, blocksFor: blocksFor, wLabel: wLabel, weekDone: weekDone, isPB: isPB, parseText: parseText, parsePlayerCmd: parsePlayerCmd, handle: function (t, s) { return handle(t, s || 'text'); }, runCmd: function (t) { return runCmd(t); }, feed: function () { return feed; }, prof: prof, proteinTarget: proteinTarget, foods: FOODS, applyAction: function (a) { return apply(a, 'test'); }, dailyIdx: function () { return dailyIdx(); }, strChange: function () { return strChange(); }, epley: epley, loadTime: loadTime, estMax: estMax, liftTags: liftTags, exRegions: exRegions, liftRegions: liftRegions, BM_NAME: BM_NAME, weekStart: function (t) { return weekStart(t); }, bodyWeek: function () { return bodyWeek(); }, covDays: covDays, covDone: covDone, exName: exName, rpeTxt: rpeTxt, curMax: curMax, curMaxLift: curMaxLift, curMaxEx: curMaxEx, modTxt: modTxt, libNote: libNote, repAlt: repAlt, painAdvice: painAdvice, trainLevel: trainLevel, getWt: function (id, kind, eq) { var kk = kind === 'h' ? 'h' : 'g', o = eq ? parseEq(EQV[id][kk]).filter(function (x) { return x.eq === eq; })[0] : null; return getWt(id, V(id, kk, o || undefined), kind === 'h' ? 'h' : 'r'); }, skipWhy: skipWhy,
+    // the first weight for one equipment version, with where it came from (round 13 audit)
+    sugFor: function (id, kind, eq) { var kk = kind === 'h' ? 'h' : 'g', o = parseEq(EQV[id][kk]).filter(function (x) { return x.eq === eq; })[0]; if (!o) return null; var ex = V(id, kk, o); if (ex.eq !== eq) return null; var k = kind === 'h' ? 'h' : 'r', s = scaledSug(id, ex, k); if (!s) return null; var p = prof(), b = bodyKg();
+      return { v: suggestWt(id, ex, k), from: s.from ? s.from.name : null, relW: s.from ? s.from.w : null, std: s.std, stdSnap: snapSug(s.std, ex), base: baseSug(ex, b * ((k === 'r' && SWING[id]) || START[id] || 0) * (p.sex === 'f' ? 0.62 : 1)) }; },
+    lastTxt: function (it) { var keep = P; if (!P) P = { start: Date.now() }; try { var l = lastFor(it); return l ? setTxt(l) : null; } finally { P = keep; } } };
   kickAnim();
 })();
 
