@@ -10,7 +10,8 @@ async function boot(eq, extra = {}) {
   const o = await open('android', { state: { profile: Object.assign({ units: 'kg', bw: 70, age: 40, sex: 'm' }, extra), eq } });
   await o.page.goto(URL); await o.page.waitForFunction(() => window.__isoholdReady, null, { polling: 100 }); return o;
 }
-const q = (page, day) => page.evaluate(d => { const t = window.__isoTest, dy = t.allDays().find(x => x.id === d); return t.buildQueue(dy, 'pm', t.phaseOf(1)).filter(i => i.id).map(i => ({ id: i.id, name: i.ex.name, eq: i.ex.eq, kind: i.kind, mod: i.mod || '' })); }, day);
+// the newest pairs alternate by week, so look at weeks 1 and 2 together unless a week is given
+const q = (page, day, wk) => page.evaluate(([d, wk]) => { const t = window.__isoTest, s = t.store(), w0 = s.week, dy = t.allDays().find(x => x.id === d), out = []; (wk ? [wk] : [1, 2]).forEach(w => { s.week = w; t.buildQueue(dy, 'pm', t.phaseOf(1)).filter(i => i.id).forEach(i => out.push({ id: i.id, name: i.ex.name, eq: i.ex.eq, kind: i.kind, mod: i.mod || '' })); }); s.week = w0; return out; }, [day, wk || 0]);
 const ironFigs = p => p.evaluate(() => [...document.querySelectorAll('svg')].filter(s => s.getBoundingClientRect().width > 0 && /iron-hub/.test(s.innerHTML)).map(s => { const c = s.closest('[data-ex]'); return c ? c.dataset.ex : '?'; }));
 (async () => {
   const srv = await serve(PORT);
@@ -41,6 +42,13 @@ const ironFigs = p => p.evaluate(() => [...document.querySelectorAll('svg')].fil
   ok(['sa-row', 'incline-press', 'pallof'].every(id => ids.includes(id)), 'cardio day 1 keeps its earlier pairs');
   a = await q(page, 'c2'); ids = a.map(x => x.id);
   ok(C2.every(id => ids.includes(id)) && !C1.some(id => ids.includes(id)), 'cardio day 2 adds reverse Nordic, shrug, wrist, neck (' + [...new Set(ids)] + ')');
+  // the two newest pairs take turns, so a cardio day is only one pair longer than before
+  for (const [d, odd, even] of [['c1', ['dip-hold', 'incline-curl'], ['hammer', 'pushup-plus']], ['c2', ['rev-nordic', 'shrug'], ['wrist', 'neck-hold']]]) {
+    const w1 = (await q(page, d, 1)).map(x => x.id), w2 = (await q(page, d, 2)).map(x => x.id), w3 = (await q(page, d, 3)).map(x => x.id);
+    ok(odd.every(i => w1.includes(i)) && !even.some(i => w1.includes(i)), d + ' week 1 has ' + odd + ' only');
+    ok(even.every(i => w2.includes(i)) && !odd.some(i => w2.includes(i)), d + ' week 2 has ' + even + ' only');
+    ok(odd.every(i => w3.includes(i)), d + ' week 3 goes back to ' + odd);
+  }
   // strength days unchanged
   const sd = await page.evaluate(ids => { const t = window.__isoTest; return t.allDays().filter(d => !d.cardio).some(d => ['am', 'pm'].some(p => t.buildQueue(d, p, t.phaseOf(1)).some(i => ids.includes(i.id)))); }, ALL);
   ok(!sd, 'strength days do not get the new holds');

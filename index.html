@@ -2022,7 +2022,8 @@ var RETIRED = ['front-raise', 'rear-fly', 'overhead-hold', 'ext-rot', 'shrug', '
 // Muscle-part pairs: lower chest + long-head biceps, brachialis + serratus (day 1); middle quad + upper traps, forearm extensors + neck (day 2).
 var ADDON_BY = { c1: [['sa-row', 'rear-fly'], ['ext-rot', 'prone-y'], ['incline-press', 'pallof'], ['dip-hold', 'incline-curl'], ['hammer', 'pushup-plus']], c2: [['sa-row', 'rear-fly'], ['ham-bridge', 'tib-hold'], ['side-plank', 'copenhagen'], ['rev-nordic', 'shrug'], ['wrist', 'neck-hold']] };
 var ADDON_TXT = { c1: 'Rows, rear delts, rotator cuff, lower traps, upper and lower chest, anti-rotation core, long-head biceps, brachialis and serratus', c2: 'Rows, rear delts, knee-bend hamstrings, shins, side hip, inner thigh, middle quad, upper traps, forearm extensors and neck' };
-function addonFor(day) { return ADDON_BY[day.id] || ADDON_BY.c1; }
+// the first three pairs every cardio day; the last two take turns week by week so the add-on stays about as long as before
+function addonFor(day, wk) { var p = ADDON_BY[day.id] || ADDON_BY.c1; return p.length > 4 ? p.slice(0, 3).concat([p[3 + ((wk || 1) + 1) % 2]]) : p; }
 function addonTxt(day) { return ADDON_TXT[day.id] || ADDON_TXT.c1; }
 var ADDON = ['sa-row', 'rear-fly', 'ext-rot', 'prone-y', 'incline-press', 'pallof', 'dip-hold', 'incline-curl', 'hammer', 'pushup-plus', 'ham-bridge', 'tib-hold', 'side-plank', 'copenhagen', 'rev-nordic', 'shrug', 'wrist', 'neck-hold'], EX_ADDON = EX.filter(function (e) { return ADDON.indexOf(e.id) > -1; });
 EX = EX.filter(function (e) { return RETIRED.indexOf(e.id) < 0; });
@@ -2907,7 +2908,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (/^short-/.test(part)) { var p2 = Object.create(ph); p2.sets = 1; p2.gs = 1; q = buildQueue(day, part.slice(6), p2).filter(function (it) { return it.kind !== 'cardio'; }); if (q.length) { q[0].first = true; q[q.length - 1].after = 0; } return q; }
     if (day.cardio && part === 'pm' && addonOn()) {
       // back and stabilizer add-on first, then the evening cardio trimmed so the day stays within the hour
-      var add = [].concat.apply([], addonFor(day).map(function (b) { return blockItems(b, ph, {}); })), segs = day.pm(ph).map(function (x) { return x.slice(); });
+      var add = [].concat.apply([], addonFor(day, store.week).map(function (b) { return blockItems(b, ph, {}); })), segs = day.pm(ph).map(function (x) { return x.slice(); });
       var room = DAYCAP - qSecs(buildQueue(day, 'am', ph)) - qSecs(add) - 5, tot = segs.reduce(function (t, x) { return t + x[1]; }, 0);
       if (tot > room) segs.forEach(function (x) { x[1] = Math.max(300, Math.floor(x[1] * room / tot / 60) * 60); });
       q = add.concat(cardioItems(segs));
@@ -4619,7 +4620,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // A newer version is online: say so, instead of quietly running the old one until the next launch
   // dates follow the app's language (English), not the device's, so an English screen doesn't show "28 de octubre"
   var UIL = /^en\b/i.test(navigator.language || '') ? undefined : 'en-GB';
-  var APP_VERSION = '44';
+  var APP_VERSION = '45';
   function checkVersion() {
     if (!navigator.onLine || !/^https?:/.test(location.protocol)) return;
     fetch('index.html?v=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
