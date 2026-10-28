@@ -337,6 +337,7 @@ table.cov td, table.cov th { padding-left: 3px; padding-right: 3px; }
 .sum-sets { color: var(--muted); font-size: 14.5px; }
 .pb { display: inline-block; font-size: 12.5px; font-weight: 800; padding: 1px 8px; border-radius: 999px; background: var(--ink); color: var(--bg); vertical-align: 1px; }
 #pNext { font-size: 15px; color: var(--muted); }
+#pHands { font-size: 14px; font-weight: 700; margin-top: 4px; }
 .p-ctrl { display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 8px; padding-block: 10px calc(10px + env(safe-area-inset-bottom, 0px)); max-width: 560px; width: 100%; margin: 0 auto; }
 .p-ctrl .btn { min-height: 60px; font-size: 17px; white-space: nowrap; padding: 0 10px; }
 #pMore { grid-column: 1 / -1; min-height: 44px; }
@@ -1034,6 +1035,7 @@ button.ring:active { transform: scale(.97); }
       <p class="plog" id="pLog" hidden aria-live="polite"><span id="pLogTxt"></span><span class="plog-b"><button id="pLogMinus" aria-label="Logged less">−</button><button id="pLogPlus" aria-label="Logged more">+</button></span></p>
       <ul id="pCues"></ul>
       <p id="pNext"></p>
+      <p id="pHands" aria-live="off"></p>
     </div>
   </div>
   <div class="p-confirm" id="pConfirm" hidden role="alertdialog" aria-labelledby="pEndT">
@@ -3738,7 +3740,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // A newer version is online: say so, instead of quietly running the old one until the next launch
   // dates follow the app's language (English), not the device's, so an English screen doesn't show "28 de octubre"
   var UIL = /^en\b/i.test(navigator.language || '') ? undefined : 'en-GB';
-  var APP_VERSION = '34';
+  var APP_VERSION = '35';
   function checkVersion() {
     if (!navigator.onLine || !/^https?:/.test(location.protocol)) return;
     fetch('index.html?v=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
@@ -4991,7 +4993,11 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     r.onend = function () { pv.r = null; if (pv.on && P) setTimeout(listenP, 250); };
     try { r.start(); pv.r = r; } catch (e) { setTimeout(listenP, 800); }
   }
-  function paintPMic() { var b = $('pMic'); if (!b) return; b.setAttribute('aria-pressed', String(pv.on)); b.setAttribute('aria-label', pv.on ? 'Voice control on. Turn off' : 'Turn on voice control'); }
+  function paintHands() {
+    var h = $('pHands'); if (!h) return;
+    h.textContent = pv.on ? 'Listening: say “next”, “pause” or a weight.' : selfPaced() ? 'Moves on when you tap Start next. Change this in Profile → Training.' : 'No need to touch the screen: it moves on when time is up.' + (SR ? ' Tap the mic to say “pause” or “next”.' : '');
+  }
+  function paintPMic() { paintHands(); var b = $('pMic'); if (!b) return; b.setAttribute('aria-pressed', String(pv.on)); b.setAttribute('aria-label', pv.on ? 'Voice control on. Turn off' : 'Turn on voice control'); }
   function nowTxt() {
     var it = P && P.showIt; if (!it) return '';
     var stage = P.stage === 'work' ? (it.kind === 'hold' ? 'Hold' : it.kind === 'reps' ? 'Reps' : 'Go') : P.stage === 'rest' ? 'Rest' : P.stage === 'switch' ? 'Switch sides' : 'Get ready';
@@ -5461,6 +5467,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     $('pCues').innerHTML = groups.map(function (g) { return '<li><b>' + esc(g.name) + '</b>' + (g.pb ? ' <span class="pb">New best</span>' : '') + '<br><span class="sum-sets">' + esc(g.sets.join(', ')) + '</span></li>'; }).join('');
     if (nPB) haptic('success');
     if (cuesOn()) say('Session complete' + (nPB ? '. ' + nPB + (nPB === 1 ? ' new best' : ' new bests') : '') + '. Nice work.');
+    $('pHands').hidden = true;
     $('pNext').textContent = P.walkLogged ? 'Walk logged as cardio. Today’s strength session waits for a day your blood pressure is lower.' : !anyLogged ? (P.day.cardio ? 'Less than 3 minutes of cardio, so this session isn’t marked done. If you walked or rode without the timer, log it like “walked 30 min”.' : 'You skipped every set, so this session isn’t marked done. Tick it on the Train tab if you trained without the timer.') : P.part === 'am' && !P.day.cardio && !oneADay() ? 'Evening session later today. Leave at least 6 hours between the two if you can.' : 'Rate how your tendons feel tomorrow morning. Above 3/10 means go lighter next time. Muscle soreness is normal.';
     $('pDay').textContent = P.head;
     $('pAngle').hidden = true; $('pPause').hidden = true; $('pSkip').hidden = true; $('pMore').hidden = true; $('pPrev').hidden = true; $('pWtRow').hidden = true; $('pLog').hidden = true; $('pSkipEx').hidden = true; $('pHow').hidden = true; $('pSteps').hidden = true;
@@ -5535,6 +5542,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (it.kind === 'cardio' && nxt && nxt.kind === 'cardio') upTxt = 'Next: ' + fmt(nxt.dur) + (nxt.dur >= 100 ? '' : ' s') + ' ' + nxt.effort.toLowerCase() + '.';
     else if (up) upTxt = 'Up next: ' + up.ex.name + (up.ex.grow && up.kind !== 'cardio' ? ' (reps)' : '') + '.';
     $('pNext').textContent = (after ? after + '. ' : '') + upTxt;
+    $('pHands').hidden = false; paintHands();
     $('pSvg').setAttribute('viewBox', ex._vb.map(function (x) { return x.toFixed(1); }).join(' '));
     $('pMore').hidden = !(P.stage === 'rest' || P.stage === 'switch');
     $('pPause').textContent = P.paused ? 'Resume' : 'Pause';
