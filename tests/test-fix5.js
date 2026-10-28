@@ -42,6 +42,13 @@ function maxJump(fr) {
       ok(cmp > 40 && jump < 4, kind + ' ' + id + ': no frame-to-frame jump (max ' + jump.toFixed(2) + ' units per frame)');
       await page.click('#sheetClose'); await page.waitForTimeout(100);
     }
+    // ---- every newer hold moves without a jump between its steps (no limb swinging through the body) ----
+    const nj = await page.evaluate(() => ['dip-hold', 'incline-curl', 'hammer', 'pushup-plus', 'rev-nordic', 'shrug', 'wrist', 'neck-hold'].map(id => {
+      const ex = EX_ADDON.find(e => e.id === id) || EX.find(e => e.id === id), K = ex._r.slice(0, 3); let prev = null, jump = 0;
+      for (let i = 0; i <= 160; i++) { const o = FIG.place(FIG.move(ex, K, null, i / 60, 2.65), ex._anchor, 0), pts = Object.values(o).filter(v => Array.isArray(v) && v.length === 2 && typeof v[0] === 'number'); if (prev) pts.forEach((q, k) => { if (prev[k]) jump = Math.max(jump, Math.hypot(q[0] - prev[k][0], q[1] - prev[k][1])); }); prev = pts; }
+      return [id, jump];
+    }));
+    for (const [id, j] of nj) ok(j < 1.2, kind + ' ' + id + ': smooth between steps (max ' + j.toFixed(2) + ' per frame)');
     // ---- the engine: support foot planted and nothing through the floor during the squat ----
     const eng = await page.evaluate(() => {
       const ex = EX.find(e => e.id === 'goblet-squat'), K = ex._r.slice(0, 3), out = { foot: 0, toe: 0, below: 0, joint: 0, knee: 0 };

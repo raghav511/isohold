@@ -57,7 +57,7 @@ const lastCard = page => T(page, () => window.__isoTest.feed().filter(x => x.r =
   ok(await T(page, () => window.__isoTest.store().notes.filter(n => n.k === 'lift').slice(-3).every(n => n.rpe === 8)), 'RPE kept on every set of a multi-set line');
   await say(page, 'bench 285 for 3'); let c = await lastCard(page); ok(!/typo/.test(c.warn || ''), 'a normal heavier triple is not flagged as a typo');
   await T(page, () => { const s = window.__isoTest.store(); s.notes.push({ t: Date.now(), k: 'lift', name: 'Deadlift', kg: 294.835, reps: 1, sets: 1 }); });
-  await page.click('#tab-progress'); ok(/estimated max 650 lb/.test(await page.locator('#progExtras').innerText()), 'a single at 650 lb shows estimated max 650 lb');
+  await page.click('#tab-progress'); ok(/estimated max 67[12](\.\d)? lb/.test(await page.locator('#progExtras').innerText()), 'a single at 650 lb shows estimated max 650 × (1 + 1/30) ≈ 672 lb (the one Epley estimate used everywhere)');
   await b.close();
   ({ b, page, errs } = await boot(kind, { profile: Object.assign({}, P0, { units: 'kg' }), eq: ['d'] }));
   const kp = t => T(page, t => window.__isoTest.parseText(t).actions[0] || null, t);
