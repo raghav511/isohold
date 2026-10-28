@@ -10,7 +10,7 @@ async function boot(profile, week) {
 }
 (async () => {
   const srv = await serve(PORT);
-  for (const [week, want] of [[1, /RPE 6\b/], [3, /RPE 7\b/], [6, /RPE 7–8/], [10, /RPE 9\b/]]) {
+  for (const [week, want] of [[1, /RPE 6(?![\d–])/], [3, /RPE 7(?![\d–])/], [6, /RPE 7–8/], [10, /RPE 9(?![\d–])/]]) {
     const { b, page, errs } = await boot({}, week);
     await page.click('#tab-exercises'); await page.waitForTimeout(200);
     await page.click('#lib [data-ex="goblet-squat"]'); await page.waitForTimeout(200);
