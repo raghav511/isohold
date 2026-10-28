@@ -72,7 +72,7 @@ const T = (page, f, a) => page.evaluate(f, a);
   // chips in pounds
   await page.evaluate(() => { window.__isoTest.feed().length = 0; document.getElementById('tab-coach').click(); }); await page.waitForTimeout(100);
   const chips = await page.locator('#cSugs').innerText();
-  ok(/35 lb/.test(chips) && /I weigh 198 lb/.test(chips) && !/\bkg\b/.test(chips), 'one-tap chips in pounds, with your own weight: ' + chips.replace(/\n/g, ' | '));
+  ok(/Goblet squat [\d.]+ lb 30 s/.test(chips) && /I weigh 198 lb/.test(chips) && !/\bkg\b/.test(chips), 'one-tap chips in pounds, with your own weight: ' + chips.replace(/\n/g, ' | '));
   ok(!errs.filter(e => !/Audio/.test(e)).length, 'no errors (lifts) ' + errs);
   await b.close();
   // kg plates
