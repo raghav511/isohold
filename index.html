@@ -283,6 +283,10 @@ nav.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; backgrou
 .chk-f label, .chk-ex { display: grid; gap: 3px; font-size: 13px; color: var(--muted); font-weight: 700; }
 .chk-ex select { font: inherit; font-size: 16px; min-height: 46px; padding: 8px 10px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); }
 .chk-rep { display: flex; gap: 6px; }
+.chk-f .chk-fl, .chk-bw { display: grid; gap: 3px; font-size: 13px; color: var(--muted); font-weight: 700; margin: 0; align-content: start; }
+.chk-bw b { font-size: 16px; color: var(--ink); min-height: 46px; display: flex; align-items: center; }
+.chk-hint { font-size: 12px; font-weight: 400; }
+.chk-warn { color: var(--danger); font-weight: 700; flex-basis: 100%; }
 .chk-rep input { flex: 1; min-width: 0; }
 .chk-mic { width: 44px; height: 44px; flex: none; border: 0; border-radius: 50%; background: var(--sunk); color: var(--ink); display: grid; place-items: center; padding: 0; }
 .chk-mic svg { width: 20px; height: 20px; }
@@ -1070,7 +1074,7 @@ html.calm *, html.calm *::before, html.calm *::after { animation: none !importan
     <p class="c-off" id="cOff" role="status" hidden>Offline. Typed logs and search still work and save on this phone. Photos wait until you’re back online.</p>
     <div class="card lgday" id="lgDay"></div>
     <div class="msgs" id="cMsgs" aria-live="polite"></div>
-    <div class="c-srch" id="cSrch" aria-live="polite"></div>
+    <div class="c-srch" id="cSrch"></div>
     <div class="c-sugs" id="cSugs"></div>
     <div class="listen" id="lgListen" hidden role="status"><span class="dot" aria-hidden="true"></span><span id="lgListenT">Listening…</span><button class="textbtn" id="lgListenX">Stop</button></div>
     <form class="composer" id="cForm">
@@ -2975,50 +2979,78 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   var lastTab = 'train';
   function openLogSearch(q) { if (['train', 'exercises', 'progress'].indexOf(current) > -1) lastTab = current; show('coach'); var t = $('cIn'); if (q != null) { t.value = q; t.dispatchEvent(new Event('input')); } t.focus(); }
-  document.addEventListener('click', function (e) { if (e.target.closest('[data-back]')) show(lastTab); });
+  document.addEventListener('click', function (e) { if (!e.target.closest('[data-back]')) return; show(lastTab); var h = $(lastTab).querySelector('h1'); if (h) { h.tabIndex = -1; h.focus(); } });
+  var SRCH_SYN = { shoulder: 'delt|rotator|traps', shoulders: 'delt|rotator|traps', chest: 'chest', back: 'back|lats|traps', legs: 'quads|hamstrings|glutes|calves|thigh|hip', leg: 'quads|hamstrings|glutes|calves|thigh|hip', arms: 'biceps|triceps|forearms', arm: 'biceps|triceps|forearms', core: 'abs|obliques', abs: 'abs|obliques', hips: 'glutes|hip|thigh', hip: 'glutes|hip|thigh', bum: 'glutes', butt: 'glutes', shin: 'ankles|shin', knee: 'knees|quads' , bench: 'press|chest', press: 'press', row: 'row', squat: 'squat', deadlift: 'deadlift|rdl|hinge', pierna: 'quads|hamstrings|glutes|calves|thigh|hip', piernas: 'quads|hamstrings|glutes|calves|thigh|hip', hombro: 'delt|rotator|traps', hombros: 'delt|rotator|traps', pecho: 'chest|press', espalda: 'back|lats|traps|row', brazos: 'biceps|triceps|forearms', abdominales: 'abs|obliques', gluteos: 'glutes', tendones: 'tendon', tendon: 'tendon', rodilla: 'knees|quads', columpio: 'swing', sentadilla: 'squat', remo: 'row', plancha: 'plank', zancada: 'split|lunge', heel: 'heel|calf|calves', heels: 'heel|calf|calves', calf: 'calf|calves', calves: 'calf|calves', talon: 'heel|calf|calves', 'talón': 'heel|calf|calves', bones: 'bone|osteop', bone: 'bone|osteop', osteopenia: 'osteop|bone', osteoporosis: 'osteop|bone', huesos: 'bone|osteop', ramadan: 'ramadan|fasting|iftar', fasting: 'ramadan|fasting|iftar', fast: 'ramadan|fasting|iftar', ayuno: 'ramadan|fasting|iftar', 'push-up': 'push|floor press', pushup: 'push|floor press', pushups: 'push|floor press', flexiones: 'push|floor press' };
+  function srchRx(q) { return new RegExp(SRCH_SYN[q] ? SRCH_SYN[q] + '|' + q.replace(/[^a-z ]/g, '') : q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'); }
+  // guide cards match on their title and their body text ("heel" finds the Bones card); titles first
+  function guideHits(rx) {
+    var out = [];
+    [].slice.call(document.querySelectorAll('#guide details')).forEach(function (d) {
+      var sm = d.querySelector('summary'); if (!sm) return;
+      var gb = sm.querySelector('.gb'), gh = sm.querySelector('.gh'), title = gb && gh ? gb.textContent.trim() + ': ' + gh.textContent.trim() : sm.textContent.trim();
+      var body = d.textContent.slice(sm.textContent.length).replace(/\s+/g, ' ').trim(), m = body.match(rx), snip = '';
+      if (m) { var a = Math.max(0, body.lastIndexOf('. ', m.index) + 2), z = body.indexOf('. ', m.index); snip = body.slice(a > m.index ? 0 : a, z < 0 ? body.length : z + 1); if (snip.length > 90) snip = snip.slice(0, 88) + '…'; }
+      if (rx.test(title)) out.push({ el: sm, t: title, s: 0, sub: 'Guide' }); else if (m) out.push({ el: sm, t: title, s: 1, sub: snip });
+    });
+    [].slice.call(document.querySelectorAll('#guide h2, #guide h3')).forEach(function (h) { if (rx.test(h.textContent)) out.push({ el: h, t: h.textContent.trim(), s: 0, sub: 'Guide' }); });
+    return out.sort(function (a, b) { return a.s - b.s; });
+  }
+  function guideBtns(hits) { return hits.map(function (x) { x.el.dataset.sg = x.el.dataset.sg || ('g' + Math.random().toString(36).slice(2, 8)); return '<button class="srch-r" data-sgo="' + x.el.dataset.sg + '"><b>' + esc(x.t.slice(0, 80)) + '</b><span class="s">' + esc(x.sub) + '</span></button>'; }).join(''); }
+  function exHits(rx, n) { return Object.keys(ALL).filter(function (id) { if (!EQV[id] || RETIRED.indexOf(id) > -1 && ADDON.indexOf(id) < 0) return false; var e = ALL[id], h = V(id, 'h'); var g = V(id, 'g'); return !(h.missing && g.missing) && rx.test(h.name + ' ' + g.name + ' ' + baseName(h.name) + ' ' + (G[id] ? G[id].name : '') + ' ' + e.name + ' ' + (e.tags || []).join(' ')); }).slice(0, n); }
+  function exBtns(ids) { return ids.map(function (id) { var h = V(id, 'h'); return '<button class="srch-r" data-sx="' + id + '"><b>' + esc(h.name) + '</b><span class="s">' + esc((ALL[id].tags || []).slice(0, 3).join(', ')) + '</span></button>'; }).join(''); }
+  // lifts you logged outside the program ("bench 225 x 5"): Progress > Other lifts
+  function liftHits(rx) {
+    var by = {}, order = [];
+    store.notes.forEach(function (n) { if (n.k !== 'lift' || !n.name || !rx.test(n.name)) return; var k = liftKey(n.name); if (!by[k]) { by[k] = { name: n.name, n: 0 }; order.push(k); } by[k].n += n.sets || 1; });
+    return order.slice(0, 3).map(function (k) { return by[k]; });
+  }
+  function liftBtns(ls) { return ls.map(function (l) { return '<button class="srch-r" data-slift="1"><b>' + esc(l.name) + '</b><span class="s">' + l.n + (l.n === 1 ? ' set' : ' sets') + ' logged · Progress, Other lifts</span></button>'; }).join(''); }
   function searchHtml(raw) {
     var q = raw.trim().toLowerCase(), out = '';
     if (q.length < 2) return '';
-    var SYN = { shoulder: 'delt|rotator|traps', shoulders: 'delt|rotator|traps', chest: 'chest', back: 'back|lats|traps', legs: 'quads|hamstrings|glutes|calves|thigh|hip', leg: 'quads|hamstrings|glutes|calves|thigh|hip', arms: 'biceps|triceps|forearms', arm: 'biceps|triceps|forearms', core: 'abs|obliques', abs: 'abs|obliques', hips: 'glutes|hip|thigh', hip: 'glutes|hip|thigh', bum: 'glutes', butt: 'glutes', shin: 'ankles|shin', knee: 'knees|quads' };
-    var rx = new RegExp(SYN[q] ? SYN[q] + '|' + q.replace(/[^a-z ]/g, '') : q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
-    var ids = Object.keys(ALL).filter(function (id) { if (!EQV[id] || RETIRED.indexOf(id) > -1 && ADDON.indexOf(id) < 0) return false; var e = ALL[id], h = V(id, 'h'); return !(h.missing && V(id, 'g').missing) && rx.test(h.name + ' ' + (e.tags || []).join(' ')); }).slice(0, 4);
-    if (ids.length) out += '<h3 class="srch-g">Exercises</h3>' + ids.map(function (id) { var h = V(id, 'h'); return '<button class="srch-r" data-sx="' + id + '"><b>' + esc(h.name) + '</b><span class="s">' + esc((ALL[id].tags || []).slice(0, 3).join(', ')) + '</span></button>'; }).join('');
-    var gh = [].slice.call(document.querySelectorAll('#guide h2, #guide h3, #guide summary')).filter(function (x) { return rx.test(x.textContent); }).slice(0, 3);
-    if (gh.length) out += '<h3 class="srch-g">Guide</h3>' + gh.map(function (x) { x.dataset.sg = x.dataset.sg || ('g' + Math.random().toString(36).slice(2, 8)); return '<button class="srch-r" data-sgo="' + x.dataset.sg + '"><b>' + esc(x.textContent.trim().slice(0, 80)) + '</b><span class="s">Works offline</span></button>'; }).join('');
+    var rx = srchRx(q), ids = exHits(rx, 4), ls = liftHits(rx), gh = guideHits(rx).slice(0, 3);
+    if (ids.length) out += '<h3 class="srch-g">Exercises</h3>' + exBtns(ids);
+    if (ls.length) out += '<h3 class="srch-g">Your lifts</h3>' + liftBtns(ls);
+    if (gh.length) out += '<h3 class="srch-g">Guide</h3>' + guideBtns(gh);
     return out;
   }
-  function goGuide(sg) { show('guide'); var g = document.querySelector('[data-sg="' + sg + '"]'); if (g) { var d = g.closest('details'); if (d) d.open = true; g.scrollIntoView({ block: 'start' }); } }
+  function goGuide(sg) { show('guide'); var g = document.querySelector('[data-sg="' + sg + '"]'); if (g) { var d = g.closest('details'); if (d) d.open = true; g.scrollIntoView({ block: 'start' }); if (g.focus) g.focus(); } }
+  // screen readers hear a count and the names once typing pauses, not the whole list on every keystroke
+  var srchT = null;
+  function srchSay(box, q) {
+    clearTimeout(srchT);
+    srchT = setTimeout(function () { if (q.length < 2) return; var bs = [].slice.call(box.querySelectorAll('.srch-r b')); if (bs.length) announce(bs.length + (bs.length === 1 ? ' result: ' : ' results: ') + bs.map(function (b) { return b.textContent; }).join(', ') + '.'); }, 300);
+  }
   // typing in Search & log shows matching exercises and guide topics; sending still logs or asks
-  $('cIn').addEventListener('input', function () { $('cSrch').innerHTML = /^\d/.test(this.value.trim()) ? '' : searchHtml(this.value); });
-  $('cSrch').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; if (b.dataset.sx) openExercise(b.dataset.sx, 'hold', b); else if (b.dataset.sgo) goGuide(b.dataset.sgo); });
-  $('cForm').addEventListener('submit', function () { $('cSrch').innerHTML = ''; });
+  $('cIn').addEventListener('input', function () { var v = this.value.trim(), num = /^\d/.test(v); $('cSrch').innerHTML = num ? '' : searchHtml(this.value); srchSay($('cSrch'), num ? '' : v); });
+  $('cSrch').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; if (b.dataset.sx) openExercise(b.dataset.sx, 'hold', b); else if (b.dataset.sgo) goGuide(b.dataset.sgo); else if (b.dataset.slift) show('progress'); });
+  $('cForm').addEventListener('submit', function () { clearTimeout(srchT); $('cSrch').innerHTML = ''; });
   function openSearch(from) {
-    openSheet('Search', '<label><span class="sr-only">Search exercises, the guide and your log</span><input class="srch-in" id="srchIn" type="search" placeholder="Exercise, muscle, question…" autocomplete="off"></label><div id="srchOut" aria-live="polite"></div><p class="s" style="margin-top:12px;color:var(--muted)">Search works offline.</p>', true, from);
+    openSheet('Search', '<label><span class="sr-only">Search exercises, the guide and your log</span><input class="srch-in" id="srchIn" type="search" placeholder="Exercise, muscle, question…" autocomplete="off"></label><div id="srchOut"></div><p class="s" style="margin-top:12px;color:var(--muted)">Search works offline.</p>', true, from);
     var inp = $('srchIn'); inp.focus();
     inp.addEventListener('input', function () {
       var q = inp.value.trim().toLowerCase(), out = '';
-      // everyday words find the muscles they mean
-      var SYN = { shoulder: 'delt|rotator|traps', shoulders: 'delt|rotator|traps', chest: 'chest', back: 'back|lats|traps', legs: 'quads|hamstrings|glutes|calves|thigh|hip', leg: 'quads|hamstrings|glutes|calves|thigh|hip', arms: 'biceps|triceps|forearms', arm: 'biceps|triceps|forearms', core: 'abs|obliques', abs: 'abs|obliques', hips: 'glutes|hip|thigh', hip: 'glutes|hip|thigh', bum: 'glutes', butt: 'glutes', shin: 'ankles|shin', knee: 'knees|quads' };
-      var rx = new RegExp(SYN[q] ? SYN[q] + '|' + q.replace(/[^a-z ]/g, '') : q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
       if (q.length < 2) { $('srchOut').innerHTML = ''; return; }
-      var ids = Object.keys(ALL).filter(function (id) { if (!EQV[id] || RETIRED.indexOf(id) > -1 && ADDON.indexOf(id) < 0) return false; var e = ALL[id], h = V(id, 'h'); return !(h.missing && V(id, 'g').missing) && rx.test(h.name + ' ' + (e.tags || []).join(' ')); }).slice(0, 6);
-      if (ids.length) out += '<h3 class="srch-g">Exercises</h3>' + ids.map(function (id) { var h = V(id, 'h'); return '<button class="srch-r" data-sx="' + id + '"><b>' + esc(h.name) + '</b><span class="s">' + esc((ALL[id].tags || []).slice(0, 3).join(', ')) + '</span></button>'; }).join('');
-      var gh = [].slice.call(document.querySelectorAll('#guide h2, #guide h3, #guide summary')).filter(function (x) { return x.textContent.toLowerCase().indexOf(q) > -1; }).slice(0, 4);
-      if (gh.length) out += '<h3 class="srch-g">Guide</h3>' + gh.map(function (x, i) { x.dataset.sg = x.dataset.sg || ('g' + Math.random().toString(36).slice(2, 8)); return '<button class="srch-r" data-sgo="' + x.dataset.sg + '"><b>' + esc(x.textContent.trim().slice(0, 80)) + '</b><span class="s">Works offline</span></button>'; }).join('');
+      var rx = srchRx(q), ids = exHits(rx, 6), ls = liftHits(rx), gh = guideHits(rx).slice(0, 4);
+      if (ids.length) out += '<h3 class="srch-g">Exercises</h3>' + exBtns(ids);
+      if (ls.length) out += '<h3 class="srch-g">Your lifts</h3>' + liftBtns(ls);
+      if (gh.length) out += '<h3 class="srch-g">Guide</h3>' + guideBtns(gh);
       var fl = (typeof feed !== 'undefined' && feed ? feed : []).filter(function (f) { return f.r === 'u' && f.x && f.x.toLowerCase().indexOf(q) > -1; }).slice(-3).reverse();
       if (fl.length) out += '<h3 class="srch-g">Your log</h3>' + fl.map(function (f) { return '<button class="srch-r" data-slog="1"><b>“' + esc(f.x.slice(0, 70)) + '”</b><span class="s">' + (f.t ? esc(new Date(f.t).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })) : 'In your log') + '</span></button>'; }).join('');
       $('srchOut').innerHTML = out || '<p class="s" style="margin-top:12px">Nothing found for “' + esc(inp.value.trim()) + '”. Try a muscle, like “shoulder”.</p>';
+      if (out) srchSay($('srchOut'), q); else { clearTimeout(srchT); srchT = setTimeout(function () { announce('Nothing found.'); }, 300); }
     });
     $('sheetBody').addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b) return;
       if (b.dataset.sx) openExercise(b.dataset.sx, 'hold'); // replaces Search in the same sheet, so closing it doesn't also close the exercise
       else if (b.dataset.sgo) { closeSheet(); show('guide'); var g = document.querySelector('[data-sg="' + b.dataset.sgo + '"]'); if (g) { var d = g.closest('details'); if (d) d.open = true; g.scrollIntoView({ block: 'start' }); } }
       else if (b.dataset.slog) { closeSheet(); show('coach'); }
+      else if (b.dataset.slift) { closeSheet(); show('progress'); }
     });
   }
   var HELP_QS = [['What do the colours on the body mean?', 'Dark orange: trained this week. Light: partly trained. Dashed outline: a gap this week, or a muscle that only steadies you.'], ['A weight feels too heavy', 'Tap − during the set, or tell Log “too heavy”. Next week starts lighter.'], ['I missed a day', 'Your plan moves on. Nothing is lost.'], ['Something hurts', 'Stop the set. Log “my knee hurts 4 out of 10” and holds that load it change.'], ['Does it work offline?', 'Yes. Only photo food logging and the optional AI coach need signal.'], ['How do I back up?', 'Profile (top right), then Backup. Keep the file somewhere safe.']];
   function openHelp(from) {
-    openSheet('Help', HELP_QS.map(function (q) { return '<details class="help-q"><summary>' + esc(q[0]) + '</summary><p>' + esc(q[1]) + '</p></details>'; }).join('') + '<h3 class="srch-g" style="margin-top:16px">Guide</h3><div class="help-guide">' + [].slice.call(document.querySelectorAll('#guide summary, #guide h2')).map(function (x) { x.dataset.sg = x.dataset.sg || ('g' + Math.random().toString(36).slice(2, 8)); var t = (x.lastElementChild || x).textContent.trim(); return '<button class="srch-r" data-hg="' + x.dataset.sg + '"><b>' + esc(t.slice(0, 70)) + '</b></button>'; }).join('') + '</div>' +
+    openSheet('Help', HELP_QS.map(function (q) { return '<details class="help-q"><summary>' + esc(q[0]) + '</summary><p>' + esc(q[1]) + '</p></details>'; }).join('') + '<h3 class="srch-g" style="margin-top:16px">Guide</h3><div class="help-guide">' + [].slice.call(document.querySelectorAll('#guide summary, #guide h2')).map(function (x) { x.dataset.sg = x.dataset.sg || ('g' + Math.random().toString(36).slice(2, 8)); var t = ((x.querySelector && x.querySelector('.gh')) || x).textContent.trim(); return '<button class="srch-r" data-hg="' + x.dataset.sg + '"><b>' + esc(t.slice(0, 70)) + '</b></button>'; }).join('') + '</div>' +
       '<p style="margin-top:14px">Still stuck? Ask in Search &amp; log, for example “how do I change my equipment”. Common questions are answered offline.</p><button class="btn quiet block" data-hlog="1" style="margin-top:10px">Ask in Search &amp; log</button>', true, from);
     $('sheetBody').addEventListener('click', function (e) { var g = e.target.closest('[data-hg]'); if (g) { closeSheet(); lastTab = ['train', 'exercises', 'progress'].indexOf(current) > -1 ? current : lastTab; setTimeout(function () { goGuide(g.dataset.hg); }, 60); } else if (e.target.closest('[data-hlog]')) { closeSheet(); openLogSearch(); } });
   }
@@ -3441,7 +3473,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   ];
   function renderProgress() {
     var td = totalDone(), n = weekDone(store.week), PT = progTarget(), WT = weekTarget();
-    $('allCard').innerHTML = '<h2>Program</h2><div class="wkprog"><span class="big num">' + Math.round(td / PT * 100) + '<small>%</small></span><p class="muted">' + (td ? td + ' of ' + PT + ' ' + unitWord(2) + ' done. You’re on program week ' + store.week + ' with ' + n + ' of ' + WT + ' ' + unitWord(2) + ' done.' : 'Nothing done yet. Your first session is on the Train tab, and this fills in as you go.') + '</p></div>' +
+    $('allCard').innerHTML = '<h2>Program</h2><div class="wkprog"><span class="big num">' + Math.round(td / PT * 100) + '<small>%</small></span><p class="muted">' + (td ? td + ' of ' + PT + ' ' + unitWord(2) + ' done. You’re on program week ' + store.week + ' with ' + n + ' of ' + WT + ' ' + unitWord(2) + ' done.' : 'Nothing done yet. Your first session is on the Today tab, and this fills in as you go.') + '</p></div>' +
       '<div class="ov-bar big" aria-hidden="true"><i style="width:' + (td / PT * 100).toFixed(1) + '%"></i></div>' + weekChart();
     renderDaily(); renderMap(); renderStrength(); renderCov(); renderChecks(); renderBodyNow(); progTabs();
   }
@@ -3715,46 +3747,85 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // ---------- checks: Endurance (hold time; was "max-hold test", data in store.tests[id]) and Strength (reps -> Epley max, store.tests._str) ----------
   var TESTS = ['wall-sit', 'plank-db', 'suitcase', 'lateral-raise'];
   var STR_EX = ['goblet-squat', 'floor-press', 'sa-row', 'bo-row', 'rdl'];
+  // with a barbell: the classic lifts first, saved like any other logged lift (Progress > Other lifts). [name, share of bodyweight for a first ~10-rep weight]
+  var STR_LIFT = [['Back Squat', 0.6], ['Bench Press', 0.5], ['Deadlift', 0.75], ['Overhead Press', 0.3], ['Barbell Row', 0.45]];
+  // the check asks you to stop with about 1 rep left, so the estimate counts it: weight × (1 + (reps + 1) ÷ 30), valid for 1–12 reps
+  var STR_RIR = 1, STR_MAX_REPS = 12;
+  function strE1(w, n) { return w * (1 + (n + STR_RIR) / 30); }
+  // osteopenia, a bad back or the gentle plan: no Romanian deadlifts, deadlifts or bent-over rows to near-failure (loaded spinal flexion)
+  function spineCare() { var is = prof().issues; return is.indexOf('back') > -1 || is.indexOf('bones') > -1 || gentle(); }
+  var STR_SPINE = { rdl: 1, 'bo-row': 1, 'lift:Deadlift': 1, 'lift:Barbell Row': 1 };
   function strHist() { var h = store.tests._str; return Array.isArray(h) ? h : []; }
+  function strKey(o) { return o.id + '|' + o.eq; }
   function strOpts() {
-    return STR_EX.filter(function (id) { return G[id] && EQV[id] && !skipWhy(id, 'r') && !painFor(id).skip; })
-      .map(function (id) { return { id: id, v: V(id, 'g') }; }).filter(function (o) { return !o.v.missing && !noWt(o.v.eq) && o.v.mode !== 'time'; });
+    var out = [], sp = spineCare(), hasW = store.eq.indexOf('w') > -1;
+    if (store.eq.indexOf('b') > -1) STR_LIFT.forEach(function (l) { var id = 'lift:' + l[0]; if (!(sp && STR_SPINE[id])) out.push({ id: id, eq: 'b', name: l[0], lift: l[0], f: l[1] }); });
+    STR_EX.filter(function (id) { return G[id] && EQV[id] && !skipWhy(id, 'r') && !painFor(id).skip && !(sp && STR_SPINE[id]); })
+      .forEach(function (id) { var v = V(id, 'g'); if (!v.missing && !noWt(v.eq) && v.mode !== 'time') out.push({ id: id, eq: v.eq, name: v.name, v: v }); });
+    // bodyweight and home lifters: push-ups to near-failure, scored in reps (bodyweight has no weight to estimate from)
+    var pu = 'floor-press';
+    if ((hasW || prof().where === 'home' || !out.length) && G[pu] && EQV[pu] && /\bw\b/.test(EQV[pu].g) && !skipWhy(pu, 'r') && !painFor(pu).skip) {
+      var po = { id: pu, eq: 'w', name: 'Push-Ups', bw: true, v: V(pu, 'g', { eq: 'w', style: '' }) };
+      if (hasW && store.eq.indexOf('b') < 0) out.unshift(po); else out.push(po);
+    }
+    return out;
   }
   function strLast(id, eq, before) { var h = strHist(); for (var i = h.length - 1; i >= 0; i--) if (h[i].id === id && (!eq || h[i].eq === eq) && (!before || h[i].t < before)) return h[i]; return null; }
   function roundW(x, eq) { var st = stepU(eq) || 1; return fromU(Math.max(st, Math.round(toU(x) / st) * st)); }
-  // a weight for ~11 clean reps: last check's weight, else from logged rep sets (assume ~2 reps were left), else the saved weight
-  function strSuggest(id, v) {
-    var c = strLast(id, v.eq); if (c) return c.kg;
-    for (var i = store.log.length - 1; i >= 0; i--) { var l = store.log[i]; if (l.id === id && l.eq === v.eq && l.k === 'r' && l.kg && l.v) return roundW(epley(l.kg, l.v + 2) / epley(1, 12), v.eq); }
-    return getWt(id, v, 'r');
+  // never a weight you don't own: the heaviest owned weight at or below it, else your lightest
+  function ownedSnap(w, eq) { var o = owned(eq); if (!o.length) return w; var best = o[0]; o.forEach(function (x) { if (x <= (w || 0) + 0.01) best = x; }); return best; }
+  // a weight for ~11 clean reps: last check's weight, else from logged sets (assume ~2 reps were left), else the saved weight; never empty
+  function strSuggest(o) {
+    if (o.bw) return 0;
+    var c = strLast(o.id, o.eq), w = c && c.kg > 0 ? c.kg : null, i, l, ten = 1 + (10 + STR_RIR) / 30;
+    if (w == null && o.lift) {
+      for (i = store.notes.length - 1; i >= 0 && w == null; i--) { l = store.notes[i]; if (l.k === 'lift' && l.kg && l.reps && l.reps <= 12 && liftKey(l.name) === liftKey(o.lift)) w = l.kg * (1 + (l.reps + (l.rpe ? Math.max(0, 10 - l.rpe) : 2)) / 30) / ten; }
+      if (w == null && bodyKg()) w = Math.max(20, bodyKg() * o.f * (prof().sex === 'f' ? 0.62 : 1));
+      if (w == null) w = 20;
+    }
+    if (w == null) for (i = store.log.length - 1; i >= 0; i--) { l = store.log[i]; if (l.id === o.id && l.eq === o.eq && l.k === 'r' && l.kg && l.v) { w = strE1(l.kg, l.v + 1) / ten; break; } }
+    if (w == null) w = getWt(o.id, o.v, 'r');
+    if (!(w > 0)) w = owned(o.eq)[0] || ({ k: 8, d: 6, b: 20, c: 20 })[o.eq] || 10;
+    return owned(o.eq).length ? ownedSnap(w, o.eq) : roundW(w, o.eq);
   }
+  function strName(c) { if (c.lift) return c.lift; if (c.id === 'floor-press' && c.eq === 'w') return 'Push-Ups'; return G[c.id] ? baseName(G[c.id].name) : ''; }
   function testName(id) { return baseName(BY[id].name); }
   function endDone() { return TESTS.filter(function (id) { var t = store.tests[id]; return t && (+t.a > 0 || +t.b > 0); }); }
   function chkBtn(k, t, s, r) { return '<button class="chk-btn" data-chk="' + k + '"><span class="t">' + t + '</span><span class="s">' + esc(s) + '</span>' + (r ? '<span class="r">' + esc(r) + '</span>' : '') + I_CHEV + '</button>'; }
-  function chkChange(c) { var p = strLast(c.id, c.eq, c.t); if (!p) return ''; var d = toU(c.e1) - toU(p.e1); return (d >= 0 ? ' (+' : ' (−') + Math.abs(Math.round(d * 10) / 10) + ' ' + uLab() + ' since ' + new Date(p.t).toLocaleDateString(UIL, { day: 'numeric', month: 'short' }) + ')'; }
+  function chkChange(c) { var p = strLast(c.id, c.eq, c.t); if (!p) return ''; var when = new Date(p.t).toLocaleDateString(UIL, { day: 'numeric', month: 'short' });
+    if (c.bw) { var dr = c.reps - p.reps; return (dr >= 0 ? ' (+' : ' (−') + Math.abs(dr) + ' since ' + when + ')'; }
+    var d = toU(c.e1) - toU(p.e1); return (d >= 0 ? ' (+' : ' (−') + Math.abs(Math.round(d * 10) / 10) + ' ' + uLab() + ' since ' + when + ')'; }
   function renderChecks() {
     var done = endDone(), er = done.slice(0, 2).map(function (id) { var t = store.tests[id]; return testName(id) + ' ' + (+t.a > 0 ? t.a : '?') + (+t.b > 0 ? ' → ' + t.b : '') + ' s'; }).join(', ') + (done.length > 2 ? ', +' + (done.length - 2) + ' more' : '');
-    var h = strHist(), c = h[h.length - 1], bp = bpToday();
-    var sr = bp ? 'Not today: your blood pressure reading is high' : c && G[c.id] ? baseName(G[c.id].name) + ': max about ' + kg(c.e1) + chkChange(c) : 'Not done yet. Takes about 5 minutes.';
+    var h = strHist(), c = h[h.length - 1], bp = bpToday(), cn = c ? strName(c) : '';
+    var sr = bp ? 'Not today: your blood pressure reading is high' : c && cn ? cn + (c.bw ? ': ' + c.reps + ' reps' : ': max about ' + kg(c.e1)) + chkChange(c) : 'Not done yet. Takes about 5 minutes.';
     $('chkCard').innerHTML = '<h2>Checks</h2><div class="chk-list">' +
       chkBtn('end', 'Endurance check', 'How long you can hold: endurance, not max strength', gentle() ? 'Skipped for you' : er || 'Do it in week 1 and week 12') +
       chkBtn('str', 'Strength check', 'Your estimated max lift, from a set of reps', sr) + '</div>';
   }
   function chkHead(txt, k) {
     var refs = k === 'end' ? ['schoenfeld2021', 'acsm2009'] : ['nickerson2020', 'acsm2009'];
-    var why = k === 'end' ? 'Holding until your form breaks with a weight below your max tests how long a muscle keeps going (local endurance). Maximum strength is a different quality, tested with heavy loads.' : 'Reps with a moderate weight, done close to failure, predict the most you could lift once. The Epley formula, weight × (1 + reps ÷ 30), was the most accurate at loads up to about 70% of your max.';
+    var why = k === 'end' ? 'Holding until your form breaks with a weight below your max tests how long a muscle keeps going (local endurance). Maximum strength is a different quality, tested with heavy loads.' : 'Reps with a moderate weight, done close to failure, predict the most you could lift once. The Epley formula, weight × (1 + reps ÷ 30), was the most accurate at loads up to about 70% of your max. You stop with about 1 rep left, so the check counts it: weight × (1 + (reps + 1) ÷ 30). It works for 1 to 12 reps; past that, use a heavier weight.';
     return '<div class="chk-head"><p>' + esc(txt) + '</p><button class="infobtn lg" id="chkInfo" aria-expanded="false" aria-controls="chkEv" aria-label="Research behind this check">' + I_INFO + '</button></div>' +
       '<div class="evbox" id="chkEv" hidden><p>' + esc(why) + '</p><ul class="refs">' + refs.map(function (r0) { var r = REFS[r0]; return '<li><a href="' + r.u + '" target="_blank" rel="noopener">' + esc(r.t) + '</a><span>' + esc(r.a) + ', ' + esc(r.j) + '. ' + esc(r.k) + '</span></li>'; }).join('') + '</ul></div>';
   }
   function testsHtml() {
     if (gentle()) return '<p class="muted">Skipped for you: ' + (prof().issues.indexOf('bp') > -1 ? 'holding until your form breaks raises blood pressure sharply.' : prof().issues.indexOf('bones') > -1 ? 'all-out efforts aren’t needed for bone health, and steady holds load bone safely.' : 'all-out efforts aren’t needed at your age; steady holds build strength safely.') + ' Your logged holds track progress instead. Ask your doctor before any all-out test.</p>';
     return '<p class="chk-how">In week 1 and week 12, use the same weight and hold until your form breaks. Enter the seconds.</p><div class="tests" id="tests">' + TESTS.map(function (id) {
-      var t = store.tests[id] || {};
+      var t = store.tests[id] || {}, ph = endPh(id);
       return '<div class="test"><h3>' + esc(testName(id)) + '<span class="delta" id="d-' + id + '"></span></h3><div class="fields">' +
-        '<label>Weight<input aria-label="' + esc(testName(id)) + ' check weight" id="t-' + id + '-load" data-t="' + id + '" data-k="load" value="' + esc(t.load || '') + '" placeholder="2 × 16 kg" autocomplete="off"></label>' +
+        '<label>Weight<input aria-label="' + esc(testName(id)) + ' check weight" id="t-' + id + '-load" data-t="' + id + '" data-k="load" value="' + esc(t.load || '') + '" placeholder="' + esc(ph) + '" autocomplete="off"></label>' +
         '<label>Week 1 (s)<input id="t-' + id + '-a" type="number" inputmode="numeric" min="0" data-t="' + id + '" data-k="a" value="' + esc(t.a || '') + '" placeholder="0"></label>' +
         '<label>Week 12 (s)<input id="t-' + id + '-b" type="number" inputmode="numeric" min="0" data-t="' + id + '" data-k="b" value="' + esc(t.b || '') + '" placeholder="0"></label></div></div>';
     }).join('') + '</div>';
+  }
+  // the example weight is your own: this hold's weight, snapped to the weights you own (a 6 kg kettlebell, not "2 × 16 kg")
+  function endPh(id) {
+    var v = V(id, 'h'); if (v.missing || noWt(v.eq)) return 'Bodyweight';
+    var w = getWt(id, v, 'h'), o = owned(v.eq); if (!(w > 0)) w = o[0] || ({ k: 8, d: 6, b: 20, c: 20 })[v.eq] || 10;
+    if (o.length) w = ownedSnap(w, v.eq);
+    var ww = v._r[v._r.length - 1].w || {}, n = 0, k; for (k in ww) if (k !== 'toe' && k !== 'hip' && k !== 'knee') n++;
+    return (n > 1 && (v.eq === 'k' || v.eq === 'd') ? '2 × ' : '') + kg(w);
   }
   function delta(id) {
     var t = store.tests[id] || {}, a = +t.a, b = +t.b, el = $('d-' + id); if (!el) return;
@@ -3777,45 +3848,71 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (bp) return head + '<p class="chk-safe" id="chkOff"><b>Not today.</b> Your blood pressure today was ' + bp.sys + '/' + bp.dia + '. Hard sets push it higher, so do this check on a day your reading is lower.</p>';
     var opts = strOpts();
     if (!opts.length) return head + '<p class="chk-safe" id="chkOff">This check needs a weight you can load: dumbbells, kettlebells, a barbell or a machine. Add one in your profile’s equipment.</p>';
-    var o = opts.filter(function (x) { return x.id === sel; })[0] || opts[0], v = o.v, w = strSuggest(o.id, v), last = strLast(o.id, v.eq);
+    var o = opts.filter(function (x) { return strKey(x) === sel || x.id === sel; })[0] || opts[0], w = strSuggest(o), last = strLast(o.id, o.eq);
     return head +
-      '<label class="chk-ex">Exercise<select id="chkEx">' + opts.map(function (x) { return '<option value="' + x.id + '"' + (x === o ? ' selected' : '') + '>' + esc(x.v.name) + '</option>'; }).join('') + '</select></label>' +
-      '<p class="chk-how">Warm up with a few easy reps. Then pick a weight you can lift about 10–12 times and do as many clean reps as you can, stopping when you have about 1 more in you.</p>' +
-      '<div class="chk-f"><label>Weight (' + uLab() + ')<input id="chkKg" type="number" inputmode="decimal" min="0" step="any" value="' + (w ? dispW(w) : '') + '" placeholder="0"></label>' +
-      '<label>Clean reps<span class="chk-rep"><input id="chkReps" type="number" inputmode="numeric" min="1" max="30" value="' + (last ? last.reps : '') + '" placeholder="10">' +
-      (SR ? '<button type="button" class="chk-mic" id="chkMic" aria-pressed="false" aria-label="Say the number of reps">' + I_MIC + '</button>' : '') + '</span></label></div>' +
+      '<label class="chk-ex">Exercise<select id="chkEx">' + opts.map(function (x) { return '<option value="' + esc(strKey(x)) + '"' + (x === o ? ' selected' : '') + '>' + esc(x.name) + '</option>'; }).join('') + '</select></label>' +
+      '<p class="chk-how">' + (o.bw ? 'Warm up with a few easy push-ups. Then do as many clean push-ups as you can, stopping when you have about 1 more in you. Your result is the number of reps.' : 'Warm up with a few easy reps. Then pick a weight you can lift about 8–12 times and do as many clean reps as you can, stopping when you have about 1 more in you.') + '</p>' +
+      '<div class="chk-f">' + (o.bw ? '<p class="chk-bw">Weight<b>Bodyweight</b></p>' : '<label>Weight (' + uLab() + ')<input id="chkKg" type="number" inputmode="decimal" min="0" step="any" value="' + dispW(w) + '" placeholder="0"></label>') +
+      '<div class="chk-fl"><label for="chkReps">Reps</label><span class="chk-rep"><input id="chkReps" type="number" inputmode="numeric" min="1" max="' + (o.bw ? 100 : STR_MAX_REPS) + '" value="' + (last ? last.reps : '') + '" placeholder="10" aria-describedby="chkRepsHint">' +
+      (SR ? '<button type="button" class="chk-mic" id="chkMic" aria-pressed="false" aria-label="Say the number of reps">' + I_MIC + '</button>' : '') + '</span>' +
+      '<span class="chk-hint" id="chkRepsHint">' + (o.bw ? 'Clean reps, with about 1 left in you.' : 'Clean reps, with about 1 left in you: 1 to 12 for an estimate.') + '</span></div></div>' +
       '<p class="chk-res" id="chkRes" aria-live="polite"></p>' +
       '<button class="btn go block" id="chkSave">Save result</button>' +
+      (spineCare() ? '<p class="chk-safe" id="chkSpine">Spine: keep your back flat and neutral, and end the set before it starts to round.</p>' : '') +
       '<p class="chk-safe">Stop and skip it if anything hurts. Breathe out as you lift; don’t hold your breath. Not for days your blood pressure is high.</p>';
   }
   function openStrength(from, sel) {
-    var cur = sel || (strHist().length ? strHist()[strHist().length - 1].id : null);
+    var h0 = strHist(), cur = sel || (h0.length ? h0[h0.length - 1].id + '|' + h0[h0.length - 1].eq : null);
     openSheet('Strength check', strHtml(cur), false, from);
     var sb = $('sheetBody');
+    function optNow() { var k = $('chkEx') && $('chkEx').value; return strOpts().filter(function (x) { return strKey(x) === k; })[0] || null; }
+    // returns { mode: 'est' (an estimated max), 'reps' (push-ups), 'set' (too many reps: a normal set only) } or null
     function calc() {
       var r = $('chkRes'); if (!r) return null;
-      var w = fromU(parseFloat($('chkKg').value)), n = parseInt($('chkReps').value, 10), id = $('chkEx').value, v = V(id, 'g'), last = strLast(id, v.eq);
+      var o = optNow(); if (!o || !o.bw !== !!$('chkKg')) return null; // the exercise just changed and the form is being redrawn
+      var w = o.bw ? 0 : fromU(parseFloat($('chkKg').value)), raw = $('chkReps').value.trim(), n = /^\d+$/.test(raw) ? parseInt(raw, 10) : NaN, last = strLast(o.id, o.eq), sv = $('chkSave');
+      sv.textContent = 'Save result';
+      if (o.bw) {
+        var lb = last ? 'Last time: ' + last.reps + ' reps.' : 'First time for this check.';
+        if (!(n >= 1 && n <= 100)) { r.innerHTML = '<span class="muted">' + esc('Enter how many clean push-ups you did. ' + lb) + '</span>'; return null; }
+        r.innerHTML = '<span>Push-ups</span><b class="num">' + n + '</b><span class="muted">' + esc(last ? (n - last.reps >= 0 ? '+' : '−') + Math.abs(n - last.reps) + ' vs last time (' + last.reps + ')' : lb) + '</span>';
+        return { mode: 'reps', o: o, kg: 0, reps: n, e1: null };
+      }
       var lt = last ? 'Last time: ' + kg(last.e1) + ' (' + kg(last.kg) + ' × ' + last.reps + ')' : 'First time for this exercise.';
-      if (!(w > 0) || !(n >= 1 && n <= 30)) { r.innerHTML = '<span class="muted">' + esc((n > 30 ? 'Over 30 reps: use a heavier weight next time. ' : 'Enter the weight and reps. ') + lt) + '</span>'; return null; }
-      var e1 = epley(w, n), d = last ? toU(e1) - toU(last.e1) : null;
-      r.innerHTML = '<span>Estimated max</span><b class="num">' + esc(kg(e1)) + '</b><span class="muted">' + esc(d != null ? (d >= 0 ? '+' : '−') + Math.abs(Math.round(d * 10) / 10) + ' ' + uLab() + ' vs last time (' + kg(last.e1) + ')' : lt) + '</span>';
-      return { id: id, v: v, kg: w, reps: n, e1: e1 };
+      if (!(w > 0) || !(n >= 1)) { r.innerHTML = '<span class="muted">' + esc((raw !== '' && !(n >= 1) ? 'Reps must be a whole number from 1 to 12. ' : !(w > 0) && $('chkKg').value.trim() !== '' ? 'The weight must be more than 0. ' : 'Enter the weight and your reps (1 to 12). ') + lt) + '</span>'; return null; }
+      if (n > STR_MAX_REPS) {
+        if (n > 100) { r.innerHTML = '<span class="muted">That’s more reps than this can use. Check the number.</span>'; return null; }
+        r.innerHTML = '<span class="chk-warn" id="chkTooMany">Too many reps for a good estimate — try a heavier weight next time.</span><span class="muted">' + esc(kg(w) + ' × ' + n + ' is past 12 reps, where the estimate stops being reliable, so no max is saved. You can save it as a normal set.') + '</span>';
+        sv.textContent = 'Save as a normal set';
+        return { mode: 'set', o: o, kg: w, reps: n, e1: null };
+      }
+      var e1 = strE1(w, n), d = last ? toU(e1) - toU(last.e1) : null;
+      r.innerHTML = '<span>Estimated max</span><b class="num">' + esc(kg(e1)) + '</b><span class="muted">' + esc(kg(w) + ' × ' + n + ' reps, counting the 1 rep you had left (' + n + ' + 1). ' + (d != null ? (d >= 0 ? '+' : '−') + Math.abs(Math.round(d * 10) / 10) + ' ' + uLab() + ' vs last time (' + kg(last.e1) + ')' : lt)) + '</span>';
+      return { mode: 'est', o: o, kg: w, reps: n, e1: e1 };
     }
     calc();
     sb.addEventListener('input', calc);
-    sb.addEventListener('change', function (e) { if (e.target.id === 'chkEx') openStrength(from, e.target.value); });
+    sb.addEventListener('change', function (e) { if (e.target.id === 'chkEx') { openStrength(from, e.target.value); if ($('chkEx')) $('chkEx').focus(); } });
     sb.addEventListener('click', function (e) {
       chkInfo(e);
       if (e.target.closest('#chkMic')) return chkListen();
       if (!e.target.closest('#chkSave')) return;
-      var c = calc(); if (!c) { ($('chkKg').value ? $('chkReps') : $('chkKg')).focus(); return; }
-      var now = Date.now(), rec = { t: now, id: c.id, eq: c.v.eq, kg: Math.round(c.kg * 100) / 100, reps: c.reps, e1: Math.round(c.e1 * 100) / 100 };
-      if (!Array.isArray(store.tests._str)) store.tests._str = [];
-      store.tests._str.push(rec);
-      // also a normal rep set (1 rep left = RPE 9), so the strength charts pick it up
-      store.log.push({ t: now, w: store.week, id: c.id, eq: c.v.eq, k: 'r', kg: rec.kg, v: c.reps, rpe: 9, x: 1 });
+      var c = calc();
+      if (!c) { var bad = $('chkKg') && !(parseFloat($('chkKg').value) > 0) ? $('chkKg') : $('chkReps'); bad.focus(); announce($('chkRes').textContent); return; }
+      var o = c.o, now = Date.now(), kgr = Math.round(c.kg * 100) / 100, nm = o.name;
+      if (c.mode !== 'set') {
+        var rec = { t: now, id: o.id, eq: o.eq, kg: kgr, reps: c.reps, e1: c.e1 == null ? null : Math.round(c.e1 * 100) / 100 };
+        if (o.lift) rec.lift = o.lift; if (o.bw) rec.bw = 1;
+        if (!Array.isArray(store.tests._str)) store.tests._str = [];
+        store.tests._str.push(rec);
+      }
+      // also a normal set (1 rep left = RPE 9), so the strength charts pick it up; barbell lifts go to Other lifts like a typed log
+      if (o.lift) store.notes.push({ t: now, k: 'lift', name: o.lift, kg: kgr, reps: c.reps, s: null, sets: 1, rpe: 9 });
+      else store.log.push({ t: now, w: store.week, id: o.id, eq: o.eq, k: 'r', kg: o.bw ? 0 : kgr, v: c.reps, rpe: 9, x: 1 });
       save(); closeSheet(); renderProgress();
-      toast('Saved. Estimated max ' + kg(c.e1) + '.');
+      var msg = c.mode === 'set' ? 'Saved as a normal set: ' + nm + ' ' + kg(c.kg) + ' × ' + c.reps + '. No estimated max.' : c.mode === 'reps' ? 'Strength check saved. ' + nm + ': ' + c.reps + ' reps.' : 'Strength check saved. ' + nm + ', estimated max ' + kg(c.e1) + '.';
+      toast(msg); announce(msg);
+      setTimeout(function () { var h = $('chkCard') && ($('chkCard').querySelector('[data-chk="str"]') || $('chkCard').querySelector('h2')); if (h) { if (h.tagName !== 'BUTTON') h.tabIndex = -1; h.focus(); } }, 120);
     });
   }
   function chkListen() {
@@ -4212,7 +4309,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // A newer version is online: say so, instead of quietly running the old one until the next launch
   // dates follow the app's language (English), not the device's, so an English screen doesn't show "28 de octubre"
   var UIL = /^en\b/i.test(navigator.language || '') ? undefined : 'en-GB';
-  var APP_VERSION = '40';
+  var APP_VERSION = '41';
   function checkVersion() {
     if (!navigator.onLine || !/^https?:/.test(location.protocol)) return;
     fetch('index.html?v=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
@@ -4862,7 +4959,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         vals.forEach(function (vv, i) { var e = { t: now + i, w: store.week, id: a.exercise, eq: ex.eq, k: kind, kg: noWt(ex.eq) ? 0 : (kgv || 0), v: vv, x: 1 }; if (a.rpe) e.rpe = a.rpe; store.log.push(e); ts.push(e.t); }); n = vals.length;
         save();
         var last = store.log[store.log.length - 1], pb = isPB(last), bwk = bodyKg(), odd = a.weight != null && ((!/kg|lb/.test(a.unitSaid || '') && kgv > Math.max(100, (bwk || 80) * (ex.eq === 'c' && ex.style === 'mach' ? 5 : 1.8))) || ((ex.eq === 'd' || ex.eq === 'k') && kgv > Math.max(40, (bwk || 80) * 0.5)));
-        card = { k: 'set', ref: ts, title: ex.name, warn: odd ? ((ex.eq === 'd' || ex.eq === 'k') && kgv > 40 ? 'That’s very heavy for one ' + (ex.eq === 'd' ? 'dumbbell' : 'kettlebell') + '. If it was a barbell, tick Barbell on the Train tab; if the unit was wrong, tap Undo.' : 'That’s a lot for this exercise. ' + (p.units === 'lb' ? 'Check the number, and tap Undo if it’s wrong.' : 'If you meant ' + a.weight + ' lb, tap Undo and add the unit.')) : '', lines: [(vals.every(function (x) { return x === vals[0]; }) ? n + ' × ' + setTxt(last) : vals.map(function (x) { return setTxt({ kg: last.kg, v: x, k: kind }); }).join(', ')) + (a.rpe ? ' @ RPE ' + a.rpe : '') + (!noWt(ex.eq) && !kgv ? ' (no weight entered)' : a.weight == null && kgv ? ' (your saved weight)' : '')], pb: pb, sub: pb ? 'New personal best.' : '' };
+        card = { k: 'set', ref: ts, title: ex.name, warn: odd ? ((ex.eq === 'd' || ex.eq === 'k') && kgv > 40 ? 'That’s very heavy for one ' + (ex.eq === 'd' ? 'dumbbell' : 'kettlebell') + '. If it was a barbell, tick Barbell in your profile’s equipment; if the unit was wrong, tap Undo.' : 'That’s a lot for this exercise. ' + (p.units === 'lb' ? 'Check the number, and tap Undo if it’s wrong.' : 'If you meant ' + a.weight + ' lb, tap Undo and add the unit.')) : '', lines: [(vals.every(function (x) { return x === vals[0]; }) ? n + ' × ' + setTxt(last) : vals.map(function (x) { return setTxt({ kg: last.kg, v: x, k: kind }); }).join(', ')) + (a.rpe ? ' @ RPE ' + a.rpe : '') + (!noWt(ex.eq) && !kgv ? ' (no weight entered)' : a.weight == null && kgv ? ' (your saved weight)' : '')], pb: pb, sub: pb ? 'New personal best.' : '' };
         break;
       }
       case 'set_weight': {
@@ -4966,7 +5063,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         var d2 = allDays()[nextDayIdx()]; if (d2.cardio) return null;
         var sk = d2.id + (store.done[doneKey(d2, 'am')] ? 'pm' : 'am'), c = store.cust[sk] || (store.cust[sk] = { off: {}, add: [] });
         c.off[a.exercise] = { h: true, r: true }; save(); renderTrain();
-        card = { k: 'cfg', undo: { unskip: [sk, a.exercise] }, title: 'Skipped ' + baseName(BY[a.exercise].name), lines: ['Left out of your ' + (sk.slice(-2) === 'am' ? 'morning' : 'evening') + ' session. Tap Reset to plan on the Train tab to bring it back.'] };
+        card = { k: 'cfg', undo: { unskip: [sk, a.exercise] }, title: 'Skipped ' + baseName(BY[a.exercise].name), lines: ['Left out of your ' + (sk.slice(-2) === 'am' ? 'morning' : 'evening') + ' session. Tap Reset to plan on the Today tab to bring it back.'] };
         break;
       }
       case 'start_session': {
@@ -5063,7 +5160,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     [/hypertrophy/, '**Hypertrophy** means muscle growth.'], [/\be1rm\b|estimated max|one rep max|1rm/, 'An **estimated max** is the most you could probably lift once, worked out from a set of several reps. It’s a guide, not a test.'],
     [/scapular plane/, 'The **scapular plane** means arms slightly in front of you (about 30°) instead of straight out to the sides: it’s kinder to the shoulders.'],
     [/read (it |this |the [a-z]+ )?(aloud|out)|speak|voiceover|talkback|screen reader/, 'During a session, tick **Spoken cues** in your profile, or tap the microphone in a session: the app says each exercise, the hold time and every logged set, and you can say “repeat”, “how long”, “next” or “pause”. Isohold also works with your device’s screen reader (VoiceOver on iPhone, TalkBack on Android).'],
-    [/(bigger|larger|large) (text|font|letters)|(text|font|letters) (bigger|larger)|text size/, 'Tap the profile button on the Train tab and tick **Larger text and buttons**. Your device’s own zoom setting works too.'],
+    [/(bigger|larger|large) (text|font|letters)|(text|font|letters) (bigger|larger)|text size/, 'Tap the profile button at the top right and tick **Larger text and buttons**. Your device’s own zoom setting works too.'],
     [/\bbands?\b/, '**Which band:** pick one you can hold for the full time with good form, where the last 10 seconds feel hard. Standing on it with your feet wider, or holding it shorter, makes it harder; when a hold feels easy for two sessions, move to the next band.']];
   function localAnswer(raw) {
     var t = norm(raw), f = sumFood(today(store.food)), tg = proteinTarget(), m, sa = safetyAnswer(t);
@@ -5161,7 +5258,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   var busyN = 0;
   function renderCoach() {
     renderDay();
-    var h = feed.length ? '' : '<p class="c-intro">Type, speak or snap a photo. Meals, sets, bodyweight, walks, sleep and aches are logged for you, and you can ask questions. ' + (coach.key ? 'Gemini is connected for photos and open questions.' : 'Works offline for common things; connect Gemini in settings (the profile button on the Train tab) for photos and open questions.') + '</p>';
+    var h = feed.length ? '' : '<p class="c-intro">Type, speak or snap a photo. Meals, sets, bodyweight, walks, sleep and aches are logged for you, and you can ask questions. ' + (coach.key ? 'Gemini is connected for photos and open questions.' : 'Works offline for common things; connect Gemini in settings (the profile button at the top right) for photos and open questions.') + '</p>';
     var start = Math.max(0, feed.length - 60);
     h += feed.slice(start).map(function (m, j) {
       var i = start + j;
@@ -5216,7 +5313,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var msg = (body && body.error && body.error.message) || '';
     if (status === 400 && /API key/i.test(msg)) return ['That API key doesn’t work', 'Check that you copied the whole key from Google AI Studio, then paste it again in settings.', false];
     if (status === 401 || status === 403) return ['Gemini refused the key', 'The key may be restricted or turned off. Create a new one in Google AI Studio and paste it in settings.', false];
-    if (status === 404) return ['That model isn’t available', 'Pick another model in settings (the profile button on the Train tab).', false];
+    if (status === 404) return ['That model isn’t available', 'Pick another model in settings (the profile button at the top right).', false];
     if (status === 429) return ['You’ve hit Gemini’s rate limit', 'The free tier allows a limited number of messages per minute and per day. Wait a minute and try again.', true];
     if (status >= 500) return ['Gemini is having trouble', 'This is on Google’s side. Try again in a moment.', true];
     return ['Gemini returned an error', msg || ('Status ' + status + '.'), true];
@@ -5244,7 +5341,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var ans = res.question || !res.actions.length ? localAnswer(text) : null;
     if (ans) { feed.push({ t: Date.now(), r: 'm', x: ans }); return done(); }
     if (coach.key) { if (res.question) ask(); else aiText(text, src); return done(); }
-    feed.push({ t: Date.now(), r: 'm', x: res.question ? 'I can answer questions about today’s plan, your protein, your bests and your progress offline. For anything else, connect Gemini in settings (the profile button on the Train tab).' : 'I didn’t catch that. Try something like “2 eggs and toast”, “curl 10 kg 12 reps”, “walked 30 min” or “I weigh 78 kg”. For anything else, connect Gemini in settings.' });
+    feed.push({ t: Date.now(), r: 'm', x: res.question ? 'I can answer questions about today’s plan, your protein, your bests and your progress offline. For anything else, connect Gemini in settings (the profile button at the top right).' : 'I didn’t catch that. Try something like “2 eggs and toast”, “curl 10 kg 12 reps”, “walked 30 min” or “I weigh 78 kg”. For anything else, connect Gemini in settings.' });
     done();
     function done() { saveFeed(); renderCoach(); scrollEnd(); }
   }
@@ -5587,7 +5684,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       '<label class="pf-sw"><input type="checkbox" id="pfBig"' + (p.big ? ' checked' : '') + '><span>Larger text and buttons</span></label>' +
       '<label class="pf-sw"><input type="checkbox" id="pfCalm"' + (store.profile && store.profile.calm ? ' checked' : '') + '><span>Less motion: no animated figures or transitions</span></label>' +
       '<h3 class="pf-h">App</h3><div class="bk-row"><button class="btn sm line" id="pfInstall">Install on your phone</button></div>';
-    var h = (first ? '<p class="muted">A minute of setup so the plan, weights and food tracking fit you. Everything stays on this device. You can change it any time from the profile button on the Train tab.</p><p class="pf-step" id="pfStep">Step 1 of 2: about you</p>' :
+    var h = (first ? '<p class="muted">A minute of setup so the plan, weights and food tracking fit you. Everything stays on this device. You can change it any time from the profile button at the top right.</p><p class="pf-step" id="pfStep">Step 1 of 2: about you</p>' :
       '<div class="pf-tabs" role="tablist" aria-label="Profile sections">' + PF_TABS.map(function (t) { var on = t[0] === tab; return '<button type="button" role="tab" id="pfTab-' + t[0] + '" data-tab="' + t[0] + '" aria-controls="pfP-' + t[0] + '" aria-selected="' + on + '" tabindex="' + (on ? 0 : -1) + '">' + t[1] + '</button>'; }).join('') + '</div>') +
       panel('you', 'pf', you) + panel('train', 'pf', train) +
       (first ? '' : panel('look', 'pf', look) + panel('ai', '', '<div id="pfAiBox" class="pf-ai"></div>') + panel('backup', '', '<div id="pfBk" class="pf-bk"></div>')) +
@@ -5920,7 +6017,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     lines.push('Cardio in the last 7 days: about ' + weekCardio() + ' min.');
     var t = Object.keys(store.tests).filter(function (k) { return BY[k] && store.tests[k] && (store.tests[k].a || store.tests[k].b); }).map(function (k) { var x = store.tests[k]; return BY[k].name + ': week 1 ' + (x.a || '?') + ' s, week 12 ' + (x.b || 'not yet') + ' s'; });
     if (t.length) lines.push('Endurance check (hold time, not max strength): ' + t.join('; ') + '.');
-    var sc = strHist().slice(-3).filter(function (c) { return G[c.id]; }).map(function (c) { return new Date(c.t).toLocaleDateString() + ' ' + baseName(G[c.id].name) + ' ' + r1(c.kg) + ' kg x ' + c.reps + ' = est. max ' + r1(c.e1) + ' kg'; });
+    var sc = strHist().slice(-3).filter(function (c) { return strName(c); }).map(function (c) { return new Date(c.t).toLocaleDateString() + ' ' + strName(c) + (c.bw ? ' ' + c.reps + ' reps' : ' ' + r1(c.kg) + ' kg x ' + c.reps + ' = est. max ' + r1(c.e1) + ' kg'); });
     if (sc.length) lines.push('Strength check (Epley estimated 1-rep max): ' + sc.join('; ') + '.');
     var recent = store.log.slice(-30).filter(function (l) { return BY[l.id]; }).map(function (l) { return new Date(l.t).toLocaleDateString() + ' ' + baseName(BY[l.id].name) + (l.k === 'h' ? ' hold ' : ' reps ') + (l.kg ? r1(l.kg) + ' kg x ' : '') + l.v + (l.k === 'h' ? ' s' : ''); });
     if (recent.length) lines.push('Recent logged sets: ' + recent.join('; ') + '.');
@@ -6083,7 +6180,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (nPB) haptic('success');
     if (cuesOn()) say('Session complete' + (nPB ? '. ' + nPB + (nPB === 1 ? ' new best' : ' new bests') : '') + '. Nice work.');
     $('pHands').hidden = true;
-    $('pNext').textContent = P.walkLogged ? 'Walk logged as cardio. Today’s strength session waits for a day your blood pressure is lower.' : !anyLogged ? (P.day.cardio ? 'Less than 3 minutes of cardio, so this session isn’t marked done. If you walked or rode without the timer, log it like “walked 30 min”.' : 'You skipped every set, so this session isn’t marked done. Tick it on the Train tab if you trained without the timer.') : P.part === 'am' && !P.day.cardio && !oneADay() ? 'Evening session later today. Leave at least 6 hours between the two if you can.' : 'Rate how your tendons feel tomorrow morning. Above 3/10 means go lighter next time. Muscle soreness is normal.';
+    $('pNext').textContent = P.walkLogged ? 'Walk logged as cardio. Today’s strength session waits for a day your blood pressure is lower.' : !anyLogged ? (P.day.cardio ? 'Less than 3 minutes of cardio, so this session isn’t marked done. If you walked or rode without the timer, log it like “walked 30 min”.' : 'You skipped every set, so this session isn’t marked done. Tick it on the Today tab if you trained without the timer.') : P.part === 'am' && !P.day.cardio && !oneADay() ? 'Evening session later today. Leave at least 6 hours between the two if you can.' : 'Rate how your tendons feel tomorrow morning. Above 3/10 means go lighter next time. Muscle soreness is normal.';
     $('pDay').textContent = P.head;
     $('pAngle').hidden = true; $('pPause').hidden = true; $('pSkip').hidden = true; $('pMore').hidden = true; $('pPrev').hidden = true; $('pWtRow').hidden = true; $('pLog').hidden = true; $('pSkipEx').hidden = true; $('pHow').hidden = true; $('pSteps').hidden = true;
     $('pClose').setAttribute('aria-label', 'Close');
