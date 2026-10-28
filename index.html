@@ -2976,6 +2976,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function rirTxt(ph) { return ph.rir >= 3 ? 'Stop with ~' + ph.rir + ' reps left' : 'Stop ' + ph.rir + (ph.rir === 1 ? '–2' : '') + ' reps short of failure'; }
   // ---------- session queues (shared by timer and time estimates) ----------
   var MOVE = 12, SWITCH = 5, SOLO = 35, BLOCK = 20, DAYCAP = 3570; // a day stays under 60 minutes, even after rounding each session
+  // the whole day's limit in seconds: "Longest session" when set (half a minute spare for rounding), otherwise the hour
+  function dayCapSecs() { var l = prof().len; return l ? l * 60 - 30 : DAYCAP; }
   function cardioItems(segs) {
     segs = segsFor(segs);
     return segs.map(function (s, k) { return { ex: cFig(s[0]), m: s[0], kind: 'cardio', dur: s[1], effort: s[2], txt: s[3], seg: k + 1, segs: segs.length, first: k === 0, after: 0, afterKind: 'rest' }; });
@@ -3010,14 +3012,40 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   function buildQueue(day, part, ph) {
     var q = [];
-    if (part === 'all') { var qa = buildQueue(day, 'am', ph), qp = buildQueue(day, 'pm', ph); if (qa.length && qp.length) { qa[qa.length - 1].after = 0; qp[0].first = false; } q = qa.concat(qp); if (q.length) q[q.length - 1].after = 0; return q; }
+    if (part === 'all') { var qa = buildQueue(day, 'am', ph), qp = buildQueue(day, 'pm', ph); if (qa.length && qp.length) { qa[qa.length - 1].after = 0; qp[0].first = false; } q = qa.concat(qp); if (q.length) q[q.length - 1].after = 0; if (day.cardio && qp.trimNote) { q.trimNote = qp.trimNote; q.trimmed = qp.trimmed; q.setsOf = qp.setsOf; q.dropped = qp.dropped; } q.overCap = qp.overCap; return q; }
     if (/^short-/.test(part)) { var p2 = Object.create(ph); p2.sets = 1; p2.gs = 1; q = buildQueue(day, part.slice(6), p2).filter(function (it) { return it.kind !== 'cardio'; }); if (q.length) { q[0].first = true; q[q.length - 1].after = 0; } return q; }
     if (day.cardio && part === 'pm' && addonOn()) {
       // back and stabilizer add-on first, then the evening cardio trimmed so the day stays within the hour
+      // the day's limit is "Longest session" when set, otherwise the hour; the morning cardio and 5 min per evening part are the plan's minimum
+      var capS = dayCapSecs(), amS = qSecs(buildQueue(day, 'am', ph));
       var add = [].concat.apply([], addonFor(day, store.week).map(function (b) { return blockItems(b, ph, {}); })), segs = day.pm(ph).map(function (x) { return x.slice(); });
-      var room = DAYCAP - qSecs(buildQueue(day, 'am', ph)) - qSecs(add) - 5, tot = segs.reduce(function (t, x) { return t + x[1]; }, 0);
+      var room = capS - amS - qSecs(add) - 5, tot = segs.reduce(function (t, x) { return t + x[1]; }, 0);
       if (tot > room) segs.forEach(function (x) { x[1] = Math.max(300, Math.floor(x[1] * room / tot / 60) * 60); });
-      q = add.concat(cardioItems(segs));
+      var cq = cardioItems(segs), over = function () { return amS + qSecs(add) + qSecs(cq) + 5 > capS; };
+      // still over: one set fewer of the add-on holds from the end, then add-on exercises from the end
+      var keys = [], n0 = {}, top = 0, dropped = [];
+      add.forEach(function (it) { var k = it.id + it.wk; if (keys.indexOf(k) < 0) keys.push(k); n0[k] = Math.max(n0[k] || 0, it.set); top = Math.max(top, it.set); });
+      for (var st = top; st > 1 && over(); st--) for (var j = keys.length - 1; j >= 0 && over(); j--) add = add.filter(function (it) { return !(it.id + it.wk === keys[j] && it.set === st); });
+      while (add.length && over()) { var last = add.pop(); while (add.length && add[add.length - 1].id === last.id && add[add.length - 1].wk === last.wk) add.pop(); if (!add.some(function (x) { return x.id === last.id; }) && dropped.indexOf(last.id) < 0) dropped.push(last.id); }
+      var setsOf = {}; add.forEach(function (it) { var k = it.id + it.wk; setsOf[k] = Math.max(setsOf[k] || 0, it.set); });
+      add = add.map(function (it) { var c = Object.assign({}, it); c.sets = setsOf[it.id + it.wk]; return c; });
+      q = add.concat(cq);
+      var fewer = keys.filter(function (k) { return setsOf[k] && setsOf[k] < n0[k]; }), capM = Math.round(capS / 60), lim = prof().len ? 'your ' + prof().len + '-minute day' : 'the hour';
+      if (fewer.length || dropped.length) {
+        var cut = [];
+        if (fewer.length) cut.push(keys.every(function (k) { return !setsOf[k] || setsOf[k] === 1; }) ? 'one set of each add-on hold' : 'one set fewer of the last ' + fewer.length + ' add-on exercise' + (fewer.length === 1 ? '' : 's'));
+        if (dropped.length) cut.push('without ' + dropped.map(function (id) { return baseName(BY[id].name); }).join(', '));
+        q.trimNote = 'To fit ' + lim + ': ' + cut.join(', ') + '.'; q.trimmed = prof().len || 60; q.setsOf = setsOf; q.dropped = dropped;
+      }
+      if (over()) q.trimNote = (q.trimNote ? q.trimNote + ' ' : '') + 'The cardio alone needs ' + Math.round((amS + qSecs(cq)) / 60) + ' min, more than ' + lim + '; it is the least this day asks for.';
+      q.overCap = over();
+    }
+    else if (day.cardio && part === 'pm') {
+      // no add-on: the evening cardio shortens (5 min a part at least) to keep the day within its limit
+      var capS2 = dayCapSecs(), amS2 = qSecs(buildQueue(day, 'am', ph)), segs2 = day.pm(ph).map(function (x) { return x.slice(); }), room2 = capS2 - amS2 - 5, tot2 = segs2.reduce(function (t, x) { return t + x[1]; }, 0);
+      if (tot2 > room2) segs2.forEach(function (x) { x[1] = Math.max(300, Math.floor(x[1] * room2 / tot2 / 60) * 60); });
+      q = cardioItems(segs2); q.overCap = amS2 + qSecs(q) + 5 > capS2;
+      if (q.overCap) { q.trimNote = 'The cardio alone needs ' + Math.round((amS2 + qSecs(q)) / 60) + ' min, more than ' + (prof().len ? 'your ' + prof().len + '-minute day' : 'the hour') + '; it is the least this day asks for.'; }
     }
     else if (day.cardio) q = cardioItems(day[part](ph));
     else {
@@ -3233,10 +3261,11 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var el = $('bodyCard'); if (!el) return;
     var got = bodyWeek(), gaps = Object.keys(BM_NAME).filter(function (r) { return !got[r]; }), any = Object.keys(got).length;
     var pct = Math.round(Object.keys(BM_NAME).filter(function (r) { return got[r] === 'on'; }).length / Object.keys(BM_NAME).length * 100);
-    var D = allDays(), dv = typeof doneView === 'function' && doneView(), day = dv ? dv.day : D[selDay] || D[0], tdy = day ? dayRegions(day) : [];
+    var D = allDays(), dv = typeof doneView === 'function' && doneView(), rv = !dv && typeof restView === 'function' && restView(), mv = !dv && !rv && typeof moreView === 'function' && moreView();
+    var day = rv ? null : dv ? dv.day : D[selDay] || D[0], tdy = day ? withWeek(dv ? dv.w : 0, function () { return dayRegions(day); }) : [];
     var tdTxt = tdy.length ? tdy.map(function (r) { return BM_NAME[r]; }).join(', ') : day && day.cardio ? 'cardio, no strength work' : 'rest';
     el.innerHTML = '<h2 class="sr-only">This week, muscle by muscle</h2>' + bmSvg(got, tdy) +
-      '<p class="bm-today"><b>Today:</b> ' + esc(tdTxt) + '</p>' +
+      '<p class="bm-today"><b>' + (mv ? 'Next session:' : dv ? 'Today (done):' : 'Today:') + '</b> ' + esc(tdTxt) + '</p>' +
       '<ul class="bm-legend"><li><i class="tdy"></i>Today</li><li><i style="background:var(--trained)"></i>Trained</li><li><i style="background:var(--partly)"></i>Partly</li><li><i style="background:var(--gap);outline:2px dashed var(--ink);outline-offset:-2px"></i>Gap this week</li><li style="margin-left:auto;font-weight:700;color:var(--ink)">' + pct + '% this week</li></ul>' +
       (!any ? '<div class="bm-gaps"><p>Your map is empty. Each session fills in the muscles it works.</p></div>'
         : gaps.length ? (function () { var tagOf = function (r) { return Object.keys(BM_TAG).filter(function (t) { return BM_TAG[t] === r; }); }, can = gaps.filter(function (r) { var ts = tagOf(r); return Object.keys(ALL).some(function (id) { return EQV[id] && !(V(id, 'h').missing && V(id, 'g').missing) && (ALL[id].tags || []).some(function (t) { return ts.indexOf(t) > -1; }); }); }); gaps = can.concat(gaps.filter(function (r) { return can.indexOf(r) < 0; })); return ''; })() + '<div class="bm-gaps"><p><b>' + gaps.length + ' gap' + (gaps.length === 1 ? '' : 's') + ':</b> ' + esc(gaps.slice(0, 3).map(function (r) { return BM_NAME[r]; }).join(', ')) + (gaps.length > 3 ? ' and ' + (gaps.length - 3) + ' more' : '') + '.</p><button class="btn quiet" data-gapfind="' + esc(Object.keys(BM_TAG).filter(function (t) { return BM_TAG[t] === gaps[0]; })[0] || BM_NAME[gaps[0]]) + '">Find exercises</button></div>'
@@ -3254,7 +3283,17 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var card = btn.closest('article'), h = card && card.querySelector('h3'), m = card && card.querySelector('.mins');
     bar.hidden = false;
     bar.innerHTML = '<button class="btn go" data-startbar="1">Start ' + esc(((h && h.textContent) || 'session').toLowerCase()) + (m ? ', ' + esc(m.textContent) : '') + '</button>';
+    fitMap();
   }
+  // on a short screen the pinned Start would cover the end of the body-map card at the top of the page: shrink the map to keep its last line clear
+  function fitMap() {
+    var card = $('bodyCard'), svg = card && card.querySelector('svg'), bar = $('startBar'); if (!svg) return;
+    svg.style.maxHeight = ''; if (bar.hidden || current !== 'train') return;
+    var last = card.lastElementChild, lb = last.getBoundingClientRect().bottom + window.scrollY;
+    var stuck = window.innerHeight - (parseFloat(getComputedStyle(bar).bottom) || 0) - bar.offsetHeight, over = lb - stuck + 8;
+    if (over > 0) svg.style.maxHeight = Math.max(180, svg.getBoundingClientRect().height - over) + 'px';
+  }
+  window.addEventListener('resize', function () { if (typeof fitMap === 'function') fitMap(); });
   document.addEventListener('click', function (e) {
     if (!e.target.closest('[data-startbar]')) return;
     var btn = [].filter.call(document.querySelectorAll('#sessions [data-start]'), function (b) { return /\bgo\b/.test(b.className); })[0];
@@ -3384,10 +3423,19 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   // today's total time, and the daily limit it keeps to
   function dayTot(day, ph) {
-    var cap = prof().len || 0; if (day.cardio || (oneADay() && !cap)) return '';
-    var a = mins(day, 'am', ph), b = mins(day, 'pm', ph), t = oneADay() ? mins(day, 'all', ph) : a + b;
-    return '<p class="daytot">' + (oneADay() ? '' : 'Morning ' + a + ' min + evening ' + b + ' min = ') + '<b>' + t + ' min today</b>' + (cap ? (t <= cap ? ', within your ' + cap + '-minute limit.' : ', over your ' + cap + '-minute limit.') : '.') + '</p>';
+    var cap = prof().len || 0, dv = typeof doneView === 'function' && doneView(), more = !dv && typeof moreView === 'function' && moreView();
+    if (typeof restView === 'function' && restView()) return '';
+    if (oneADay() && !cap) return '';
+    // after "Done for today": the session you finished (in the week it was done), not the next one
+    if (dv) { day = dv.day; return withWeek(dv.w, function () { return totLine(day, phaseOf(dv.w), cap, 'You did: ', ' today'); }); }
+    return totLine(day, ph, cap, more ? 'Next session: ' : '', more ? '' : ' today');
   }
+  function totLine(day, ph, cap, pre, when) {
+    var a = mins(day, 'am', ph), b = mins(day, 'pm', ph), t = oneADay() ? mins(day, 'all', ph) : a + b;
+    return '<p class="daytot">' + pre + (oneADay() ? '' : 'Morning ' + a + ' min + evening ' + b + ' min = ') + '<b>' + t + ' min' + when + '</b>' + (cap ? (t <= cap ? ', within your ' + cap + '-minute limit.' : ', over your ' + cap + '-minute limit.') : t <= 60 ? ', within the hour.' : ', over the hour.') + '</p>';
+  }
+  // work out a past week's queue (the add-on pairs alternate by week)
+  function withWeek(w, fn) { var w0 = store.week; if (!w || w === w0) return fn(); store.week = w; try { return fn(); } finally { store.week = w0; } }
   // one session or morning + evening: the same setting as "Sessions a day" in the profile
   $('splitSeg').addEventListener('click', function (e) {
     var b = e.target.closest('button[data-split]'); if (!b || b.getAttribute('aria-pressed') === 'true') return;
@@ -3457,9 +3505,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function sessionCard(day, part, ph) {
     if (part === 'all') {
       var a = planList(day, 'am', ph), b = planList(day, 'pm', ph), dn = isDone(day, 'all'), mm = mins(day, 'all', ph), sm = mins(day, 'short-all', ph);
-      var sum2 = day.cardio ? (addonOn() ? addonTxt(day) + ', plus cardio: ' : '') + segSummary(buildQueue(day, 'all', ph).filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; }))[1] : MACHINE[subSeg(WARMUP[0])[0]] + ' warm-up, then ' + (a.count + b.count) + ' exercises' + (b.fin ? ', then ' + b.fin : '') + '. Using ' + eqSummary() + '.';
+      var cqa = day.cardio ? buildQueue(day, 'all', ph) : null, sum2 = day.cardio ? (addonOn() && addonSum(cqa) ? addonSum(cqa) + ', plus cardio: ' : '') + segSummary(cqa.filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; }))[1] + '.' + (cqa.trimNote ? ' ' + cqa.trimNote : '') : MACHINE[subSeg(WARMUP[0])[0]] + ' warm-up, then ' + (a.count + b.count) + ' exercises' + (b.fin ? ', then ' + b.fin : '') + '. Using ' + eqSummary() + '.';
       if (!day.cardio) sum2 = a.count + b.count ? trimSum(sum2, buildQueue(day, 'all', ph)) : walkSum(day, 'all', ph);
-      return '<article class="sess' + (dn ? ' done' : '') + '"><div class="sess-top"><h3>Today</h3>' + (dn ? '<span class="donechip">' + I_CHECK.replace('<svg', '<svg width="18" height="18"') + 'Done</span>' : '<span class="mins num">' + mm + ' min</span>') + '</div>' +
+      return '<article class="sess' + (dn ? ' done' : '') + '"><div class="sess-top"><h3>' + (typeof moreView === 'function' && moreView() ? 'Next session' : 'Today') + '</h3>' + (dn ? '<span class="donechip">' + I_CHECK.replace('<svg', '<svg width="18" height="18"') + 'Done</span>' : '<span class="mins num">' + mm + ' min</span>') + '</div>' +
         '<p class="sum">' + esc(sum2) + '</p>' + thumbs(day, 'all') + '<div class="sess-actions"><button class="btn ' + (dn ? 'quiet' : 'go') + ' block" data-start="' + day.id + '" data-part="all">' + (dn ? 'Do it again' : 'Start session') + '</button>' +
         '<button class="chk" data-done="all:' + day.id + '" aria-pressed="' + dn + '" aria-label="Mark today’s session as done">' + I_CHECK + '</button></div>' +
         (day.cardio || dn || !sm || mm - sm < 4 || buildQueue(day, 'all', ph).trimNote ? '' : '<button class="textbtn shortbtn" data-start="' + day.id + '" data-part="short-all">Short on time? ' + sm + '-min version, no warm-up</button>') +
@@ -3468,7 +3516,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var key = doneKey(day, part), done = !!store.done[key], m = mins(day, part, ph), name = part === 'am' ? 'Morning' : 'Evening';
     var pl = planList(day, part, ph), list = pl.list, count = pl.count;
     var cc = day.cardio ? null : custFor(day, part), edits = cc ? Object.keys(cc.off).filter(function (id) { return cc.off[id] && (cc.off[id].h || cc.off[id].r); }).length + cc.add.length : 0;
-    var sum = day.cardio ? (part === 'pm' && addonOn() ? addonTxt(day) + ', then ' + segSummary(buildQueue(day, 'pm', ph).filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; }))[1] : segSummary(segsFor(day[part](ph)))[1]) : (part === 'am' ? MACHINE[subSeg(WARMUP[0])[0]] + ' warm-up, then ' : '') + count + ' exercise' + (count === 1 ? '' : 's') + (pl.fin ? ', then ' + pl.fin : '') + '. Using ' + eqSummary() + '.' + (edits ? ' Changed by you.' : '');
+    var cqp = day.cardio ? buildQueue(day, part, ph) : null, sum = day.cardio ? (part === 'pm' && addonSum(cqp) ? addonSum(cqp) + ', then ' : '') + segSummary(cqp.filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; }))[1] + (cqp.trimNote ? '. ' + cqp.trimNote : '') : (part === 'am' ? MACHINE[subSeg(WARMUP[0])[0]] + ' warm-up, then ' : '') + count + ' exercise' + (count === 1 ? '' : 's') + (pl.fin ? ', then ' + pl.fin : '') + '. Using ' + eqSummary() + '.' + (edits ? ' Changed by you.' : '');
     if (!day.cardio) sum = count ? trimSum(sum, buildQueue(day, part, ph)) : walkSum(day, part, ph);
     return '<article class="sess' + (done ? ' done' : '') + '">' +
       '<div class="sess-top"><h3>' + name + '</h3>' + (done ? '<span class="donechip">' + I_CHECK.replace('<svg', '<svg width="18" height="18"') + 'Done</span>' : '<span class="mins num">' + m + ' min</span>') + '</div>' +
@@ -3487,12 +3535,29 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     return '<div class="thumbs" role="group" aria-label="Exercises in this session. Scroll sideways for more">' + show.map(function (it) { var ex = it.ex, fig = figSvg(ex, it.kind === 'cardio' ? 0 : Math.min(2, ex._r.length - 1)); return it.kind === 'cardio' ? '<span class="th c" aria-hidden="true">' + fig + '</span>' : '<button class="th" data-ex="' + it.id + '" aria-label="How to do ' + esc(ex.name) + '">' + fig + '</button>'; }).join('') + (more > 0 ? '<button class="th more" data-more="' + day.id + part + '" aria-label="Show all ' + figs.length + ' exercises">+' + more + '</button>' : '') + '</div>';
   }
   var trimInfo = null; // what the "Longest session" limit cut from the session being listed
+  // a group heading that names what is in it: the main muscle of each exercise ("Lower chest and biceps")
+  function addonIds() { var o = []; Object.keys(ADDON_BY).forEach(function (k) { [].concat.apply([], ADDON_BY[k]).forEach(function (id) { if (o.indexOf(id) < 0 && BY[id]) o.push(id); }); }); return o; }
+  function pairLabel(ids) { var t = []; ids.forEach(function (id) { var m = (V(id, 'h').tags || [])[0]; if (m && t.indexOf(m) < 0) t.push(m); }); t = t.map(function (x, i) { return i ? x.toLowerCase() : x; }); return t.length > 1 ? t.slice(0, -1).join(', ') + ' and ' + t[t.length - 1] : t[0] || 'Add-on'; }
+  // what the add-on in a queue works, from the exercises actually in it
+  function addonSum(q) { var ids = []; q.forEach(function (it) { if (it.id && ids.indexOf(it.id) < 0) ids.push(it.id); }); return ids.length ? 'Add-on holds for ' + pairLabel(ids).replace(/^./, function (c) { return c.toLowerCase(); }) : ''; }
   function planList(day, part, ph) {
     var list = '', count = 0, fin = '';
     if (!day.cardio) { var tq = buildQueue(day, oneADay() ? 'all' : part, ph); trimInfo = tq.trimNote ? tq : null; if (trimInfo && trimInfo.oneSet) { ph = Object.create(ph); ph.sets = 1; ph.gs = 1; } }
-    if (day.cardio) { list = cardioRow(buildQueue(day, part, ph).filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; }), 'Cardio'); if (part === 'pm' && addonOn()) { list = addonFor(day).map(function (b) { return '<li class="grp added"><span class="grp-t">Back and stabilizers, alternate these 2</span>' + b.map(function (id) { return exRow(id, phaseOf(store.week)); }).join('') + '</li>'; }).join('') + list; count = [].concat.apply([], addonFor(day)).length; } }
+    if (day.cardio) {
+      // the list is read from the same queue the session runs: this week's pairs, with any sets the day's limit took off
+      var cq = buildQueue(day, part, ph), inQ = {}; cq.forEach(function (it) { if (it.id) inQ[it.id] = 1; });
+      list = cardioRow(cq.filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; }), 'Cardio');
+      if (part === 'pm' && addonOn()) {
+        trimInfo = cq.trimNote && cq.setsOf ? cq : null;
+        list = addonFor(day, store.week).map(function (b) {
+          var ids = b.filter(function (id) { return inQ[id] || (trimInfo && trimInfo.dropped.indexOf(id) > -1) || (V(id, 'h').missing && V(id, 'g').missing); }); if (!ids.length) return '';
+          return '<li class="grp added"><span class="grp-t">' + esc(pairLabel(ids)) + (ids.length > 1 ? ', alternate these ' + ids.length : '') + '</span>' + ids.map(function (id) { return exRow(id, phaseOf(store.week)); }).join('') + '</li>';
+        }).join('') + list;
+        count = Object.keys(inQ).length;
+      }
+    }
     else {
-      if (part === 'am' && !(trimInfo && trimInfo.noWarm)) list += cardioRow(WARMUP, 'Warm-up');
+      if (part === 'am' && !(trimInfo && trimInfo.noWarm)) { var wq = []; for (var wi = 0; wi < tq.length && tq[wi].kind === 'cardio'; wi++) if (tq[wi].effort !== 'Impact') wq.push(tq[wi]); list += cardioRow(wq && wq.length ? wq.map(function (it) { return [it.m, it.dur, it.effort, it.txt]; }) : WARMUP, 'Warm-up'); }
       var sk = day.id + part, c = custFor(day, part), nPlan = day[part].length;
       blocksFor(day, part).forEach(function (b, bi) {
         var added = bi >= nPlan, nb = b.filter(function (id) { return !(V(id, 'h').missing && V(id, 'g').missing); }).length;
@@ -3504,6 +3569,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         list += '<li class="grp' + (added ? ' added' : '') + '"><span class="grp-t">' + (added ? 'Added by you' + (nb > 1 ? ', alternate these ' + nb : '') : nb > 1 ? 'Alternate these ' + nb : nb ? 'On its own' : 'Left out today') + '</span>' + b.map(function (id) { return exRow(id, ph, sk, c.off, added); }).join('') + '</li>';
       });
       var nOff = Object.keys(c.off).filter(function (id) { return c.off[id] && (c.off[id].h || c.off[id].r); }).length;
+      if (part !== 'am' && addonOn() && !allDays().some(function (d) { return d.cardio; })) list += '<li class="grp"><p class="s addon-note">Your plan has no cardio day, so the add-on holds (rows, rear delts, rotator cuff, chest, biceps, neck and more) aren’t in it. Add any of them with <b>Add exercise</b>, under “Add-on holds”.</p></li>';
       list += '<li class="plan-act"><button class="addbtn" data-add="' + sk + '"><span aria-hidden="true">+</span> Add exercise</button>' + (nOff || c.add.length ? '<button class="textbtn" data-reset="' + sk + '">Reset to plan</button>' : '') + '</li>';
       if (part === 'pm' && !(trimInfo && trimInfo.noFin)) { var finSegs = buildQueue(day, 'pm', ph).filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; }); if (finSegs.length) { list += cardioRow(finSegs, 'Cardio finisher'); fin = cardioWord(finSegs[0][0]); } }
     }
@@ -3512,7 +3578,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   function doneSaid(on, what, key) {
     var D = allDays(), day = D[selDay];
-    announce(what + (on ? ' marked done.' : ' marked not done.') + (on ? ' Showing day ' + (selDay + 1) + ', ' + day.name + '.' : ''));
+    announce(what + (on ? ' marked done.' : ' marked not done.') + (on ? (typeof doneView === 'function' && doneView() ? ' Done for today.' : ' Showing day ' + (selDay + 1) + ', ' + day.name + '.') : ''));
     var b = $('sessions').querySelector('[data-done="' + key + '"]') || $('sessions').querySelector('[data-start]') || $('sessions').querySelector('[data-another]'); if (b) b.focus();
   }
   $('strip').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; selDay = +b.dataset.i; moreDay = dayStart(); renderTrain(); });
@@ -3547,7 +3613,12 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
           var v = V(id, 'h'), on = inSession[id];
           return '<button class="row" data-addid="' + id + '"' + (on ? ' disabled' : '') + '>' + figSvg(v, 2) + '<span><span class="t">' + esc(v.name) + '</span><span class="s">' + (on ? 'Already in this session' : 'Then <b>' + esc(V(id, 'g').name) + '</b>') + '</span><span class="s m">' + esc(v.tags.slice(0, 3).join(', ')) + '</span></span><span class="plus" aria-hidden="true">' + (on ? '' : '+') + '</span></button>';
         }).join('') + '</div></div>';
-      }).join('');
+      }).join('') +
+      // the cardio days' add-on holds, so a plan without cardio days can still use them
+      '<div class="lib-group" data-ag="addon"><h2>Add-on holds (cardio days)</h2><div class="lib-list">' + addonIds().map(function (id) {
+        var v = V(id, 'h'), on = inSession[id]; if (v.missing && V(id, 'g').missing) return '';
+        return '<button class="row" data-addid="' + id + '"' + (on ? ' disabled' : '') + '>' + figSvg(v, 2) + '<span><span class="t">' + esc(v.name) + '</span><span class="s">' + (on ? 'Already in this session' : 'Then <b>' + esc(V(id, 'g').name) + '</b>') + '</span><span class="s m">' + esc(v.tags.slice(0, 3).join(', ')) + '</span></span><span class="plus" aria-hidden="true">' + (on ? '' : '+') + '</span></button>';
+      }).join('') + '</div></div>';
     openSheet('Add an exercise', h, true, from);
     var body = $('sheetBody');
     body.addEventListener('click', function (e) {
@@ -3555,7 +3626,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       if (c) {
         var f = c.dataset.af;
         body.querySelectorAll('[data-af]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === c)); });
-        DAYS.forEach(function (d) { var any = false; d.ex.forEach(function (id) { var ok = f === 'All' || has(BY[id], f) || has(G[id], f); body.querySelector('[data-addid="' + id + '"]').hidden = !ok; if (ok) any = true; }); body.querySelector('[data-ag="' + d.id + '"]').hidden = !any; });
+        DAYS.concat([{ id: 'addon', ex: addonIds() }]).forEach(function (d) { var any = false; d.ex.forEach(function (id) { var ok = f === 'All' || has(BY[id], f) || has(G[id], f), el = body.querySelector('[data-ag="' + d.id + '"] [data-addid="' + id + '"]'); if (!el) return; el.hidden = !ok; if (ok) any = true; }); body.querySelector('[data-ag="' + d.id + '"]').hidden = !any; });
         return;
       }
       var b = e.target.closest('button[data-addid]'); if (!b || b.disabled) return;
@@ -4920,9 +4991,11 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     function tot() { return qSecs(warm) + qSecs(body) + qSecs(tail); }
     var keys = [], n0 = {};
     body.forEach(function (it) { var k = it.id + it.wk; if (keys.indexOf(k) < 0) keys.push(k); n0[k] = Math.max(n0[k] || 0, it.set); });
-    // cut the finisher, then the warm-up (heel drops stay), then one set at a time from the end, then exercises from the end
+    // cut the finisher, then shorten the warm-up to 3 minutes (heel drops stay), then one set at a time from the end, then exercises from the end
     if (tot() > cap) tail = [];
-    if (tot() > cap) warm = warm0.filter(function (it) { return it.effort === 'Impact'; });
+    var walk0 = warm0.filter(function (it) { return it.effort !== 'Impact'; }), walkS = walk0.reduce(function (t, it) { return t + it.dur; }, 0);
+    var warmShort = walkS > 180 ? warm0.map(function (it) { if (it.effort === 'Impact') return it; var c = Object.assign({}, it); c.dur = Math.max(30, Math.round(it.dur * 180 / walkS / 10) * 10); return c; }) : warm0;
+    if (tot() > cap) warm = warmShort;
     var top = 0; body.forEach(function (it) { top = Math.max(top, it.set); });
     for (var st = top; st > 1 && tot() > cap; st--) for (var j = keys.length - 1; j >= 0 && tot() > cap; j--) body = body.filter(function (it) { return !(it.id + it.wk === keys[j] && it.set === st); });
     var dropped = [], partsCut = [];
@@ -4936,13 +5009,13 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var oneSet = fewer.length > 0 && left.every(function (k) { return setsOf[k] === 1; });
     var cut = [];
     if (tail0.length && !tail.length) cut.push('no cardio finisher');
-    if (warm.length < warm0.length) cut.push('no warm-up');
+    if (warm.length < warm0.length) cut.push('no warm-up'); else if (warm !== warm0) cut.push('a 3-minute warm-up');
     if (oneSet) cut.push('one set of each');
     else if (fewer.length) { var fn = fewer.map(function (k) { return baseName(BY[k.slice(0, -1)].name); }).filter(function (v, i, ar) { return ar.indexOf(v) === i; }); cut.push('one set fewer of ' + (fn.length > 3 ? 'the last ' + fn.length + ' exercises' : fn.join(', '))); }
     if (dropped.length) cut.push('without ' + dropped.map(function (id) { return baseName(BY[id].name); }).join(', '));
     q = warm.concat(body, tail); if (q.length) { q[0].first = true; q[q.length - 1].after = 0; }
     var two = !/all$/.test(part);
-    q.trimmed = capM; q.trimNote = (two ? 'To fit your ' + prof().len + '-minute day (' + capM + ' min ' + (/am$/.test(part) ? 'this morning' : 'this evening') + '): ' : 'To fit ' + capM + ' minutes: ') + (cut.join(', ') || 'shortened') + '.';
+    q.trimmed = capM; q.warm = warm; q.trimNote = (two ? 'To fit your ' + prof().len + '-minute day (' + Math.round(qSecs(q) / 60) + ' min ' + (/am$/.test(part) ? 'this morning' : 'this evening') + '): ' : 'To fit ' + capM + ' minutes: ') + (cut.join(', ') || 'shortened') + '.';
     q.oneSet = oneSet; q.setsOf = setsOf; q.noWarm = cut.indexOf('no warm-up') > -1; q.noFin = cut.indexOf('no cardio finisher') > -1; q.dropped = dropped; q.partsCut = partsCut;
     if (partsCut.length > dropped.length) { var pc = partsCut.filter(function (k) { return dropped.indexOf(k.split('|')[0]) < 0; }).map(function (k) { var b = k.split('|'); return b[1] === 'h' ? baseName(BY[b[0]].name) : baseName(G[b[0]].name) + ' reps'; }); if (pc.length) q.trimNote = q.trimNote.replace(/\.$/, '') + (dropped.length ? ', ' : ', without ') + pc.join(', ') + '.'; }
     return q;
@@ -5490,11 +5563,13 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         if (!mn && !km && !a.steps) return null;
         store.notes.push({ t: now, k: 'cardio', m: a.machine || 'Walking', min: mn, km: km, steps: a.steps || null, hard: !!a.hard });
         // 20+ minutes of logged cardio (a bike commute, a run) counts as the next cardio session in the plan
-        var cdk = null, cD = allDays(), cx = nextDayIdx();
+        // only when that cardio day is today's session: after today's session is done, the next cardio day belongs to another day
+        var cdk = null, cD = allDays(), cx = nextDayIdx(), doneAlready = typeof doneToday === 'function' && !!doneToday();
+        if (doneAlready) cx = -1;
         if (mn >= 20 && cD[cx] && cD[cx].cardio && dayStart(now) === dayStart() && oneADay()) { cdk = ['am', 'pm'].map(function (pt) { return doneKey(cD[cx], pt); }).filter(function (k) { return !store.done[k]; }); cdk.forEach(function (k) { store.done[k] = now; }); if (!cdk.length) cdk = null; }
         else if (mn >= 20 && cD[cx] && cD[cx].cardio && dayStart(now) === dayStart()) { ['am', 'pm'].some(function (pt) { var k = doneKey(cD[cx], pt); if (!store.done[k]) { store.done[k] = now; cdk = k; return true; } return false; }); }
         save(); if (cdk) { var w9 = store.week; checkWeek([].concat(cdk)); if (store.week === w9) selDay = nextDayIdx(); renderTrain(); }
-        card = { k: 'cardio', ref: now, doneK: cdk, warn: cdk ? 'Counted as your ' + (typeof cdk !== 'string' ? 'cardio session' : (/am$/.test(cdk) ? 'morning' : 'evening') + ' cardio') + ' for day ' + (cx + 1) + '. Undo if you still want to do that session.' : '', title: (a.machine || 'Walking') + (mn ? ', ' + (est ? 'about ' : '') + mn + ' min' : ''), lines: [[km ? (isLb() ? r1(km / 1.609) + ' mi' : km + ' km') : '', a.steps ? a.steps + ' steps' : '', a.hard ? 'hard effort' : ''].filter(Boolean).join(' · ') || 'Logged.'], sub: 'Cardio in the last 7 days: ' + weekCardio() + ' min, counting logged walks and finished sessions. The guideline is 150 a week.' };
+        card = { k: 'cardio', ref: now, doneK: cdk, warn: cdk ? 'Counted as your ' + (typeof cdk !== 'string' ? 'cardio session' : (/am$/.test(cdk) ? 'morning' : 'evening') + ' cardio') + ' for day ' + (cx + 1) + '. Undo if you still want to do that session.' : '', title: (a.machine || 'Walking') + (mn ? ', ' + (est ? 'about ' : '') + mn + ' min' : ''), lines: [[km ? (isLb() ? r1(km / 1.609) + ' mi' : km + ' km') : '', a.steps ? a.steps + ' steps' : '', a.hard ? 'hard effort' : ''].filter(Boolean).join(' · ') || 'Logged.'], sub: (doneAlready && mn >= 20 ? 'Logged as extra cardio; your next session is still to do. ' : '') + 'Cardio in the last 7 days: ' + weekCardio() + ' min, counting logged walks and finished sessions. The guideline is 150 a week.' };
         break;
       }
       case 'log_pain': {
@@ -6520,29 +6595,61 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     Object.keys(store.done).forEach(function (k) {
       var t = +store.done[k] || 0, m = /^w(\d+)(.+)(am|pm)$/.exec(k); if (!m || t < s0) return;
       var base = 'w' + m[1] + m[2]; if (!store.done[base + 'am'] || !store.done[base + 'pm']) return;
-      if (!best || t > best.t) best = { t: t, id: m[2] };
+      if (!best || t > best.t) best = { t: t, id: m[2], w: +m[1] };
     });
     if (best) best.day = allDays().filter(function (d) { return d.id === best.id; })[0];
     return best && best.day ? best : null;
   }
   function doneView() { return moreDay !== dayStart() && selDay === nextDayIdx() && doneToday(); }
-  function nextWhen() {
-    var n = daysPerWeek(), gap = n >= 4 ? 1 : n === 3 ? 2 : 3, d = new Date(dayStart() + gap * 864e5 + 12 * 3600e3);
-    return (gap === 1 ? 'Tomorrow' : d.toLocaleDateString(UIL, { weekday: 'long' })) + (oneADay() ? '' : ' morning');
+  // "Do another session" (or "Train anyway"): the next session is shown, labelled as the next one, not as today's
+  function moreView() { return moreDay === dayStart() && selDay === nextDayIdx() && !!(doneToday() || restDay()); }
+  function restGap() { var n = daysPerWeek(); return n >= 4 ? 1 : n === 3 ? 2 : 3; }
+  // a planned rest day: the last finished day was less than the plan's gap ago and nothing was done today
+  function restDay() {
+    var s0 = dayStart(), last = 0, any = false;
+    Object.keys(store.done).forEach(function (k) {
+      var t = +store.done[k] || 0, m = /^w(\d+)(.+)(am|pm)$/.exec(k); if (!m) return; if (t >= s0) any = true;
+      var base = 'w' + m[1] + m[2]; if (store.done[base + 'am'] && store.done[base + 'pm'] && t > last) last = t;
+    });
+    if (any || !last || restGap() < 2) return null;
+    var d0 = dayStart(last), since = Math.round((s0 - d0) / 864e5);
+    return since >= 1 && since < restGap() ? { last: last, next: d0 + restGap() * 864e5 } : null;
+  }
+  function restView() { return moreDay !== dayStart() && selDay === nextDayIdx() && !doneToday() && restDay(); }
+  function nextWhen(from) {
+    var s0 = dayStart(), at = from != null ? from : s0 + restGap() * 864e5, d = new Date(at + 12 * 3600e3), days = Math.round((dayStart(at + 12 * 3600e3) - s0) / 864e5);
+    return (days === 1 ? 'Tomorrow' : d.toLocaleDateString(UIL, { weekday: 'long' })) + (oneADay() ? '' : ' morning');
   }
   function doneCard() {
+    if (moreView()) return moreHead();
+    if (restView()) return restCard();
     var dt = doneView(); if (!dt) return;
-    var D = allDays(), nx = D[nextDayIdx()], ph = phaseOf(store.week), sets = today(store.log).length;
+    var D = allDays(), nx = D[nextDayIdx()], ph = phaseOf(store.week), sets = doneSets(dt);
     var at = new Date(dt.t).toLocaleTimeString(UIL, { hour: '2-digit', minute: '2-digit' });
     $('sessions').innerHTML = '<article class="sess done tdone"><div class="sess-top"><h3>Done for today</h3><span class="donechip">' + I_CHECK.replace('<svg', '<svg width="18" height="18"') + 'Done</span></div>' +
-      '<p class="sum">You did <b>' + esc(dt.day.name) + '</b>' + (sets ? ', ' + sets + (sets === 1 ? ' set' : ' sets') + ' logged' : '') + ', finished at ' + esc(at) + '.</p>' +
+      '<p class="sum">You did <b>' + esc(dt.day.name) + '</b>' + (sets.ses ? ', ' + sets.ses + (sets.ses === 1 ? ' set' : ' sets') + ' logged' : '') + (sets.typed ? (sets.ses ? ' (plus ' : ', plus ') + sets.typed + ' typed in' + (sets.ses ? ')' : '') : '') + ', finished at ' + esc(at) + '.</p>' +
       '<p class="tnext"><b>Next: ' + esc(nextWhen()) + '</b>, ' + esc(nx.name) + ', ' + mins(nx, oneADay() ? 'all' : 'am', ph) + ' min.</p>' +
       '<p class="sum">Rest days are when muscles, tendons and bones get stronger.</p>' +
       '<button class="textbtn" data-another="1">Do another session</button></article>';
   }
+  // the sets the finished session logged (what its summary showed), plus any typed in separately today, said apart
+  function doneSets() { var all = today(store.log), typed = all.filter(function (l) { return l.x; }).length; return { ses: all.length - typed, typed: typed }; }
+  // on a planned rest day: say so, with the next session, and keep training possible but quiet
+  function restCard() {
+    var r = restDay(), D = allDays(), nx = D[nextDayIdx()], ph = phaseOf(store.week);
+    $('sessions').innerHTML = '<article class="sess done tdone trest"><div class="sess-top"><h3>Rest day</h3></div>' +
+      '<p class="tnext"><b>Next: ' + esc(nextWhen(r.next)) + '</b>, ' + esc(nx.name) + ', ' + mins(nx, oneADay() ? 'all' : 'am', ph) + ' min.</p>' +
+      '<p class="sum">Rest days are when muscles, tendons and bones get stronger. A walk is fine.</p>' +
+      '<button class="textbtn" data-another="1">Train anyway</button></article>';
+  }
+  // after "Do another session" or "Train anyway": a line above the cards saying this is the next session, not today's
+  function moreHead() {
+    var D = allDays(), nx = D[nextDayIdx()], r = !doneToday() && restDay();
+    $('sessions').insertAdjacentHTML('afterbegin', '<p class="tnext tmore"><b>Next: day ' + (nextDayIdx() + 1) + ', ' + esc(nx.name) + '</b>' + (r ? ', planned for ' + esc(nextWhen(r.next).replace(/ morning$/, '').toLowerCase().replace(/^(?!tomorrow)./, function (c) { return c.toUpperCase(); })) : ', planned for ' + esc(nextWhen().replace(/ morning$/, '').toLowerCase().replace(/^(?!tomorrow)./, function (c) { return c.toUpperCase(); }))) + '. Doing it now counts it as done.</p>');
+  }
   $('sessions').addEventListener('click', function (e) {
     if (!e.target.closest('[data-another]')) return;
-    moreDay = dayStart(); renderTrain(); announce('Showing your next session.');
+    moreDay = dayStart(); renderTrain(); announce('Showing your next session: day ' + (nextDayIdx() + 1) + ', ' + allDays()[nextDayIdx()].name + '.');
     var st = $('sessions').querySelector('[data-start]'); if (st) st.focus();
   });
 

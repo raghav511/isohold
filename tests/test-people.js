@@ -151,8 +151,8 @@ const lastCard = page => T(page, () => { const f = window.__isoTest.feed(); retu
   ok((await fd('a cup of tea with milk'))[0].n === 'Chai', 'tea with milk is chai, not black tea');
   ok((await T(page, () => window.__isoTest.parseText('peso 70.5').actions[0] || {})).type === 'log_bodyweight', 'Spanish: peso 70.5 is a weigh-in');
   ok((await T(page, () => window.__isoTest.parseText('70.5kg').actions[0] || {})).type === 'log_bodyweight', 'a bare 70.5kg near your weight is a weigh-in');
-  // a bike ride counts as the next cardio day
-  await T(page, () => { const s = window.__isoTest.store(); ['d1', 'd2'].forEach(d => { s.done['w1' + d + 'am'] = s.done['w1' + d + 'pm'] = Date.now(); }); });
+  // a bike ride counts as the next cardio day (when today's session isn't already done: see test-r12b)
+  await T(page, () => { const s = window.__isoTest.store(); ['d1', 'd2'].forEach(d => { s.done['w1' + d + 'am'] = s.done['w1' + d + 'pm'] = Date.now() - 864e5; }); });
   await say(page, 'bici 25 min'); let c = await lastCard(page);
   ok(c.doneK === 'w1c1am' && await T(page, () => !!window.__isoTest.store().done.w1c1am), 'a 25-minute ride counts as the next cardio session');
   await page.evaluate(() => document.getElementById('tab-coach').click()); await page.locator('.lgc [data-undo]').last().click().catch(() => {}); await page.waitForTimeout(100);
