@@ -590,6 +590,7 @@ details.how .gbody { display: grid; gap: 10px; font-size: 15px; }
 .lgc.food { border-left-color: var(--ok); } .lgc.set { border-left-color: var(--hold); } .lgc.cardio { border-left-color: var(--rep); }
 .lgc.pain { border-left-color: var(--k28); } .lgc.body, .lgc.water, .lgc.sleep { border-left-color: var(--rep); } .lgc.err { border-left-color: var(--hold); }
 .lgc.undone { opacity: .55; }
+.lgc:focus-visible { outline: 3px solid var(--rep); outline-offset: 2px; }
 .lgc-h { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .lgc-h b { font-weight: 700; }
 .lgc-i { font-size: 18px; line-height: 1; }
@@ -598,6 +599,7 @@ details.how .gbody { display: grid; gap: 10px; font-size: 15px; }
 .lgc-w { font-size: 14px; color: var(--danger); font-weight: 700; }
 .lgc-l { font-size: 13px; color: var(--muted); font-weight: 700; align-self: center; }
 .lg-acts { display: flex; flex-wrap: wrap; gap: 6px; }
+.lg-por { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .lg-acts .btn.sm { min-height: 36px; padding: 0 12px; font-size: 14px; }
 .lg-acts .btn.sm.pn { min-width: 44px; min-height: 44px; padding: 0; }
 .lg-ph { display: block; max-width: 220px; width: 100%; border-radius: 12px; margin-bottom: 6px; }
@@ -3122,6 +3124,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var t = segSummary(segs)[1].replace(/^\d+ min, /, '');
     return (nm || 'Cardio') + ', ' + t;
   }
+  // the cardio after an add-on, named from the queue the session runs: "treadmill walk + bike ride, 10 min, zone 2 then easy"
+  function cardioPart(segs) { var nm = segs.map(function (x) { return CARDIO_NAME[x[0]] || MACHINE[x[0]]; }).filter(function (v, i, ar) { return v && ar.indexOf(v) === i; }).join(' + '); return (nm ? nm.toLowerCase() + ', ' : '') + segSummary(segs)[1]; }
   function segSummary(segs) {
     var tot = segs.reduce(function (s, x) { return s + x[1]; }, 0), hard = segs.filter(function (x) { return x[2] === 'Hard'; });
     var m = segs.map(function (x) { return MACHINE[x[0]]; }).filter(function (v, i, ar) { return ar.indexOf(v) === i; }).join(' + ');
@@ -3291,11 +3295,13 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var D = allDays(), dv = typeof doneView === 'function' && doneView(), rv = !dv && typeof restView === 'function' && restView(), mv = !dv && !rv && typeof moreView === 'function' && moreView();
     var day = rv ? null : dv ? dv.day : D[selDay] || D[0], tdy = day ? withWeek(dv ? dv.w : 0, function () { return dayRegions(day); }) : [];
     var tdTxt = tdy.length ? tdy.map(function (r) { return BM_NAME[r]; }).join(', ') : day && day.cardio ? 'cardio, no strength work' : 'rest';
+    // with no gaps, the summary under the map already gives the percentage: show it and read it once
+    var said = any && !gaps.length;
     el.innerHTML = '<h2 class="sr-only">This week, muscle by muscle</h2>' + bmSvg(got, tdy) +
       '<p class="bm-today"><b>' + (mv ? 'Next session:' : dv ? 'Today (done):' : 'Today:') + '</b> ' + esc(tdTxt) + '</p>' +
-      '<ul class="bm-legend" aria-hidden="true"><li><i class="tdy"></i>Today</li><li><i style="background:var(--trained)"></i>Trained</li><li><i style="background:var(--partly)"></i>Partly</li><li><i style="background:var(--gap);outline:2px dashed var(--ink);outline-offset:-2px"></i>Gap this week</li><li style="margin-left:auto;font-weight:700;color:var(--ink)">' + pct + '% fully trained this week</li></ul>' +
+      '<ul class="bm-legend" aria-hidden="true"><li><i class="tdy"></i>Today</li><li><i style="background:var(--trained)"></i>Trained</li><li><i style="background:var(--partly)"></i>Partly</li><li><i style="background:var(--gap);outline:2px dashed var(--ink);outline-offset:-2px"></i>Gap this week</li>' + (said ? '' : '<li style="margin-left:auto;font-weight:700;color:var(--ink)">' + pct + '% fully trained this week</li>') + '</ul>' +
       // the key as one sentence for screen readers (the list of swatch names means nothing when heard)
-      '<p class="sr-only">' + esc(pct + '% of muscle parts fully trained this week' + (partly.length ? ', ' + partly.length + ' partly' : '') + (gaps.length ? ', ' + gaps.length + (gaps.length === 1 ? ' gap' : ' gaps') : '') + '. On the map, dark means trained, light means partly trained, a dashed outline is a gap, and hatching with a dark outline marks today\u2019s session.') + '</p>' +
+      '<p class="sr-only">' + esc((said ? '' : pct + '% of muscle parts fully trained this week' + (partly.length ? ', ' + partly.length + ' partly' : '') + (gaps.length ? ', ' + gaps.length + (gaps.length === 1 ? ' gap' : ' gaps') : '') + '. ') + 'On the map, dark means trained, light means partly trained, a dashed outline is a gap, and hatching with a dark outline marks today\u2019s session.') + '</p>' +
       (!any ? '<div class="bm-gaps"><p>Your map is empty. Each session fills in the muscles it works.</p></div>'
         : gaps.length ? (function () { var tagOf = function (r) { return Object.keys(BM_TAG).filter(function (t) { return BM_TAG[t] === r; }); }, can = gaps.filter(function (r) { var ts = tagOf(r); return Object.keys(ALL).some(function (id) { return EQV[id] && !(V(id, 'h').missing && V(id, 'g').missing) && (ALL[id].tags || []).some(function (t) { return ts.indexOf(t) > -1; }); }); }); gaps = can.concat(gaps.filter(function (r) { return can.indexOf(r) < 0; })); return ''; })() + '<div class="bm-gaps"><p><b>' + gaps.length + ' gap' + (gaps.length === 1 ? '' : 's') + ':</b> ' + esc(gaps.slice(0, 3).map(function (r) { return BM_NAME[r]; }).join(', ')) + (gaps.length > 3 ? ' and ' + (gaps.length - 3) + ' more' : '') + '.</p><button class="btn quiet" data-gapfind="' + esc(Object.keys(BM_TAG).filter(function (t) { return BM_TAG[t] === gaps[0]; })[0] || BM_NAME[gaps[0]]) + '">Find exercises</button></div>'
         : partly.length ? '<div class="bm-gaps bm-part"><p><b>' + pct + '% of muscle parts fully trained this week; ' + partly.length + ' partly:</b> ' + esc(partly.map(function (r) { return BM_NAME[r]; }).join(', ')) + '.</p><button class="btn quiet" data-gapfind="' + esc(Object.keys(BM_TAG).filter(function (t) { return BM_TAG[t] === partly[0]; })[0] || BM_NAME[partly[0]]) + '">Find exercises</button></div>'
@@ -3555,7 +3561,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function sessionCard(day, part, ph) {
     if (part === 'all') {
       var a = planList(day, 'am', ph), b = planList(day, 'pm', ph), dn = isDone(day, 'all'), mm = mins(day, 'all', ph), sm = mins(day, 'short-all', ph);
-      var cqa = day.cardio ? buildQueue(day, 'all', ph) : null, sum2 = day.cardio ? (function (S) { return addonOn() && addonSum(cqa) ? addonSum(cqa) + ', plus cardio: ' + segSummary(S)[1] : cardioLine(S); })(cqa.filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; })) + '.' + (cqa.trimNote ? ' ' + cqa.trimNote : '') : MACHINE[subSeg(WARMUP[0])[0]] + ' warm-up, then ' + (a.count + b.count) + ' exercises' + (b.fin ? ', then ' + b.fin : '') + '. Using ' + eqSummary() + '.';
+      var cqa = day.cardio ? buildQueue(day, 'all', ph) : null, sum2 = day.cardio ? (function (S) { return addonOn() && addonSum(cqa) ? addonSum(cqa) + ', plus cardio: ' + cardioPart(S) : cardioLine(S); })(cqa.filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; })) + '.' + (cqa.trimNote ? ' ' + cqa.trimNote : '') : MACHINE[subSeg(WARMUP[0])[0]] + ' warm-up, then ' + (a.count + b.count) + ' exercises' + (b.fin ? ', then ' + b.fin : '') + '. Using ' + eqSummary() + '.';
       if (!day.cardio) sum2 = a.count + b.count ? trimSum(sum2, buildQueue(day, 'all', ph)) : walkSum(day, 'all', ph);
       return '<article class="sess' + (dn ? ' done' : '') + '"><div class="sess-top"><h3>' + (typeof moreView === 'function' && moreView() ? 'Next session' : 'Today') + '</h3>' + (dn ? '<span class="donechip">' + I_CHECK.replace('<svg', '<svg width="18" height="18"') + 'Done</span>' : '<span class="mins num">' + mm + ' min</span>') + '</div>' +
         '<p class="sum">' + esc(sum2) + '</p>' + thumbs(day, 'all') + '<div class="sess-actions"><button class="btn ' + (dn ? 'quiet' : 'go') + ' block" data-start="' + day.id + '" data-part="all">' + (dn ? 'Do it again' : 'Start session') + '</button>' +
@@ -3566,7 +3572,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var key = doneKey(day, part), done = !!store.done[key], m = mins(day, part, ph), name = part === 'am' ? 'Morning' : 'Evening';
     var pl = planList(day, part, ph), list = pl.list, count = pl.count;
     var cc = day.cardio ? null : custFor(day, part), edits = cc ? Object.keys(cc.off).filter(function (id) { return cc.off[id] && (cc.off[id].h || cc.off[id].r); }).length + cc.add.length : 0;
-    var cqp = day.cardio ? buildQueue(day, part, ph) : null, sum = day.cardio ? (function (S) { return part === 'pm' && addonSum(cqp) ? addonSum(cqp) + ', then ' + segSummary(S)[1] : cardioLine(S); })(cqp.filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; })) + (cqp.trimNote ? '. ' + cqp.trimNote : '') : (part === 'am' ? MACHINE[subSeg(WARMUP[0])[0]] + ' warm-up, then ' : '') + count + ' exercise' + (count === 1 ? '' : 's') + (pl.fin ? ', then ' + pl.fin : '') + '. Using ' + eqSummary() + '.' + (edits ? ' Changed by you.' : '');
+    var cqp = day.cardio ? buildQueue(day, part, ph) : null, sum = day.cardio ? (function (S) { return part === 'pm' && addonSum(cqp) ? addonSum(cqp) + ', then ' + cardioPart(S) : cardioLine(S); })(cqp.filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; })) + (cqp.trimNote ? '. ' + cqp.trimNote : '') : (part === 'am' ? MACHINE[subSeg(WARMUP[0])[0]] + ' warm-up, then ' : '') + count + ' exercise' + (count === 1 ? '' : 's') + (pl.fin ? ', then ' + pl.fin : '') + '. Using ' + eqSummary() + '.' + (edits ? ' Changed by you.' : '');
     if (!day.cardio) sum = count ? trimSum(sum, buildQueue(day, part, ph)) : walkSum(day, part, ph);
     return '<article class="sess' + (done ? ' done' : '') + '">' +
       '<div class="sess-top"><h3>' + name + '</h3>' + (done ? '<span class="donechip">' + I_CHECK.replace('<svg', '<svg width="18" height="18"') + 'Done</span>' : '<span class="mins num">' + m + ' min</span>') + '</div>' +
@@ -3857,11 +3863,12 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     $('chips').innerHTML = AREAS.filter(function (t) { return t === 'All' || progIds.some(function (id) { return has(BY[id], t) || has(G[id], t); }); }).map(function (t) { return '<button class="chip" aria-pressed="' + (filter === t) + '" data-f="' + t + '">' + t + '</button>'; }).join('');
   }
   $('chips').addEventListener('click', function (e) {
-    var b = e.target.closest('button'); if (!b) return; filter = b.dataset.f; renderChips(); applyFilter();
+    // pressing the chosen area again turns it off (back to All)
+    var b = e.target.closest('button'); if (!b) return; var off = b.dataset.f === filter && filter !== 'All', was = filter; filter = off ? 'All' : b.dataset.f; renderChips(); applyFilter();
     // keep focus on the chosen chip (the row is redrawn) and say how many exercises it shows
-    var nb = $('chips').querySelector('[data-f="' + filter + '"]'); if (nb) nb.focus();
+    var nb = $('chips').querySelector('[data-f="' + (off ? was : filter) + '"]'); if (nb) nb.focus();
     var n = libBuilt ? [].filter.call($('lib').querySelectorAll('[data-ex]'), function (r) { return !r.hidden; }).length : 0;
-    announce((filter === 'All' ? 'All areas' : filter) + ': ' + n + ' exercise' + (n === 1 ? '' : 's'));
+    announce((off ? was + ' off. ' : '') + (filter === 'All' ? 'All areas' : filter) + ': ' + n + ' exercise' + (n === 1 ? '' : 's'));
   });
   var libBuilt = false, libEq = '';
   function ensureLib() { renderEqDD('eqddLib', 'Exercise names and pictures change to match.'); var lk = store.eq.join('') + (addonOn() ? '+' : '') + '|' + prof().issues.join(',') + '|' + prof().nofloor + '|' + prof().age + '|' + store.notes.length + bpToday(); if (libBuilt && libEq === lk) return; libBuilt = true; libEq = lk; renderChips(); renderLib(); applyFilter(); }
@@ -5874,6 +5881,20 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var c2 = apply({ type: 'log_bodyweight', weight: c.bwAsk.kg, unit: 'kg', sure: true }, c.src || 'text', null, c.bwAsk.when || undefined);
     saveFeed(); renderCoach(); renderBody(); scrollEnd(); return c2;
   }
+  // "No" to "Save 100 kg as your bodyweight?": nothing is saved, and the question goes away
+  function bwCancel(c) {
+    if (!c || !c.bwAsk || c.bwDone || c.bwNo) return null; c.bwNo = 1; pendingBw = null;
+    c.title = bwTxt(c.bwAsk.kg) + ' not saved'; c.lines = ['Nothing was saved. Type or say the right weight, like “I weigh ' + bwTxt(lastBwKg() || c.bwAsk.kg) + '”.'];
+    saveFeed(); renderCoach(); return c;
+  }
+  function lastBwKg() { var b = store.body.filter(function (x) { return x.kg; }); return b.length ? b[b.length - 1].kg : null; }
+  // the newest card "undo" (typed or said) acts on: a weight still waiting for "yes" is cancelled, else the newest entry that has an Undo
+  function undoTarget() {
+    for (var j = feed.length - 1; j >= 0; j--) { var c = feed[j]; if (c.r !== 'card' || c.undone) continue;
+      if (c.bwAsk && !c.bwDone && !c.bwNo) return { c: c, ask: true };
+      if (c.ref || (c.undo && canUndoCfg(c, j))) return { c: c }; }
+    return null;
+  }
   function undoCard(c) {
     var u = c.undo;
     if (c.k === 'food') store.food = store.food.filter(function (m) { return m.t !== c.ref; });
@@ -6075,7 +6096,30 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // ---------- the Log tab ----------
   var SUGS_LOG = ['2 eggs, toast and a banana', 'Goblet squat 16 kg 30 s', 'I weigh 78 kg', 'Walked 30 min', 'Knee pain 4/10', 'How much protein today?'];
   // starter chips in the person's own units (and their own weight when we know it)
-  function sugsLog() { var lb = isLb(), bw = bodyKg(); return SUGS_LOG.map(function (x) { if (/^Goblet/.test(x)) return lb ? 'Goblet squat 35 lb 30 s' : x; if (/^I weigh/.test(x)) return 'I weigh ' + (bw ? (lb ? Math.round(bw * 2.20462) : Math.round(bw)) : lb ? 172 : 78) + (lb ? ' lb' : ' kg'); return x; }); }
+  // one-tap starters use your own kit and weights: your newest logged sets (when there are any), else a goblet squat with your kettlebell
+  function sugsLog() {
+    var bw = bodyKg(), lb = isLb(), mine = recentSets(2);
+    var out = SUGS_LOG.map(function (x) { if (/^Goblet/.test(x)) return kitGoblet(); if (/^I weigh/.test(x)) return 'I weigh ' + (bw ? (lb ? Math.round(bw * 2.20462) : Math.round(bw)) : lb ? 172 : 78) + (lb ? ' lb' : ' kg'); return x; });
+    if (mine.length) out.splice(1, 1, mine[0]); if (mine[1]) out.splice(2, 0, mine[1]);
+    return out.filter(function (x, i, ar) { return x && ar.indexOf(x) === i; }).slice(0, 6);
+  }
+  function setLine(l) { return exName(l.id, l.k, l.eq) + (l.kg ? ' ' + kg(l.kg) : '') + ' ' + l.v + (l.k === 'h' ? ' s' : l.v === 1 ? ' rep' : ' reps'); }
+  function recentSets(n) {
+    var out = [], seen = {};
+    for (var i = store.log.length - 1; i >= 0 && out.length < n; i--) { var l = store.log[i]; if (!l.id || l.sug || !(l.v > 0) || !ALL[l.id]) continue; var k = l.id + l.k; if (seen[k]) continue; seen[k] = 1; out.push(setLine(l)); }
+    return out;
+  }
+  function kitGoblet() {
+    var v = V('goblet-squat', 'h');
+    if (v.missing || noWt(v.eq) || v.eq === 'b' || v.eq === 'c') { // a kettlebell or dumbbell you own makes it a goblet squat
+      var o0 = parseEq(EQV['goblet-squat'].h).filter(function (x) { return (x.eq === 'k' || x.eq === 'd') && store.eq.indexOf(x.eq) > -1; }).sort(function (a, b) { return owned(b.eq).length - owned(a.eq).length; })[0];
+      if (!o0) return 'Goblet squat 30 s'; v = V('goblet-squat', 'h', o0);
+    }
+    var w = getWt('goblet-squat', v, 'h'), o = owned(v.eq);
+    if (!(w > 0)) w = o.length ? o[Math.floor((o.length - 1) / 2)] : ({ k: 8, d: 6, b: 20, c: 20 })[v.eq] || 8;
+    if (o.length) w = ownedSnap(w, v.eq);
+    return 'Goblet squat ' + kg(w) + ' 30 s';
+  }
   var busyN = 0;
   function renderCoach() {
     renderDay();
@@ -6102,14 +6146,20 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   var CARD_IC = { food: '🍽', set: '🏋', body: '⚖', cardio: '🚶', pain: '⚠', water: '💧', sleep: '🌙', cfg: '✓', err: '!' };
   function canUndoCfg(c, i) { if (Date.now() - c.t > 15 * 60000) return false; for (var j = i + 1; j < feed.length; j++) if (feed[j].r === 'card' && feed[j].k === 'cfg' && feed[j].undo && !feed[j].undone) return false; return true; }
+  // "½×" means nothing when heard: "Half portion of white fish, rice and Asian greens"
+  function portionName(x, c) {
+    var m = store.food.filter(function (f) { return f.t === c.ref; })[0], nm = m && m.items && m.items.length ? m.items.map(function (it) { return it.n; }) : [];
+    var what = nm.length ? (nm.length > 1 ? nm.slice(0, -1).join(', ') + ' and ' + nm[nm.length - 1] : nm[0]) : 'this meal';
+    return (x === 0.5 ? 'Half portion of ' : x === 1.5 ? 'One and a half portions of ' : 'Double portion of ') + what;
+  }
   function cardHtml(c, i) {
-    return '<div class="lgc ' + c.k + (c.undone ? ' undone' : '') + '"><div class="lgc-h"><span class="lgc-i" aria-hidden="true">' + CARD_IC[c.k] + '</span><b>' + esc(c.title) + '</b>' + (c.pb ? '<span class="pb">New best</span>' : '') + '</div>' +
+    return '<div class="lgc ' + c.k + (c.undone ? ' undone' : '') + '" tabindex="-1" data-ci="' + i + '"><div class="lgc-h"><span class="lgc-i" aria-hidden="true">' + CARD_IC[c.k] + '</span><b>' + esc(c.title) + '</b>' + (c.pb ? '<span class="pb">New best</span>' : '') + '</div>' +
       (c.ph ? '<img class="lg-ph" data-ph="' + c.ph + '" alt="Meal photo">' : '') +
       (c.lines && c.lines.length ? '<ul>' + c.lines.map(function (l, j) { return '<li>' + (c.k === 'food' && !c.undone ? '<button class="lgc-ed" data-ed="' + i + ':' + j + '" aria-label="Change the amount of ' + esc(l.split(' (')[0]) + '">' + esc(l) + '</button>' : esc(l)) + '</li>'; }).join('') + '</ul>' : '') + (c.k === 'food' && !c.undone ? '<p class="lgc-s">Estimates. Tap an item to set its exact grams.</p>' : '') +
       (c.sub ? '<p class="lgc-s">' + esc(c.sub) + '</p>' : '') + (c.warn ? '<p class="lgc-w">' + esc(c.warn) + '</p>' : '') +
       (c.ask && !c.undone ? '<div class="lg-acts" role="group" aria-label="How bad, 0 to 10"><span class="lgc-l">How bad?</span>' + [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (x) { return '<button class="btn sm line pn" data-pain="' + i + '" data-x="' + x + '" aria-label="' + x + ' out of 10">' + x + '</button>'; }).join('') + '</div>' : '') +
-      (c.bwAsk && !c.undone && !c.bwDone ? '<div class="lg-acts"><button class="btn sm line" data-bwyes="' + i + '">Yes, save it</button></div>' : '') +
-      (c.undone ? '<p class="lgc-s">Undone.</p>' : c.k === 'err' ? '' : '<div class="lg-acts">' + (c.k === 'food' ? '<span class="lgc-l">Portion</span>' + [0.5, 1.5, 2].map(function (x) { return '<button class="btn sm quiet" data-scale="' + i + '" data-x="' + x + '">' + (x === 0.5 ? '½×' : x + '×') + '</button>'; }).join('') : '') + ((c.ref || (c.undo && canUndoCfg(c, i))) ? '<button class="btn sm line" data-undo="' + i + '">Undo</button>' : '') + '</div>') + '</div>';
+      (c.bwAsk && !c.undone && !c.bwDone && !c.bwNo ? '<div class="lg-acts" role="group" aria-label="Save ' + esc(bwTxt(c.bwAsk.kg)) + ' as your bodyweight?"><button class="btn sm line" data-bwyes="' + i + '">Yes, save it</button><button class="btn sm quiet" data-bwno="' + i + '">No</button></div>' : '') +
+      (c.undone ? '<p class="lgc-s">Undone.</p>' : c.k === 'err' ? '' : '<div class="lg-acts">' + (c.k === 'food' ? '<span role="group" aria-label="Portion" class="lg-por"><span class="lgc-l" aria-hidden="true">Portion</span>' + [0.5, 1.5, 2].map(function (x) { return '<button class="btn sm quiet" data-scale="' + i + '" data-x="' + x + '" aria-pressed="' + (c.scale === x) + '" aria-label="' + esc(portionName(x, c)) + '">' + (x === 0.5 ? '½×' : x + '×') + '</button>'; }).join('') + '</span>' : '') + ((c.ref || (c.undo && canUndoCfg(c, i))) ? '<button class="btn sm line" data-undo="' + i + '">Undo</button>' : '') + '</div>') + '</div>';
   }
   function renderDay() {
     var f = sumFood(today(store.food)), tg = proteinTarget(), kt = kcalTarget(), sets = today(store.log).length + today(store.notes).filter(function (n) { return n.k === 'lift'; }).reduce(function (t, n) { return t + (n.sets || 1); }, 0);
@@ -6150,6 +6200,17 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var pm = text.match(/^\s*(\d{1,2})\s*(?:\/\s*10|out of 10)?\s*$/);
     if (pendingPain && pm && +pm[1] <= 10 && Date.now() - pendingPain.t < 10 * 60000) { var pc0 = feed.filter(function (c) { return c.r === 'card' && c.k === 'pain' && c.ref === pendingPain.ref; })[0]; if (pc0) { feed.push({ t: Date.now(), r: 'u', x: text, src: src }); $('cIn').value = ''; autoGrow(); painScore(pc0, +pm[1]); scrollEnd(); return pc0; } }
     pendingPain = null;
+    // "undo" right after a log (or a weight still waiting for "yes"), and "no" / "cancel" to that question
+    var NO_RE = /^\s*(?:no|nope|nah|cancel|don'?t save(?: it)?|no,? (?:don'?t|cancel)(?: save(?: it)?)?|never ?mind)\s*[.!]?\s*$/i, UNDO_RE = /^\s*(?:undo|undo (?:that|it|this|the last(?: one| entry)?|last(?: one| entry)?)|take (?:that|it) back|delete (?:that|it)|remove (?:that|it)|scratch that)\s*[.!]?\s*$/i;
+    if (NO_RE.test(text) || UNDO_RE.test(text)) {
+      var ut = undoTarget(), isNo = NO_RE.test(text);
+      if (ut && (ut.ask || !isNo)) {
+        feed.push({ t: Date.now(), r: 'u', x: text, src: src }); $('cIn').value = ''; autoGrow();
+        if (ut.ask) bwCancel(ut.c); else { undoCard(ut.c); feed.push({ t: Date.now(), r: 'm', x: 'Undone: ' + ut.c.title + '.' }); }
+        saveFeed(); renderCoach(); renderBody(); scrollEnd(); return ut.c;
+      }
+      if (!isNo) { feed.push({ t: Date.now(), r: 'u', x: text, src: src }); feed.push({ t: Date.now(), r: 'm', x: 'There’s nothing to undo.' }); $('cIn').value = ''; autoGrow(); saveFeed(); renderCoach(); scrollEnd(); return; }
+    }
     if (pendingBw && /^\s*(?:yes|yeah|yep|y|si|sí|correct|right|save it|that'?s right)\b[.!]?\s*(?:save it)?\s*$/i.test(text) && Date.now() - pendingBw.t < 10 * 60000) { var bc = feed.filter(function (c) { return c.r === 'card' && c.bwAsk && !c.bwDone; }).pop(); if (bc) { feed.push({ t: Date.now(), r: 'u', x: text, src: src }); $('cIn').value = ''; autoGrow(); return bwConfirm(bc); } }
     pendingBw = null;
     $('cIn').value = ''; autoGrow();
@@ -6261,16 +6322,20 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   $('cMsgs').addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
     if (b.dataset.retry) { feed.splice(+b.dataset.retry, 1); ask(); return; }
-    if (b.dataset.undo) { var c = feed[+b.dataset.undo]; if (c && !c.undone) { undoCard(c); toast('Undone.'); } return; }
+    if (b.dataset.undo) { var c = feed[+b.dataset.undo]; if (c && !c.undone) { undoCard(c); toast('Undone.'); var cu = $('cMsgs').querySelector('[data-ci="' + b.dataset.undo + '"]'); if (cu) cu.focus({ preventScroll: true }); } return; }
     if (b.dataset.scale) {
       var c2 = feed[+b.dataset.scale], m = c2 && store.food.filter(function (x) { return x.t === c2.ref; })[0]; if (!m) return;
       var x = +b.dataset.x / (c2.scale || 1); c2.scale = +b.dataset.x;
       m.items.forEach(function (it) { ['g', 'k'].forEach(function (k) { it[k] = r0(it[k] * x); }); ['p', 'c', 'f', 'q'].forEach(function (k) { it[k] = r1(it[k] * x); }); });
       var tot = sumFood([m]); c2.title = m.meal + ': about ' + r0(tot.p) + ' g protein'; c2.lines = m.items.map(foodLine); c2.sub = r0(tot.k) + ' kcal · ' + r0(tot.c) + ' g carbs · ' + r0(tot.f) + ' g fat (portion ' + (c2.scale === 0.5 ? '½' : c2.scale) + '×).';
-      save(); saveFeed(); renderCoach(); return;
+      save(); saveFeed(); renderCoach();
+      var sb = $('cMsgs').querySelector('[data-scale="' + b.dataset.scale + '"][data-x="' + b.dataset.x + '"]'); if (sb) sb.focus({ preventScroll: true });
+      announce(c2.title + '.'); return;
     }
     if (b.dataset.pain) { painScore(feed[+b.dataset.pain], +b.dataset.x); return; }
-    if (b.dataset.bwyes) { bwConfirm(feed[+b.dataset.bwyes]); return; }
+    // answered with a keyboard or screen reader: the button goes away, so focus moves to what happened (not the page body)
+    if (b.dataset.bwyes) { var bc2 = bwConfirm(feed[+b.dataset.bwyes]); if (bc2) { var ci = $('cMsgs').querySelector('[data-ci="' + feed.indexOf(bc2) + '"]'); if (ci) ci.focus({ preventScroll: true }); announce('Saved. ' + bc2.title + (bc2.lines && bc2.lines[0] ? '. ' + bc2.lines[0] : '')); } return; }
+    if (b.dataset.bwno) { var bn = bwCancel(feed[+b.dataset.bwno]); if (bn) { $('cIn').focus({ preventScroll: true }); announce(bn.title + '. Type or say the right weight.'); } return; }
     if (b.dataset.pick) { var q = feed[+b.dataset.pick]; pickPhotoKind(q, b.dataset.v); return; }
     if (b.dataset.ed) {
       var ij = b.dataset.ed.split(':'), c3 = feed[+ij[0]], meal = c3 && store.food.filter(function (x) { return x.t === c3.ref; })[0], it = meal && meal.items[+ij[1]]; if (!it) return;
@@ -6380,10 +6445,23 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var up = stage === 'ready' && it.kind === 'reps' && progressLine(it, wtHint(it), P);
     if (up) { say(up); return; }
     if (stage === 'ready' && it.m === 'heel') say('Heel drops for bone health, one minute. Rise onto your toes, then drop onto your heels.');
-    else if (stage === 'ready') { if (it.kind === 'cardio') say((it.first ? '' : 'Next: ') + MACHINE[it.m || 'walk'] + ', ' + (it.effort || '').toLowerCase() + ', ' + spokenDur(it.dur)); else say(it.ex.name + (it.side ? ', ' + it.side : '') + '. ' + (it.kind === 'hold' ? it.dur + ' second hold' : it.reps + ' reps') + (it.mod ? '. ' + it.mod.replace(/^Knees: /, '') : '') + (it.pain ? '. ' + areaName(it.pain.area).replace(/^./, function (c) { return c.toUpperCase(); }) + ' pain: go lighter, and stop if it passes 3 out of 10' : '')); }
+    else if (stage === 'ready') { var eff = effortLine(it, P); if (it.kind === 'cardio') say((it.first ? '' : 'Next: ') + MACHINE[it.m || 'walk'] + ', ' + (it.effort || '').toLowerCase() + ', ' + spokenDur(it.dur)); else say(it.ex.name + (it.side ? ', ' + it.side : '') + '. ' + (it.kind === 'hold' ? it.dur + ' second hold' : it.reps + ' reps') + (eff ? '. ' + eff : '') + (it.mod && !(eff && it.id === 'neck-hold') ? '. ' + it.mod.replace(/^Knees: /, '') : '') + (it.pain ? '. ' + areaName(it.pain.area).replace(/^./, function (c) { return c.toUpperCase(); }) + ' pain: go lighter, and stop if it passes 3 out of 10' : '')); }
     else if (stage === 'work') say(it.kind === 'hold' ? (gentle() ? 'Hold, and keep breathing' : 'Hold') : it.kind === 'cardio' ? (it.effort === 'Hard' ? 'Go hard' : it.effort === 'Impact' ? 'Heel drops: up on your toes, then drop' : 'Go') : 'Go');
     else if (stage === 'rest') say(nxt ? 'Rest. Next: ' + nxt.ex.name : 'Rest');
     else if (stage === 'switch') say('Switch sides');
+  }
+  // a hold's target effort, said once per exercise in a session (the first set): "Effort 7 to 8 out of 10". The neck hold (and any hold
+  // whose cues say "Gentle") also gets its safety cue, since the screen alone is no use with the phone in a pocket
+  var NECK_SAY = 'Gentle: about a third of your effort. Stop if you feel pain, dizziness or tingling.';
+  function effortLine(it, mem) {
+    if (!it || it.kind !== 'hold' || !it.id) return '';
+    mem.saidEff = mem.saidEff || {}; var key = it.id + (it.wk || 'h');
+    if (mem.saidEff[key]) return ''; mem.saidEff[key] = 1;
+    var r = rpeTxt(it.id, (mem && mem.ph) || phaseOf(store.week)).replace(/[–-]/, ' to '), out = 'Effort ' + r + ' out of 10';
+    var g = (it.ex.cues || []).filter(function (c) { return /^Gentle:/.test(c); })[0];
+    if (it.id === 'neck-hold') out += '. ' + NECK_SAY;
+    else if (g && !(it.mod && /^Gentle:/.test(it.mod))) out += '. ' + g.replace(/\.?$/, '.') + ' Stop if it hurts.';
+    return out;
   }
   function spokenDur(s) { var m = Math.round(s / 60); return s >= 60 ? m + (m === 1 ? ' minute' : ' minutes') : s + ' seconds'; }
   function pvStart() {
@@ -7148,7 +7226,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       $('pSetLabel').textContent = (showIt.kind === 'hold' ? 'Hold set ' : 'Rep set ') + showIt.set + ' of ' + showIt.sets + (showIt.side ? ', ' + showIt.side.toLowerCase() : '');
       var d = ''; for (var s = 1; s <= showIt.sets; s++) d += '<i class="' + (s < showIt.set ? 'done' : s === showIt.set ? (showIt.kind === 'hold' ? 'on' : 'on r') : '') + '"></i>';
       $('pSets').innerHTML = d;
-      $('pRx').textContent = (showIt.kind === 'hold' ? (showIt.pain ? showIt.dur + ' s (shortened)' : rx(ex, ph)) + ' at RPE ' + rpeTxt(showIt.id, ph) : grx(ex, ph) + (showIt.kind === 'reps' ? ', ' + rirTxt(ph).toLowerCase() : '')) + (showIt.pain ? '. ' + areaName(showIt.pain.area).replace(/^./, function (c) { return c.toUpperCase(); }) + ' ' + showIt.pain.score + '/10: go about 20% lighter, stop above 3/10.' : '') + (showIt.mod ? '. ' + showIt.mod + '.' : '');
+      // the sets shown are the sets this session runs (the day's limit can take one off: "Hold set 1 of 1" reads "1 × 30 s", not "2 × 30 s")
+      var phS = Object.create(ph); if (showIt.kind === 'hold') phS.sets = showIt.sets; else phS.gs = showIt.sets;
+      $('pRx').textContent = (showIt.kind === 'hold' ? (showIt.pain ? showIt.dur + ' s (shortened)' : rx(ex, phS)) + ' at RPE ' + rpeTxt(showIt.id, ph) : grx(ex, phS) + (showIt.kind === 'reps' ? ', ' + rirTxt(ph).toLowerCase() : '')) + (showIt.pain ? '. ' + areaName(showIt.pain.area).replace(/^./, function (c) { return c.toUpperCase(); }) + ' ' + showIt.pain.score + '/10: go about 20% lighter, stop above 3/10.' : '') + (showIt.mod ? '. ' + showIt.mod + '.' : '');
       var ang = $('pAngle');
       if (P.stage === 'rest' || P.stage === 'switch') setCue(P.stage === 'switch' ? 'Switch sides' : 'Rest', 'Next: start position', '');
       else if (showIt.kind === 'hold') setCue(P.stage === 'work' ? (showIt.angle === 'mid' ? 'Hold mid-range' : 'Hold') : 'Get into position', P.stage === 'work' ? 'Keep breathing, stay still' : (showIt.angle === 'mid' ? 'Mid-range hold' : 'Then hold'), P.stage === 'work' ? 'hold' : '');
@@ -7172,7 +7252,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (P.stage === 'work' && it.kind !== 'cardio') after = nxt ? (it.afterKind === 'switch' ? 'Then switch sides' : it.after > MOVE + 5 ? 'Then rest ' + it.after + ' s' : 'Then move straight to the next exercise') : 'Last set of the session';
     if (P.stage === 'work' && it.kind === 'reps') after = 'Tap “Set done” if you hit your limit early. ' + after;
     var up = P.stage === 'rest' && nxt ? nextDifferent(nextIdx(P.i) + 1, nxt.ex) : nextDifferent(P.i + 1, it.ex), upTxt = '';
-    if (it.kind === 'cardio' && nxt && nxt.kind === 'cardio') upTxt = 'Next: ' + fmt(nxt.dur) + (nxt.dur >= 100 ? '' : ' s') + ' ' + nxt.effort.toLowerCase() + '.';
+    if (it.kind === 'cardio' && nxt && nxt.kind === 'cardio') upTxt = 'Next: ' + (nxt.m !== it.m ? (CARDIO_NAME[nxt.m] || MACHINE[nxt.m]) + ', ' : '') + fmt(nxt.dur) + (nxt.dur >= 100 ? '' : ' s') + ' ' + nxt.effort.toLowerCase() + '.';
     else if (up) upTxt = 'Up next: ' + up.ex.name + (up.ex.grow && up.kind !== 'cardio' ? ' (reps)' : '') + '.';
     $('pNext').textContent = (after ? after + '. ' : '') + upTxt;
     $('pHands').hidden = false; paintHands();
