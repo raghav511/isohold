@@ -1383,6 +1383,11 @@ var FIG = (function () {
       var nb = [dd[1], -dd[0]]; if (nb[1] < 0) nb = [-nb[0], -nb[1]];
       s += seg(add(o.H, nb, 8), add(add(o.S, nb, 8), dd, 8), 9, C.prop) + seg(add(add(o.H, nb, 8), dd, 18), [add(add(o.H, nb, 8), dd, 18)[0], 0], 4, C.far);
     }
+    if (props && props.indexOf('dip') > -1 && r.v !== 'f') {
+      // a parallel bar seen from the side, under the hands, with its two legs
+      var dpx = o.Wn[0], dpy = o.Wn[1] + 4;
+      s += seg([dpx - 38, dpy], [dpx + 38, dpy], 5, C.far) + seg([dpx - 30, dpy], [dpx - 30, 0], 4, C.far) + seg([dpx + 30, dpy], [dpx + 30, 0], 4, C.far);
+    }
     if (props && props.indexOf('tread') > -1) {
       var bx = o.H[0];
       s += '<rect x="' + (bx - 62).toFixed(1) + '" y="-1" width="118" height="9" rx="4" fill="' + C.far + '"/>' + seg([bx + 56, 3], [bx + 64, -72], 4, C.far) + seg([bx + 64, -72], [bx + 44, -70], 4, C.far);
@@ -1401,7 +1406,7 @@ var FIG = (function () {
       s += seg([o.H[0] - 34, 0], [o.H[0] + 70, 0], 4, C.far) + seg([cc[0] - 6, 0], cc, 4, C.far) + seg(add(o.H, [-2, 6]), cc, 4, C.far) + seg(cc, add(hb, [-4, 6]), 4, C.far) + seg(hb, add(hb, [-10, 0]), 4, C.far);
       s += '<circle cx="' + (cc[0] + 30).toFixed(1) + '" cy="' + (cc[1] - 2).toFixed(1) + '" r="17" fill="' + C.prop + '" stroke="' + C.far + '" stroke-width="3"/>' + circ(cc, 6, C.far);
       s += '<rect x="' + (o.H[0] - 13).toFixed(1) + '" y="' + (o.H[1] + 5).toFixed(1) + '" width="22" height="5" rx="2" fill="' + C.far + '"/>';
-    } else if (r.seat && !(props && props.indexOf('rower') > -1)) {
+    } else if (r.seat && !(props && (props.indexOf('rower') > -1 || props.indexOf('dip') > -1))) {
       s += '<rect x="' + (o.H[0] - 22).toFixed(1) + '" y="' + (o.H[1] + 6).toFixed(1) + '" width="34" height="' + (-o.H[1] - 6).toFixed(1) + '" rx="2" fill="' + C.prop + '"/>';
     }
     var rg = r.rig ? rig(r, o) : null;
@@ -1482,6 +1487,11 @@ var FIG = (function () {
     } else if (R.k === 'calfstand') {
       var cx = Math.min(o.H[0], o.S[0], o.Ln[0]) - 20;
       back += box(cx - 5, -196, 10, 196, 3) + part([cx, o.S[1] - 7], [o.S[0] + 7, o.S[1] - 7], 6) + box(o.Ln[0] - 2, -(r.raise || 10), Math.max(18, o.Tn[0] - o.Ln[0] + 8), r.raise || 10, 2);
+    } else if (R.k === 'legext') {
+      // leg extension: back pad behind the torso, lever from the knee to a pad on the front of the ankle
+      var u4 = tv(r.t), bn4 = [-Math.cos(r.t * R_), -Math.sin(r.t * R_)], sa = r.ln[1] * R_, pad = add(add(o.An, [Math.cos(sa), -Math.sin(sa)], 6), [Math.sin(sa), Math.cos(sa)], -5);
+      back += part(add(add(o.H, bn4, 9), u4, -4), add(add(o.S, bn4, 9), u4, -4), 9);
+      front += seg(o.Kn, pad, 3, C.ink) + circ(pad, 5, C.prop, ' stroke="' + C.ink + '" stroke-width="1.5"');
     } else if (R.k === 'calfseat') {
       front += part([o.Kn[0] - 11, o.Kn[1] - 8], [o.Kn[0] + 11, o.Kn[1] - 8], 6) + seg([o.Kn[0] + 11, o.Kn[1] - 8], [o.Kn[0] + 24, 0], 3, C.ink);
     }
@@ -1499,7 +1509,7 @@ var FIG = (function () {
     }
     if (rg && rg.k === 'xover') { var X = Math.max(Math.abs(bb[0]), Math.abs(bb[2])) + 24; R0.forEach(function (r) { r.rigX = X; }); bb = [-X - 26, Math.min(bb[1], -192), X + 26, bb[3]]; }
     if (rg && rg.k === 'hack') bb = [bb[0] - 30, Math.min(bb[1], -200), bb[2] + 20, bb[3]];
-    if (rg && (rg.k === 'legpress' || rg.k === 'calfstand' || rg.k === 'hipthrust' || rg.k === 'calfseat')) bb = [bb[0] - 34, Math.min(bb[1], rg.k === 'calfstand' ? -198 : bb[1]), bb[2] + 34, bb[3]];
+    if (rg && (rg.k === 'legpress' || rg.k === 'calfstand' || rg.k === 'hipthrust' || rg.k === 'calfseat' || rg.k === 'legext')) bb = [bb[0] - 34, Math.min(bb[1], rg.k === 'calfstand' ? -198 : bb[1]), bb[2] + 34, bb[3]];
     var pad = 22, w = bb[2] - bb[0] + pad * 2, hh = -bb[1] + pad + 10, W = Math.max(w, hh * 4 / 3, 150), Hh = W * 3 / 4;
     if (Hh < hh) { Hh = hh; W = Hh * 4 / 3; }
     ex._vb = [(bb[0] + bb[2]) / 2 - W / 2, -Hh + 10, W, Hh];
@@ -1844,6 +1854,47 @@ var EX = [
     cues: ['Shoulder blades back and down', 'Elbows about 45° from your sides', 'Feet flat'],
     avoid: 'Arching the lower back off the bench.',
     why: 'A 30–45° incline shifts the work towards the upper (clavicular) chest, which flat and floor presses reach least.' },
+  // ===== Muscle-part add-ons (cardio days): lower chest, long-head biceps, middle quad, serratus, neck =====
+  { id: 'dip-hold', name: 'Dip Hold', equip: 'Parallel bars, or two sturdy chairs back to back', tags: ['Lower chest', 'Triceps', 'Front delts'], hl: ['ua', 'J_sh'], props: ['dip'], anchor: 'Wn',
+    steps: [
+      { p: { seat: 105, t: 4, an: [0, 0], ln: [8, -72, 18], lf: [2, -80, 10] }, txt: 'Grip the bars and lift yourself up on straight arms, shoulders pushed down away from the ears, knees bent behind you.' },
+      { p: { seat: 102, t: 14, an: [-30, 5], ln: [8, -72, 18], lf: [2, -80, 10] }, txt: 'Lean the chest forward and slowly bend the elbows to lower yourself.' },
+      { p: { seat: 92, t: 26, an: [-70, 8], ln: [8, -72, 18], lf: [2, -80, 10] }, txt: 'Stop with the upper arms about level with the floor, chest leaning forward. Hold.' }],
+    cues: ['Lean forward to bring in the lower chest', 'Shoulders down, away from the ears', 'Only as deep as your shoulders are comfortable'],
+    avoid: 'Sinking below the point where the front of the shoulder pinches, or shrugging up between the arms.',
+    why: 'Leaning forward on dips loads the lower (sternocostal) chest, which pressing on an incline reaches least, along with the triceps.' },
+  { id: 'incline-curl', name: 'Incline Curl Hold', equip: 'Two dumbbells and an incline bench', tags: ['Biceps', 'Forearms'], hl: ['ua'], props: ['incline'],
+    steps: [
+      { p: { t: -35, seat: 40, an: [0, 0], af: [1, 1], ln: [90, 0], lf: [88, 2], w: { n: 'db', f: 'db' } }, txt: 'Set the bench to about 50°. Sit back with the dumbbells hanging straight down, arms behind your body, palms forward.' },
+      { p: { t: -35, seat: 40, an: [0, 45], af: [1, 46], ln: [90, 0], lf: [88, 2], w: { n: 'db', f: 'db' } }, txt: 'Keep the elbows pointing at the floor and curl the weights up.' },
+      { p: { t: -35, seat: 40, an: [0, 90], af: [1, 91], ln: [90, 0], lf: [88, 2], w: { n: 'db', f: 'db' } }, txt: 'Stop with the forearms level with the floor (elbows at 90°). Hold.' }],
+    cues: ['Elbows stay back, under the shoulders', 'Head and back stay on the bench', 'Go lighter than a standing curl'],
+    avoid: 'Swinging the elbows forward, which takes the stretch off the long head.',
+    why: 'With the arms behind the body the long head of the biceps is stretched. In a 12-week MRI trial this curl grew the biceps more than a preacher curl.' },
+  { id: 'rev-nordic', name: 'Reverse Nordic Hold', equip: 'A mat or cushion under the knees', tags: ['Quads', 'Knees'], hl: ['th', 'J_knee'], anchor: 'Kn',
+    steps: [
+      { p: { t: 0, ln: [0, -90, -90], an: { ikt: [38, 13], b: -1 } }, txt: 'Kneel tall on a mat, knees hip-width, tops of the feet flat, arms crossed on your chest.' },
+      { p: { t: -16, ln: [16, -90, -90], an: { ikt: [38, 13], b: -1 } }, txt: 'Squeeze the glutes and lean the whole body back from the knees, hips straight.' },
+      { p: { t: -32, ln: [32, -90, -90], an: { ikt: [38, 13], b: -1 } }, txt: 'Stop when the front of the thighs work hard, well before you lose control. Hold.' }],
+    cues: ['Knees to head in one straight line', 'Glutes tight, no bend at the hips', 'Start with a small lean'],
+    avoid: 'Bending at the hips, or leaning further than you can come back from.',
+    why: 'Leaning back with the hips straight stretches and loads the rectus femoris, the middle quad muscle that crosses both hip and knee; squats and wall sits mostly train the other three.' },
+  { id: 'pushup-plus', name: 'Push-Up Plus Hold', equip: 'Just your bodyweight', tags: ['Serratus', 'Front delts', 'Mid abs'], hl: ['J_sh', 'tn'], anchor: 'An',
+    steps: [
+      { p: { t: 65, an: [0, 0], ln: [-65, -65, 15] }, txt: 'Get into a high plank, hands under the shoulders, arms straight. On the knees is fine.' },
+      { p: { t: 67, an: [1, 1], ln: [-67, -67, 15] }, txt: 'Keep the arms straight and let the chest sink a little between the shoulder blades.' },
+      { p: { t: 63, an: [-1, -1], ln: [-63, -63, 15] }, txt: 'Push the floor away so the upper back rounds slightly and the shoulder blades spread apart. Hold.' }],
+    cues: ['Arms stay locked straight', 'Push the floor away', 'Hips in line, no sag'],
+    avoid: 'Bending the elbows. This is a shoulder-blade move, not a push-up.',
+    why: 'The "plus" at the top of a push-up works the serratus anterior, the muscle that holds the shoulder blade to the ribs and helps it rotate when you reach overhead.' },
+  { id: 'neck-hold', name: 'Neck Hold', equip: 'Just your hands, seated', tags: ['Neck', 'Traps'], hl: ['neck'],
+    steps: [
+      { p: { seat: 40, t: 0, ln: { toe: [49, 38], ft: 90, b: 1 }, lf: { toe: [45, 38], ft: 90, b: 1 }, an: { ik: [13, -54], b: -1, hd: 170 }, af: { ik: [11, -53], b: -1, hd: 170 } }, txt: 'Sit tall. Put a palm on your forehead and push the head gently into it without letting it move. Hold.' },
+      { p: { seat: 40, t: 0, ln: { toe: [49, 38], ft: 90, b: 1 }, lf: { toe: [45, 38], ft: 90, b: 1 }, an: { ik: [2, -56], b: -1, hd: 175 }, af: [3, 3] }, txt: 'Next, a hand on the side of the head above the ear: press sideways into it. Hold, then the other side.' },
+      { p: { seat: 40, t: 0, ln: { toe: [49, 38], ft: 90, b: 1 }, lf: { toe: [45, 38], ft: 90, b: 1 }, an: { ik: [-8, -56], b: 1, hd: 170 }, af: { ik: [-6, -55], b: 1, hd: 170 } }, txt: 'Last, hands clasped behind the head: press the head back into them. Hold.' }],
+    cues: ['Gentle: about a third of your effort', 'The head does not move', 'Keep breathing'],
+    avoid: 'Pushing hard or jerking. Stop at once if you feel pain, dizziness, or tingling into the arm.',
+    why: 'Gentle neck holds strengthen the neck muscles in all directions without moving the neck. Strength training of the neck reduced neck pain in a year-long trial.' },
   { id: 'crunch', name: 'Weighted Crunch Hold', equip: 'One dumbbell', tags: ['Upper abs', 'Mid abs'], hl: ['tn'],
     steps: [
       { p: { t: -90, ln: { ik: [41, 0], b: 1 }, an: { ikt: [34, 10], b: -1 }, w: { n: 'db' } }, txt: 'Lie on your back, knees bent, hugging a dumbbell to your chest.' },
@@ -1936,11 +1987,12 @@ var DAYS = [
 // Only exercises with strong evidence (a training trial or meta-analysis for that muscle or tendon) stay in the program.
 var RETIRED = ['front-raise', 'rear-fly', 'overhead-hold', 'ext-rot', 'shrug', 'prone-y', 'sa-row', 'bo-row', 'hammer', 'ham-bridge', 'farmer', 'wrist', 'tib-hold', 'pinch'];
 // Back and stabilizer add-on on the two cardio days, two alternating pairs each: rows and rear delts both days, then the rotator cuff and lower traps (day 1) or knee-bend hamstrings and shins (day 2).
-var ADDON_BY = { c1: [['sa-row', 'rear-fly'], ['ext-rot', 'prone-y'], ['incline-press', 'pallof']], c2: [['sa-row', 'rear-fly'], ['ham-bridge', 'tib-hold'], ['side-plank', 'copenhagen']] };
-var ADDON_TXT = { c1: 'Rows, rear delts, rotator cuff, lower traps, upper chest and anti-rotation core', c2: 'Rows, rear delts, knee-bend hamstrings, shins, side hip and inner thigh' };
+// Muscle-part pairs: lower chest + long-head biceps, brachialis + serratus (day 1); middle quad + upper traps, forearm extensors + neck (day 2).
+var ADDON_BY = { c1: [['sa-row', 'rear-fly'], ['ext-rot', 'prone-y'], ['incline-press', 'pallof'], ['dip-hold', 'incline-curl'], ['hammer', 'pushup-plus']], c2: [['sa-row', 'rear-fly'], ['ham-bridge', 'tib-hold'], ['side-plank', 'copenhagen'], ['rev-nordic', 'shrug'], ['wrist', 'neck-hold']] };
+var ADDON_TXT = { c1: 'Rows, rear delts, rotator cuff, lower traps, upper and lower chest, anti-rotation core, long-head biceps, brachialis and serratus', c2: 'Rows, rear delts, knee-bend hamstrings, shins, side hip, inner thigh, middle quad, upper traps, forearm extensors and neck' };
 function addonFor(day) { return ADDON_BY[day.id] || ADDON_BY.c1; }
 function addonTxt(day) { return ADDON_TXT[day.id] || ADDON_TXT.c1; }
-var ADDON = ['sa-row', 'rear-fly', 'ext-rot', 'prone-y', 'incline-press', 'pallof', 'ham-bridge', 'tib-hold', 'side-plank', 'copenhagen'], EX_ADDON = EX.filter(function (e) { return ADDON.indexOf(e.id) > -1; });
+var ADDON = ['sa-row', 'rear-fly', 'ext-rot', 'prone-y', 'incline-press', 'pallof', 'dip-hold', 'incline-curl', 'hammer', 'pushup-plus', 'ham-bridge', 'tib-hold', 'side-plank', 'copenhagen', 'rev-nordic', 'shrug', 'wrist', 'neck-hold'], EX_ADDON = EX.filter(function (e) { return ADDON.indexOf(e.id) > -1; });
 EX = EX.filter(function (e) { return RETIRED.indexOf(e.id) < 0; });
 DAYS.forEach(function (d) { d.ex = [].concat.apply([], d.am.concat(d.pm)); });
 
@@ -1971,6 +2023,11 @@ var GROW = {
   'copenhagen': { name: 'Copenhagen Plank Raise', uni: true, tempo: UP, steps: [{ i: 0, txt: 'Top leg on the bench, hips on the floor.' }, { i: 2, txt: 'Lift the hips, pause 1 s, lower over 2–3 s.' }], cues: ['Press down into the bench'] },
   'pallof': { name: 'Pallof Press', tempo: UP, steps: [{ i: 0, txt: 'Side-on to the band, hands at your chest.' }, { i: 2, txt: 'Press out, pause 2 s, bring back over 2 s.' }], cues: ['No twisting'] },
   'incline-press': { name: 'Incline Dumbbell Press', tempo: DN, steps: [{ i: 1, txt: 'Dumbbells pressed up over your upper chest.' }, { i: 0, txt: 'Lower over 2–3 s to your chest, pause, press up.' }], cues: ['Control the way down'] },
+  'dip-hold': { name: 'Dip', tempo: DN, steps: [{ i: 0, txt: 'Arms straight on the bars, leaning slightly forward.' }, { i: 2, txt: 'Lower over 2–3 s until the upper arms are about level with the floor, pause, press back up.' }], cues: ['Lean forward for the chest', 'Stop short of any shoulder pinch'] },
+  'incline-curl': { name: 'Incline Curl', tempo: UP, steps: [{ i: 0, txt: 'On the incline bench, arms hanging straight behind the body.' }, { p: { t: -35, seat: 40, an: [4, 140], af: [5, 141], ln: [90, 0], lf: [88, 2], w: { n: 'db', f: 'db' } }, txt: 'Curl up, squeeze 1 s, lower over 2–3 s all the way to straight arms.' }], cues: ['Full stretch at the bottom', 'Elbows stay back'] },
+  'rev-nordic': { name: 'Short Reverse Nordic', tempo: DN, steps: [{ i: 0, txt: 'Kneel tall, arms crossed on your chest.' }, { i: 2, txt: 'Lean back from the knees over 2–3 s to your hold depth, pause, pull back up with the thighs.' }], cues: ['Hips stay straight', 'Only as far as you can come back from'] },
+  'pushup-plus': { name: 'Push-Up Plus', tempo: UP, steps: [{ i: 1, txt: 'High plank, arms straight, chest sunk between the shoulder blades.' }, { i: 2, txt: 'Push the floor away to spread the shoulder blades, pause 1 s, sink back over 2 s.' }], cues: ['Elbows never bend', 'Small, slow movement'] },
+  'neck-hold': { name: 'Chin Tuck', tempo: [1, 2, 1, 0.5], tags: ['Neck'], steps: [{ p: { seat: 40, t: 0, hn: 6, ln: { toe: [49, 38], ft: 90, b: 1 }, lf: { toe: [45, 38], ft: 90, b: 1 }, an: { ik: [20, -4], b: -1 }, af: { ik: [18, -4], b: -1 } }, txt: 'Sit tall, hands resting on your thighs, eyes level.' }, { p: { seat: 40, t: 0, hn: -6, ln: { toe: [49, 38], ft: 90, b: 1 }, lf: { toe: [45, 38], ft: 90, b: 1 }, an: { ik: [20, -4], b: -1 }, af: { ik: [18, -4], b: -1 } }, txt: 'Slide the chin straight back (a double chin), hold 2 s, relax.' }], cues: ['Eyes stay level, do not nod', 'Small and slow'] },
   'plank-db': { name: 'Renegade Row', uni: true, tempo: UP, tags: ['Mid abs', 'Lats', 'Mid back', 'Grip'],
     steps: [{ i: 2, txt: 'High plank on the dumbbells, feet wide for balance.' }, { p: { t: 61, an: [-68, 18], af: [0, 0], ln: [-61, -61, 15], wg: true, w: { n: 'db', f: 'db' } }, txt: 'Row one dumbbell to the ribs without twisting. Lower over 2–3 s. Do all reps, then switch.' }], cues: ['Hips stay square', 'Wider feet = easier'] },
 
@@ -2075,6 +2132,11 @@ var EQV = {
   'copenhagen': { h: 'w', g: 'w', n: { w: 'Copenhagen Plank Hold' }, gn: { w: 'Copenhagen Plank Raise' } },
   'pallof': { h: 'r c:cable', g: 'r c:cable', n: { r: 'Pallof Press Hold', c: 'Cable Pallof Press Hold' }, gn: { r: 'Pallof Press', c: 'Cable Pallof Press' } },
   'incline-press': { h: 'd k b:bar c:mach', g: 'd k b:bar c:mach', n: { b: 'Incline Barbell Press Hold', c: 'Incline Machine Press Hold' }, gn: { b: 'Incline Barbell Press', c: 'Incline Machine Press' } },
+  'dip-hold': { h: 'w c:cable', g: 'w c:cable', n: { w: 'Dip Hold', c: 'Cable High-to-Low Press Hold' }, gn: { w: 'Dip', c: 'Cable High-to-Low Press' } },
+  'incline-curl': { h: 'd k c:cable r', g: 'd k c:cable r', n: { c: 'Behind-the-Body Cable Curl Hold', r: 'Band Behind-the-Body Curl Hold' }, gn: { c: 'Behind-the-Body Cable Curl', r: 'Band Behind-the-Body Curl' } },
+  'rev-nordic': { h: 'w c:mach r', g: 'w c:mach r', n: { w: 'Reverse Nordic Hold', c: 'Leg Extension Hold', r: 'Band Leg Extension Hold' }, gn: { w: 'Short Reverse Nordic', c: 'Leg Extension', r: 'Band Leg Extension' } },
+  'pushup-plus': { h: 'w r c:cable', g: 'w r c:cable', n: { w: 'Push-Up Plus Hold', r: 'Banded Push-Up Plus Hold', c: 'Cable Punch Hold' }, gn: { w: 'Push-Up Plus', r: 'Banded Push-Up Plus', c: 'Cable Punch' } },
+  'neck-hold': { h: 'w', g: 'w', n: { w: 'Neck Hold' }, gn: { w: 'Chin Tuck' } },
   'oh-triceps': { h: 'k d b:bar c:cable r', g: 'k d b:bar c:cable r', n: { c: 'Cable Overhead Triceps Hold' }, gn: { c: 'Cable Overhead Triceps Extension' } },
   'kickback': { h: 'd k c:cable r', g: 'd k c:cable r' },
   'hollow': { h: 'd k b:plate w', g: 'd k b:plate w' },
@@ -2087,7 +2149,7 @@ var EQV = {
   'seated-calf': { h: 'd k b:bar c:mach', g: 'd k b:bar c:mach', n: { c: 'Seated Calf Machine Hold' }, gn: { c: 'Seated Calf Machine Raise' }, mp: 'kn' },
   'tib-hold': { h: 'd k b:plate w r', g: 'd k b:plate w r', n: { r: 'Band Shin Raise Hold' }, gn: { r: 'Band Shin Raise' } },
   'dead-bug': { h: 'k d b:plate w', g: 'k d b:plate w' },
-  'shrug': { h: 'd k b:bar', g: 'd k b:bar' },
+  'shrug': { h: 'd k b:bar c:cable r', g: 'd k b:bar c:cable r', n: { c: 'Cable Shrug Hold', r: 'Band Shrug Hold' }, gn: { c: 'Cable Shrug', r: 'Band Shrug' } },
   'prone-y': { h: 'd w r', g: 'd w r', n: { r: 'Band Y Raise Hold' }, gn: { r: 'Band Y Raise' } },
   'floor-press': { h: 'd k b:bar w', g: 'd k b:bar w', n: { w: 'Push-Up Hold' }, gn: { w: 'Push-Up' }, poseAnchor: 'An', noProps: true,
     // a push-up: high plank, halfway, chest just above the floor
@@ -2096,7 +2158,7 @@ var EQV = {
   'sa-row': { h: 'd k b:bar c:cable r', g: 'd k b:bar c:cable r', both: 'b', n: { b: 'Close-Grip Barbell Row Hold', c: 'Single-Arm Cable Row Hold', r: 'Band Row Hold' }, gn: { b: 'Close-Grip Barbell Row', c: 'Single-Arm Cable Row', r: 'Band Row' } },
   'bo-row': { h: 'b:bar d k', g: 'b:bar d k', n: { b: 'Wide-Grip Barbell Row Hold' }, gn: { b: 'Wide-Grip Barbell Row' } },
   'curl': { h: 'd k b:bar c:cable r w', g: 'd k b:bar c:cable r w', n: { w: 'Towel Curl Hold' }, gn: { w: 'Towel Curl' } },
-  'hammer': { h: 'd k b:bar', g: 'd k b:bar', n: { b: 'Barbell Reverse Curl Hold' }, gn: { b: 'Barbell Reverse Curl' } },
+  'hammer': { h: 'd k b:bar c:cable r', g: 'd k b:bar c:cable r', n: { b: 'Barbell Reverse Curl Hold', c: 'Cable Rope Hammer Curl Hold', r: 'Band Hammer Curl Hold' }, gn: { b: 'Barbell Reverse Curl', c: 'Cable Rope Hammer Curl', r: 'Band Hammer Curl' } },
   'suitcase': { h: 'k d b:bar', g: 'k d b:bar' },
   'crunch': { h: 'd k b:plate w', g: 'd k b:plate w' },
   'rdl': { h: 'b:bar k d c:cable r', g: 'b:bar k d c:cable r', n: { c: 'Cable Pull-Through Hold' }, gn: { c: 'Cable Pull-Through' } },
@@ -2105,7 +2167,7 @@ var EQV = {
   'bird-dog': { h: 'd k w', g: 'k d b:bar', gn: { d: 'Dumbbell Swing', b: 'Barbell Speed RDL' }, fig: { 'g:b': 'rdl' } },
   'farmer': { h: 'k d b:bar', g: 'k d b:bar', n: { b: 'Deadlift Lockout Hold' }, gn: { b: 'Barbell Deadlift' }, fig: { 'g:b': 'h:farmer:0,2' }, gx: { b: { mode: null, uni: false, tempo: [1, 0.5, 2.5, 0.5] } } },
   'pinch': { h: 'd b:plate', g: 'd b:plate', n: { d: 'Dumbbell Pinch Hold', b: 'Plate Pinch Hold' }, gn: { d: 'Dumbbell Pinch Carry', b: 'Plate Pinch Carry' } },
-  'wrist': { h: 'd k b:bar', g: 'd k b:bar', both: 'b' },
+  'wrist': { h: 'd k b:bar c:cable r', g: 'd k b:bar c:cable r', both: 'b', n: { c: 'Cable Wrist Extension Hold', r: 'Band Wrist Extension Hold' }, gn: { c: 'Cable Wrist Extension & Curl', r: 'Band Wrist Extension & Curl' } },
   'sl-balance': { h: 'k d b:plate w', g: 'k d b:plate w' }
 };
 // Gym equipment drawn with the figure, and body positions for versions that move differently.
@@ -2141,7 +2203,18 @@ var GYM = {
   'calf-raise': { rig: { 'h:c': { k: 'calfstand' }, 'g:c': { k: 'calfstand' } },
     pose: { 'h:c': [{ raise: 10, an: { ikt: [45, 5], b: -1 }, ln: [0, 0, 104] }, { raise: 10, an: { ikt: [45, 5], b: -1 }, ln: [0, 0, 70] }, { raise: 10, an: { ikt: [45, 5], b: -1 }, ln: [0, 0, 48] }],
       'g:c': [{ raise: 10, an: { ikt: [45, 5], b: -1 }, ln: [0, 0, 104] }, { raise: 10, an: { ikt: [45, 5], b: -1 }, ln: [0, 0, 48] }] } },
-  'seated-calf': { rig: { 'h:c': { k: 'calfseat' }, 'g:c': { k: 'calfseat' } } }
+  'seated-calf': { rig: { 'h:c': { k: 'calfseat' }, 'g:c': { k: 'calfseat' } } },
+  'hammer': { rig: { 'h:c': { k: 'tower', side: 'front', h: 'low', att: 'rope', hands: 'both' }, 'g:c': { k: 'tower', side: 'front', h: 'low', att: 'rope', hands: 'both' } } },
+  'wrist': { rig: { 'h:c': { k: 'tower', side: 'front', h: 'low', att: 'd', hands: 'n' }, 'g:c': { k: 'tower', side: 'front', h: 'low', att: 'd', hands: 'n' } } },
+  'shrug': { rig: { 'h:c': { k: 'xover', h: 'low' }, 'g:c': { k: 'xover', h: 'low' } } },
+  'dip-hold': { rig: { 'h:c': { k: 'tower', side: 'back', h: 'high', att: 'd', hands: 'n' }, 'g:c': { k: 'tower', side: 'back', h: 'high', att: 'd', hands: 'n' } }, anchor: 'H', noProps: true,
+    pose: { 'h:c': [{ t: 10, ln: [14, 2], lf: [-12, -4], an: [-40, 105], af: [-38, 107], w: { n: 'db', f: 'db' } }, { t: 10, ln: [14, 2], lf: [-12, -4], an: [8, 62], af: [10, 64], w: { n: 'db', f: 'db' } }, { t: 10, ln: [14, 2], lf: [-12, -4], an: [48, 50], af: [50, 52], w: { n: 'db', f: 'db' } }], 'g:c': [{ t: 10, ln: [14, 2], lf: [-12, -4], an: [-40, 105], af: [-38, 107], w: { n: 'db', f: 'db' } }, { t: 10, ln: [14, 2], lf: [-12, -4], an: [48, 50], af: [50, 52], w: { n: 'db', f: 'db' } }] } },
+  'incline-curl': { rig: { 'h:c': { k: 'tower', side: 'back', h: 'low', att: 'd', hands: 'n' }, 'g:c': { k: 'tower', side: 'back', h: 'low', att: 'd', hands: 'n' } }, anchor: 'H', noProps: true,
+    pose: { 'h:c': [{ t: 0, ln: [4, -2], lf: [-6, -2], an: [-22, -20], af: [-20, -19], w: { n: 'db', f: 'db' } }, { t: 0, ln: [4, -2], lf: [-6, -2], an: [-22, 30], af: [-20, 31], w: { n: 'db', f: 'db' } }, { t: 0, ln: [4, -2], lf: [-6, -2], an: [-22, 68], af: [-20, 69], w: { n: 'db', f: 'db' } }], 'g:c': [{ t: 0, ln: [4, -2], lf: [-6, -2], an: [-22, -20], af: [-20, -19], w: { n: 'db', f: 'db' } }, { t: 0, ln: [4, -2], lf: [-6, -2], an: [-22, 125], af: [-20, 126], w: { n: 'db', f: 'db' } }], 'h:r': [{ t: 0, ln: [4, -2], lf: [-6, -2], an: [-22, -20], af: [-20, -19], w: { n: 'db', f: 'db' } }, { t: 0, ln: [4, -2], lf: [-6, -2], an: [-22, 30], af: [-20, 31], w: { n: 'db', f: 'db' } }, { t: 0, ln: [4, -2], lf: [-6, -2], an: [-22, 68], af: [-20, 69], w: { n: 'db', f: 'db' } }], 'g:r': [{ t: 0, ln: [4, -2], lf: [-6, -2], an: [-22, -20], af: [-20, -19], w: { n: 'db', f: 'db' } }, { t: 0, ln: [4, -2], lf: [-6, -2], an: [-22, 125], af: [-20, 126], w: { n: 'db', f: 'db' } }] } },
+  'rev-nordic': { rig: { 'h:c': { k: 'legext' }, 'g:c': { k: 'legext' } }, anchor: 'H',
+    pose: { 'h:c': [{ seat: 46, t: -12, ln: [90, 4, 92], lf: [88, 4, 92], an: { ik: [6, 6], b: -1 } }, { seat: 46, t: -12, ln: [90, 45, 132], lf: [88, 45, 132], an: { ik: [6, 6], b: -1 } }, { seat: 46, t: -12, ln: [90, 84, 172], lf: [88, 84, 172], an: { ik: [6, 6], b: -1 } }], 'g:c': [{ seat: 46, t: -12, ln: [90, 4, 92], lf: [88, 4, 92], an: { ik: [6, 6], b: -1 } }, { seat: 46, t: -12, ln: [90, 84, 172], lf: [88, 84, 172], an: { ik: [6, 6], b: -1 } }], 'h:r': [{ seat: 46, t: -12, ln: [90, 4, 92], lf: [88, 4, 92], an: { ik: [6, 6], b: -1 } }, { seat: 46, t: -12, ln: [90, 45, 132], lf: [88, 45, 132], an: { ik: [6, 6], b: -1 } }, { seat: 46, t: -12, ln: [90, 84, 172], lf: [88, 84, 172], an: { ik: [6, 6], b: -1 } }], 'g:r': [{ seat: 46, t: -12, ln: [90, 4, 92], lf: [88, 4, 92], an: { ik: [6, 6], b: -1 } }, { seat: 46, t: -12, ln: [90, 84, 172], lf: [88, 84, 172], an: { ik: [6, 6], b: -1 } }] } },
+  'pushup-plus': { rig: { 'h:c': { k: 'tower', side: 'back', h: 'chest', att: 'd', hands: 'n' }, 'g:c': { k: 'tower', side: 'back', h: 'chest', att: 'd', hands: 'n' } }, anchor: 'H',
+    pose: { 'h:c': [{ t: 4, ln: [14, 2], lf: [-12, -4], an: [-30, 110], af: [-28, 112], w: { n: 'db' } }, { t: 4, ln: [14, 2], lf: [-12, -4], an: [80, 86], af: [-28, 112], w: { n: 'db' } }, { t: 8, ln: [14, 2], lf: [-12, -4], an: [90, 90], af: [-28, 112], w: { n: 'db' } }], 'g:c': [{ t: 4, ln: [14, 2], lf: [-12, -4], an: [-30, 110], af: [-28, 112], w: { n: 'db' } }, { t: 8, ln: [14, 2], lf: [-12, -4], an: [90, 90], af: [-28, 112], w: { n: 'db' } }] } }
 };
 Object.keys(GYM).forEach(function (id) { var g = GYM[id]; if (EQV[id]) { EQV[id].rig = g.rig; EQV[id].pose = g.pose; EQV[id].poseAnchor = g.anchor; EQV[id].noProps = g.noProps; } });
 // A trailing '?' marks an awkward version, used only when nothing better is selected.
@@ -2226,6 +2299,20 @@ function chooseEq(id, kind, sel) {
 // where kind is 'h' (hold) or 'g' (reps) and key is 'k', 'd', 'bar', 'plate' or 'w'.
 // Anything not listed falls back to a word swap between kettlebell and dumbbell.
 var EQTX_NEW = {
+  'dip-hold': { h: { cable: { s: ['Set a cable pulley high behind you with a handle. Step forward into a split stance, handle by your chest, leaning slightly forward.', 'Press the handle forward and down, towards the opposite hip.', 'Stop with the arm straight and low in front of you. Hold, then switch sides.'], c: ['Press down and across', 'Chest stays up', 'Shoulder down, away from the ear'] } },
+    g: { cable: { s: ['High pulley behind you, handle by your chest, split stance.', 'Press forward and down to a straight arm in 1 s, return over 2–3 s.'], c: ['Feel the lower chest squeeze', 'Do all reps, then switch'] } } },
+  'incline-curl': { h: { cable: { s: ['Set a cable pulley low behind you with a handle. Step forward until the arm is pulled slightly behind your body, palm forward.', 'Keep the elbow behind your side and curl the handle up.', 'Stop with the forearm level with the floor. Hold, then switch arms.'], c: ['Elbow stays behind the body', 'Stand tall, no leaning'] }, r: { s: ['Stand on a band with the ends in your hands, arms straight and slightly behind your body, palms forward.', 'Keep the elbows back and curl the hands up against the band.', 'Stop with the forearms level with the floor. Hold.'], c: ['Elbows stay behind the body', 'Stand tall'] } },
+    g: { cable: { s: ['Low pulley behind you, arm straight and slightly behind your body.', 'Curl up in 1 s, lower over 2–3 s to a full stretch.'], c: ['Full stretch at the bottom', 'Do all reps, then switch'] }, r: { s: ['Band under the feet, arms straight and slightly behind the body.', 'Curl up in 1 s, lower over 2–3 s to straight arms.'], c: ['Elbows stay back'] } } },
+  'rev-nordic': { h: { mach: { s: ['Sit in the leg extension machine, back on the pad, knees at the edge of the seat, the ankle pad on the front of the lower shins.', 'Straighten the legs to lift the pad.', 'Stop just short of fully straight and hold, thighs tight.'], c: ['Hips stay down on the seat', 'Toes pulled up', 'Lean back on the pad if the seat allows'] }, r: { s: ['Sit on a chair. Loop a band round one ankle and tie it to the chair leg behind you.', 'Straighten the knee against the band.', 'Stop just short of fully straight. Hold, then switch legs.'], c: ['Sit tall', 'Thigh stays on the chair'] } },
+    g: { mach: { s: ['Knees bent, ankle pad on the lower shins.', 'Straighten in 1 s, pause, lower over 2–3 s.'], c: ['No swinging', 'Full range'] }, r: { s: ['Band round the ankle, tied to the chair leg behind you.', 'Straighten the knee in 1 s, bend back over 2–3 s.'], c: ['Do all reps, then switch'] } } },
+  'pushup-plus': { h: { r: { s: ['Put a band across your upper back and pin the ends under your hands. Get into a high plank, arms straight. On the knees is fine.', 'Keep the arms straight and let the chest sink a little between the shoulder blades.', 'Push the floor away against the band so the shoulder blades spread apart. Hold.'], c: ['Arms stay straight', 'Push the floor away'] }, cable: { s: ['Set a cable pulley at chest height behind you with a handle. Step forward, handle by your chest.', 'Punch straight forward until the arm is straight.', 'Reach a little further so the shoulder blade slides forward. Hold, then switch.'], c: ['Arm straight at the end', 'Reach, do not twist'] } },
+    g: { r: { s: ['High plank, band across the upper back.', 'Push the floor away, pause 1 s, sink back over 2 s.'], c: ['Elbows never bend'] }, cable: { s: ['Chest-height pulley behind you, handle by your chest.', 'Punch and reach in 1 s, return over 2 s.'], c: ['Do all reps, then switch'] } } },
+  'hammer': { h: { cable: { s: ['Attach a rope to a low pulley. Stand facing it, a rope end in each hand, palms facing each other.', 'Curl up with the thumbs leading, elbows at your sides.', 'Stop with the hands just below shoulder height. Hold.'], c: ['Thumbs up', 'Elbows still'] }, r: { s: ['Stand on a band, an end in each hand at your sides, palms facing each other.', 'Curl up with the thumbs leading against the band.', 'Stop with the hands just below shoulder height. Hold.'], c: ['Thumbs up', 'Elbows still'] } },
+    g: { cable: { s: ['Rope on a low pulley, palms facing each other.', 'Curl up thumbs first, pause, lower over 2–3 s.'], c: ['No swinging'] }, r: { s: ['Band under the feet, palms facing each other.', 'Curl up thumbs first, pause, lower over 2–3 s.'], c: ['No swinging'] } } },
+  'shrug': { h: { cable: { s: ['Stand between two low pulleys with a handle in each hand, arms straight at your sides.', 'Lift the shoulders straight up toward the ears.', 'Squeeze at the top. Hold.'], c: ['Straight up, no rolling', 'Neck long'] }, r: { s: ['Stand on the middle of a band, an end in each hand, arms straight at your sides.', 'Lift the shoulders straight up toward the ears against the band.', 'Squeeze at the top. Hold.'], c: ['Straight up, no rolling', 'A shorter grip makes it harder'] } },
+    g: { cable: { s: ['Handles at your sides, arms straight.', 'Shrug up, hold 1 s, lower over 2–3 s.'], c: ['Neck stays long'] }, r: { s: ['Band under the feet, arms straight.', 'Shrug up, hold 1 s, lower over 2–3 s.'], c: ['Neck stays long'] } } },
+  'wrist': { h: { cable: { s: ['Sit beside a low pulley with a handle, forearm on your thigh, wrist just past the knee, palm down.', 'Lift the back of the hand until the wrist is straight.', 'Extend the wrist up and hold. Next set, turn the palm up and hold the curled-up position.'], c: ['Forearm stays on the thigh', 'Move only at the wrist'] }, r: { s: ['Sit with a band under your foot, the end in your hand, forearm on your thigh, palm down.', 'Lift the back of the hand against the band until the wrist is straight.', 'Extend the wrist up and hold. Next set, turn the palm up and hold the curled-up position.'], c: ['Forearm stays on the thigh', 'Light band, long hold'] } },
+    g: { cable: { s: ['Forearm on the thigh, low pulley in front, hand relaxed down.', 'Extend the wrist up, pause, lower over 2–3 s. Next set, palm up and curl.'], c: ['Only the wrist moves'] }, r: { s: ['Band under the foot, forearm on the thigh.', 'Extend the wrist up, pause, lower over 2–3 s. Next set, palm up and curl.'], c: ['Only the wrist moves'] } } },
   'side-plank': { h: { r: { s: ['Loop a band just above the knees. Lie on your side, elbow under your shoulder, and lift the hips into a straight line.', 'Keep the hips high and lift the top leg against the band.', 'Stop a little above hip height. Hold, then switch sides.'], c: ['Hips stay high', 'Toes point forward'] } }, g: { r: { s: ['Band above the knees, hips up in a side plank.', 'Lift the top leg against the band, pause, lower over 2–3 s.'], c: ['Keep the band tight at the bottom'] } } },
   'sa-row': { h: { r: { s: ['Stand on one end of a band with the front foot, hinge forward and brace the free hand on the front knee, band hanging in the working hand.', 'Row the hand to your hip, elbow close to your side.', 'Squeeze the shoulder blade back. Hold.'], c: ['Elbow to the hip', 'Chest stays square'] } }, g: { r: { s: ['Hinged, band under the front foot, arm hanging long.', 'Row to the hip, squeeze 1 s, let the arm go long over 2–3 s.'], c: ['Let the shoulder reach forward at the start'] } } },
   'rear-fly': { h: { r: { s: ['Stand on the middle of a band, cross the ends, and hinge to about 45° with an end in each hand.', 'Sweep the arms out to the sides against the band, elbows soft.', 'Stop with the arms in a T. Squeeze the shoulder blades together. Hold.'], c: ['Keep the hinge angle', 'Shoulders down, away from the ears'] } }, g: { r: { s: ['Hinged, band crossed under the feet.', 'Sweep out to a T, pause, lower over 2–3 s.'], c: ['Move slowly; the band pulls harder at the top'] } } },
@@ -2569,6 +2656,19 @@ var REFS = {
   tyler2010: { a: 'Tyler et al., 2010', j: 'J Shoulder Elbow Surg', t: 'Addition of isolated wrist extensor eccentric exercise to standard treatment for chronic lateral epicondylosis: a prospective randomized trial', k: 'Randomized: adding slow-lowering wrist-extension work improved pain, function and strength in tennis elbow.', u: 'https://pubmed.ncbi.nlm.nih.gov/20579907/' },
   yoon2021: { a: 'Yoon et al., 2021', j: 'J Clin Med', t: 'The beneficial effects of eccentric exercise in the management of lateral elbow tendinopathy: a systematic review and meta-analysis', k: 'Across 6 randomized trials, slow-lowering (eccentric) wrist work reduced elbow tendon pain and increased strength.', u: 'https://pubmed.ncbi.nlm.nih.gov/34501416/' },
   guo2025: { a: 'Guo et al., 2025', j: 'Front Physiol', t: 'Effects of different types of core training on pain and functional status in patients with chronic nonspecific low back pain: a systematic review and meta-analysis', k: '57 randomized trials: core stability and core resistance training both reduced back pain and improved function.', u: 'https://pubmed.ncbi.nlm.nih.gov/41178988/' },
+  coratella2019: { a: 'Coratella et al., 2019', j: 'Eur J Sport Sci', t: 'Specific prime movers’ excitation during free-weight bench press variations and chest press machine in competitive bodybuilders', k: 'The lower (sternocostal) chest worked as hard on a flat or decline press as each other, and harder than on a 45° incline.', u: 'https://doi.org/10.1080/17461391.2019.1655101' },
+  mckenzie2022: { a: 'McKenzie et al., 2022', j: 'Int J Environ Res Public Health', t: 'Bench, bar, and ring dips: do kinematics and muscle activity differ?', k: 'Dips on bars or rings gave higher peak muscle activity than bench dips; bench dips push the shoulder further back.', u: 'https://doi.org/10.3390/ijerph192013211' },
+  kobayashi2026: { a: 'Kobayashi et al., 2026', j: 'J Sports Sciences', t: 'Exercise-specific preferential hypertrophy of individual elbow flexor muscles after incline versus preacher dumbbell curl training', k: '12 weeks, MRI: incline curls grew the biceps more (+22% vs +19%); preacher curls grew the brachialis and brachioradialis more.', u: 'https://doi.org/10.1080/02640414.2026.2741751' },
+  oliveira2009: { a: 'Oliveira et al., 2009', j: 'J Sports Sci Med', t: 'Effect of the shoulder position on the biceps brachii EMG in different dumbbell curls', k: 'The incline curl kept the long head of the biceps working hard through the whole range of the curl.', u: 'https://pubmed.ncbi.nlm.nih.gov/24150552/' },
+  zabaleta2023: { a: 'Zabaleta-Korta et al., 2023', j: 'J Human Kinetics', t: 'Regional hypertrophy: the effect of exercises at long and short muscle lengths in recreationally trained women', k: 'A smaller 9-week ultrasound study found no measurable arm growth from incline curls; preacher curls grew the lower arm.', u: 'https://doi.org/10.5114/jhk/163561' },
+  bressel2001: { a: 'Bressel et al., 2001', j: 'J Electromyogr Kinesiol', t: 'The effect of handgrip position on upper extremity neuromuscular responses to arm cranking exercise', k: 'With a thumbs-up (neutral) grip the brachioradialis was 63% more active than with palms up or down.', u: 'https://doi.org/10.1016/s1050-6411(01)00002-5' },
+  kinoshita2026: { a: 'Kinoshita et al., 2026', j: 'Med Sci Sports Exerc', t: 'Hypertrophic effects of single- versus multi-joint exercise: a direct comparison between knee extension and leg press', k: '12 weeks, MRI: leg extensions grew the rectus femoris by 13%; the leg press barely grew it (+1%) though it grew the other quads as much.', u: 'https://doi.org/10.1249/MSS.0000000000003957' },
+  alonso2018: { a: 'Alonso-Fernandez et al., 2018', j: 'J Sports Med Phys Fitness', t: 'Changes in rectus femoris architecture induced by the reverse nordic hamstring exercises', k: '8 weeks of reverse Nordics thickened the rectus femoris and lengthened its fibres on ultrasound (no control group); the gains faded after 4 weeks off.', u: 'https://doi.org/10.23736/S0022-4707.18.08873-4' },
+  decker1999: { a: 'Decker et al., 1999', j: 'Am J Sports Med', t: 'Serratus anterior muscle activity during selected rehabilitation exercises', k: 'The push-up plus and other moves that push the shoulder blade forward gave the highest serratus anterior activity.', u: 'https://doi.org/10.1177/03635465990270061601' },
+  choi2017: { a: 'Choi et al., 2017', j: 'J Bodyw Mov Ther', t: 'Different weight bearing push-up plus exercises with and without isometric horizontal abduction in subjects with scapular winging', k: 'A floor push-up plus worked the serratus anterior more than a wall version, in people with winging shoulder blades.', u: 'https://doi.org/10.1016/j.jbmt.2016.08.018' },
+  andersen2008emg: { a: 'Andersen et al., 2008', j: 'Physical Therapy', t: 'Muscle activation during selected strength exercises in women with chronic neck muscle pain', k: 'Shrugs gave the highest upper-trapezius activity of five shoulder exercises (about 100% of maximum).', u: 'https://doi.org/10.2522/ptj.20070304' },
+  andersen2008rct: { a: 'Andersen et al., 2008', j: 'Arthritis Rheum', t: 'Effect of two contrasting types of physical exercise on chronic neck muscle pain', k: 'Randomized: 10 weeks of shoulder strength training including shrugs cut upper-trap pain by about 79%; cycling did not.', u: 'https://doi.org/10.1002/art.23256' },
+  ylinen2003: { a: 'Ylinen et al., 2003', j: 'JAMA', t: 'Active neck muscle training in the treatment of chronic neck pain in women: a randomized controlled trial', k: 'Randomized, 12 months: isometric neck strength training with a band raised neck strength by 69–110% and reduced neck pain and disability.', u: 'https://doi.org/10.1001/jama.289.19.2509' },
   stasinopoulos2023: { a: 'Stasinopoulos, 2023', j: 'J Clin Med (editorial)', t: 'Isometric exercise for the management of lateral elbow tendinopathy', k: 'An expert editorial, not a trial: evidence for wrist holds alone in tennis elbow is mixed; they fit best inside a progressive loading program.', u: 'https://pubmed.ncbi.nlm.nih.gov/36614894/' }
 };
 // Evidence per exercise: r = how strong the support is, s = what it supports, refs = papers.
@@ -2584,6 +2684,11 @@ var EVID = {
   'side-plank': { r: 'Moderate', s: 'A side plank with the top leg lifted strongly activated the glute medius in a muscle-activity study; there is no training trial of this exact exercise.', refs: ['goller2024'] },
   'copenhagen': { r: 'Strong', s: 'In randomised trials it raised inner-thigh strength by about 36% in 8 weeks and cut groin problems by 41% over a season.', refs: ['ishoi2016', 'haroy2019'] },
   'pallof': { r: 'Limited', s: 'Builds anti-rotation control like other trunk-stability holds; no trial or muscle-activity study of the Pallof press itself was found.', refs: ['mcgill2009stab'] },
+  'dip-hold': { r: 'Moderate', s: 'The lower (sternocostal) chest works hardest on flat and decline presses and least on an incline, and bar dips give high muscle activity; there is no growth trial of dips.', refs: ['coratella2019', 'mckenzie2022', 'oranchuk2019'] },
+  'incline-curl': { r: 'Strong', s: 'In a 12-week MRI trial incline curls, which stretch the long head, grew the biceps more than preacher curls. One smaller ultrasound study found no growth, so results vary.', refs: ['kobayashi2026', 'oliveira2009', 'zabaleta2023'] },
+  'rev-nordic': { r: 'Strong', s: 'Knee-extension training grew the rectus femoris far more than the leg press (MRI trial), and 8 weeks of reverse Nordics thickened it on ultrasound.', refs: ['kinoshita2026', 'alonso2018'] },
+  'pushup-plus': { r: 'Moderate', s: 'The push-up plus gives the highest serratus anterior activity of common exercises in muscle-activity studies; no growth trial.', refs: ['decker1999', 'choi2017'] },
+  'neck-hold': { r: 'Moderate', s: 'Isometric neck strength training doubled neck strength and reduced pain in a year-long randomized trial in women with neck pain; it used a band, and holds against your own hand have not been tested.', refs: ['ylinen2003'] },
   'incline-press': { r: 'Moderate', s: 'Pressing on a 30–45° incline works the upper (clavicular) chest more than a flat press, in muscle-activity and ultrasound studies; no long-term growth trial yet.', refs: ['trebs2010', 'albarello2022'] },
   'oh-triceps': { r: 'Strong', s: 'Overhead (stretched) triceps work grew the triceps about 1.4× more than pushdowns, and isometric elbow-extension training increased triceps volume.', refs: ['maeo2023', 'kanehisa2002'] },
   'kickback': { r: 'Strong', s: 'Isometric elbow-extension training increased triceps size and strength in a 10-week trial. Paired with the overhead stretch work for the long head.', refs: ['kanehisa2002', 'maeo2023'] },
@@ -2597,13 +2702,13 @@ var EVID = {
   'seated-calf': { r: 'Strong', s: 'Calf holds increase strength around the trained angle, and heavy loading stiffens the Achilles tendon. They do not give instant pain relief.', refs: ['kitai1989', 'arampatzis2007', 'oneill2019'] },
   'tib-hold': { r: 'Limited', s: 'Strengthens the shin muscle like any loaded hold, but there are no good training trials on it, or evidence that it prevents shin or ankle problems.', refs: ['oranchuk2019'] },
   'dead-bug': { r: 'Strong', s: 'Core stability training reduced back pain and improved function across 57 randomized trials; the dead bug trains the abs to control the pelvis with low spine load.', refs: ['guo2025', 'mcgill2009stab'] },
-  'shrug': { r: 'Moderate', s: 'Heavy holds build upper-trap strength and grip together; shrugs give the highest upper-trap activity, but no training trial has tested them on their own.', refs: ['ekstrom2003', 'oranchuk2019'] },
+  'shrug': { r: 'Moderate', s: 'Shrugs give the highest upper-trap activity, and a shoulder strength programme that included them relieved upper-trap pain in a randomized trial; muscle growth from shrugs alone has not been tested.', refs: ['andersen2008emg', 'andersen2008rct', 'ekstrom2003'] },
   'prone-y': { r: 'Moderate', s: 'The Y position strongly activates the lower trapezius in muscle-activity studies; no training trial yet.', refs: ['ekstrom2003'] },
   'floor-press': { r: 'Strong', s: 'Isometric elbow-extension training grew the triceps and raised dynamic strength; the floor press hold loads triceps, chest and front delts together.', refs: ['kanehisa2002', 'oranchuk2019'] },
   'sa-row': { r: 'Moderate', s: 'One-arm rows strongly load the back muscles while sparing the lower back in biomechanics testing; no training trial specific to rows.', refs: ['fenwick2009'] },
   'bo-row': { r: 'Moderate', s: 'Bent-over rows load the upper and middle back and the lower back that holds the hinge, in biomechanics testing; no training trial specific to rows.', refs: ['fenwick2009'] },
   'curl': { r: 'Strong', s: 'Curl training grew the biceps in randomized trials, especially in the stretched part of the range; holds add strength around the held angle.', refs: ['pedrosa2023', 'oranchuk2019'] },
-  'hammer': { r: 'Moderate', s: 'Neutral-grip holds shift work to the brachialis and forearm; curl training grows the brachialis, but hammer curls have not been tested on their own.', refs: ['oranchuk2019'] },
+  'hammer': { r: 'Moderate', s: 'Curl training grew the brachialis and brachioradialis in a 12-week MRI trial, and a thumbs-up grip makes the brachioradialis work harder; hammer curls themselves have not been trialled.', refs: ['kobayashi2026', 'bressel2001', 'oranchuk2019'] },
   'suitcase': { r: 'Strong', s: 'Core resistance training reduced back pain and improved function across 57 randomized trials; one-sided loads strongly challenge the side core muscles.', refs: ['guo2025', 'mcgill2009carry'] },
   'crunch': { r: 'Strong', s: 'Core resistance training reduced back pain and improved function across 57 randomized trials; the hold builds upper-ab strength at its shortest position.', refs: ['guo2025', 'oranchuk2019'] },
   'rdl': { r: 'Strong', s: 'Training the hamstrings in a stretched position built more muscle in a randomized trial.', refs: ['maeo2021', 'oranchuk2019'] },
@@ -2893,7 +2998,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     ['head', 252, 10, 32, 32, 16], ['rear', 222, 54, 28, 24, 12], ['rear', 286, 54, 28, 24, 12], ['upper', 246, 56, 44, 58, 8], ['lower', 252, 118, 32, 30, 8], ['triceps', 218, 80, 12, 46, 6], ['triceps', 306, 80, 12, 46, 6],
     ['glutes', 242, 152, 26, 28, 13], ['glutes', 268, 152, 26, 28, 13], ['sidehip', 230, 152, 8, 30, 4], ['sidehip', 298, 152, 8, 30, 4], ['hams', 244, 184, 22, 46, 10], ['hams', 270, 184, 22, 46, 10], ['calves', 246, 234, 18, 48, 8], ['calves', 272, 234, 18, 48, 8]];
   var BM_NAME = { delts: 'front and side delts', chest: 'chest', abs: 'abs', obliques: 'obliques', biceps: 'biceps', quads: 'quads', inner: 'inner thighs', shins: 'shins', rear: 'rear delts', upper: 'upper back', lower: 'lower back', triceps: 'triceps', glutes: 'glutes', sidehip: 'side hip', hams: 'hamstrings', calves: 'calves' };
-  var BM_TAG = { 'Front delts': 'delts', 'Side delts': 'delts', 'Rear delts': 'rear', 'Upper chest': 'chest', 'Chest': 'chest', 'Upper abs': 'abs', 'Mid abs': 'abs', 'Lower abs': 'abs', 'Obliques': 'obliques', 'Biceps': 'biceps', 'Forearms': 'biceps', 'Triceps': 'triceps', 'Quads': 'quads', 'Knees': 'quads', 'Inner thigh': 'inner', 'Ankles': 'shins', 'Traps': 'upper', 'Upper back': 'upper', 'Mid back': 'upper', 'Lats': 'upper', 'Lower back': 'lower', 'Glutes': 'glutes', 'Side hip': 'sidehip', 'Hamstrings': 'hams', 'Calves': 'calves' };
+  var BM_TAG = { 'Front delts': 'delts', 'Side delts': 'delts', 'Rear delts': 'rear', 'Upper chest': 'chest', 'Lower chest': 'chest', 'Serratus': 'chest', 'Neck': 'upper', 'Chest': 'chest', 'Upper abs': 'abs', 'Mid abs': 'abs', 'Lower abs': 'abs', 'Obliques': 'obliques', 'Biceps': 'biceps', 'Forearms': 'biceps', 'Triceps': 'triceps', 'Quads': 'quads', 'Knees': 'quads', 'Inner thigh': 'inner', 'Ankles': 'shins', 'Traps': 'upper', 'Upper back': 'upper', 'Mid back': 'upper', 'Lats': 'upper', 'Lower back': 'lower', 'Glutes': 'glutes', 'Side hip': 'sidehip', 'Hamstrings': 'hams', 'Calves': 'calves' };
   var BM_EXTRA = { 'floor-press': ['chest'], 'incline-press': ['chest'], 'tib-hold': ['shins'] };
   function bodyWeek() {
     var got = {};
@@ -3383,10 +3488,10 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
 
   // ---------- exercises ----------
   var filter = 'All';
-  var AREAS = ['All', 'Front delts', 'Side delts', 'Rear delts', 'Traps', 'Lats', 'Upper back', 'Mid back', 'Lower back', 'Biceps', 'Triceps', 'Forearms', 'Grip', 'Quads', 'Glutes', 'Hamstrings', 'Calves', 'Knees', 'Ankles', 'Lower abs', 'Mid abs', 'Upper abs'];
+  var AREAS = ['All', 'Upper chest', 'Lower chest', 'Front delts', 'Side delts', 'Rear delts', 'Serratus', 'Traps', 'Neck', 'Lats', 'Upper back', 'Mid back', 'Lower back', 'Biceps', 'Triceps', 'Forearms', 'Grip', 'Quads', 'Glutes', 'Hamstrings', 'Inner thigh', 'Side hip', 'Calves', 'Knees', 'Ankles', 'Lower abs', 'Mid abs', 'Upper abs', 'Obliques'];
   function has(x, tag) { return x.tags.indexOf(tag) > -1; }
   function renderChips() {
-    var progIds = DAYS.reduce(function (a, d) { return a.concat(d.ex); }, []);
+    var progIds = DAYS.reduce(function (a, d) { return a.concat(d.ex); }, []).concat(addonOn() ? ADDON : []);
     $('chips').innerHTML = AREAS.filter(function (t) { return t === 'All' || progIds.some(function (id) { return has(BY[id], t) || has(G[id], t); }); }).map(function (t) { return '<button class="chip" aria-pressed="' + (filter === t) + '" data-f="' + t + '">' + t + '</button>'; }).join('');
   }
   $('chips').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; filter = b.dataset.f; renderChips(); applyFilter(); });
@@ -4264,7 +4369,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // osteopenia: leave out loaded spinal flexion (crunch, hollow body)
   // high blood pressure: overhead holds raise it more than the same effort at shoulder height
   // what a health flag or setting changes for one part of an exercise (wk 'h' = hold, 'r' = reps): a reason it's left out, or a note on how to do it
-  var FLOOR = { hollow: 'hr', 'dead-bug': 'hr', crunch: 'hr', 'glute-bridge': 'hr', 'ham-bridge': 'hr', 'floor-press': 'hr', 'plank-db': 'hr', 'prone-y': 'hr', 'ext-rot': 'hr', 'bird-dog': 'h', 'wall-sit': 'r' };
+  var FLOOR = { hollow: 'hr', 'dead-bug': 'hr', 'pushup-plus': 'hr', 'rev-nordic': 'hr', crunch: 'hr', 'glute-bridge': 'hr', 'ham-bridge': 'hr', 'floor-press': 'hr', 'plank-db': 'hr', 'prone-y': 'hr', 'ext-rot': 'hr', 'bird-dog': 'h', 'wall-sit': 'r' };
   function bpVeryHigh() { var b = bpToday(); return b && (b.sys >= 180 || b.dia >= 110) ? b : null; }
   function bpToday() { var b = today(store.notes).filter(function (n) { return n.k === 'bp'; }).pop(); return b && (b.sys >= 160 || b.dia >= 100) ? b : null; }
   function skipWhy(id, wk) {
@@ -4272,14 +4377,16 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (hb) return 'your blood pressure today (' + hb.sys + '/' + hb.dia + ')';
     if (is.indexOf('bones') > -1 && (id === 'crunch' || id === 'hollow')) return 'bone health (loaded forward bending)';
     if (is.indexOf('bp') > -1 && id === 'oh-triceps') return 'blood pressure (arms overhead); kickbacks and floor presses still train the triceps';
-    if (is.indexOf('knee') > -1 && ((id === 'wall-sit' && wk === 'r') || (id === 'bird-dog' && wk === 'h'))) return 'your knees (kneeling)';
+    if (is.indexOf('knee') > -1 && ((id === 'wall-sit' && wk === 'r') || (id === 'bird-dog' && wk === 'h') || id === 'rev-nordic')) return 'your knees (kneeling)';
+    if (is.indexOf('shoulder') > -1 && id === 'dip-hold') return 'your shoulders (dips load the front of the shoulder)';
     if (id === 'bird-dog' && wk === 'r' && (is.indexOf('bp') > -1 || (p.age || 0) >= 65)) return 'a gentler plan (fast swinging moves)';
     if (p.nofloor && FLOOR[id] && FLOOR[id].indexOf(wk) > -1) return 'no floor work';
     return '';
   }
   function safetySkip(id) { var h = skipWhy(id, 'h'), r = skipWhy(id, 'r'); return h && r ? h : ''; }
   var KNEE_MOD = { 'goblet-squat': 'Knees: squat down until you touch a chair, then stop there', 'split-squat': 'Knees: short stance, bend the front knee only to about 45°, a hand on the wall', 'wall-sit': 'Knees: slide down only until the knees are bent about 45°, not 90°', suitcase: 'Knees: bend only as far as is comfortable' };
-  function modTxt(id, wk) { var is = prof().issues; if (id === 'sl-balance' && (gentle() || is.indexOf('balance') > -1)) return 'Balance: stand next to a wall or chair and touch it whenever you need to'; if (is.indexOf('knee') > -1 && KNEE_MOD[id]) return KNEE_MOD[id]; if (is.indexOf('bones') > -1 && id === 'bird-dog' && wk !== 'h') return 'Bones: the hips do the work and the back stays flat, a safe way to load the spine and hips'; return ''; }
+  var NECK_TXT = 'Neck: push at no more than a third of your effort, and stop if you feel pain, dizziness or tingling into the arm. New or severe neck pain: see a clinician first';
+  function modTxt(id, wk) { var is = prof().issues; if (id === 'neck-hold' && wk === 'h' && (is.indexOf('neck') > -1 || gentle())) return NECK_TXT; if (id === 'dip-hold' && gentle()) return 'Gentle: stay near the top with the elbows only slightly bent, or keep your toes on the floor to take some weight'; if (id === 'pushup-plus' && is.indexOf('wrist') > -1) return 'Wrists: do it on your fists, or standing with your hands on a wall'; if (id === 'sl-balance' && (gentle() || is.indexOf('balance') > -1)) return 'Balance: stand next to a wall or chair and touch it whenever you need to'; if (is.indexOf('knee') > -1 && KNEE_MOD[id]) return KNEE_MOD[id]; if (is.indexOf('bones') > -1 && id === 'bird-dog' && wk !== 'h') return 'Bones: the hips do the work and the back stays flat, a safe way to load the spine and hips'; return ''; }
   function gentle() { var p = prof(); return p.issues.indexOf('bp') > -1 || p.issues.indexOf('bones') > -1 || (p.age || 0) >= 65; }
   function bwTxt(v) { if (v == null) return ''; if (prof().units !== 'st') return r1(toU(v)) + ' ' + uLab(); if (prof().units === 'st') { var lb = Math.round(v * 2.20462); return Math.floor(lb / 14) + ' st ' + (lb % 14) + ' lb'; } return kg(v); }
   // weights you own: "12, 16, 24" or "2.5-12.5" (step 2.5) -> list in kg
