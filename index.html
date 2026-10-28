@@ -182,9 +182,12 @@ nav.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; backgrou
 
 /* ---------- sheets ---------- */
 .scrim { position: fixed; inset: 0; z-index: 30; background: rgba(10, 12, 14, .45); }
-.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 31; max-height: calc(100% - env(safe-area-inset-top, 0px) - 24px); background: var(--bg); border-radius: 22px 22px 0 0; display: grid; grid-template-rows: auto 1fr; box-shadow: 0 -8px 40px rgba(0, 0, 0, .25); max-width: 640px; margin: 0 auto; animation: up .26s cubic-bezier(.2, .8, .2, 1); }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 31; max-height: calc(100% - env(safe-area-inset-top, 0px) - 24px); background: var(--bg); border-radius: 22px 22px 0 0; display: grid; grid-template-rows: auto 1fr; box-shadow: 0 -8px 40px rgba(0, 0, 0, .25); max-width: 640px; margin: 0 auto; opacity: 1; animation: sheetUp .26s cubic-bezier(.2, .8, .2, 1); }
 .sheet.full { top: 0; max-height: none; border-radius: 0; padding-top: env(safe-area-inset-top, 0px); }
 @keyframes up { from { transform: translateY(40px); opacity: .4; } to { transform: none; opacity: 1; } }
+/* sheets slide in but are never see-through: a stalled or paused animation must not leave the page showing behind them */
+@keyframes sheetUp { from { transform: translateY(40px); } to { transform: none; } }
+.sheet, .sheet.full, .sheet-body { background-color: var(--bg); }
 .sheet-head { display: flex; align-items: center; gap: 10px; padding: 10px max(16px, env(safe-area-inset-right, 0px)) 8px max(16px, env(safe-area-inset-left, 0px)); }
 .sheet-head h2 { font-family: var(--f-display); font-weight: 800; font-size: 28px; line-height: 1; margin-right: auto; }
 .sheet.full .sheet-head h2 { font-family: var(--f-body); font-size: 15px; font-weight: 700; color: var(--muted); line-height: 1.3; }
@@ -315,6 +318,19 @@ table.cov .cv-0 { color: var(--muted); font-size: 16px; }
 table.cov .cv-done { background: var(--bg); border-left: 2px solid var(--line); }
 table.cov td, table.cov th { padding-left: 3px; padding-right: 3px; }
 .mk { display: inline-block; width: 11px; height: 11px; }
+table.cov .cv-short { display: none; }
+.cov-cue { font-size: 14px; font-weight: 700; color: var(--ink); margin: 0; }
+.cov-scroll.more { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent); }
+/* phones (360–412 px): shorter headings and narrower rows of set marks, so Day 3, Planned and Done fit without scrolling */
+@media (max-width: 440px) {
+  table.cov { font-size: 13px; }
+  table.cov .cv-long { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } table.cov .cv-short { display: inline; }
+  table.cov thead th { font-size: 12px; } table.cov thead th small { min-width: 0; font-size: 11px; }
+  table.cov .mks { max-width: 40px; gap: 2px; }
+  table.cov td, table.cov th { padding-left: 2px; padding-right: 2px; }
+}
+/* words are never split; if the table is still too wide (many training days, very large text) it scrolls, with the cue above it */
+table.cov thead th { white-space: nowrap; } table.cov thead th small { white-space: normal; }
 .mk.h { border-radius: 50%; background: var(--hold); } .mk.r { border-radius: 2px; background: var(--rep); }
 .legend { display: flex; gap: 14px; font-size: 13px; color: var(--muted); }
 .legend span { display: inline-flex; gap: 6px; align-items: center; }
@@ -333,6 +349,7 @@ table.cov td, table.cov th { padding-left: 3px; padding-right: 3px; }
 .gl summary::-webkit-details-marker { display: none; }
 .gl .gb { font-family: var(--f-display); font-weight: 800; font-size: 23px; line-height: 1; color: var(--hold); }
 .gl .gh { font-weight: 700; line-height: 1.3; }
+.gl summary .gb { order: -1; } /* shown first, read after the title */
 .gl .gc { width: 16px; height: 16px; color: var(--muted); transition: transform .2s; }
 .gl details[open] .gc { transform: rotate(90deg); }
 .gl .gbody { padding: 0 0 14px; display: grid; gap: 8px; color: var(--ink); font-size: 15.5px; line-height: 1.5; }
@@ -831,9 +848,10 @@ button.ring:active { transform: scale(.97); }
   .view-head h1 { font-size: 32px; }
   .view-head .weekbtn { order: 3; flex: 1 1 100%; min-width: 0; }
   .strip { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; row-gap: 6px; }
-  .tabbar-in { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-  .tabbar button { font-size: 0; min-width: 0; }
-  .tabbar svg { width: 28px; height: 28px; }
+  /* every tab icon keeps its visible word, even at large text (approved design) */
+  nav.tabbar .tabbar-in { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .tabbar button { font-size: 13px; line-height: 1.15; min-width: 0; overflow-wrap: anywhere; text-align: center; }
+  .tabbar svg { width: 26px; height: 26px; }
   .band.hero { grid-template-columns: minmax(0, 1fr); }
   .band.hero h2 { font-size: 26px; overflow-wrap: break-word; hyphens: auto; }
   .rings { grid-column: 1; grid-row: auto; }
@@ -882,6 +900,7 @@ button.ring:active { transform: scale(.97); }
   .btn.go, .pchips button[aria-pressed="true"], .chip[aria-pressed="true"], .strip button[aria-pressed="true"], .tg button[aria-pressed="true"] { forced-color-adjust: none; background: Highlight !important; color: HighlightText !important; }
   .ring .fgc { forced-color-adjust: none; stroke: Highlight; } .ring .bgc { stroke: CanvasText; }
   .rings circle { forced-color-adjust: none; } .rings .rf { stroke: Highlight !important; } .rings .rb { stroke: CanvasText !important; opacity: .4; }
+  .sheet, .sheet.full, .sheet-body { background: Canvas !important; opacity: 1 !important; border: 1px solid CanvasText; }
 }
 /* Tablet on a shelf: the session screen is read from a couple of metres away */
 @media (min-width: 700px) and (min-height: 700px) {
@@ -1086,7 +1105,8 @@ html.calm *, html.calm *::before, html.calm *::after { animation: none !importan
       <h2>Muscle coverage</h2>
       <p id="covNote"></p>
       <div class="legend"><span><i class="mk h"></i>Tendon hold set</span><span><i class="mk r"></i>Growth lift set</span><span>– none planned</span></div>
-      <div class="cov-scroll" tabindex="0" role="region" aria-label="Muscle coverage table, scrolls sideways"><table class="cov" id="cov"></table></div>
+      <p class="cov-cue" id="covCue" hidden><span aria-hidden="true">↔</span> Swipe the table sideways to see every column</p>
+      <div class="cov-scroll" id="covScroll" tabindex="0" role="region" aria-label="Muscle coverage table"><table class="cov" id="cov"></table></div>
     </div>
     </div>
     <div class="card bk" id="backup">
@@ -1118,23 +1138,23 @@ html.calm *, html.calm *::before, html.calm *::after { animation: none !importan
     <div class="view-head"><button class="tool back" data-back aria-label="Back"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg>Back</button><h1>Guide</h1></div>
     <p class="guide-intro">Each hold is followed by a rep exercise for the same muscles. The hold strengthens the tendon; the reps, taken close to failure, build muscle. Every exercise comes round twice a week. Each day is split into a morning and an evening session of about 20 to 35 minutes, 60 minutes at most.</p>
     <div class="gl" id="gl">
-      <details><summary><span class="gb">30–45 s</span><span class="gh">Tendons like long, heavy tension</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Tendons adapt to how hard and how long they are strained. Holds of 30–45 seconds at about 70% of your best effort raise tendon stiffness more than quick reps. Reviews of training studies find that holds at 70% effort or more make tendons stiffer and stronger, and holds at long muscle lengths build the most muscle. An early 6-person study suggested holds also relieve tendon pain instantly, but larger trials since then found ordinary reps work just as well for pain.</p></div></details>
-      <details><summary><span class="gb">AM + PM</span><span class="gh">Why two short sessions</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Tendon collagen responds strongly to a short bout of loading, then goes quiet for several hours. Two sessions 6 or more hours apart give it two signals instead of one, and each session stays short enough to fit around a workday. The morning starts with a 5-minute treadmill walk as a warm-up; the evening ends on the rower.</p></div></details>
-      <details><summary><span class="gb">Alternate</span><span class="gh">Why exercises are grouped</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Exercises in a group work different muscles, so you go from one to the next with only about 15 seconds to set up. Each muscle still gets about a minute of rest while you work the others. This saves around a third of the session time compared with resting between every set. Each exercise's holds still come right before its rep sets.</p></div></details>
-      <details><summary><span class="gb">125–150 min</span><span class="gh">Cardio across the week</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>The warm-up walks, rowing finishers, and the Wednesday and Saturday cardio days add up to roughly 125–150 minutes a week, close to the common 150-minute health guideline. On the busiest strength days the warm-up and rowing finisher shrink so the day stays within an hour. Most of it is "zone 2": you can still talk in full sentences. The short hard rowing intervals in the Build and Heavy phases build fitness without taking time from the strength work. The rower also trains the legs, back and grip, so keep easy days genuinely easy.</p></div></details>
-      <details><summary><span class="gb">Pairs</span><span class="gh">Why each hold has a partner</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Holds build tendon stiffness and strength at specific angles, but they are a weaker signal for muscle size. Slow reps through the full range, stopped close to failure, are what grow muscle. Doing them straight after the hold, for the same muscles, means tendon and muscle are trained in step, so muscle strength does not outrun what the tendon can handle.</p></div></details>
-      <details><summary><span class="gb">0–3 RIR</span><span class="gh">How hard the reps should be</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>RIR means reps in reserve: how many more you could have done. Growth comes mainly from the last few hard reps, so the target RIR drops from 3 in weeks 1–2 to 1–2 in weeks 6–11. Pick a weight that lands you inside the rep range at that RIR. When you beat the top of the range on both sets, go heavier next week.</p></div></details>
-      <details><summary><span class="gb">2–3 s</span><span class="gh">Lowering slowly</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Each rep lowers over 2–3 seconds and pauses briefly in the stretched position. Slow lowering under load is also good for tendons, and the stretched position is where muscle growth is strongest. The timer animates the tempo and counts reps for you; tap "Set done" if you reach your limit early.</p></div></details>
-      <details><summary><span class="gb">1.6 g/kg</span><span class="gh">Eat for growth</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Muscle needs material. Aim for roughly 1.6 g of protein per kg of body weight a day, spread over 3–4 meals, and enough total food that your weight holds steady or rises slowly. Sleep of 7–9 hours matters as much as the training for both muscle and tendon repair.</p></div></details>
-      <details><summary><span class="gb">±20°</span><span class="gh">Strength sticks to the angle</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>An isometric hold mostly strengthens the joint angle you train, plus roughly 15–30° either side. That is why the Heavy phase alternates between the mid-range (step 2) and end position (step 3), and why many holds here sit in a stretched position, which carries over best.</p></div></details>
-      <details><summary><span class="gb">RPE</span><span class="gh">Choosing the weight</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><ul><li><b>RPE 6</b>: steady, could hold twice as long.</li><li><b>RPE 7–8</b>: the last 10 s are hard, form is perfect.</li><li><b>RPE 9</b>: you could hold only 2–5 s more.</li></ul><p>If shaking breaks your position, end the set. When you finish every set at the target RPE, add about 5–10% next session.</p></div></details>
-      <details><summary><span class="gb">Bones</span><span class="gh">Osteopenia and osteoporosis</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Muscles pulling on bone, plus a little impact, is what tells bone to get stronger. Steady holds and slow reps load bone safely. With the Osteopenia flag the app leaves out loaded forward bending (weighted crunches, hollow-body holds) and starts the first session of the day with a minute of heel drops. Build up gradually; if you have had a fracture from a minor fall, ask your doctor or physiotherapist which loads suit you.</p></div></details>
-      <details><summary><span class="gb">Ramadan</span><span class="gh">Training while fasting</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Train 1–2 hours after iftar, once you have eaten and had water, or keep it light in the last hour before iftar so you can drink straight after. Keep effort a little lower and stop if you feel dizzy. Spread protein over iftar, an evening snack and suhoor, and set “My day starts at” in your profile so late meals count to the right day. With diabetes or blood-pressure medicine, check with your doctor.</p></div></details>
-      <details><summary><span class="gb">48–72 h</span><span class="gh">Recovery between the same region</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Collagen building in a tendon stays raised for about two to three days after a heavy session. Each exercise comes round twice a week, about 72 hours apart: upper body and core on days 1 and 4, lower body on days 2 and 5. Wednesday is a cardio-only day, so there is a break from heavy loading between day 2 and day 3.</p></div></details>
-      <details><summary><span class="gb">Breathe</span><span class="gh">Never hold your breath</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Holding your breath during a long hold spikes blood pressure. Breathe in through the nose and out through pursed lips, keeping the brace. If you have high blood pressure or a heart condition, check with your doctor before heavy isometrics.</p></div></details>
-      <details><summary><span class="gb">≤ 3/10</span><span class="gh">The pain rule</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Mild tendon discomfort up to 3 out of 10 that settles by the next morning is acceptable. Sharp pain, pain that grows during the hold, or pain worse the next day means go lighter or shorter. For an existing injury, work with a physiotherapist.</p></div></details>
-      <details><summary><span class="gb">Single</span><span class="gh">Isolating a stubborn tendon</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>If one tendon bothers you (knee, Achilles, elbow), keep loading it at a level that stays within the pain rule: wall sit for the knee, seated calf hold for the Achilles, overhead triceps hold for the back of the elbow. Holds and slow reps both work; pick whichever you tolerate better. Holds are not a quick fix for pain, so for pain that lasts more than a few weeks, see a physiotherapist.</p></div></details>
-      <details><summary><span class="gb">Colors</span><span class="gh">The phase colors</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Phases borrow the competition kettlebell color code: 16 kg yellow, 20 kg purple, 24 kg green, 28 kg orange, 32 kg red. The weights are a reminder that load climbs through the 12 weeks, not a prescription. Use what fits your RPE.</p></div></details>
+      <details><summary><span class="gh">Tendons like long, heavy tension</span><span class="sr-only">, </span><span class="gb">30–45 s</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Tendons adapt to how hard and how long they are strained. Holds of 30–45 seconds at about 70% of your best effort raise tendon stiffness more than quick reps. Reviews of training studies find that holds at 70% effort or more make tendons stiffer and stronger, and holds at long muscle lengths build the most muscle. An early 6-person study suggested holds also relieve tendon pain instantly, but larger trials since then found ordinary reps work just as well for pain.</p></div></details>
+      <details><summary><span class="gh">Why two short sessions</span><span class="sr-only">, </span><span class="gb">AM + PM</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Tendon collagen responds strongly to a short bout of loading, then goes quiet for several hours. Two sessions 6 or more hours apart give it two signals instead of one, and each session stays short enough to fit around a workday. The morning starts with a 5-minute treadmill walk as a warm-up; the evening ends on the rower.</p></div></details>
+      <details><summary><span class="gh">Why exercises are grouped</span><span class="sr-only">, </span><span class="gb">Alternate</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Exercises in a group work different muscles, so you go from one to the next with only about 15 seconds to set up. Each muscle still gets about a minute of rest while you work the others. This saves around a third of the session time compared with resting between every set. Each exercise's holds still come right before its rep sets.</p></div></details>
+      <details><summary><span class="gh">Cardio across the week</span><span class="sr-only">, </span><span class="gb">125–150 min</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>The warm-up walks, rowing finishers, and the Wednesday and Saturday cardio days add up to roughly 125–150 minutes a week, close to the common 150-minute health guideline. On the busiest strength days the warm-up and rowing finisher shrink so the day stays within an hour. Most of it is "zone 2": you can still talk in full sentences. The short hard rowing intervals in the Build and Heavy phases build fitness without taking time from the strength work. The rower also trains the legs, back and grip, so keep easy days genuinely easy.</p></div></details>
+      <details><summary><span class="gh">Why each hold has a partner</span><span class="sr-only">, </span><span class="gb">Pairs</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Holds build tendon stiffness and strength at specific angles, but they are a weaker signal for muscle size. Slow reps through the full range, stopped close to failure, are what grow muscle. Doing them straight after the hold, for the same muscles, means tendon and muscle are trained in step, so muscle strength does not outrun what the tendon can handle.</p></div></details>
+      <details><summary><span class="gh">How hard the reps should be</span><span class="sr-only">, </span><span class="gb">0–3 RIR</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>RIR means reps in reserve: how many more you could have done. Growth comes mainly from the last few hard reps, so the target RIR drops from 3 in weeks 1–2 to 1–2 in weeks 6–11. Pick a weight that lands you inside the rep range at that RIR. When you beat the top of the range on both sets, go heavier next week.</p></div></details>
+      <details><summary><span class="gh">Lowering slowly</span><span class="sr-only">, </span><span class="gb">2–3 s</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Each rep lowers over 2–3 seconds and pauses briefly in the stretched position. Slow lowering under load is also good for tendons, and the stretched position is where muscle growth is strongest. The timer animates the tempo and counts reps for you; tap "Set done" if you reach your limit early.</p></div></details>
+      <details><summary><span class="gh">Eat for growth</span><span class="sr-only">, </span><span class="gb">1.6 g/kg</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Muscle needs material. Aim for roughly 1.6 g of protein per kg of body weight a day, spread over 3–4 meals, and enough total food that your weight holds steady or rises slowly. Sleep of 7–9 hours matters as much as the training for both muscle and tendon repair.</p></div></details>
+      <details><summary><span class="gh">Strength sticks to the angle</span><span class="sr-only">, </span><span class="gb">±20°</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>An isometric hold mostly strengthens the joint angle you train, plus roughly 15–30° either side. That is why the Heavy phase alternates between the mid-range (step 2) and end position (step 3), and why many holds here sit in a stretched position, which carries over best.</p></div></details>
+      <details><summary><span class="gh">Choosing the weight</span><span class="sr-only">, </span><span class="gb">RPE</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><ul><li><b>RPE 6</b>: steady, could hold twice as long.</li><li><b>RPE 7–8</b>: the last 10 s are hard, form is perfect.</li><li><b>RPE 9</b>: you could hold only 2–5 s more.</li></ul><p>If shaking breaks your position, end the set. When you finish every set at the target RPE, add about 5–10% next session.</p></div></details>
+      <details><summary><span class="gh">Osteopenia and osteoporosis</span><span class="sr-only">, </span><span class="gb">Bones</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Muscles pulling on bone, plus a little impact, is what tells bone to get stronger. Steady holds and slow reps load bone safely. With the Osteopenia flag the app leaves out loaded forward bending (weighted crunches, hollow-body holds) and starts the first session of the day with a minute of heel drops. Build up gradually; if you have had a fracture from a minor fall, ask your doctor or physiotherapist which loads suit you.</p></div></details>
+      <details><summary><span class="gh">Training while fasting</span><span class="sr-only">, </span><span class="gb">Ramadan</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Train 1–2 hours after iftar, once you have eaten and had water, or keep it light in the last hour before iftar so you can drink straight after. Keep effort a little lower and stop if you feel dizzy. Spread protein over iftar, an evening snack and suhoor, and set “My day starts at” in your profile so late meals count to the right day. With diabetes or blood-pressure medicine, check with your doctor.</p></div></details>
+      <details><summary><span class="gh">Recovery between the same region</span><span class="sr-only">, </span><span class="gb">48–72 h</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Collagen building in a tendon stays raised for about two to three days after a heavy session. Each exercise comes round twice a week, about 72 hours apart: upper body and core on days 1 and 4, lower body on days 2 and 5. Wednesday is a cardio-only day, so there is a break from heavy loading between day 2 and day 3.</p></div></details>
+      <details><summary><span class="gh">Never hold your breath</span><span class="sr-only">, </span><span class="gb">Breathe</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Holding your breath during a long hold spikes blood pressure. Breathe in through the nose and out through pursed lips, keeping the brace. If you have high blood pressure or a heart condition, check with your doctor before heavy isometrics.</p></div></details>
+      <details><summary><span class="gh">The pain rule</span><span class="sr-only">, </span><span class="gb">≤ 3/10</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Mild tendon discomfort up to 3 out of 10 that settles by the next morning is acceptable. Sharp pain, pain that grows during the hold, or pain worse the next day means go lighter or shorter. For an existing injury, work with a physiotherapist.</p></div></details>
+      <details><summary><span class="gh">Isolating a stubborn tendon</span><span class="sr-only">, </span><span class="gb">Single</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>If one tendon bothers you (knee, Achilles, elbow), keep loading it at a level that stays within the pain rule: wall sit for the knee, seated calf hold for the Achilles, overhead triceps hold for the back of the elbow. Holds and slow reps both work; pick whichever you tolerate better. Holds are not a quick fix for pain, so for pain that lasts more than a few weeks, see a physiotherapist.</p></div></details>
+      <details><summary><span class="gh">The phase colors</span><span class="sr-only">, </span><span class="gb">Colors</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Phases borrow the competition kettlebell color code: 16 kg yellow, 20 kg purple, 24 kg green, 28 kg orange, 32 kg red. The weights are a reminder that load climbs through the 12 weeks, not a prescription. Use what fits your RPE.</p></div></details>
     </div>
     <div class="card" id="researchCard">
       <div class="r-head"><h2>Research</h2><span class="infobtn static" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="7.5" r="1.4" fill="currentColor"/></svg></span></div>
@@ -2027,9 +2047,9 @@ var EX = [
     why: 'The "plus" at the top of a push-up works the serratus anterior, the muscle that holds the shoulder blade to the ribs and helps it rotate when you reach overhead.' },
   { id: 'neck-hold', name: 'Neck Hold', equip: 'Just your hands, seated', tags: ['Neck', 'Traps'], hl: ['neck'],
     steps: [
-      { p: { seat: 40, t: 0, ln: { toe: [49, 38], ft: 90, b: 1 }, lf: { toe: [45, 38], ft: 90, b: 1 }, an: { ik: [13, -54], b: -1, hd: 170 }, af: [3, 3] }, txt: 'Sit tall. Put a palm on your forehead and push the head gently into it without letting it move. Hold.' },
+      { p: { seat: 40, t: 0, ln: { toe: [49, 38], ft: 90, b: 1 }, lf: { toe: [45, 38], ft: 90, b: 1 }, an: { ik: [12, -61], b: -1, hd: 178 }, af: [3, 3] }, txt: 'Sit tall. Put a palm on your forehead and push the head gently into it without letting it move. Hold.' },
       { p: { seat: 40, t: 0, ln: { toe: [49, 38], ft: 90, b: 1 }, lf: { toe: [45, 38], ft: 90, b: 1 }, an: { ik: [2, -56], b: -1, hd: 175 }, af: [3, 3] }, txt: 'Next, a hand on the side of the head above the ear: press sideways into it. Hold, then the other side.' },
-      { p: { seat: 40, t: 0, ln: { toe: [49, 38], ft: 90, b: 1 }, lf: { toe: [45, 38], ft: 90, b: 1 }, an: { ik: [-8, -56], b: -1, hd: 170 }, af: [3, 3] }, txt: 'Last, a hand (or both, clasped) behind the head: press the head back into it. Hold.' }],
+      { p: { seat: 40, t: 0, ln: { toe: [49, 38], ft: 90, b: 1 }, lf: { toe: [45, 38], ft: 90, b: 1 }, an: { ik: [-9, -64], b: -1, hd: 190 }, af: [3, 3] }, txt: 'Last, a hand (or both, clasped) behind the head: press the head back into it. Hold.' }],
     cues: ['Gentle: about a third of your effort', 'The head does not move', 'Keep breathing'],
     avoid: 'Pushing hard or jerking. Stop at once if you feel pain, dizziness, or tingling into the arm.',
     why: 'Gentle neck holds strengthen the neck muscles in all directions without moving the neck. Strength training of the neck reduced neck pain in a year-long trial.' },
@@ -3067,6 +3087,13 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function readyDur(it) { return it.kind === 'cardio' ? (it.first ? 5 : 0) : it.first ? 10 : it.kind === 'hold' && it.set === 1 && (!it.side || it.side === 'Side 1') ? 6 : 3; }
   function qSecs(q, from) { var t = 0; for (var i = from || 0; i < q.length; i++) t += readyDur(q[i]) + q[i].dur + q[i].after; return t; }
   function mins(day, part, ph) { return Math.round(qSecs(buildQueue(day, part, ph)) / 60); }
+  // a cardio card's line: what you do and how hard ("Walk, steady"); the minutes are already beside the heading
+  var CARDIO_NAME = { walk: 'Treadmill walk', row: 'Rowing', bike: 'Bike ride', out: 'Walk', heel: 'Heel drops' };
+  function cardioLine(segs) {
+    var nm = segs.map(function (x) { return CARDIO_NAME[x[0]] || MACHINE[x[0]]; }).filter(function (v, i, ar) { return v && ar.indexOf(v) === i; }).join(' + ');
+    var t = segSummary(segs)[1].replace(/^\d+ min, /, '');
+    return (nm || 'Cardio') + ', ' + t;
+  }
   function segSummary(segs) {
     var tot = segs.reduce(function (s, x) { return s + x[1]; }, 0), hard = segs.filter(function (x) { return x[2] === 'Hard'; });
     var m = segs.map(function (x) { return MACHINE[x[0]]; }).filter(function (v, i, ar) { return ar.indexOf(v) === i; }).join(' + ');
@@ -3232,12 +3259,14 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function renderBody() {
     var el = $('bodyCard'); if (!el) return;
     var got = bodyWeek(), gaps = Object.keys(BM_NAME).filter(function (r) { return !got[r]; }), any = Object.keys(got).length;
-    var pct = Math.round(Object.keys(BM_NAME).filter(function (r) { return got[r] === 'on'; }).length / Object.keys(BM_NAME).length * 100);
+    var pct = Math.round(Object.keys(BM_NAME).filter(function (r) { return got[r] === 'on'; }).length / Object.keys(BM_NAME).length * 100), nPart = Object.keys(BM_NAME).filter(function (r) { return got[r] === 'part'; }).length;
     var D = allDays(), dv = typeof doneView === 'function' && doneView(), day = dv ? dv.day : D[selDay] || D[0], tdy = day ? dayRegions(day) : [];
     var tdTxt = tdy.length ? tdy.map(function (r) { return BM_NAME[r]; }).join(', ') : day && day.cardio ? 'cardio, no strength work' : 'rest';
     el.innerHTML = '<h2 class="sr-only">This week, muscle by muscle</h2>' + bmSvg(got, tdy) +
       '<p class="bm-today"><b>Today:</b> ' + esc(tdTxt) + '</p>' +
-      '<ul class="bm-legend"><li><i class="tdy"></i>Today</li><li><i style="background:var(--trained)"></i>Trained</li><li><i style="background:var(--partly)"></i>Partly</li><li><i style="background:var(--gap);outline:2px dashed var(--ink);outline-offset:-2px"></i>Gap this week</li><li style="margin-left:auto;font-weight:700;color:var(--ink)">' + pct + '% this week</li></ul>' +
+      '<ul class="bm-legend" aria-hidden="true"><li><i class="tdy"></i>Today</li><li><i style="background:var(--trained)"></i>Trained</li><li><i style="background:var(--partly)"></i>Partly</li><li><i style="background:var(--gap);outline:2px dashed var(--ink);outline-offset:-2px"></i>Gap this week</li><li style="margin-left:auto;font-weight:700;color:var(--ink)">' + pct + '% this week</li></ul>' +
+      // the key as one sentence for screen readers (the list of swatch names means nothing when heard)
+      '<p class="sr-only">' + esc(pct + '% of muscle parts fully trained this week' + (nPart ? ', ' + nPart + ' partly' : '') + (gaps.length ? ', ' + gaps.length + (gaps.length === 1 ? ' gap' : ' gaps') : '') + '. On the map, dark means trained, light means partly trained, a dashed outline is a gap, and hatching with a dark outline marks today\u2019s session.') + '</p>' +
       (!any ? '<div class="bm-gaps"><p>Your map is empty. Each session fills in the muscles it works.</p></div>'
         : gaps.length ? (function () { var tagOf = function (r) { return Object.keys(BM_TAG).filter(function (t) { return BM_TAG[t] === r; }); }, can = gaps.filter(function (r) { var ts = tagOf(r); return Object.keys(ALL).some(function (id) { return EQV[id] && !(V(id, 'h').missing && V(id, 'g').missing) && (ALL[id].tags || []).some(function (t) { return ts.indexOf(t) > -1; }); }); }); gaps = can.concat(gaps.filter(function (r) { return can.indexOf(r) < 0; })); return ''; })() + '<div class="bm-gaps"><p><b>' + gaps.length + ' gap' + (gaps.length === 1 ? '' : 's') + ':</b> ' + esc(gaps.slice(0, 3).map(function (r) { return BM_NAME[r]; }).join(', ')) + (gaps.length > 3 ? ' and ' + (gaps.length - 3) + ' more' : '') + '.</p><button class="btn quiet" data-gapfind="' + esc(Object.keys(BM_TAG).filter(function (t) { return BM_TAG[t] === gaps[0]; })[0] || BM_NAME[gaps[0]]) + '">Find exercises</button></div>'
         : '<div class="bm-gaps"><p><b>Every muscle part trained this week.</b></p></div>');
@@ -3274,7 +3303,17 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   var lastTab = 'train';
   function openLogSearch(q) { if (['train', 'exercises', 'progress'].indexOf(current) > -1) lastTab = current; show('coach'); var t = $('cIn'); if (q != null) { t.value = q; t.dispatchEvent(new Event('input')); } t.focus(); }
-  document.addEventListener('click', function (e) { if (!e.target.closest('[data-back]')) return; show(lastTab); var h = $(lastTab).querySelector('h1'); if (h) { h.tabIndex = -1; h.focus(); } });
+  // Back: to the tab you came from; from the Guide, focus returns to the button that opened it (Help, or the Search button), else the heading
+  var guideFrom = null;
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('[data-back]')) return;
+    var was = current; show(lastTab);
+    var o = was === 'guide' ? guideFrom : null; guideFrom = null;
+    // the top-bar buttons are redrawn when a view shows, so find the same tool again in the view we're back on
+    if (o && !o.isConnected && o.dataset && o.dataset.tool) o = $(lastTab).querySelector('[data-tool="' + o.dataset.tool + '"]');
+    if (o && o.isConnected && o.offsetParent) { o.focus(); return; }
+    var h = $(lastTab).querySelector('h1'); if (h) { h.tabIndex = -1; h.focus(); }
+  });
   var SRCH_SYN = { shoulder: 'delt|rotator|traps', shoulders: 'delt|rotator|traps', chest: 'chest', back: 'back|lats|traps', legs: 'quads|hamstrings|glutes|calves|thigh|hip', leg: 'quads|hamstrings|glutes|calves|thigh|hip', arms: 'biceps|triceps|forearms', arm: 'biceps|triceps|forearms', core: 'abs|obliques', abs: 'abs|obliques', hips: 'glutes|hip|thigh', hip: 'glutes|hip|thigh', bum: 'glutes', butt: 'glutes', shin: 'ankles|shin', knee: 'knees|quads' , bench: 'press|chest', press: 'press', row: 'row', squat: 'squat', deadlift: 'deadlift|rdl|hinge', pierna: 'quads|hamstrings|glutes|calves|thigh|hip', piernas: 'quads|hamstrings|glutes|calves|thigh|hip', hombro: 'delt|rotator|traps', hombros: 'delt|rotator|traps', pecho: 'chest|press', espalda: 'back|lats|traps|row', brazos: 'biceps|triceps|forearms', abdominales: 'abs|obliques', gluteos: 'glutes', tendones: 'tendon', tendon: 'tendon', rodilla: 'knees|quads', columpio: 'swing', sentadilla: 'squat', remo: 'row', plancha: 'plank', zancada: 'split|lunge', heel: 'heel|calf|calves', heels: 'heel|calf|calves', calf: 'calf|calves', calves: 'calf|calves', talon: 'heel|calf|calves', 'talón': 'heel|calf|calves', bones: 'bone|osteop', bone: 'bone|osteop', osteopenia: 'osteop|bone', osteoporosis: 'osteop|bone', huesos: 'bone|osteop', ramadan: 'ramadan|fasting|iftar', fasting: 'ramadan|fasting|iftar', fast: 'ramadan|fasting|iftar', ayuno: 'ramadan|fasting|iftar', 'push-up': 'push|floor press', pushup: 'push|floor press', pushups: 'push|floor press', flexiones: 'push|floor press' };
   function srchRx(q) { return new RegExp(SRCH_SYN[q] ? SRCH_SYN[q] + '|' + q.replace(/[^a-z ]/g, '') : q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'); }
   // guide cards match on their title and their body text ("heel" finds the Bones card); titles first
@@ -3309,7 +3348,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (gh.length) out += '<h3 class="srch-g">Guide</h3>' + guideBtns(gh);
     return out;
   }
-  function goGuide(sg) { show('guide'); var g = document.querySelector('[data-sg="' + sg + '"]'); if (g) { var d = g.closest('details'); if (d) d.open = true; g.scrollIntoView({ block: 'start' }); if (g.focus) g.focus(); } }
+  function goGuide(sg, from) { guideFrom = from || null; show('guide'); var g = document.querySelector('[data-sg="' + sg + '"]'); if (g) { var d = g.closest('details'); if (d) d.open = true; g.scrollIntoView({ block: 'start' }); if (g.focus) g.focus(); } }
   // screen readers hear a count and the names once typing pauses, not the whole list on every keystroke
   var srchT = null;
   function srchSay(box, q) {
@@ -3318,7 +3357,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   // typing in Search & log shows matching exercises and guide topics; sending still logs or asks
   $('cIn').addEventListener('input', function () { var v = this.value.trim(), num = /^\d/.test(v); $('cSrch').innerHTML = num ? '' : searchHtml(this.value); srchSay($('cSrch'), num ? '' : v); });
-  $('cSrch').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; if (b.dataset.sx) openExercise(b.dataset.sx, 'hold', b); else if (b.dataset.sgo) goGuide(b.dataset.sgo); else if (b.dataset.slift) show('progress'); });
+  $('cSrch').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; if (b.dataset.sx) openExercise(b.dataset.sx, 'hold', b); else if (b.dataset.sgo) goGuide(b.dataset.sgo, $(lastTab) && $(lastTab).querySelector('[data-tool="search"]')); else if (b.dataset.slift) show('progress'); });
   $('cForm').addEventListener('submit', function () { clearTimeout(srchT); $('cSrch').innerHTML = ''; });
   function openSearch(from) {
     openSheet('Search', '<label><span class="sr-only">Search exercises, the guide and your log</span><input class="srch-in" id="srchIn" type="search" placeholder="Exercise, muscle, question…" autocomplete="off"></label><div id="srchOut"></div><p class="s" style="margin-top:12px;color:var(--muted)">Search works offline.</p>', true, from);
@@ -3347,7 +3386,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function openHelp(from) {
     openSheet('Help', HELP_QS.map(function (q) { return '<details class="help-q"><summary>' + esc(q[0]) + '</summary><p>' + esc(q[1]) + '</p></details>'; }).join('') + '<h3 class="srch-g" style="margin-top:16px">Guide</h3><div class="help-guide">' + [].slice.call(document.querySelectorAll('#guide summary, #guide h2')).map(function (x) { x.dataset.sg = x.dataset.sg || ('g' + Math.random().toString(36).slice(2, 8)); var t = ((x.querySelector && x.querySelector('.gh')) || x).textContent.trim(); return '<button class="srch-r" data-hg="' + x.dataset.sg + '"><b>' + esc(t.slice(0, 70)) + '</b></button>'; }).join('') + '</div>' +
       '<p style="margin-top:14px">Still stuck? Ask in Search &amp; log, for example “how do I change my equipment”. Common questions are answered offline.</p><button class="btn quiet block" data-hlog="1" style="margin-top:10px">Ask in Search &amp; log</button>', true, from);
-    $('sheetBody').addEventListener('click', function (e) { var g = e.target.closest('[data-hg]'); if (g) { closeSheet(); lastTab = ['train', 'exercises', 'progress'].indexOf(current) > -1 ? current : lastTab; setTimeout(function () { goGuide(g.dataset.hg); }, 60); } else if (e.target.closest('[data-hlog]')) { closeSheet(); openLogSearch(); } });
+    $('sheetBody').addEventListener('click', function (e) { var g = e.target.closest('[data-hg]'); if (g) { closeSheet(); lastTab = ['train', 'exercises', 'progress'].indexOf(current) > -1 ? current : lastTab; var opener = from && from.isConnected ? from : $(lastTab).querySelector('[data-tool="help"]'); setTimeout(function () { goGuide(g.dataset.hg, opener); }, 60); } else if (e.target.closest('[data-hlog]')) { closeSheet(); openLogSearch(); } });
   }
   document.addEventListener('click', function (e) {
     var b = e.target.closest('[data-tool]'); if (!b) return;
@@ -3457,7 +3496,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function sessionCard(day, part, ph) {
     if (part === 'all') {
       var a = planList(day, 'am', ph), b = planList(day, 'pm', ph), dn = isDone(day, 'all'), mm = mins(day, 'all', ph), sm = mins(day, 'short-all', ph);
-      var sum2 = day.cardio ? (addonOn() ? addonTxt(day) + ', plus cardio: ' : '') + segSummary(buildQueue(day, 'all', ph).filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; }))[1] : MACHINE[subSeg(WARMUP[0])[0]] + ' warm-up, then ' + (a.count + b.count) + ' exercises' + (b.fin ? ', then ' + b.fin : '') + '. Using ' + eqSummary() + '.';
+      var sum2 = day.cardio ? (addonOn() ? addonTxt(day) + ', plus cardio: ' + segSummary(buildQueue(day, 'all', ph).filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; }))[1] : cardioLine(buildQueue(day, 'all', ph).filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; }))) : MACHINE[subSeg(WARMUP[0])[0]] + ' warm-up, then ' + (a.count + b.count) + ' exercises' + (b.fin ? ', then ' + b.fin : '') + '. Using ' + eqSummary() + '.';
       if (!day.cardio) sum2 = a.count + b.count ? trimSum(sum2, buildQueue(day, 'all', ph)) : walkSum(day, 'all', ph);
       return '<article class="sess' + (dn ? ' done' : '') + '"><div class="sess-top"><h3>Today</h3>' + (dn ? '<span class="donechip">' + I_CHECK.replace('<svg', '<svg width="18" height="18"') + 'Done</span>' : '<span class="mins num">' + mm + ' min</span>') + '</div>' +
         '<p class="sum">' + esc(sum2) + '</p>' + thumbs(day, 'all') + '<div class="sess-actions"><button class="btn ' + (dn ? 'quiet' : 'go') + ' block" data-start="' + day.id + '" data-part="all">' + (dn ? 'Do it again' : 'Start session') + '</button>' +
@@ -3468,7 +3507,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var key = doneKey(day, part), done = !!store.done[key], m = mins(day, part, ph), name = part === 'am' ? 'Morning' : 'Evening';
     var pl = planList(day, part, ph), list = pl.list, count = pl.count;
     var cc = day.cardio ? null : custFor(day, part), edits = cc ? Object.keys(cc.off).filter(function (id) { return cc.off[id] && (cc.off[id].h || cc.off[id].r); }).length + cc.add.length : 0;
-    var sum = day.cardio ? (part === 'pm' && addonOn() ? addonTxt(day) + ', then ' + segSummary(buildQueue(day, 'pm', ph).filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; }))[1] : segSummary(segsFor(day[part](ph)))[1]) : (part === 'am' ? MACHINE[subSeg(WARMUP[0])[0]] + ' warm-up, then ' : '') + count + ' exercise' + (count === 1 ? '' : 's') + (pl.fin ? ', then ' + pl.fin : '') + '. Using ' + eqSummary() + '.' + (edits ? ' Changed by you.' : '');
+    var sum = day.cardio ? (part === 'pm' && addonOn() ? addonTxt(day) + ', then ' + segSummary(buildQueue(day, 'pm', ph).filter(function (it) { return it.kind === 'cardio'; }).map(function (it) { return [it.m, it.dur, it.effort, it.txt]; }))[1] : cardioLine(segsFor(day[part](ph)))) : (part === 'am' ? MACHINE[subSeg(WARMUP[0])[0]] + ' warm-up, then ' : '') + count + ' exercise' + (count === 1 ? '' : 's') + (pl.fin ? ', then ' + pl.fin : '') + '. Using ' + eqSummary() + '.' + (edits ? ' Changed by you.' : '');
     if (!day.cardio) sum = count ? trimSum(sum, buildQueue(day, part, ph)) : walkSum(day, part, ph);
     return '<article class="sess' + (done ? ' done' : '') + '">' +
       '<div class="sess-top"><h3>' + name + '</h3>' + (done ? '<span class="donechip">' + I_CHECK.replace('<svg', '<svg width="18" height="18"') + 'Done</span>' : '<span class="mins num">' + m + ' min</span>') + '</div>' +
@@ -3484,7 +3523,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     q.forEach(function (it) { var k = it.kind === 'cardio' ? 'c-' + it.m : it.id; if (!seen[k] && (it.kind === 'cardio' || it.wk === 'h')) { seen[k] = 1; figs.push(it); } });
     var show = figs, more = 0;
     // each picture opens that exercise's guide; +N opens the full list for this session
-    return '<div class="thumbs" role="group" aria-label="Exercises in this session. Scroll sideways for more">' + show.map(function (it) { var ex = it.ex, fig = figSvg(ex, it.kind === 'cardio' ? 0 : Math.min(2, ex._r.length - 1)); return it.kind === 'cardio' ? '<span class="th c" aria-hidden="true">' + fig + '</span>' : '<button class="th" data-ex="' + it.id + '" aria-label="How to do ' + esc(ex.name) + '">' + fig + '</button>'; }).join('') + (more > 0 ? '<button class="th more" data-more="' + day.id + part + '" aria-label="Show all ' + figs.length + ' exercises">+' + more + '</button>' : '') + '</div>';
+    var anyBtn = show.some(function (it) { return it.kind !== 'cardio'; }) || more > 0;
+    return '<div class="thumbs"' + (anyBtn ? ' role="group" aria-label="Exercises in this session. Scroll sideways for more"' : ' aria-hidden="true"') + '>' + show.map(function (it) { var ex = it.ex, fig = figSvg(ex, it.kind === 'cardio' ? 0 : Math.min(2, ex._r.length - 1)); return it.kind === 'cardio' ? '<span class="th c" aria-hidden="true">' + fig + '</span>' : '<button class="th" data-ex="' + it.id + '" aria-label="How to do ' + esc(ex.name) + '">' + fig + '</button>'; }).join('') + (more > 0 ? '<button class="th more" data-more="' + day.id + part + '" aria-label="Show all ' + figs.length + ' exercises">+' + more + '</button>' : '') + '</div>';
   }
   var trimInfo = null; // what the "Longest session" limit cut from the session being listed
   function planList(day, part, ph) {
@@ -3732,7 +3772,13 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var progIds = DAYS.reduce(function (a, d) { return a.concat(d.ex); }, []).concat(addonOn() ? ADDON : []);
     $('chips').innerHTML = AREAS.filter(function (t) { return t === 'All' || progIds.some(function (id) { return has(BY[id], t) || has(G[id], t); }); }).map(function (t) { return '<button class="chip" aria-pressed="' + (filter === t) + '" data-f="' + t + '">' + t + '</button>'; }).join('');
   }
-  $('chips').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; filter = b.dataset.f; renderChips(); applyFilter(); });
+  $('chips').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return; filter = b.dataset.f; renderChips(); applyFilter();
+    // keep focus on the chosen chip (the row is redrawn) and say how many exercises it shows
+    var nb = $('chips').querySelector('[data-f="' + filter + '"]'); if (nb) nb.focus();
+    var n = libBuilt ? [].filter.call($('lib').querySelectorAll('[data-ex]'), function (r) { return !r.hidden; }).length : 0;
+    announce((filter === 'All' ? 'All areas' : filter) + ': ' + n + ' exercise' + (n === 1 ? '' : 's'));
+  });
   var libBuilt = false, libEq = '';
   function ensureLib() { renderEqDD('eqddLib', 'Exercise names and pictures change to match.'); var lk = store.eq.join('') + (addonOn() ? '+' : ''); if (libBuilt && libEq === lk) return; libBuilt = true; libEq = lk; renderChips(); renderLib(); applyFilter(); }
   var libHidden = [];
@@ -4028,7 +4074,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (Math.max(s, bd) > progSeen) ptab = bd > s ? 'body' : 'strength';
     progSeen = Date.now();
   }
-  function pickPtab(t, focus) { ptab = t; progTabs(); if (t === 'strength') { renderDaily(); renderStrength(); } if (focus) $('pt-' + t).focus(); }
+  function pickPtab(t, focus) { ptab = t; progTabs(); if (t === 'strength') { renderDaily(); renderStrength(); } covCue(); if (focus) $('pt-' + t).focus(); }
   document.querySelector('#progress .ptabs').addEventListener('click', function (e) { var b = e.target.closest('[data-ptab]'); if (b) pickPtab(b.getAttribute('data-ptab')); });
   document.querySelector('#progress .ptabs').addEventListener('keydown', function (e) {
     var order = ['muscles', 'strength', 'body'], i = order.indexOf(ptab), j = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : e.key === 'Home' ? 0 : e.key === 'End' ? 2 : null;
@@ -4125,7 +4171,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     $('covNote').innerHTML = '<b>Planned</b>: hard sets in your plan for program week ' + store.week + ', for each of your ' + cd.length + ' training ' + (cd.length === 1 ? 'day' : 'days') + '. <b>Done</b>: sets you logged this week, Monday to Sunday, other lifts included. A set counts for the muscles its exercise mainly works. Around 10 or more a week is linked with steady growth for most muscles.';
     var h = '<caption class="sr-only">Muscle coverage: planned sets for each training day and for the week, and sets done this week</caption><thead><tr><th scope="col">Area</th>' +
       cd.map(function (x) { return '<th scope="col" class="c">Day ' + x.n + '<small>' + esc(x.d.name) + '</small></th>'; }).join('') +
-      '<th scope="col" class="c">Planned<small>per week</small></th><th scope="col" class="c cv-done">Done<small>this week</small></th></tr></thead><tbody>';
+      '<th scope="col" class="c"><span class="cv-long">Planned</span><span class="cv-short" aria-hidden="true">Plan</span><small><span class="cv-long">per week</span><span class="cv-short" aria-hidden="true">/ week</span></small></th><th scope="col" class="c cv-done">Done<small><span class="cv-long">this week</span><span class="cv-short" aria-hidden="true">this wk</span></small></th></tr></thead><tbody>';
     GROUPS.forEach(function (g) {
       h += '<tr><th scope="colgroup" class="grp" colspan="' + span + '">' + g[0] + '</th></tr>';
       g[1].forEach(function (tag) {
@@ -4142,7 +4188,17 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       });
     });
     $('cov').innerHTML = h + '</tbody>';
+    covCue();
   }
+  // if the table is still wider than the screen (very large text), say so, and name the region so screen readers hear it too
+  function covCue() {
+    var sc = $('covScroll'); if (!sc || !sc.offsetParent) return;
+    var over = sc.scrollWidth > sc.clientWidth + 2;
+    $('covCue').hidden = !over; sc.classList.toggle('more', over && sc.scrollLeft + sc.clientWidth < sc.scrollWidth - 2);
+    sc.setAttribute('aria-label', over ? 'Muscle coverage table, scrolls sideways' : 'Muscle coverage table');
+  }
+  $('covScroll').addEventListener('scroll', covCue, { passive: true });
+  window.addEventListener('resize', function () { if (!$('progress').hidden) covCue(); });
   // ---------- checks: Endurance (hold time; was "max-hold test", data in store.tests[id]) and Strength (reps -> Epley max, store.tests._str) ----------
   var TESTS = ['wall-sit', 'plank-db', 'suitcase', 'lateral-raise'];
   var STR_EX = ['goblet-squat', 'floor-press', 'sa-row', 'bo-row', 'rdl'];
@@ -6045,11 +6101,21 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     try { speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance(t); u.rate = 1.05; u.lang = navigator.language || 'en-US'; pv.said = t.toLowerCase(); pv.speaking = Date.now() + 1500 + t.length * 80; u.onend = function () { pv.speaking = Date.now() + 1200; }; speechSynthesis.speak(u); } catch (e) { }
   }
   function cuesOn() { return pv.on || prof().cues; }
+  // The progression hint, spoken at most once per exercise in a session. "At your heaviest: lower over 4 seconds…" is the same advice for
+  // every maxed-out exercise, so it is spoken in full once per session; later exercises get only their normal cue (the screen still shows it).
+  function progressLine(it, hint, mem) {
+    if (!hint || !/^Last week/.test(hint)) return null;
+    mem.saidUp = mem.saidUp || {}; var key = it.id || (it.ex && it.ex.name);
+    if (mem.saidUp[key]) return null; mem.saidUp[key] = 1;
+    var heavy = /your heaviest/.test(hint);
+    if (heavy && mem.saidHeavy) return null; if (heavy) mem.saidHeavy = 1;
+    return it.ex.name + '. ' + hint.replace(/ \(tap \+\)\.?$/, '').replace(/\bkg\b/g, 'kilos').replace(/\blb\b/g, 'pounds');
+  }
   function voiceCue(stage) {
     if (!P || !cuesOn()) return;
     var it = P.q[P.i], nxt = P.q[nextIdx(P.i)];
-    var up = stage === 'ready' && it.kind === 'reps' && !(P.saidUp = P.saidUp || {})[it.id] && wtHint(it); // once per exercise per session
-    if (up && /^Last week/.test(up)) P.saidUp[it.id] = 1; if (up && /^Last week/.test(up)) { say(it.ex.name + '. ' + up.replace(/ \(tap \+\)\.?$/, '').replace(/\bkg\b/g, 'kilos').replace(/\blb\b/g, 'pounds')); return; }
+    var up = stage === 'ready' && it.kind === 'reps' && progressLine(it, wtHint(it), P);
+    if (up) { say(up); return; }
     if (stage === 'ready' && it.m === 'heel') say('Heel drops for bone health, one minute. Rise onto your toes, then drop onto your heels.');
     else if (stage === 'ready') { if (it.kind === 'cardio') say((it.first ? '' : 'Next: ') + MACHINE[it.m || 'walk'] + ', ' + (it.effort || '').toLowerCase() + ', ' + spokenDur(it.dur)); else say(it.ex.name + (it.side ? ', ' + it.side : '') + '. ' + (it.kind === 'hold' ? it.dur + ' second hold' : it.reps + ' reps') + (it.mod ? '. ' + it.mod.replace(/^Knees: /, '') : '') + (it.pain ? '. ' + areaName(it.pain.area).replace(/^./, function (c) { return c.toUpperCase(); }) + ' pain: go lighter, and stop if it passes 3 out of 10' : '')); }
     else if (stage === 'work') say(it.kind === 'hold' ? (gentle() ? 'Hold, and keep breathing' : 'Hold') : it.kind === 'cardio' ? (it.effort === 'Hard' ? 'Go hard' : it.effort === 'Impact' ? 'Heel drops: up on your toes, then drop' : 'Go') : 'Go');
@@ -6991,11 +7057,17 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // ---------- boot ----------
   renderTrain(); refreshBackup();
   show((location.hash || '').slice(1) || 'train', true);
-  if (!store.profile && !store.log.length && !Object.keys(store.done).length && !window.__ISOHOLD_STATE) openProfile(null, true);
+  if (!store.profile && !store.log.length && !Object.keys(store.done).length && !window.__ISOHOLD_STATE) {
+    openProfile(null, true);
+    // the browser resets focus to the page body as the page finishes loading, so put it on the Welcome dialog's title again
+    // (read as "Welcome to Isohold, dialog"); Tab then reaches Close and the form. Only while focus is still on the body.
+    var welFocus = function () { if ($('sheetWrap').hidden) return; var a = document.activeElement; if (a && a !== document.body && a !== document.documentElement) return; var t = $('sheetTitle'); t.tabIndex = -1; t.focus(); };
+    welFocus(); document.addEventListener('DOMContentLoaded', welFocus); window.addEventListener('load', function () { welFocus(); setTimeout(welFocus, 50); }); setTimeout(welFocus, 0); setTimeout(welFocus, 400);
+  }
   renderTools();
   window.__isoholdReady = performance.now();
   // read-only hooks for the automated test suite
-  window.__isoTest = { today: function (l) { return today(l); }, dayStart: function (t) { return dayStart(t); }, suggestWt: function (id, kind) { return suggestWt(id, V(id, kind === 'h' ? 'h' : 'g'), kind); }, localAnswer: function (t) { return localAnswer(t); }, weekTarget: function () { return weekTarget(); }, buildQueue: buildQueue, allDays: allDays, mins: mins, V: V, chooseEq: chooseEq, pickEq: pickEq, store: function () { return store; }, strengthData: strengthData, holdMax: holdMax, repMax: repMax, phaseOf: phaseOf, blocksFor: blocksFor, wLabel: wLabel, weekDone: weekDone, isPB: isPB, parseText: parseText, parsePlayerCmd: parsePlayerCmd, handle: function (t, s) { return handle(t, s || 'text'); }, runCmd: function (t) { return runCmd(t); }, feed: function () { return feed; }, prof: prof, proteinTarget: proteinTarget, foods: FOODS, applyAction: function (a) { return apply(a, 'test'); }, dailyIdx: function () { return dailyIdx(); }, strChange: function () { return strChange(); }, epley: epley, loadTime: loadTime, estMax: estMax, liftTags: liftTags, exRegions: exRegions, liftRegions: liftRegions, BM_NAME: BM_NAME, weekStart: function (t) { return weekStart(t); }, bodyWeek: function () { return bodyWeek(); }, covDays: covDays, covDone: covDone, exName: exName, rpeTxt: rpeTxt };
+  window.__isoTest = { progressLine: function (it, hint, mem) { return progressLine(it, hint, mem); }, today: function (l) { return today(l); }, dayStart: function (t) { return dayStart(t); }, suggestWt: function (id, kind) { return suggestWt(id, V(id, kind === 'h' ? 'h' : 'g'), kind); }, localAnswer: function (t) { return localAnswer(t); }, weekTarget: function () { return weekTarget(); }, buildQueue: buildQueue, allDays: allDays, mins: mins, V: V, chooseEq: chooseEq, pickEq: pickEq, store: function () { return store; }, strengthData: strengthData, holdMax: holdMax, repMax: repMax, phaseOf: phaseOf, blocksFor: blocksFor, wLabel: wLabel, weekDone: weekDone, isPB: isPB, parseText: parseText, parsePlayerCmd: parsePlayerCmd, handle: function (t, s) { return handle(t, s || 'text'); }, runCmd: function (t) { return runCmd(t); }, feed: function () { return feed; }, prof: prof, proteinTarget: proteinTarget, foods: FOODS, applyAction: function (a) { return apply(a, 'test'); }, dailyIdx: function () { return dailyIdx(); }, strChange: function () { return strChange(); }, epley: epley, loadTime: loadTime, estMax: estMax, liftTags: liftTags, exRegions: exRegions, liftRegions: liftRegions, BM_NAME: BM_NAME, weekStart: function (t) { return weekStart(t); }, bodyWeek: function () { return bodyWeek(); }, covDays: covDays, covDone: covDone, exName: exName, rpeTxt: rpeTxt };
   kickAnim();
 })();
 
