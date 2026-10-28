@@ -3171,12 +3171,12 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // lifts logged outside the program ("Other lifts"): the muscles each mainly works, from its name (first match wins)
   var LIFT_TAGS = [
     [/hip thrust|glute bridge/, ['Glutes']], [/leg curl|hamstring curl/, ['Hamstrings']], [/leg extension/, ['Quads']], [/calf/, ['Calves']],
-    [/romanian|\brdl\b|stiff.?leg|good morning|deadlift|rack pull/, ['Hamstrings', 'Glutes', 'Lower back']],
-    [/squat|leg press|lunge|step.?up/, ['Quads', 'Glutes']], [/upright row/, ['Side delts', 'Traps']],
-    [/\brow|pulldown|pull.?down|pull.?up|chin.?up|dominada|remo\b/, ['Lats', 'Mid back', 'Biceps']],
+    [/romanian|\brdl\b|stiff.?leg|good morning|deadlift|rack pull|peso muerto/, ['Hamstrings', 'Glutes', 'Lower back']],
+    [/squat|leg press|lunge|step.?up|sentadilla|prensa|zancada/, ['Quads', 'Glutes']], [/upright row/, ['Side delts', 'Traps']],
+    [/\brow|pulldown|pull.?down|pull.?up|chin.?up|dominada|remo\b|jalon|jalón/, ['Lats', 'Mid back', 'Biceps']],
     [/face pull|rear delt|reverse fl/, ['Rear delts', 'Upper back']],
-    [/overhead|\bohp\b|military|shoulder press|push press|arnold/, ['Front delts', 'Triceps']],
-    [/bench|chest press|push.?up|flexion|floor press|\bfl(y|ies|yes)\b|\bdips?\b/, ['Chest', 'Triceps', 'Front delts']],
+    [/overhead|\bohp\b|military|militar|shoulder press|push press|arnold/, ['Front delts', 'Triceps']],
+    [/bench|banca|chest press|push.?up|flexion|floor press|\bfl(y|ies|yes)\b|\bdips?\b/, ['Chest', 'Triceps', 'Front delts']],
     [/lateral raise|side raise/, ['Side delts']], [/shrug/, ['Traps']], [/curl/, ['Biceps', 'Forearms']],
     [/tricep|skull|push.?down|extension/, ['Triceps']], [/crunch|sit.?up|plank|leg raise|ab wheel/, ['Mid abs', 'Lower abs']], [/carry|farmer/, ['Forearms', 'Traps']]
   ];
@@ -3275,7 +3275,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   var lastTab = 'train';
   function openLogSearch(q) { if (['train', 'exercises', 'progress'].indexOf(current) > -1) lastTab = current; show('coach'); var t = $('cIn'); if (q != null) { t.value = q; t.dispatchEvent(new Event('input')); } t.focus(); }
   document.addEventListener('click', function (e) { if (!e.target.closest('[data-back]')) return; show(lastTab); var h = $(lastTab).querySelector('h1'); if (h) { h.tabIndex = -1; h.focus(); } });
-  var SRCH_SYN = { shoulder: 'delt|rotator|traps', shoulders: 'delt|rotator|traps', chest: 'chest', back: 'back|lats|traps', legs: 'quads|hamstrings|glutes|calves|thigh|hip', leg: 'quads|hamstrings|glutes|calves|thigh|hip', arms: 'biceps|triceps|forearms', arm: 'biceps|triceps|forearms', core: 'abs|obliques', abs: 'abs|obliques', hips: 'glutes|hip|thigh', hip: 'glutes|hip|thigh', bum: 'glutes', butt: 'glutes', shin: 'ankles|shin', knee: 'knees|quads' , bench: 'press|chest', press: 'press', row: 'row', squat: 'squat', deadlift: 'deadlift|rdl|hinge', pierna: 'quads|hamstrings|glutes|calves|thigh|hip', piernas: 'quads|hamstrings|glutes|calves|thigh|hip', hombro: 'delt|rotator|traps', hombros: 'delt|rotator|traps', pecho: 'chest|press', espalda: 'back|lats|traps|row', brazos: 'biceps|triceps|forearms', abdominales: 'abs|obliques', gluteos: 'glutes', tendones: 'tendon', tendon: 'tendon', rodilla: 'knees|quads', columpio: 'swing', sentadilla: 'squat', remo: 'row', plancha: 'plank', zancada: 'split|lunge', heel: 'heel|calf|calves', heels: 'heel|calf|calves', calf: 'calf|calves', calves: 'calf|calves', talon: 'heel|calf|calves', 'talón': 'heel|calf|calves', bones: 'bone|osteop', bone: 'bone|osteop', osteopenia: 'osteop|bone', osteoporosis: 'osteop|bone', huesos: 'bone|osteop', ramadan: 'ramadan|fasting|iftar', fasting: 'ramadan|fasting|iftar', fast: 'ramadan|fasting|iftar', ayuno: 'ramadan|fasting|iftar', 'push-up': 'push|floor press', pushup: 'push|floor press', pushups: 'push|floor press', flexiones: 'push|floor press' };
+  var SRCH_SYN = { shoulder: 'delt|rotator|traps', shoulders: 'delt|rotator|traps', chest: 'chest', back: 'back|lats|traps', legs: 'quads|hamstrings|glutes|calves|thigh|hip', leg: 'quads|hamstrings|glutes|calves|thigh|hip', arms: 'biceps|triceps|forearms', arm: 'biceps|triceps|forearms', core: 'abs|obliques', abs: 'abs|obliques', hips: 'glutes|hip|thigh', hip: 'glutes|hip|thigh', bum: 'glutes', butt: 'glutes', shin: 'ankles|shin', knee: 'knees|quads' , bench: 'press|chest', press: 'press', row: 'row', squat: 'squat', deadlift: 'deadlift|rdl|hinge', pierna: 'quads|hamstrings|glutes|calves|thigh|hip', piernas: 'quads|hamstrings|glutes|calves|thigh|hip', hombro: 'delt|rotator|traps', hombros: 'delt|rotator|traps', pecho: 'chest|press', espalda: 'back|lats|traps|row', brazos: 'biceps|triceps|forearms', abdominales: 'abs|obliques', gluteos: 'glutes', tendones: 'tendon', tendon: 'tendon', dominadas: 'pull.?up|chin.?up|pulldown|lats', dominada: 'pull.?up|chin.?up|pulldown|lats', 'pull ups': 'pull.?up|chin.?up|pulldown|lats', pullups: 'pull.?up|chin.?up|pulldown|lats', swing: 'swing', swings: 'swing', 'kettlebell swing': 'swing', 'kettlebell swings': 'swing', rodilla: 'knees|quads', columpio: 'swing', sentadilla: 'squat', remo: 'row', plancha: 'plank', zancada: 'split|lunge', heel: 'heel|calf|calves', heels: 'heel|calf|calves', calf: 'calf|calves', calves: 'calf|calves', talon: 'heel|calf|calves', 'talón': 'heel|calf|calves', bones: 'bone|osteop', bone: 'bone|osteop', osteopenia: 'osteop|bone', osteoporosis: 'osteop|bone', huesos: 'bone|osteop', ramadan: 'ramadan|fasting|iftar', fasting: 'ramadan|fasting|iftar', fast: 'ramadan|fasting|iftar', ayuno: 'ramadan|fasting|iftar', 'push-up': 'push|floor press', pushup: 'push|floor press', pushups: 'push|floor press', flexiones: 'push|floor press' };
   function srchRx(q) { return new RegExp(SRCH_SYN[q] ? SRCH_SYN[q] + '|' + q.replace(/[^a-z ]/g, '') : q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'); }
   // guide cards match on their title and their body text ("heel" finds the Bones card); titles first
   function guideHits(rx) {
@@ -3292,7 +3292,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   function guideBtns(hits) { return hits.map(function (x) { x.el.dataset.sg = x.el.dataset.sg || ('g' + Math.random().toString(36).slice(2, 8)); return '<button class="srch-r" data-sgo="' + x.el.dataset.sg + '"><b>' + esc(x.t.slice(0, 80)) + '</b><span class="s">' + esc(x.sub) + '</span></button>'; }).join(''); }
   function exHits(rx, n) { return Object.keys(ALL).filter(function (id) { if (!EQV[id] || RETIRED.indexOf(id) > -1 && ADDON.indexOf(id) < 0) return false; var e = ALL[id], h = V(id, 'h'); var g = V(id, 'g'); return !(h.missing && g.missing) && rx.test(h.name + ' ' + g.name + ' ' + baseName(h.name) + ' ' + (G[id] ? G[id].name : '') + ' ' + e.name + ' ' + (e.tags || []).join(' ')); }).slice(0, n); }
-  function exBtns(ids) { return ids.map(function (id) { var h = V(id, 'h'); return '<button class="srch-r" data-sx="' + id + '"><b>' + esc(h.name) + '</b><span class="s">' + esc((ALL[id].tags || []).slice(0, 3).join(', ')) + '</span></button>'; }).join(''); }
+  // when only the rep partner matches ("swing" is Bird Dog's growth reps), name it and open its Growth reps tab
+  function exBtns(ids, rx) { return ids.map(function (id) { var h = V(id, 'h'), g = V(id, 'g'), rep = rx && !g.missing && rx.test(g.name + ' ' + (G[id] ? G[id].name : '')) && !rx.test(h.name + ' ' + ALL[id].name); return '<button class="srch-r" data-sx="' + id + '"' + (rep ? ' data-sp="rep"' : '') + '><b>' + esc(rep ? baseName(g.name) : h.name) + '</b><span class="s">' + esc(rep ? 'Growth reps, paired with ' + h.name : (ALL[id].tags || []).slice(0, 3).join(', ')) + '</span></button>'; }).join(''); }
   // lifts you logged outside the program ("bench 225 x 5"): Progress > Other lifts
   function liftHits(rx) {
     var by = {}, order = [];
@@ -3304,10 +3305,19 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var q = raw.trim().toLowerCase(), out = '';
     if (q.length < 2) return '';
     var rx = srchRx(q), ids = exHits(rx, 4), ls = liftHits(rx), gh = guideHits(rx).slice(0, 3);
-    if (ids.length) out += '<h3 class="srch-g">Exercises</h3>' + exBtns(ids);
+    if (ids.length) out += '<h3 class="srch-g">Exercises</h3>' + exBtns(ids, rx);
     if (ls.length) out += '<h3 class="srch-g">Your lifts</h3>' + liftBtns(ls);
     if (gh.length) out += '<h3 class="srch-g">Guide</h3>' + guideBtns(gh);
     return out;
+  }
+  // a topic word sent on its own ("tendones", "bones"): answer from the guide's best-matching topic
+  function guideAnswer(raw) {
+    var q = String(raw || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[?!.¿¡]/g, '').trim();
+    if (!q || /\d/.test(q) || q.split(/\s+/).length > 3 || q.length < 3) return null;
+    var hits = guideHits(srchRx(q)); if (!hits.length) return null;
+    var h = hits[0], d = h.el.closest('details'), sm = d && d.querySelector('summary'), body = d ? d.textContent.slice(sm ? sm.textContent.length : 0).replace(/\s+/g, ' ').trim() : '';
+    var sn = body.split(/(?<=\.)\s+/).slice(0, 2).join(' '); if (sn.length > 260) sn = sn.slice(0, 258) + '…';
+    return 'From the guide, **' + h.t + '**' + (sn ? ': ' + sn : '.') + ' The full topic is on the Guide (Help, then Guide).';
   }
   function goGuide(sg) { show('guide'); var g = document.querySelector('[data-sg="' + sg + '"]'); if (g) { var d = g.closest('details'); if (d) d.open = true; g.scrollIntoView({ block: 'start' }); if (g.focus) g.focus(); } }
   // screen readers hear a count and the names once typing pauses, not the whole list on every keystroke
@@ -3318,7 +3328,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   // typing in Search & log shows matching exercises and guide topics; sending still logs or asks
   $('cIn').addEventListener('input', function () { var v = this.value.trim(), num = /^\d/.test(v); $('cSrch').innerHTML = num ? '' : searchHtml(this.value); srchSay($('cSrch'), num ? '' : v); });
-  $('cSrch').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; if (b.dataset.sx) openExercise(b.dataset.sx, 'hold', b); else if (b.dataset.sgo) goGuide(b.dataset.sgo); else if (b.dataset.slift) show('progress'); });
+  $('cSrch').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; if (b.dataset.sx) openExercise(b.dataset.sx, b.dataset.sp === 'rep' ? 'rep' : 'hold', b); else if (b.dataset.sgo) goGuide(b.dataset.sgo); else if (b.dataset.slift) show('progress'); });
   $('cForm').addEventListener('submit', function () { clearTimeout(srchT); $('cSrch').innerHTML = ''; });
   function openSearch(from) {
     openSheet('Search', '<label><span class="sr-only">Search exercises, the guide and your log</span><input class="srch-in" id="srchIn" type="search" placeholder="Exercise, muscle, question…" autocomplete="off"></label><div id="srchOut"></div><p class="s" style="margin-top:12px;color:var(--muted)">Search works offline.</p>', true, from);
@@ -3327,7 +3337,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       var q = inp.value.trim().toLowerCase(), out = '';
       if (q.length < 2) { $('srchOut').innerHTML = ''; return; }
       var rx = srchRx(q), ids = exHits(rx, 6), ls = liftHits(rx), gh = guideHits(rx).slice(0, 4);
-      if (ids.length) out += '<h3 class="srch-g">Exercises</h3>' + exBtns(ids);
+      if (ids.length) out += '<h3 class="srch-g">Exercises</h3>' + exBtns(ids, rx);
       if (ls.length) out += '<h3 class="srch-g">Your lifts</h3>' + liftBtns(ls);
       if (gh.length) out += '<h3 class="srch-g">Guide</h3>' + guideBtns(gh);
       var fl = (typeof feed !== 'undefined' && feed ? feed : []).filter(function (f) { return f.r === 'u' && f.x && f.x.toLowerCase().indexOf(q) > -1; }).slice(-3).reverse();
@@ -3337,7 +3347,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     });
     $('sheetBody').addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b) return;
-      if (b.dataset.sx) openExercise(b.dataset.sx, 'hold'); // replaces Search in the same sheet, so closing it doesn't also close the exercise
+      if (b.dataset.sx) openExercise(b.dataset.sx, b.dataset.sp === 'rep' ? 'rep' : 'hold'); // replaces Search in the same sheet, so closing it doesn't also close the exercise
       else if (b.dataset.sgo) { closeSheet(); show('guide'); var g = document.querySelector('[data-sg="' + b.dataset.sgo + '"]'); if (g) { var d = g.closest('details'); if (d) d.open = true; g.scrollIntoView({ block: 'start' }); } }
       else if (b.dataset.slog) { closeSheet(); show('coach'); }
       else if (b.dataset.slift) { closeSheet(); show('progress'); }
@@ -4588,6 +4598,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     ['Pincho', 'pinchos?|pintxos?|tapas?', 9, 25, 12, 250, 80, 'pincho', 'M'],
     ['Huevos rotos', 'broken eggs|huevos rotos|huevos estrellados', 8, 14, 12, 195, 300, 'plate', 'M'],
     ['Flan', 'flans?|creme caramel|flan de huevo', 4, 22, 4, 140, 100, 'pot', 'E'],
+    ['Chicken shawarma wrap', 'chicken shawarma wraps?|chicken shawarma rolls?|chicken shawarmas?|lamb shawarmas?|beef shawarmas?|shawarma wraps?|shawarma rolls?|shawarma sandwich(?:es)?|shawarmas?', 11, 18, 8, 195, 300, 'wrap', 'M'],
+    ['Bocadillo de calamares', 'calamari bocadillos?|bocadillos? de calamares|bocatas? de calamares|calamari sandwich(?:es)?|squid sandwich(?:es)?', 10, 32, 9, 250, 230, 'sandwich', 'F'],
     ['Bocadillo de tortilla', 'tortilla bocadillos?|bocadillos? de tortilla|bocatas? de tortilla', 7.5, 30, 7, 210, 250, 'sandwich', 'E'],
     ['Hummus', 'hummus|houmous', 8, 14, 10, 166, 60, 'serving', 'N'],
     ['Sprouts', 'sprouts|moong sprouts|sprouted moong', 3, 6, 0.2, 30, 100, 'cup', 'N'],
@@ -4730,7 +4742,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // A newer version is online: say so, instead of quietly running the old one until the next launch
   // dates follow the app's language (English), not the device's, so an English screen doesn't show "28 de octubre"
   var UIL = /^en\b/i.test(navigator.language || '') ? undefined : 'en-GB';
-  var APP_VERSION = '47';
+  var APP_VERSION = '48';
   function checkVersion() {
     if (!navigator.onLine || !/^https?:/.test(location.protocol)) return;
     fetch('index.html?v=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
@@ -5020,7 +5032,12 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   var NUMW = { a: 1, an: 1, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, half: 0.5, couple: 2, both: 2 };
   var TENS = { twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90 };
   // Spanish words people mix into a log ("2 huevos y tostada", "comí arroz con pollo", "5k bici 20 min")
-  var ES = [[/\b(?:pinchos?|pintxos?) de tortilla(?: de patatas| espanola)?\b/g, 'spanish omelette'], [/\b(?:unas|unos)\s+(?=[a-z])/g, ''], [/\b(?:bocadillo|bocata)s? de tortilla(?: de patatas| espanola)?\b/g, 'tortilla bocadillo'], [/\bhuevos (?:rotos|estrellados)\b/g, 'broken eggs'], [/\b(\d+\s+)?filetes?\b(?!\s+(?:de|of)\b)/g, function (m, n) { return (n || '') + 'steak'; }],
+  // Spanish gym lift names first, so "peso muerto" is a deadlift (not "peso" = I weigh) and "press banca" is a bench press
+  var ES_LIFT = [[/\bpeso muerto rumano\b/g, 'romanian deadlift'], [/\bpeso muerto sumo\b/g, 'sumo deadlift'], [/\bpeso muerto\b/g, 'deadlift'], [/\bpress (?:de |en )?banca inclinad[oa]\b/g, 'incline bench press'], [/\bpress (?:de |en )?banca(?: plana)?\b/g, 'bench press'],
+    [/\bpress militar\b/g, 'overhead press'], [/\bpress (?:de )?hombros?\b/g, 'shoulder press'], [/\bjal[oó]n(?:es)?(?: (?:al|a la) (?:pecho|polea))?\b/g, 'lat pulldown'], [/\bremo (?:con |de |en )?barra\b/g, 'barbell row'], [/\bremo (?:con |de )?mancuernas?\b/g, 'dumbbell row'],
+    [/\bremo (?:en |de )?(?:maquina|polea)(?: baja| alta)?\b|\bremo sentado\b/g, 'seated row'], [/\bcurl (?:de |con )?martillo\b/g, 'hammer curl'], [/\bcurl (?:de )?biceps\b/g, 'biceps curl'], [/\bcurl femoral\b/g, 'leg curl'], [/\bextensi[oó]n(?:es)? de cuadriceps\b/g, 'leg extension'],
+    [/\bsentadillas? bulgaras?\b/g, 'bulgarian split squat'], [/\bzancadas?\b/g, 'lunges'], [/\bprensa(?: de piernas| inclinada)?\b/g, 'leg press'], [/\belevaciones laterales\b/g, 'lateral raises'], [/\baperturas?(?: (?:de|con) mancuernas)?\b/g, 'chest fly'], [/\bempuje de cadera\b/g, 'hip thrust']];
+  var ES = ES_LIFT.concat([[/\b(?:pinchos?|pintxos?) de tortilla(?: de patatas| espanola)?\b/g, 'spanish omelette'], [/\b(?:unas|unos)\s+(?=[a-z])/g, ''], [/\b(?:bocadillo|bocata)s? de tortilla(?: de patatas| espanola)?\b/g, 'tortilla bocadillo'], [/\bhuevos (?:rotos|estrellados)\b/g, 'broken eggs'], [/\b(?:bocadillo|bocata)s? de calamar(?:es)?\b/g, 'calamari bocadillo'], [/\b(\d+\s+)?filetes? (?:de|of) (ternera|vaca|res|buey|cerdo|lomo|pollo|pechuga|pavo|merluza|pescado|bacalao|salmon|atun)\b/g, function (m, n, k) { return (n || '') + ({ cerdo: 'pork', lomo: 'pork', pollo: 'chicken breast', pechuga: 'chicken breast', pavo: 'turkey', merluza: 'white fish', pescado: 'white fish', bacalao: 'white fish', salmon: 'salmon', atun: 'tuna' }[k] || 'steak'); }], [/\b(\d+\s+)?filetes?\b(?!\s+(?:de|of)\b)/g, function (m, n) { return (n || '') + 'steak'; }],
     [/\bpechugas? (?:de|of) pavo\b/g, 'turkey breast'], [/\b(\d+\s+)?pechugas?(?: (?:de|of) pollo)?\b/g, function (m, n) { return (n || '') + (n && +n > 1 ? 'chicken breasts' : 'chicken breast'); }], [/\bsolomillo (?:de|of) cerdo\b/g, 'pork tenderloin'], [/\bsolomillo(?: (?:de|of) (?:ternera|vaca|res))?\b/g, 'sirloin'], [/\bzumo (?:de|of) naranja\b/g, 'orange juice'], [/\bzumo (?:de|of) [a-z]+\b/g, 'juice'], [/\bqueso fresco\b|\brequeson\b/g, 'cottage cheese'], [/\bpatatas fritas\b/g, 'fries'], [/\b(?:bocadillo|bocata) de [a-z]+(?: de patatas| espanola)?/g, 'bocadillo'], [/\bmenu del dia:?\s*/g, ''], [/\bpollo asado\b/g, 'roast chicken'], [/\b(?:a|1) la plancha\b/g, 'grilled'], [/\bcocido madrileno\b|^\s*(?:1 )?cocido\s*$/g, 'chickpea stew'], [/\btortilla (?:de patatas|espa[nñ]ola)\b/g, 'spanish omelette'], [/\barroz con pollo\b/g, 'chicken rice'], [/\bcaf[eé] con leche\b/g, 'latte'], [/\b(t[eé]|tea) (?:con|with) leche\b|\btea with milk\b/g, 'chai'],
     [/\bchurros con chocolate\b/g, 'churros and hot chocolate'], [/\bhuevos?\b/g, 'eggs'], [/\bpollo\b/g, 'chicken'], [/\barroz\b/g, 'rice'], [/\bpan\b/g, 'bread'], [/\bleche\b/g, 'milk'], [/\bqueso\b/g, 'cheese'], [/\bat[uú]n\b/g, 'tuna'], [/\bpl[aá]tanos?\b/g, 'banana'], [/\bmanzanas?\b/g, 'apple'],
     [/\bpatatas?\b/g, 'potatoes'], [/\blentejas\b/g, 'lentils'], [/\bgarbanzos\b/g, 'chickpeas'], [/\byogur(?:t)?\b/g, 'yogurt'], [/\btostadas?\b/g, 'toast'], [/\bjam[oó]n\b/g, 'ham'], [/\bensalada\b/g, 'salad'], [/\bpescado\b/g, 'fish'], [/\bternera\b/g, 'beef'], [/\bcerdo\b/g, 'pork'], [/\bavena\b/g, 'oats'], [/\bzumo\b/g, 'juice'], [/\bpepino\b/g, 'cucumber'], [/\bbatidos? (?:de|of) proteinas?\b|\bbatidos? proteicos?\b/g, 'protein shake'], [/\baguacates?\b/g, 'avocado'], [/\bpimientos?\b/g, 'peppers'], [/\bcervezas?\b/g, 'beer'], [/\bhamburguesas? (?:de|of) [a-z]+\b/g, 'burgers'], [/\bhamburguesas?\b/g, 'burgers'], [/\bal horno\b/g, 'baked'], [/\bpaella (?:de|of) marisco\b|\bpaella marinera\b/g, 'seafood paella'], [/\bmerluza\b|\bbacalao\b|\blubina\b|\bdorada\b/g, 'white fish'], [/\bsalmon\b/g, 'salmon'], [/\bpavo\b/g, 'turkey'], [/\bcordero\b/g, 'lamb'], [/\balbondigas\b/g, 'meatballs'], [/\bjudias verdes\b/g, 'green beans'], [/\byogur(?:t)? griego\b/g, 'greek yogurt'], [/\bgalletas?\b/g, 'biscuits'], [/\b(trozos?|porciones?|raciones?)\b/g, 'slices'], [/\brevueltos?\b/g, 'scrambled'], [/\baceite(?: de oliva)?\b/g, 'olive oil'], [/\bgambas\b|\blangostinos\b/g, 'prawns'], [/\bfiletes?\b/g, 'fillets'], [/\bverduras?\b/g, 'vegetables'], [/\bespinacas\b/g, 'spinach'], [/\bnaranjas?\b/g, 'orange'], [/\bkiwis?\b/g, 'kiwi'], [/\bfresas\b/g, 'strawberries'], [/\bnueces\b/g, 'walnuts'], [/\bjudias\b/g, 'beans'],
@@ -5029,7 +5046,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     [/\b(?:uno|una|un)\b(?= [a-z])/g, '1'], [/\bdos\b/g, '2'], [/\btres\b/g, '3'], [/\bcuatro\b/g, '4'], [/\bcinco\b/g, '5'], [/\bseis\b/g, '6'], [/\bsiete\b/g, '7'], [/\bocho\b/g, '8'], [/\bnueve\b/g, '9'], [/\bdiez\b/g, '10'], [/\bonce\b/g, '11'], [/\bdoce\b/g, '12'], [/\bquince\b/g, '15'], [/\bveinte\b/g, '20'], [/\btreinta\b/g, '30'], [/\bmedi[oa]\b/g, '0.5'],
     [/(\d) por (\d)/g, '$1 x $2'], [/\b(fritos?|fritas?)\b/g, 'fried'], [/\b(cocidos?|hervidos?|duros?)\b/g, 'boiled'], [/\b(macarrones|fideos|espaguetis|tallarines)\b/g, 'pasta'],
     [/\bcena\b/g, 'dinner'], [/\bdesayuno\b/g, 'breakfast'], [/\b(almuerzo|comida)\b/g, 'lunch'], [/\bmerienda\b/g, 'snack'], [/\bun vaso de\b/g, '1 glass of'], [/\buna? (?=[a-z])/g, '1 '], [/ de (?=[a-z\d])/g, ' of '],
-    [/ y (?=[a-z\d])/g, ' and '], [/ con (?=[a-z\d])/g, ' with ']];
+    [/ y (?=[a-z\d])/g, ' and '], [/ con (?=[a-z\d])/g, ' with ']]);
   function drinks(t) { return t.replace(/\b(coffees?|teas?)\s+with\s+(?:(?:a|1|0\.5|little|splash|dash|bit|of|some)\s+){0,4}milk\b/g, function (m, d) { return /tea/.test(d) ? 'chai' : 'white coffee'; }); }
   function spanish(t) { if (!/[a-z]/.test(t)) return t;
     if (/^es\b/i.test(navigator.language || '')) t = t.replace(/\btortillas?\b(?! (?:de patatas|espanola|wrap))/g, 'tortilla de patatas'); t = t.normalize ? t.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : t; ES.forEach(function (r) { t = t.replace(r[0], r[1]); }); return t; }
@@ -5074,6 +5091,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       'bird-dog': ['bird dog', 'bird dogs', 'birddog', 'swing', 'swings', 'kettlebell swing', 'kettlebell swings'],
       'sl-balance': ['single leg balance', 'single-leg balance', 'balance hold', 'single leg calf raise', 'single-leg calf raise'],
       'sa-row': ['one arm row', 'one arm rows', 'single arm row', 'single arm rows', 'dumbbell row', 'dumbbell rows', 'db row', 'one-arm row', 'single arm cable row', 'one arm cable row', 'kettlebell row', 'bent over row'],
+      'shrug': ['shrug', 'shrugs', 'dumbbell shrug', 'dumbbell shrugs', 'barbell shrug', 'barbell shrugs'],
       'rear-fly': ['rear delt fly', 'rear delt flye', 'rear fly', 'reverse fly', 'rear delt']
     };
     // aliases that name the rep exercise (r) or a machine/cable version (c)
@@ -5087,7 +5105,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     return (EXALIAS = a);
   }
   // lifts that aren't program exercises, even though they share a word ("seated cable row", "back squat")
-  var NOTEX = /\b(seated (?:cable )?rows?|(?<!arm )cable rows?|t-bar rows?|upright rows?|pendlay|chest[- ]supported rows?|inverted rows?|lat pull-?downs?|pull-?downs?|pull-?ups?|chin-?ups?|leg extensions?|leg curls?|bench press|smith|chest press|pec deck|shoulder press|overhead press|military press|dips|push-?ups?|face pulls?|back squats?|front squats?|sumo|conventional deadlifts?|trap bar)\b/;
+  var NOTEX = /\b(seated (?:cable )?rows?|(?<!arm )cable rows?|t-bar rows?|upright rows?|pendlay|chest[- ]supported rows?|inverted rows?|lat pull-?downs?|pull-?downs?|pull-?ups?|chin-?ups?|leg extensions?|leg curls?|bench press|smith|chest press|pec deck|shoulder press|overhead press|military press|dips|push-?ups?|face pulls?|back squats?|front squats?|sumo|conventional deadlifts?|trap bar|leg press(?! hold)|hip thrusts?(?! machine| hold))\b/;
   function findEx(t) {
     if (NOTEX.test(t.replace(/romanian deadlifts?|stiff[- ]leg deadlifts?|single[- ]leg deadlifts?/g, ''))) return null;
     var A = exAliases();
@@ -5157,12 +5175,20 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   var EQW = { k: /kettle ?bells?|\bkbs?\b|\bkettlebell/, d: /dumb ?bells?|\bdbs?\b/, b: /barbells?|\bbar\b|plates?/, c: /cables?|machines?|gym\b/, r: /\b(resistance )?bands?\b/, w: /\bbody ?weight\b|\bno (equipment|weights?)\b/ };
 
   // How lifters talk: "405 for 3" (weight for reps), "4 plates" (per side, on a bar), "@RPE 8"
-  var LIFTNAME = { squat: 'Back Squat', squats: 'Back Squat', 'back squat': 'Back Squat', bench: 'Bench Press', 'bench press': 'Bench Press', ohp: 'Overhead Press', 'overhead press': 'Overhead Press', dl: 'Deadlift', deadlift: 'Deadlift', deadlifts: 'Deadlift', 'sumo deadlift': 'Sumo Deadlift', 'conventional deadlift': 'Deadlift', 'conventional dl': 'Deadlift', 'back squats': 'Back Squat', 'barbell squat': 'Back Squat', 'barbell bench': 'Bench Press', 'flat bench': 'Bench Press', 'military press': 'Overhead Press', 'pull ups': 'Pull-Up', 'pullups': 'Pull-Up', 'pull up': 'Pull-Up', 'chin ups': 'Chin-Up', 'push ups': 'Push-Up', 'pushups': 'Push-Up', 'push up': 'Push-Up', dips: 'Dip' };
+  var LIFTNAME = { squat: 'Back Squat', squats: 'Back Squat', 'back squat': 'Back Squat', bench: 'Bench Press', 'bench press': 'Bench Press', ohp: 'Overhead Press', 'overhead press': 'Overhead Press', dl: 'Deadlift', deadlift: 'Deadlift', deadlifts: 'Deadlift', 'sumo deadlift': 'Sumo Deadlift', 'conventional deadlift': 'Deadlift', 'conventional dl': 'Deadlift', 'back squats': 'Back Squat', 'barbell squat': 'Back Squat', 'barbell bench': 'Bench Press', 'flat bench': 'Bench Press', 'military press': 'Overhead Press', 'pull ups': 'Pull-Up', 'pullups': 'Pull-Up', 'pull up': 'Pull-Up', 'chin ups': 'Chin-Up', 'push ups': 'Push-Up', 'pushups': 'Push-Up', 'push up': 'Push-Up', dips: 'Dip', 'lat pulldown': 'Lat Pulldown', 'lat pulldowns': 'Lat Pulldown', 'barbell row': 'Barbell Row', 'bent over row': 'Barbell Row', 'seated row': 'Seated Row', 'dumbbell row': 'Dumbbell Row', 'leg press': 'Leg Press', 'romanian deadlift': 'Romanian Deadlift', 'shoulder press': 'Shoulder Press', 'incline bench press': 'Incline Bench Press', 'leg curl': 'Leg Curl', 'leg extension': 'Leg Extension', 'lunges': 'Lunge', 'chest fly': 'Chest Fly', 'weighted pull ups': 'Pull-Up', 'weighted pullups': 'Pull-Up', 'hip thrust': 'Hip Thrust', 'hip thrusts': 'Hip Thrust' };
+  // "140 kg 10x3": a rep count then a small set count reads as reps x sets (10 reps, 3 sets); "3x8" stays sets x reps
+  function repsXSets(a, b) { return a >= 8 && a <= 30 && a > b && b <= 6; }
   function liftKey(n) { var k = String(n || '').toLowerCase().trim(); return (LIFTNAME[k] || n || '').toLowerCase(); }
   function liftSpeak(t) {
     var m, rpe = null;
     if ((m = t.match(/@?\s*\brpe\s*(\d+(?:\.5)?)\b/))) { rpe = +m[1]; t = t.replace(m[0], ' '); }
     else if ((m = t.match(/@\s*(\d+(?:\.5)?)\b(?!\s*(?:kg|lb))/))) { rpe = +m[1]; t = t.replace(m[0], ' '); }
+    // reps in reserve: "2 in reserve", "2 rir", "rir 2" = RPE 8
+    if ((m = t.match(/\b(\d(?:\.5)?)\s*(?:reps?\s*)?(?:in (?:the )?(?:reserve|tank)|rir)\b|\brir\s*(\d(?:\.5)?)\b/))) { if (rpe == null) rpe = 10 - +(m[1] || m[2]); t = t.replace(m[0], ' '); }
+    // weighted bodyweight lifts: "pullups bw+45 x5 x3" = 45 added, never a weigh-in
+    t = t.replace(/\b(?:bw|body ?weight)\s*(?:\+|plus)\s*(\d+(?:\.\d+)?)\s*(kg|lb)?/, function (m0, n, u) { return ' ' + n + ' ' + (u || (isLb() ? 'lb' : 'kg')) + ' '; });
+    // "top single 425" = 425 x 1
+    t = t.replace(/\btop (single|double|triple)\s+(?:(?:at|of|with)\s+)?(\d+(?:\.\d+)?(?:\s*(?:kg|lb)\b)?)/, function (m0, k, w) { return ' ' + w + ' x ' + { single: 1, double: 2, triple: 3 }[k] + ' '; }).replace(/\btop (?:set|single)\b/, ' ');
     t = t.replace(/(\d+(?:\.\d+)?)\s*(?:x\s*(\d+(?:\.\d+)?)\s*(?:kg|lb)?\s*)?plates?\b(?:\s*(?:a|1|per|each|on each)\s*side)?((?:\s*(?:plus|and|\+)\s*(?:1\s+)?\d+(?:\.\d+)?(?:\s?s)?\b(?!\s*(?:reps?|sets?)))*)(?:\s*(?:1|per|each|on each)\s*side\b)?/, function (all, n, size, extras) {
       var extra = (extras.replace(/(?:plus|and|\+)\s*(?:1\s+(?=\d))?/g, ' ').match(/\d+(?:\.\d+)?/g) || []).reduce(function (t, x) { return t + +x; }, 0);
       var kgU = /\bkg\b/.test(t) || (!/\blb\b/.test(t) && !isLb()), plate = kgU ? 20 : 45, bar = /leg press|sled|hack|machine|calf/.test(t) ? 0 : kgU ? 20 : 45;
@@ -5178,7 +5204,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     t = t.replace(/(\d+(?:\.\d+)?)(\s*(?:kg|lb))?\s+for\s+(\d{1,2})\b(?!\s*(?:s|min|h|km|k|mi|miles?|m|sets?)\b)/, '$1$2 x $3');
     return { t: t, rpe: rpe, more: more };
   }
-  var plateNote = '', pendingReps = null, pendingPain = null;
+  var plateNote = '', pendingReps = null, pendingPain = null, pendingBw = null;
   function parseClause(t, ctx) {
     plateNote = ''; var ls = liftSpeak(t), a = parseClause0(ls.t, ctx), m;
     if (a && plateNote && (a.type === 'log_set' || a.type === 'log_lift')) a.note = plateNote;
@@ -5223,7 +5249,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if ((m = t.match(/\b(?:height|i'?m|tall)\D{0,12}(\d{3})\s*cm\b/))) return { type: 'set_profile', cm: +m[1] };
     if ((m = t.match(/\b(\d)\s*(?:'|ft|foot|feet)\s*(\d{1,2})?\s*(?:"|in|inches)?\s*(?:tall)?\b/)) && /tall|height|i'?m/.test(t)) return { type: 'set_profile', cm: Math.round((+m[1] * 12 + (+m[2] || 0)) * 2.54) };
     // bodyweight
-    if ((m = t.match(/\b(?:i )?(?:weigh(?:ed)?|weight (?:is|was|today)|body ?weight|bw|scale(?: says| said| reads)?|my weight)\D{0,10}(\d{2,3}(?:\.\d+)?)\s*(kg|lb)?\b/)) && !findEx(t)) return { type: 'log_bodyweight', weight: +m[1], unit: m[2] || prof().units };
+    if ((m = t.match(/\b(?:i )?(?:weigh(?:ed)?|weight (?:is|was|today)|body ?weight|bw|scale(?: says| said| reads)?|my weight)\D{0,10}(\d{2,3}(?:\.\d+)?)\s*(kg|lb)?\b/)) && !findEx(t) && !/\d\s*x\s*\d|\bx\s*\d|\d\s*x\b|\breps?\b|\bsets?\b|\bfor \d{1,2}\b|\+\s*\d/.test(t) && !Object.keys(LIFTNAME).some(function (k) { return new RegExp('\\b' + k + '\\b').test(t); })) return { type: 'log_bodyweight', weight: +m[1], unit: m[2] || prof().units };
     // pain that has settled clears the warning
     if (painArea(t) && /\b(fine|better|good|okay|ok|no pain|pain free|pain-free|gone|recovered|settled)\b/.test(t) && !/\b(not|isn'?t|no longer)\s+(fine|better|good|okay|ok)\b/.test(t)) return { type: 'log_pain', area: painArea(t), score: 0, cleared: true };
     // pain
@@ -5253,9 +5279,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       if (/zercher/.test(t)) a.eq = 'b';
       // "135x10" or "40 kg x 8": weight x reps (a first number over 10, or one with a unit, is a weight)
       var wx = rest.match(/(\d+(?:\.\d+)?)\s*(kg|lb)?\s*x\s*(\d+)(?!\d)(?:\s*x\s*(\d+))?/); // "130x10x3": weight x reps x sets
-      if (wx && (wx[2] || +wx[1] > 10)) { a.weight = +wx[1]; a.unit = wx[2] || u; a.unitSaid = wx[2] || ''; a.reps = +wx[3]; if (wx[4]) a.sets = +wx[4]; rest = rest.replace(wx[0], ' '); }
+      if (wx && (wx[2] || +wx[1] > 10) && (wx[2] || wx[4] || !/\d\s*(?:kg|lb)\b/.test(rest.replace(wx[0], ' ')))) { a.weight = +wx[1]; a.unit = wx[2] || u; a.unitSaid = wx[2] || ''; a.reps = +wx[3]; if (wx[4]) a.sets = +wx[4]; rest = rest.replace(wx[0], ' '); }
       var sx = rest.match(/(\d+)\s*(?:x|sets? of)\s*(\d+)\b(?!\s*(?:kg|lb))/);
-      if (sx) { a.sets = +sx[1]; var n2 = +sx[2]; if (/\bs\b|sec|hold/.test(rest) && !/rep/.test(rest)) a.seconds = n2; else a.reps = n2; rest = rest.replace(sx[0], ' '); }
+      if (sx) { var sw = /x/.test(sx[0]) && repsXSets(+sx[1], +sx[2]); a.sets = sw ? +sx[2] : +sx[1]; var n2 = sw ? +sx[1] : +sx[2]; if (/\bs\b|sec|hold/.test(rest) && !/rep/.test(rest)) a.seconds = n2; else a.reps = n2; rest = rest.replace(sx[0], ' '); }
       if ((m = rest.match(/(\d+)\s*sets?\b/))) { a.sets = +m[1]; rest = rest.replace(m[0], ' '); }
       if (a.weight == null && ((m = rest.match(/(\d+(?:\.\d+)?)\s*(kg|lb)\b/)) || (m = rest.match(/\b(?:with|at|using|of)\s+(\d+(?:\.\d+)?)\b(?!\s*(?:s|min|reps?))/)))) { a.weight = +m[1]; a.unit = m[2] || u; a.unitSaid = m[2] || ''; rest = rest.replace(m[0], ' '); }
       if ((m = rest.match(/(\d+(?:\.\d+)?)\s*min\b/))) { a.seconds = Math.round(+m[1] * 60); rest = rest.replace(m[0], ' '); }
@@ -5283,9 +5309,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (/\d\s*x\s*\d|\breps?\b|\bsets?\b|\d\s*(kg|lb)\b/.test(t) && !parseFood(t).items.length) {
       var nm = t.replace(/\d+(?:\.\d+)?\s*(?:kg|lb)?\s*x\s*\d+(?:\s*x\s*\d+)?/g, ' ').replace(/\b(i|did|do|done|my|some|the|a|of|with|at|for|and|sets?|reps?|kg|lb|x|today|just|on|using|machine weight|weight)\b/g, ' ').replace(/[\d.]+/g, ' ').replace(/[^a-z -]/g, ' ').replace(/\s+/g, ' ').trim();
       if (nm.replace(/[^a-z]/g, '').length >= 3) {
-        var L = { type: 'log_lift', name: nm.replace(/\b\w/g, function (c) { return c.toUpperCase(); }) }, u2 = wUnit(t), mm;
-        if ((mm = t.match(/(\d+(?:\.\d+)?)\s*(kg|lb)?\s*x\s*(\d+)/)) && (mm[2] || +mm[1] > 10)) { L.weight = +mm[1]; L.unit = mm[2] || u2; L.reps = +mm[3]; }
-        if ((mm = t.match(/(\d+)\s*(?:x|sets? of)\s*(\d+)\b(?!\s*(?:kg|lb))/)) && +mm[1] <= 10 && L.reps == null) { L.sets = +mm[1]; L.reps = +mm[2]; }
+        var L = { type: 'log_lift', name: nm.replace(/\b\w/g, function (c) { return c.toUpperCase(); }).replace(/(?!^)\b(En|Con|De|Del|Al|La|El|Y|Of|On|In)\b/g, function (w) { return w.toLowerCase(); }) }, u2 = wUnit(t), mm;
+        if ((mm = t.match(/(\d+(?:\.\d+)?)\s*(kg|lb)?\s*x\s*(\d+)/)) && (mm[2] || +mm[1] > 10) && (mm[2] || /\d\s*(?:kg|lb)?\s*x\s*\d+\s*x\s*\d/.test(t) || !/\d\s*(?:kg|lb)\b/.test(t.replace(mm[0], ' ')))) { L.weight = +mm[1]; L.unit = mm[2] || u2; L.reps = +mm[3]; }
+        if ((mm = t.match(/(\d+)\s*(?:x|sets? of)\s*(\d+)\b(?!\s*(?:kg|lb))/)) && L.reps == null) { if (/x/.test(mm[0]) && repsXSets(+mm[1], +mm[2])) { L.reps = +mm[1]; L.sets = +mm[2]; } else if (+mm[1] <= 10) { L.sets = +mm[1]; L.reps = +mm[2]; } }
         if (L.weight == null && (mm = t.match(/(\d+(?:\.\d+)?)\s*(kg|lb)\b/))) { L.weight = +mm[1]; L.unit = mm[2]; }
         if (L.reps == null && (mm = t.match(/(\d+)\s*reps?/))) L.reps = +mm[1];
         if (L.reps == null && L.weight != null && (mm = t.replace(/(\d+(?:\.\d+)?)\s*(kg|lb)\b/, ' ').match(/\b(\d{1,2})\b/))) L.reps = +mm[1];
@@ -5311,6 +5337,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     t = t.replace(/^(\s*(?:[a-z]+:\s*)?(?:(?:i\s+)?(?:had|ate|eaten)\s+)?)([a-z][a-z ]*?) with ([a-z][a-z ]*?) (\d+(?:\.\d+)?\s*g)\s*$/, '$1$4 $2 with $3');
     do { t0 = t; t = t.replace(/(plates?(?:\s*(?:a|1|per|each)\s*side)?(?:\s*\+\s*\d+(?:\.\d+)?)*)\s+(?:and|plus)\s+(?:1\s+)?(\d+(?:\.\d+)?)(?:\s?s)?\b/, '$1 + $2'); } while (t !== t0);
     t = t.replace(/(\b(?:for|x)(?:\s*,?\s*\d{1,2}\b)+)\s*,?\s*and\s+(\d{1,2})\b/g, '$1 $2');
+    t = t.replace(/\bback ?-?offs?(?: sets?)?\b(?:\s*(?:at|of|with)\b)?/g, ' then '); // "then backoffs 365 3x4": more sets of the lift just named
     var out = { actions: [], unknown: [], question: QWORDS.test(t) || (/\?\s*$/.test(raw) && !/^\s*(?:i |i'?ve |had |ate |did |slept |walked |ran |drank |my (?:bp|blood pressure|weight))/.test(t)), plan: PLANRE.test(t) && !/\b(did|done|had|ate|finished|slept|walked|weigh|weighed)\b/.test(t) };
     if (out.plan) return out;
     if (out.question) return out;
@@ -5342,8 +5369,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         // bare numbers continue the previous set ("goblet squat 16 kg, 30 s")
         var m;
         // "deadlift 545 for 1 @9.5 and 495 for 3 3 rpe 8": a new weight and reps for the lift just named
-        if (prev && (prev.type === 'log_lift' || prev.type === 'log_set') && prev.raw && /^\s*\d+(?:\.\d+)?\s*(?:kg|lb)?\s*(?:x\s*\d|for\s+\d)/.test(p)) {
-          var nmC = prev.raw.replace(/@\s*\d+(?:\.\d+)?|\brpe\s*\d+(?:\.\d+)?|\d+(?:\.\d+)?|\+|\b(?:kg|lb|x|for|reps?|sets?|of|at|plates?|side|each|per)\b/g, ' ').replace(/\s+/g, ' '), reC = parseClause(nmC + ' ' + p);
+        if (prev && (prev.type === 'log_lift' || prev.type === 'log_set') && prev.raw && /^\s*\d+(?:\.\d+)?\s*(?:kg|lb)?\s*(?:x\s*\d|for\s+\d|\d{1,2}\s*(?:x|sets? of)\s*\d)/.test(p)) {
+          var nmC = prev.raw.replace(/@\s*\d+(?:\.\d+)?|\brpe\s*\d+(?:\.\d+)?|\d+(?:\.\d+)?|\+|\b(?:kg|lb|x|for|reps?|sets?|of|at|plates?|side|each|per|top|singles?|doubles?|triples?)\b/g, ' ').replace(/\s+/g, ' '), reC = parseClause(nmC + ' ' + p);
           if (reC && (reC.type === 'log_lift' || reC.type === 'log_set') && reC.weight != null) { reC.raw = nmC + ' ' + p; out.actions.push(reC); prev = reC; return; }
         }
         // numbers that belong to the exercise just named ("lateral raises / with 3 kilos for 12 reps")
@@ -5351,6 +5378,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
           var re = parseClause(prev.raw + ' ' + p);
           if (re && (re.type === 'log_set' || re.type === 'set_weight')) { re.raw = prev.raw + ' ' + p; out.actions[out.actions.indexOf(prev)] = re; prev = re; return; }
         }
+        if (prev && prev.type === 'log_lift' && prev.weight == null && (m = p.match(/^\s*(\d+(?:\.\d+)?)\s*(kg|lb)\s*$/))) { prev.weight = +m[1]; prev.unit = m[2]; return; }
         if (prev && prev.type === 'log_set' || prev && prev.type === 'set_weight') {
           var used = false;
           if (prev.weight == null && (m = p.match(/(\d+(?:\.\d+)?)\s*(kg|lb)\b/))) { prev.weight = +m[1]; prev.unit = m[2]; used = true; Object.keys(EQW).forEach(function (k) { if (EQW[k].test(p) && !prev.eq) prev.eq = k; }); }
@@ -5477,7 +5505,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       }
       case 'log_bodyweight': {
         var bk = toKg(+a.weight, a.unit || p.units); if (!(bk > 25 && bk < 350)) { card = { k: 'err', title: 'That weight looks off', lines: ['Say it like “I weigh 78 kg”.'] }; break; }
-        var prevB = store.body.length ? store.body[store.body.length - 1] : null;
+        var prevB = store.body.length ? store.body[store.body.length - 1] : null, refB = prevB ? prevB.kg : p.bw;
+        // a jump of more than 10% from the last weigh-in is more likely a typo or a lift: ask before saving (and before the protein target moves)
+        if (refB && !a.sure && Math.abs(bk - refB) / refB > 0.10) { pendingBw = { kg: bk, t: Date.now() }; card = { k: 'body', bwAsk: { kg: bk, when: when || null }, title: 'Save ' + bwTxt(bk) + ' as your bodyweight?', lines: ['That’s ' + bwTxt(Math.abs(bk - refB)) + (bk > refB ? ' more' : ' less') + ' than your last weight (' + bwTxt(refB) + '), so nothing is saved yet.', 'Tap “Yes, save it” or reply “yes”. If it was a lift, type it with the lift name, like “deadlift 100 kg 5 reps”.'] }; break; }
         if (prevB && dayStart(prevB.t) === dayStart(now) && Math.abs(prevB.kg - bk) < 0.05) { card = { k: 'body', ref: prevB.t, title: 'Already logged: ' + bwTxt(prevB.kg), lines: ['Same weight as earlier today, so nothing new was added.'] }; break; }
         store.body.push({ t: now, kg: Math.round(bk * 1000) / 1000 }); save();
         var tg = proteinTarget();
@@ -5577,6 +5607,13 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (v === 0) { c.title = areaName(n.area).replace(/^./, function (x) { return x.toUpperCase(); }) + ': no pain'; c.lines = ['Good. Your sessions are back to normal for this area.']; }
     else { c.title = (n.sore ? 'Soreness' : 'Pain') + ', ' + areaName(n.area) + ': ' + v + '/10'; c.lines = painAdvice(a); c.warn = v >= 7 ? 'Sharp pain, swelling, numbness or pain above 6/10: stop training that area and see a physiotherapist or doctor.' : ''; }
     save(); renderTrain(); saveFeed(); renderCoach(); return c;
+  }
+  // "Save 100 kg as your bodyweight?" answered yes
+  function bwConfirm(c) {
+    if (!c || !c.bwAsk || c.bwDone) return null; c.bwDone = 1; pendingBw = null;
+    c.lines = ['Saved below.'];
+    var c2 = apply({ type: 'log_bodyweight', weight: c.bwAsk.kg, unit: 'kg', sure: true }, c.src || 'text', null, c.bwAsk.when || undefined);
+    saveFeed(); renderCoach(); renderBody(); scrollEnd(); return c2;
   }
   function undoCard(c) {
     var u = c.undo;
@@ -5793,6 +5830,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       (c.lines && c.lines.length ? '<ul>' + c.lines.map(function (l, j) { return '<li>' + (c.k === 'food' && !c.undone ? '<button class="lgc-ed" data-ed="' + i + ':' + j + '" aria-label="Change the amount of ' + esc(l.split(' (')[0]) + '">' + esc(l) + '</button>' : esc(l)) + '</li>'; }).join('') + '</ul>' : '') + (c.k === 'food' && !c.undone ? '<p class="lgc-s">Estimates. Tap an item to set its exact grams.</p>' : '') +
       (c.sub ? '<p class="lgc-s">' + esc(c.sub) + '</p>' : '') + (c.warn ? '<p class="lgc-w">' + esc(c.warn) + '</p>' : '') +
       (c.ask && !c.undone ? '<div class="lg-acts" role="group" aria-label="How bad, 0 to 10"><span class="lgc-l">How bad?</span>' + [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (x) { return '<button class="btn sm line pn" data-pain="' + i + '" data-x="' + x + '" aria-label="' + x + ' out of 10">' + x + '</button>'; }).join('') + '</div>' : '') +
+      (c.bwAsk && !c.undone && !c.bwDone ? '<div class="lg-acts"><button class="btn sm line" data-bwyes="' + i + '">Yes, save it</button></div>' : '') +
       (c.undone ? '<p class="lgc-s">Undone.</p>' : c.k === 'err' ? '' : '<div class="lg-acts">' + (c.k === 'food' ? '<span class="lgc-l">Portion</span>' + [0.5, 1.5, 2].map(function (x) { return '<button class="btn sm quiet" data-scale="' + i + '" data-x="' + x + '">' + (x === 0.5 ? '½×' : x + '×') + '</button>'; }).join('') : '') + ((c.ref || (c.undo && canUndoCfg(c, i))) ? '<button class="btn sm line" data-undo="' + i + '">Undo</button>' : '') + '</div>') + '</div>';
   }
   function renderDay() {
@@ -5834,6 +5872,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var pm = text.match(/^\s*(\d{1,2})\s*(?:\/\s*10|out of 10)?\s*$/);
     if (pendingPain && pm && +pm[1] <= 10 && Date.now() - pendingPain.t < 10 * 60000) { var pc0 = feed.filter(function (c) { return c.r === 'card' && c.k === 'pain' && c.ref === pendingPain.ref; })[0]; if (pc0) { feed.push({ t: Date.now(), r: 'u', x: text, src: src }); $('cIn').value = ''; autoGrow(); painScore(pc0, +pm[1]); scrollEnd(); return pc0; } }
     pendingPain = null;
+    if (pendingBw && /^\s*(?:yes|yeah|yep|y|si|sí|correct|right|save it|that'?s right)\b[.!]?\s*(?:save it)?\s*$/i.test(text) && Date.now() - pendingBw.t < 10 * 60000) { var bc = feed.filter(function (c) { return c.r === 'card' && c.bwAsk && !c.bwDone; }).pop(); if (bc) { feed.push({ t: Date.now(), r: 'u', x: text, src: src }); $('cIn').value = ''; autoGrow(); return bwConfirm(bc); } }
+    pendingBw = null;
     $('cIn').value = ''; autoGrow();
     feed.push({ t: Date.now(), r: 'u', x: text, src: src });
     var when = whenOf(text), res = parseText(text.replace(/\b(yesterday|last night|this morning|this evening|tonight|today|\d+\s+days?\s+ago)\b/gi, ' ')), cards = [];
@@ -5848,7 +5888,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       if (res.unknown.length) feed.push({ t: Date.now(), r: 'm', x: 'I didn’t recognise “' + res.unknown.join('”, “') + '”. ' + (coach.key ? '' : 'Rephrase it, or connect Gemini in settings to log anything.') });
       return done();
     }
-    var ans = res.question || !res.actions.length ? localAnswer(text) : null;
+    var ans = res.question || !res.actions.length ? localAnswer(text) || (!res.actions.length ? guideAnswer(text) : null) : null;
     if (ans) { feed.push({ t: Date.now(), r: 'm', x: ans }); return done(); }
     if (coach.key) { if (res.question) ask(); else aiText(text, src); return done(); }
     feed.push({ t: Date.now(), r: 'm', x: res.question ? 'I can answer questions about today’s plan, your protein, your bests and your progress offline. For anything else, connect Gemini in settings (the profile button at the top right).' : 'I didn’t catch that. Try something like “2 eggs and toast”, “curl 10 kg 12 reps”, “walked 30 min” or “I weigh 78 kg”. For anything else, connect Gemini in settings.' });
@@ -5952,6 +5992,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       save(); saveFeed(); renderCoach(); return;
     }
     if (b.dataset.pain) { painScore(feed[+b.dataset.pain], +b.dataset.x); return; }
+    if (b.dataset.bwyes) { bwConfirm(feed[+b.dataset.bwyes]); return; }
     if (b.dataset.pick) { var q = feed[+b.dataset.pick]; pickPhotoKind(q, b.dataset.v); return; }
     if (b.dataset.ed) {
       var ij = b.dataset.ed.split(':'), c3 = feed[+ij[0]], meal = c3 && store.food.filter(function (x) { return x.t === c3.ref; })[0], it = meal && meal.items[+ij[1]]; if (!it) return;

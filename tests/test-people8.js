@@ -11,7 +11,7 @@ const T = (page, f, a) => page.evaluate(f, a);
   const srv = await serve(PORT);
   let { b, page, errs } = await boot({ profile: { units: 'kg', bw: 68, age: 34, sex: 'f', where: 'gym' }, eq: ['d', 'c'] });
   const a1 = t => T(page, t => window.__isoTest.parseText(t).actions[0] || null, t);
-  let a = await a1('leg press 130x10x3 @8'); ok(a && a.exercise === 'wall-sit' && a.weight === 130 && a.reps === 10 && a.sets === 3 && a.rpe === 8, '"leg press 130x10x3" keeps 130 kg, 3 sets of 10');
+  let a = await a1('leg press 130x10x3 @8'); ok(a && a.name === 'Leg Press' && a.weight === 130 && a.reps === 10 && a.sets === 3 && a.rpe === 8, '"leg press 130x10x3" keeps 130 kg, 3 sets of 10');
   a = await a1('goblet squat 24x10x3'); ok(a && a.weight === 24 && a.reps === 10 && a.sets === 3, 'program exercise: weight x reps x sets');
   const fd = t => T(page, t => (window.__isoTest.parseText(t).actions.find(x => x.type === 'log_food') || {}).items || [], t);
   const un = t => T(page, t => window.__isoTest.parseText(t).unknown, t);
