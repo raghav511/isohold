@@ -120,8 +120,9 @@ const J = x => JSON.stringify(x);
   a = await A('hip thrust machine 60 kg 10 reps'); ok(a[0].exercise === 'glute-bridge', 'hip thrust machine stays the program exercise');
   a = await A('leg press hold 100 kg 30 s'); ok(a[0].exercise === 'wall-sit', 'leg press hold stays the program exercise');
   await T(page, () => window.__isoTest.handle('leg press 140kg 10x3'));
-  st = await T(page, () => { const s = window.__isoTest.store(); return { ws: s.log.filter(l => l.id === 'wall-sit').length, lp: s.notes.filter(n => n.k === 'lift' && n.name === 'Leg Press').pop() }; });
-  ok(st.ws === 0 && st.lp && st.lp.sets === 3 && st.lp.reps === 10 && st.lp.kg === 140, 'leg press saved under Other lifts, not wall-sit: ' + J(st));
+  // round 13: the plan's Leg Press (the machine rep version of wall-sit) and a typed leg press are one history, saved as reps (never as a hold)
+  st = await T(page, () => { const s = window.__isoTest.store(); return { ws: s.log.filter(l => l.id === 'wall-sit' && l.eq === 'c' && l.k === 'r' && l.kg === 140 && l.v === 10).length, lp: s.notes.filter(n => n.k === 'lift' && n.name === 'Leg Press').length }; });
+  ok(st.ws === 3 && st.lp === 0, 'leg press saved as 3 x 140 kg x 10 reps on the plan’s Leg Press: ' + J(st));
   ok(!errs.length, 'no errors (kg) ' + errs);
   await b.close();
 
