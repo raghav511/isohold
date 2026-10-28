@@ -886,9 +886,8 @@ button.ring:active { transform: scale(.97); }
 /* Today: only what you do today. The week plan, program % and equipment live in the week sheet. */
 #train > #band, #train > #overall, #train > #eqddTrain, #train > #fuel { display: none; }
 #train > #extras:empty { display: none; }
-/* the day strip stays in the page (code and older tests click its buttons) but out of sight: 1 px each, under any sheet */
-#train > .strip { position: fixed; left: 0; top: 0; width: 16px; height: 2px; overflow: hidden; opacity: 0; z-index: 29; grid-template-columns: repeat(8, 2px) !important; gap: 0; }
-#train > .strip button { min-height: 0; min-width: 0; max-width: 2px; height: 2px; width: 2px; padding: 0; border: 0; overflow: hidden; contain: strict; }
+/* the day strip is not shown: the week sheet lists the days (code still uses its buttons to select a day) */
+#train > .strip { display: none; }
 .split { margin-bottom: -2px; }
 .split button { min-height: 44px; font-size: 14.5px; color: var(--ink); }
 .split button[aria-pressed="false"] { color: var(--muted); }
@@ -3168,7 +3167,10 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
 
   function openWeeks(from) {
     var D = allDays(), nx = nextDayIdx();
-    var h = '<h3 class="wk-h">This week</h3><div class="wkdays" role="group" aria-label="Days of program week ' + store.week + '">' + D.map(function (d, i) {
+    // the phase, and what changes when the next phase starts (this used to sit on Today)
+    var ph0 = phaseOf(store.week), nx0 = store.week < 12 ? phaseOf(store.week + 1) : null;
+    var phTxt = ph0.name + ' phase: holds ' + ph0.sets + ' × ' + ph0.hold + ' s, then ' + ph0.gs + ' × ' + ph0.grt + ' reps.' + (nx0 && nx0.n !== ph0.n ? ' From week ' + (store.week + 1) + ': ' + nx0.name + ' phase, holds of ' + nx0.hold + ' s' + (nx0.gr !== ph0.gr ? ' and ' + nx0.grt + ' reps' : '') + '.' : '');
+    var h = '<p class="fine wk-ph">' + esc(phTxt) + '</p><h3 class="wk-h">This week</h3><div class="wkdays" role="group" aria-label="Days of program week ' + store.week + '">' + D.map(function (d, i) {
       var a = store.done[doneKey(d, 'am')], b = store.done[doneKey(d, 'pm')], regs = dayRegions(d).map(function (r) { return BM_NAME[r]; });
       var st = a && b ? 'Done' : (i === nx ? 'Up next' : '') + (a || b ? (i === nx ? ', ' : '') + (oneADay() ? 'half done' : (a ? 'morning' : 'evening') + ' done') : '');
       st = st.replace(/^./, function (c) { return c.toUpperCase(); });
@@ -3837,7 +3839,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // A newer version is online: say so, instead of quietly running the old one until the next launch
   // dates follow the app's language (English), not the device's, so an English screen doesn't show "28 de octubre"
   var UIL = /^en\b/i.test(navigator.language || '') ? undefined : 'en-GB';
-  var APP_VERSION = '36';
+  var APP_VERSION = '37';
   function checkVersion() {
     if (!navigator.onLine || !/^https?:/.test(location.protocol)) return;
     fetch('index.html?v=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
