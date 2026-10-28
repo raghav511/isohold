@@ -61,9 +61,9 @@ const allCardio = page => T(page, () => { const t = window.__isoTest, out = []; 
     ok(await page.locator('#sessions .btn.go[data-start]').count() === 1 && await page.isVisible('#startBar [data-startbar]'), '"Do another session" brings the next session back');
     ok(!errs.length, 'no errors ' + errs);
     await b.close();
-    // yesterday's session: the next one is offered as usual
-    ({ b, page, errs } = await boot({ week: 1, done: { w1f1am: Date.now() - 864e5, w1f1pm: Date.now() - 864e5 }, log: [], profile: { age: 52, days: 3, split: 'one', where: 'home', issues: [] }, eq: ['d'] }));
-    ok(!/Done for today/.test(await page.innerText('#sessions')) && await page.isVisible('#startBar [data-startbar]'), 'a session done yesterday: today offers the next one');
+    // a session two days ago (3 days a week: yesterday was a rest day, see test-r12b): the next one is offered as usual
+    ({ b, page, errs } = await boot({ week: 1, done: { w1f1am: Date.now() - 2 * 864e5, w1f1pm: Date.now() - 2 * 864e5 }, log: [], profile: { age: 52, days: 3, split: 'one', where: 'home', issues: [] }, eq: ['d'] }));
+    ok(!/Done for today/.test(await page.innerText('#sessions')) && await page.isVisible('#startBar [data-startbar]'), 'a session done two days ago: today offers the next one');
     await b.close();
     // morning + evening: only after the evening
     ({ b, page, errs } = await boot({ week: 1, done: {}, log: [], profile: { age: 40, days: 3, split: 'two', where: 'home', issues: [] }, eq: ['d'] }));

@@ -45,8 +45,8 @@ const base = (x) => Object.assign({}, seed, { done: {}, food: [], body: [], test
     const dl = await page.locator('#dailyCard').innerText();
     const gBe = dl.match(/Bench Press\s*Estimated max ([\d.]+ kg)/);
     ok(gBe && mBe && gBe[1] === mBe[1], 'bench: graph list and Other lifts give the same estimate (' + (gBe && gBe[1]) + ' / ' + (mBe && mBe[1]) + ')');
-    const gSq = dl.match(/Back Squat\s*Estimated max ([\d.]+ kg) \(180 kg × 1 rep @ RPE 9/);
-    ok(!!gSq, 'squat in the graph list uses the RPE-aware estimate of its latest day (180 × 1 @ 9)');
+    const gSq = dl.match(/Back Squat\s*Estimated max ([\d.]+ kg) \(from 160 kg × 5 reps @ RPE 7/);
+    ok(!!gSq && mSq && gSq[1] === mSq[1], 'squat in the graph list uses the one current estimated max (best of 6 weeks: 160 × 5 @ 7), as Other lifts does');
     const ans = await T(page, () => window.__isoTest.localAnswer('what is my estimated max for squat') || '');
     ok(mSq && ans.indexOf(mSq[1]) > -1 && /RPE 7/.test(ans), 'coach answer matches Other lifts: ' + ans.slice(0, 100));
     const sd = await T(page, () => { const d = window.__isoTest.strengthData(); return { chest: d.Chest && d.Chest.r && d.Chest.r.est, quads: d.Quads && d.Quads.r && d.Quads.r.est }; });
