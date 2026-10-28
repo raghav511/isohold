@@ -884,6 +884,47 @@ button.ring:active { transform: scale(.97); }
   html.big .p-main #pName { order: -3; } html.big .p-main .p-row { order: -2; }
   html.big .p-fig svg { max-height: 26vh; }
 }
+/* Progress: in-page tabs, daily strength/endurance chart, strength-change map */
+.ptabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.ptabs button { min-height: 44px; min-width: 0; padding: 4px 6px; color: var(--ink); overflow-wrap: anywhere; }
+#progPanel { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); }
+#progPanel:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: var(--r-lg); }
+.c-top { display: flex; align-items: center; gap: 10px; }
+.c-top h2 { margin-right: auto; min-width: 0; overflow-wrap: anywhere; }
+.infobtn.i44 { width: 44px; height: 44px; }
+.infobtn.i44 svg { width: 22px; height: 22px; }
+.dinfo { background: var(--bg); border-radius: var(--r-md); padding: 12px 14px; display: grid; gap: 10px; font-size: 15px; line-height: 1.5; }
+svg.dchart { width: 100%; height: auto; display: block; overflow: visible; }
+svg.dchart .dg { stroke: var(--line); stroke-width: 1; }
+svg.dchart .db { stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 2 3; }
+svg.dchart .ds { fill: none; stroke: var(--rep); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+svg.dchart .de { fill: none; stroke: var(--hold); stroke-width: 2.5; stroke-dasharray: 7 4; stroke-linejoin: round; }
+svg.dchart .ms { fill: var(--rep); stroke: var(--surface); stroke-width: 1.5; }
+svg.dchart .me { fill: var(--hold); stroke: var(--surface); stroke-width: 1.5; }
+svg.dchart .vs { fill: var(--rep); font: 700 12px var(--f-body); }
+svg.dchart .ve { fill: var(--hold); font: 700 12px var(--f-body); }
+.dleg { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; color: var(--ink); list-style: none; margin: 0; padding: 0; }
+.dleg li { display: inline-flex; align-items: center; gap: 8px; }
+.dleg svg { width: 34px; height: 12px; flex: none; }
+table.dtab { border-collapse: collapse; width: 100%; font-size: 14px; }
+table.dtab th, table.dtab td { padding: 6px 4px; border-bottom: 1px solid var(--line); text-align: left; }
+table.dtab td.n, table.dtab th.n { text-align: right; font-variant-numeric: tabular-nums; }
+svg.smap { width: 100%; max-width: 358px; height: auto; justify-self: center; display: block; }
+svg.smap .sm-off { fill: var(--gap); }
+svg.smap .sm-1, svg.smap .sm-2, svg.smap .sm-3, svg.smap .sm-4 { fill: var(--trained); stroke: var(--trained); stroke-width: 1.5; }
+svg.smap .sm-1 { fill-opacity: .18; } svg.smap .sm-2 { fill-opacity: .45; } svg.smap .sm-3 { fill-opacity: .72; } svg.smap .sm-4 { fill-opacity: 1; }
+svg.smap .sm-none { fill: var(--gap); stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+svg.smap .bm-lbl { font-size: 12px; fill: var(--muted); }
+.smleg i { display: inline-block; width: 14px; height: 14px; border-radius: 3px; margin-right: 6px; vertical-align: -2px; border: 1.5px solid var(--trained); position: relative; overflow: hidden; }
+.smleg i::before { content: ""; position: absolute; inset: 0; background: var(--trained); }
+.smleg .s1::before { opacity: .18; } .smleg .s2::before { opacity: .45; } .smleg .s3::before { opacity: .72; } .smleg .s4::before { opacity: 1; }
+.smleg .s0 { border: 1.5px dashed var(--muted); background: var(--gap); } .smleg .s0::before { display: none; }
+.meter { height: 10px; border-radius: 5px; background: var(--sunk); overflow: hidden; }
+.meter i { display: block; height: 100%; border-radius: 5px; }
+.bnow { display: grid; gap: 6px; }
+.bnow + .bnow { border-top: 1px solid var(--line); padding-top: 12px; }
+.bnow .big { font-family: var(--f-display); font-weight: 800; font-size: 28px; line-height: 1; }
+@media (prefers-reduced-motion: no-preference) { .meter i { transition: width .3s; } }
 /* profile sheet: tabs, sticky footer */
 .pf-tabs { position: sticky; top: -4px; z-index: 2; display: flex; flex-wrap: wrap; gap: 4px; background: var(--bg); padding: 4px 0 8px; margin-bottom: 4px; border-bottom: 1px solid var(--line); }
 .pf-grp { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); margin-top: 6px; }
@@ -976,6 +1017,14 @@ html.calm *, html.calm *::before, html.calm *::after { animation: none !importan
   <!-- PROGRESS -->
   <section class="view" id="progress" aria-labelledby="tab-progress" hidden>
     <div class="view-head"><h1>Progress</h1></div>
+    <div class="seg ptabs" role="tablist" aria-label="Progress sections">
+      <button role="tab" id="pt-muscles" data-ptab="muscles" aria-controls="progPanel" aria-selected="false" tabindex="-1">Muscles</button>
+      <button role="tab" id="pt-strength" data-ptab="strength" aria-controls="progPanel" aria-selected="true">Strength</button>
+      <button role="tab" id="pt-body" data-ptab="body" aria-controls="progPanel" aria-selected="false" tabindex="-1">Body</button>
+    </div>
+    <div id="progPanel" role="tabpanel" aria-labelledby="pt-strength" tabindex="0">
+    <div class="card" id="dailyCard"></div>
+    <div class="card" id="bodyNow"></div>
     <div class="card" id="allCard"></div>
     <div class="card" id="mapCard"></div>
     <div class="card" id="strCard"></div>
@@ -989,6 +1038,7 @@ html.calm *, html.calm *::before, html.calm *::after { animation: none !importan
       <p id="covNote"></p>
       <div class="legend"><span><i class="mk h"></i>Tendon hold</span><span><i class="mk r"></i>Growth lift</span></div>
       <div class="cov-scroll" tabindex="0" role="region" aria-label="Muscle coverage table, scrolls sideways"><table class="cov" id="cov"></table></div>
+    </div>
     </div>
     <div class="card bk" id="backup">
       <h2>Backup &amp; restore</h2>
@@ -2810,7 +2860,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     try { history.replaceState(history.state, '', '#' + id); } catch (e) { }
     if (!keepScroll) window.scrollTo(0, 0);
     if (id === 'exercises') ensureLib();
-    if (id === 'progress') renderProgress();
+    if (id === 'progress') { autoPtab(); renderProgress(); }
     if (id === 'coach') renderCoach();
     if (id === 'guide') renderResearch();
   }
@@ -3373,8 +3423,191 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var td = totalDone(), n = weekDone(store.week), PT = progTarget(), WT = weekTarget();
     $('allCard').innerHTML = '<h2>Program</h2><div class="wkprog"><span class="big num">' + Math.round(td / PT * 100) + '<small>%</small></span><p class="muted">' + (td ? td + ' of ' + PT + ' ' + unitWord(2) + ' done. You’re on program week ' + store.week + ' with ' + n + ' of ' + WT + ' ' + unitWord(2) + ' done.' : 'Nothing done yet. Your first session is on the Train tab, and this fills in as you go.') + '</p></div>' +
       '<div class="ov-bar big" aria-hidden="true"><i style="width:' + (td / PT * 100).toFixed(1) + '%"></i></div>' + weekChart();
-    renderMap(); renderStrength(); renderCov(); renderTests();
+    renderDaily(); renderMap(); renderStrength(); renderCov(); renderTests(); renderBodyNow(); progTabs();
   }
+
+  // ---------- daily strength and endurance index ----------
+  // Strength: Epley estimated 1-rep max, kg × (1 + reps / 30), from rep sets of 1–12 reps with a weight.
+  //   Nickerson et al. 2020 (J Strength Cond Res): Epley had the lowest error up to about 70% of 1RM.
+  // Endurance (local muscular endurance, sustaining a submaximal load; ACSM 2009, Schoenfeld et al. 2021):
+  //   load-time = seconds × max(kg, 1) for holds, bodyweight holds counting as 1.
+  // Each exercise (and equipment) is compared with its own first day (= 100); a day's index is the mean over the
+  // exercises trained that day. Days without training get no point and break the line.
+  var DLY_REFS = [
+    ['Nickerson et al., 2020', 'J Strength Cond Res', 'Accuracy of 1-RM prediction equations: Epley had the lowest error', 'https://doi.org/10.1519/JSC.0000000000003731'],
+    ['American College of Sports Medicine, 2009', 'Med Sci Sports Exerc', 'Progression models in resistance training: muscular endurance', 'https://doi.org/10.1249/MSS.0b013e3181915670'],
+    ['Schoenfeld et al., 2021', 'Sports', 'Loading recommendations across the repetition continuum', 'https://doi.org/10.3390/sports9020032']
+  ];
+  function epley(kgv, reps) { return kgv * (1 + reps / 30); }
+  function loadTime(kgv, sec) { return sec * Math.max(kgv || 0, 1); }
+  function exName(id, k) { var x = (k === 'h' ? BY : G)[id] || ALL[id]; return x ? baseName(x.name).replace(/ Hold$/, '') : id; }
+  function dayKeys(n) { var out = [], s0 = dayStart(); for (var i = n - 1; i >= 0; i--) out.push(dayStart(s0 - i * 864e5 + 6 * 3600e3)); return out; }
+  function dailyIdx() {
+    var ex = {};
+    function add(kind, key, name, t, v, raw) {
+      var e = ex[key] || (ex[key] = { kind: kind, name: name, days: {}, raw: {} }), d = dayStart(t);
+      if (!(d in e.days) || v > e.days[d]) { e.days[d] = v; e.raw[d] = raw; }
+    }
+    store.log.forEach(function (l) {
+      if (l.sug || !l.id) return; // suggested weights the user never confirmed aren't counted
+      if (l.k === 'r' && l.kg > 0 && l.v >= 1 && l.v <= 12) add('s', 'r|' + l.id + '|' + l.eq, exName(l.id, 'r'), l.t, epley(l.kg, l.v), l);
+      else if (l.k === 'h' && l.v > 0) add('e', 'h|' + l.id + '|' + l.eq, exName(l.id, 'h'), l.t, loadTime(l.kg, l.v), l);
+    });
+    store.notes.forEach(function (n) { // lifts logged outside the program
+      if (n.k !== 'lift' || !n.t) return; var key = liftKey(n.name);
+      if (n.kg > 0 && n.reps >= 1 && n.reps <= 12) add('s', 'n|' + key, n.name, n.t, epley(n.kg, n.reps), { kg: n.kg, v: n.reps, k: 'r' });
+      else if (n.s > 0) add('e', 'nh|' + key, n.name, n.t, loadTime(n.kg, n.s), { kg: n.kg, v: n.s, k: 'h' });
+    });
+    var S = {}, E = {};
+    Object.keys(ex).forEach(function (key) {
+      var e = ex[key], ds = Object.keys(e.days).map(Number).sort(function (a, b) { return a - b; });
+      e.first = ds[0]; e.base = e.days[ds[0]]; e.last = ds[ds.length - 1];
+      ds.forEach(function (d) { var m = e.kind === 's' ? S : E; (m[d] = m[d] || []).push(e.days[d] / e.base * 100); });
+    });
+    var mean = function (a) { return a.reduce(function (x, y) { return x + y; }, 0) / a.length; };
+    Object.keys(S).forEach(function (d) { S[d] = mean(S[d]); }); Object.keys(E).forEach(function (d) { E[d] = mean(E[d]); });
+    return { s: S, e: E, ex: ex };
+  }
+  function dShort(t) { return new Date(t).toLocaleDateString(UIL, { day: 'numeric', month: 'short' }); }
+  var dlyInfoOpen = false;
+  function renderDaily() {
+    var el = $('dailyCard'); if (!el) return;
+    var D = dailyIdx(), days = dayKeys(42), from = days[0];
+    var trained = days.filter(function (d) { return d in D.s || d in D.e; });
+    var head = '<div class="c-top"><h2>Strength and endurance</h2><button class="infobtn i44" id="dlyInfoB" aria-expanded="' + dlyInfoOpen + '" aria-controls="dlyInfo" aria-label="How these numbers are worked out">' + I_INFO + '</button></div>' +
+      '<div class="dinfo" id="dlyInfo"' + (dlyInfoOpen ? '' : ' hidden') + '>' +
+      '<p><b>Strength</b> is the most you could lift once, estimated from each set of 1 to 12 reps with a weight: <b>weight × (1 + reps ÷ 30)</b>. This is the Epley formula; in a 2020 comparison it had the smallest error of the common formulas.</p>' +
+      '<p><b>Endurance</b> is how long you can keep a moderate load up. For each hold: <b>seconds × weight</b>, with bodyweight holds counted as 1 kg. Holding longer or heavier both raise it.</p>' +
+      '<p>Each exercise starts at <b>100</b> on the first day you did it. A day’s number is the average over the exercises you did that day, so 110 means about 10% better than when you started. Days without training are left blank, not joined up.</p>' +
+      '<ul class="refs">' + DLY_REFS.map(function (r) { return '<li><a href="' + r[3] + '" target="_blank" rel="noopener">' + esc(r[2]) + '</a><span>' + esc(r[0]) + ', ' + esc(r[1]) + '.</span></li>'; }).join('') + '</ul></div>';
+    if (trained.length < 2) {
+      el.innerHTML = head + '<p class="muted">' + (trained.length ? 'One training day so far in the last 6 weeks. ' : 'No training logged in the last 6 weeks. ') + 'After two days with weighted sets or holds, this chart shows each day’s strength and endurance against your start.</p>';
+      return;
+    }
+    var W = 336, H = 176, L = 30, R = 34, T = 12, B = 24, n = days.length;
+    var vals = [100]; trained.forEach(function (d) { if (d in D.s) vals.push(D.s[d]); if (d in D.e) vals.push(D.e[d]); });
+    var mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals), step = mx - mn > 120 ? 50 : mx - mn > 50 ? 20 : 10;
+    var lo = Math.floor((mn - 2) / step) * step, hi = Math.ceil((mx + 2) / step) * step; if (hi - lo < 2 * step) hi = lo + 2 * step;
+    var x = function (i) { return L + i * (W - L - R) / (n - 1); }, y = function (v) { return T + (1 - (v - lo) / (hi - lo)) * (H - T - B); };
+    var s = '<svg class="dchart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(dSay(D, days, trained)) + '">';
+    for (var v = lo; v <= hi + 0.01; v += step) s += '<line class="' + (v === 100 ? 'db' : 'dg') + '" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v).toFixed(1) + '" y2="' + y(v).toFixed(1) + '"/><text class="ax' + (v === 100 ? ' cur' : '') + '" x="' + (L - 5) + '" y="' + (y(v) + 4).toFixed(1) + '" text-anchor="end">' + v + '</text>';
+    [0, 14, 28, 41].forEach(function (i) { s += '<text class="ax" x="' + x(i).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="' + (i === 0 ? 'start' : i === 41 ? 'end' : 'middle') + '">' + (i === 41 ? 'Today' : esc(dShort(days[i]))) + '</text>'; });
+    var ends = [];
+    [['e', D.e], ['s', D.s]].forEach(function (sr) { // endurance first, so strength circles sit on top
+      var m = sr[1], d = '', mk = '', prev = false, last = null;
+      days.forEach(function (day, i) {
+        if (!(day in m)) { prev = false; return; }
+        var px = x(i).toFixed(1), py = y(m[day]).toFixed(1);
+        d += (prev ? 'L' : 'M') + px + ' ' + py + ' '; prev = true; last = [x(i), y(m[day]), m[day]];
+        mk += sr[0] === 's' ? '<circle class="ms" cx="' + px + '" cy="' + py + '" r="4"/>' : '<rect class="me" x="' + (x(i) - 4).toFixed(1) + '" y="' + (y(m[day]) - 4).toFixed(1) + '" width="8" height="8"/>';
+      });
+      if (d) s += '<path class="d' + sr[0] + '" data-series="' + (sr[0] === 's' ? 'strength' : 'endurance') + '" d="' + d.trim() + '"/>' + mk;
+      if (last) ends.push([sr[0], last]);
+    });
+    if (ends.length === 2 && Math.abs(ends[0][1][1] - ends[1][1][1]) < 13) { var up = ends[0][1][1] <= ends[1][1][1] ? 0 : 1; ends[up][1][1] -= 7; ends[1 - up][1][1] += 7; }
+    ends.forEach(function (e) { s += '<text class="v' + e[0] + '" x="' + (W - R + 6) + '" y="' + (e[1][1] + 4).toFixed(1) + '">' + Math.round(e[1][2]) + '</text>'; });
+    s += '</svg>';
+    var leg = '<ul class="dleg"><li><svg viewBox="0 0 34 12" aria-hidden="true"><line x1="1" x2="33" y1="6" y2="6" stroke="var(--rep)" stroke-width="2.5"/><circle cx="17" cy="6" r="4" fill="var(--rep)"/></svg>Strength: solid line, circles</li><li><svg viewBox="0 0 34 12" aria-hidden="true"><line x1="1" x2="33" y1="6" y2="6" stroke="var(--hold)" stroke-width="2.5" stroke-dasharray="7 4"/><rect x="13" y="2" width="8" height="8" fill="var(--hold)"/></svg>Endurance: dashed line, squares</li></ul>';
+    // numbers behind the chart, and each exercise against its start
+    var tbl = '<table class="dtab"><caption class="sr-only">Daily index, 100 = your start</caption><thead><tr><th scope="col">Day</th><th scope="col" class="n">Strength</th><th scope="col" class="n">Endurance</th></tr></thead><tbody>' +
+      trained.slice().reverse().map(function (d) { return '<tr><th scope="row" style="font-weight:400">' + esc(new Date(d).toLocaleDateString(UIL, { weekday: 'short', day: 'numeric', month: 'short' })) + '</th><td class="n">' + (d in D.s ? Math.round(D.s[d]) : '–') + '</td><td class="n">' + (d in D.e ? Math.round(D.e[d]) : '–') + '</td></tr>'; }).join('') + '</tbody></table>';
+    var exs = Object.keys(D.ex).map(function (k) { return D.ex[k]; }).filter(function (e) { return e.last >= from; }).sort(function (a, b) { return b.last - a.last; });
+    var exl = '<ul class="olist">' + exs.map(function (e) {
+      var r = e.raw[e.last], now = e.days[e.last], pc = Math.round((now / e.base - 1) * 100), bw = e.kind === 'e' && !(r.kg > 0);
+      var val = function (v) { return e.kind === 's' ? kg(v) : bw ? Math.round(v) + ' s' : Math.round(toU(v)) + ' ' + uLab() + '·s'; };
+      return '<li><b>' + esc(e.name) + '</b><span>' + (e.kind === 's' ? '1-rep estimate ' : bw ? 'Held ' : 'Load × time ') + val(now) + ' (' + (r.kg > 0 ? kg(r.kg) + ' × ' : '') + r.v + (e.kind === 's' ? ' reps' : ' s') + ', ' + dShort(e.last) + ')' + (e.last > e.first ? ', start ' + val(e.base) + ', ' + (pc >= 0 ? '+' : '') + pc + '%' : ', first time') + '</span></li>';
+    }).join('') + '</ul>';
+    el.innerHTML = head + '<p class="muted" style="font-size:14px">Last 6 weeks, one point per training day. 100 = your start.</p>' + s + leg +
+      '<details class="how"><summary>Show the numbers (' + trained.length + ' days)</summary><div class="gbody">' + tbl + '</div></details>' +
+      '<details class="how"><summary>Each exercise against its start (' + exs.length + ')</summary><div class="gbody">' + exl + '</div></details>';
+  }
+  function dSay(D, days, trained) {
+    var part = function (m, word) {
+      var ds = trained.filter(function (d) { return d in m; }); if (!ds.length) return word + ': no days yet.';
+      var best = ds.reduce(function (b, d) { return m[d] > m[b] ? d : b; }, ds[0]), l = ds[ds.length - 1];
+      return word + ' on ' + ds.length + (ds.length === 1 ? ' day' : ' days') + ', latest ' + Math.round(m[l]) + ' on ' + dShort(l) + ', highest ' + Math.round(m[best]) + ' on ' + dShort(best) + '.';
+    };
+    return 'Daily strength and endurance for the last 6 weeks, where 100 is your start. ' + part(D.s, 'Strength') + ' ' + part(D.e, 'Endurance') + ' Days without training are left blank.';
+  }
+  $('dailyCard').addEventListener('click', function (e) {
+    var b = e.target.closest('#dlyInfoB'); if (!b) return;
+    dlyInfoOpen = !dlyInfoOpen; $('dlyInfo').hidden = !dlyInfoOpen; b.setAttribute('aria-expanded', String(dlyInfoOpen));
+  });
+
+  // ---------- strength map: how each muscle region's strength changed over the last 4 weeks ----------
+  // Rep sets of 1–12 reps: Epley 1-rep estimate. Holds of 10–75 s with a weight: the hold-to-max estimate (holdMax).
+  // Per exercise: best on the latest day ÷ best on the earliest day in the 4 weeks; a region averages its exercises.
+  function strChange() {
+    var from = dayStart() - 27 * 864e5, ex = {};
+    store.log.forEach(function (l) {
+      if (l.sug || !(l.kg > 0) || l.t < from || !ALL[l.id]) return;
+      var v = l.k === 'r' ? (l.v >= 1 && l.v <= 12 ? epley(l.kg, l.v) : 0) : l.k === 'h' && l.v >= 10 && l.v <= 75 ? holdMax(l).est : 0;
+      if (!v) return;
+      var key = l.k + '|' + l.id + '|' + l.eq, e = ex[key] || (ex[key] = { id: l.id, k: l.k, days: {} }), d = dayStart(l.t);
+      if (!(d in e.days) || v > e.days[d]) e.days[d] = v;
+    });
+    var reg = {};
+    Object.keys(ex).forEach(function (key) {
+      var e = ex[key], ds = Object.keys(e.days).map(Number).sort(function (a, b) { return a - b; }); if (ds.length < 2) return;
+      var ch = (e.days[ds[ds.length - 1]] / e.days[ds[0]] - 1) * 100, src = (e.k === 'h' ? BY : G)[e.id] || ALL[e.id], tags = (src && src.tags) || [];
+      var rs = (BM_EXTRA[e.id] || []).concat(tags.slice(0, 2).map(function (t) { return BM_TAG[t]; }));
+      rs.filter(function (r, i) { return r && rs.indexOf(r) === i; }).forEach(function (r) { (reg[r] = reg[r] || []).push(ch); });
+    });
+    var out = {}; Object.keys(reg).forEach(function (r) { out[r] = Math.round(reg[r].reduce(function (a, b) { return a + b; }, 0) / reg[r].length); });
+    return out;
+  }
+  function chStep(c) { return c == null ? 0 : c < 0 ? 1 : c < 5 ? 2 : c < 10 ? 3 : 4; }
+  function pcTxt(c) { return (c > 0 ? '+' : c < 0 ? '−' : '') + Math.abs(c) + '%'; }
+  function changeMap() {
+    var ch = strChange(), regs = Object.keys(BM_NAME), withD = regs.filter(function (r) { return r in ch; }).sort(function (a, b) { return ch[b] - ch[a]; }), none = regs.filter(function (r) { return !(r in ch); });
+    var sh = BM.map(function (b) { var cls = b[0] === 'head' ? 'sm-off' : 'sm-' + (chStep(ch[b[0]]) || 'none'); return '<rect class="' + cls + '" x="' + b[1] + '" y="' + b[2] + '" width="' + b[3] + '" height="' + b[4] + '" rx="' + b[5] + '"/>'; }).join('');
+    var lab = 'Strength change by muscle over the last 4 weeks. ' + (withD.length ? withD.map(function (r) { return BM_NAME[r] + ' ' + (ch[r] > 0 ? 'up ' : ch[r] < 0 ? 'down ' : 'no change, ') + Math.abs(ch[r]) + '%'; }).join(', ') + '. ' : '') + (none.length ? 'No data: ' + none.map(function (r) { return BM_NAME[r]; }).join(', ') + '.' : '');
+    return '<h2>Strength map</h2><p class="muted" style="font-size:14px">Change in your estimated maximum over the last 4 weeks, for muscles trained with a weight on at least 2 days.</p>' +
+      '<svg class="smap" viewBox="0 0 358 300" role="img" aria-label="' + esc(lab) + '">' + sh + '<text class="bm-lbl" x="90" y="298" text-anchor="middle">Front</text><text class="bm-lbl" x="268" y="298" text-anchor="middle">Back</text></svg>' +
+      '<ul class="bm-legend smleg"><li><i class="s1"></i>Down</li><li><i class="s2"></i>0–4% up</li><li><i class="s3"></i>5–9% up</li><li><i class="s4"></i>10%+ up</li><li><i class="s0"></i>No data</li></ul>' +
+      (withD.length ? '<p style="font-size:15px">' + withD.map(function (r) { return '<b>' + esc(BM_NAME[r].replace(/^./, function (c) { return c.toUpperCase(); })) + '</b> ' + pcTxt(ch[r]); }).join(', ') + '.</p>'
+        : '<p class="muted" style="font-size:15px">No muscle has weighted sets on 2 different days in the last 4 weeks yet.</p>');
+  }
+
+  // ---------- Body tab: protein and cardio today ----------
+  function renderBodyNow() {
+    var el = $('bodyNow'); if (!el) return;
+    var meals = today(store.food), f = sumFood(meals), tg = proteinTarget(), cm = weekCardio(), s0 = dayStart();
+    var cToday = store.notes.filter(function (n) { return n.k === 'cardio' && n.t >= s0; }).reduce(function (x, n) { return x + (n.min || 0); }, 0) + cardioDoneMins(s0);
+    var pPct = tg ? Math.min(100, f.p / tg * 100) : 0, cPct = Math.min(100, cm / 150 * 100);
+    el.innerHTML = '<h2>Today</h2>' +
+      '<div class="bnow"><p><span class="big num" id="protToday">' + r0(f.p) + ' g</span> protein today' + (tg ? ', target ' + tg + ' g' : '') + '</p>' +
+      (tg ? '<div class="meter" role="img" aria-label="' + r0(f.p) + ' of ' + tg + ' grams of protein"><i style="width:' + pPct.toFixed(0) + '%;background:var(--rep)"></i></div>' : '') +
+      (meals.length ? '<ul class="olist">' + meals.map(function (m) { var t = sumFood([m]); return '<li><b>' + esc(m.meal || 'Food') + ': ' + r0(t.p) + ' g protein</b><span>' + esc(m.items.map(function (i) { return i.n; }).join(', ')) + ' · ' + r0(t.k) + ' kcal</span></li>'; }).join('') + '</ul>' : '<p class="muted">No food logged today. Log meals on Search &amp; log.</p>') + '</div>' +
+      '<div class="bnow"><p><span class="big num" id="cardioMin">' + cm + ' min</span> cardio in the last 7 days, of 150</p>' +
+      '<div class="meter" role="img" aria-label="' + cm + ' of 150 minutes of cardio in the last 7 days"><i style="width:' + cPct.toFixed(0) + '%;background:var(--ok)"></i></div>' +
+      '<p class="muted">' + (cToday ? cToday + ' min today, counting logged walks and finished sessions.' : 'None yet today. Logged walks and finished cardio sessions count.') + '</p></div>';
+  }
+
+  // ---------- in-page tabs: Muscles, Strength, Body ----------
+  var ptab = 'strength', PT_OF = { dailyCard: 'strength', allCard: 'strength', strCard: 'strength', mapCard: 'muscles', bodyNow: 'body' };
+  Object.keys(PT_OF).forEach(function (id) { $(id).setAttribute('data-pt', PT_OF[id]); });
+  $('tests').closest('.card').setAttribute('data-pt', 'strength'); $('cov').closest('.card').setAttribute('data-pt', 'muscles');
+  function progTabs() {
+    document.querySelectorAll('#progPanel > [data-pt], #progExtras > [data-pt]').forEach(function (c) { c.hidden = c.getAttribute('data-pt') !== ptab; });
+    document.querySelectorAll('#progress [data-ptab]').forEach(function (b) { var on = b.getAttribute('data-ptab') === ptab; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; });
+    $('progPanel').setAttribute('aria-labelledby', 'pt-' + ptab);
+  }
+  // Progress opens on the tab for whatever was logged since it was last opened (a weigh-in shows Body, a lift shows Strength)
+  var progSeen = Date.now();
+  function autoPtab() {
+    var s = 0, bd = 0; store.log.forEach(function (l) { if (l.t > s) s = l.t; });
+    store.notes.forEach(function (n) { if (n.k === 'lift') { if (n.t > s) s = n.t; } else if ((n.k === 'cardio' || n.k === 'bp') && n.t > bd) bd = n.t; });
+    store.body.forEach(function (x) { if (x.t > bd) bd = x.t; }); store.food.forEach(function (x) { if (x.t > bd) bd = x.t; });
+    if (Math.max(s, bd) > progSeen) ptab = bd > s ? 'body' : 'strength';
+    progSeen = Date.now();
+  }
+  function pickPtab(t, focus) { ptab = t; progTabs(); if (focus) $('pt-' + t).focus(); }
+  document.querySelector('#progress .ptabs').addEventListener('click', function (e) { var b = e.target.closest('[data-ptab]'); if (b) pickPtab(b.getAttribute('data-ptab')); });
+  document.querySelector('#progress .ptabs').addEventListener('keydown', function (e) {
+    var order = ['muscles', 'strength', 'body'], i = order.indexOf(ptab), j = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : e.key === 'Home' ? 0 : e.key === 'End' ? 2 : null;
+    if (j == null) return; e.preventDefault(); pickPtab(order[(j + 3) % 3], true);
+  });
   function weekChart() {
     var WT = weekTarget(), W = 336, H = 150, L = 22, B = 22, T = 14, bw = (W - L) / 12, done = [];
     for (var w0 = 1; w0 <= 12; w0++) done.push(weekDone(w0));
@@ -3579,7 +3812,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     });
     return s + '<text x="60" y="276" text-anchor="middle" class="ax">' + (view === 'f' ? 'Front' : 'Back') + '</text></g>';
   }
-  var mapSel = null;
+  var mapSel = null, mapMaxOpen = false;
   var VERB = { push: 'push', pull: 'pull', raise: 'raise', hold: 'hold', lift: 'lift' };
   function fmtKg(v) { return v >= 20 ? Math.round(v) : Math.round(v * 2) / 2; }
   function muscleDetail(name, e) {
@@ -3599,9 +3832,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function renderMap() {
     var data = strengthData(), names = Object.keys(data).filter(function (k) { return data[k].h || data[k].r; });
     if (!mapSel || !data[mapSel]) mapSel = names[0] || null;
-    var h = '<h2>Strength map</h2><p>Your estimated maximum for each muscle group, from the sets you’ve logged with a weight. Each number is the load for the named exercise (a floor press number is a pressing load, not the triceps alone), so compare a muscle with itself over time. Tap a muscle.</p>' +
-      '<svg class="body" viewBox="0 0 250 282" role="img" aria-label="Body map of muscles with strength data">' + bodySvg('f', data, mapSel, 0) + bodySvg('b', data, mapSel, 130) + '</svg>' +
-      '<div class="legend"><span><i class="mk" style="background:var(--ok);border-radius:3px"></i>Has data</span><span><i class="mk" style="background:var(--line);border-radius:3px"></i>No weighted sets yet</span></div>' +
+    var h = changeMap() + '<details class="how" id="mapMax"' + (mapMaxOpen ? ' open' : '') + '><summary>Estimated maximum, muscle by muscle</summary><div class="gbody"><p>Your estimated maximum for each muscle group, from the sets you’ve logged with a weight. Each number is the load for the named exercise (a floor press number is a pressing load, not the triceps alone), so compare a muscle with itself over time. Tap a muscle.</p>' +
       '<div id="mapDet">' + (mapSel ? muscleDetail(mapSel, data[mapSel]) : '<p class="muted">Log a session with your weights entered and the muscles you trained will fill in.</p>') + '</div>';
     h += (names.length ? '<div class="mlist">' + GROUPS.map(function (g) {
       return '<div class="mgrp"><span class="mg-t">' + g[0] + '</span>' + g[1].map(function (n) {
@@ -3609,13 +3840,14 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         return '<button class="mli' + (n === mapSel ? ' on' : '') + '" data-mu="' + n + '"><span>' + n + '</span><span class="mli-v">' + ([hv, rv].filter(Boolean).join(', ') || '<i>no data</i>') + '</span></button>';
       }).join('') + '</div>';
     }).join('') + '</div>' : '') +
-      '<details class="how"><summary>How this is calculated</summary><div class="gbody">' +
+      '<details class="how"><summary>How the maximum is calculated</summary><div class="gbody">' +
       '<p><b>Holds.</b> The longer you can hold a weight, the smaller the share of your maximum it is. A meta-analysis of hold-to-failure studies gives that relationship for each joint (for example, at the shoulder a 30-second hold is about 68% of max). Dividing your hold weight by that share gives your maximum. Your holds stop before failure, so this is a minimum: shown as “at least”.</p>' +
       '<p><b>Reps.</b> The one-rep maximum comes from the standard Epley and Brzycki formulas, using your reps plus the reps you had left in reserve that week (from the phase target; if you ended a set early, it counts as reaching your limit). Estimates from more than 10 reps are less accurate.</p>' +
       '<p><b>What the number means.</b> It is the external weight for that exercise and position, per dumbbell or kettlebell if you hold one in each hand, or the barbell total. Each muscle shows the exercise that targets it most directly. Numbers for different muscles come from different exercises, so compare a muscle with itself over time rather than with other muscles.</p>' +
-      '<ul class="refs">' + ['freylaw2010', 'reynolds2006'].map(function (k) { var r = REFS[k]; return '<li><a href="' + r.u + '" target="_blank" rel="noopener">' + esc(r.t) + '</a><span>' + esc(r.a) + ', ' + esc(r.j) + '. ' + esc(r.k) + '</span></li>'; }).join('') + '</ul></div></details>';
+      '<ul class="refs">' + ['freylaw2010', 'reynolds2006'].map(function (k) { var r = REFS[k]; return '<li><a href="' + r.u + '" target="_blank" rel="noopener">' + esc(r.t) + '</a><span>' + esc(r.a) + ', ' + esc(r.j) + '. ' + esc(r.k) + '</span></li>'; }).join('') + '</ul></div></details></div></details>';
     $('mapCard').innerHTML = h;
   }
+  $('mapCard').addEventListener('toggle', function (e) { if (e.target.id === 'mapMax') mapMaxOpen = e.target.open; }, true);
   $('mapCard').addEventListener('click', function (e) {
     var t = e.target.closest('[data-mu]'); if (!t) return;
     mapSel = t.getAttribute('data-mu'); var wasBtn = t.tagName === 'BUTTON'; renderMap();
@@ -3862,7 +4094,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // A newer version is online: say so, instead of quietly running the old one until the next launch
   // dates follow the app's language (English), not the device's, so an English screen doesn't show "28 de octubre"
   var UIL = /^en\b/i.test(navigator.language || '') ? undefined : 'en-GB';
-  var APP_VERSION = '38';
+  var APP_VERSION = '39';
   function checkVersion() {
     if (!navigator.onLine || !/^https?:/.test(location.protocol)) return;
     fetch('index.html?v=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
@@ -5465,7 +5697,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     for (var i = 6; i >= 0; i--) { var s0 = dayStart() - i * 864e5, e0 = s0 + 864e5, f = sumFood(store.food.filter(function (x) { return x.t >= s0 && x.t < e0; })); days.push({ t: s0, p: f.p, n: store.food.some(function (x) { return x.t >= s0 && x.t < e0; }) }); }
     var logged = days.filter(function (d) { return d.n; });
     if (bw.length || logged.length) {
-      h += '<div class="card"><h2>Body and food</h2>';
+      h += '<div class="card" data-pt="body"><h2>Body and food</h2>';
       if (bw.length) { var b0 = bw[0], b1 = bw[bw.length - 1]; h += '<p><b>Bodyweight:</b> ' + bwTxt(b1.kg) + ' on ' + dshort(b1.t) + (bw.length > 1 ? (Math.abs(b1.kg - b0.kg) < 0.05 ? ', no change since ' : ', ' + (b1.kg - b0.kg >= 0 ? 'up ' : 'down ') + bwTxt(Math.abs(b1.kg - b0.kg)) + ' since ') + dshort(b0.t) : '') + '.</p><ul class="olist">' + bw.slice().reverse().map(function (x) { return '<li><b>' + bwTxt(x.kg) + '</b><span>' + dshort(x.t) + '</span></li>'; }).join('') + '</ul>'; }
       if (logged.length) { var avg = logged.reduce(function (t, d) { return t + d.p; }, 0) / logged.length, hit = tg ? logged.filter(function (d) { return d.p >= tg * 0.9; }).length : 0;
         h += '<p><b>Protein, last 7 days:</b> about ' + r0(avg) + ' g a day on the ' + logged.length + (logged.length === 1 ? ' day' : ' days') + ' you logged food' + (tg ? ', target ' + tg + ' g. On target ' + hit + ' of ' + logged.length + '.' : '.') + '</p><ul class="olist">' + days.slice().reverse().filter(function (d) { return d.n; }).map(function (d) { return '<li><b>' + r0(d.p) + ' g</b><span>' + new Date(d.t).toLocaleDateString(UIL, { weekday: 'short', day: 'numeric', month: 'short' }) + '</span></li>'; }).join('') + '</ul>'; }
@@ -5473,7 +5705,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     }
     if (lifts.length) {
       var by = {}; lifts.forEach(function (l) { var k = liftKey(l.name); (by[k] = by[k] || []).push(l); });
-      h += '<div class="card"><h2>Other lifts</h2><p>Exercises you logged that aren’t in the program, like your main barbell lifts. Estimated max uses sets of 10 reps or fewer.</p><ul class="olist lifts">' + Object.keys(by).map(function (k) {
+      h += '<div class="card" data-pt="strength"><h2>Other lifts</h2><p>Exercises you logged that aren’t in the program, like your main barbell lifts. Estimated max uses sets of 10 reps or fewer.</p><ul class="olist lifts">' + Object.keys(by).map(function (k) {
         var L = by[k], heavy = L.reduce(function (b, x) { return (x.kg || 0) > (b.kg || 0) || ((x.kg || 0) === (b.kg || 0) && (x.reps || 0) > (b.reps || 0)) ? x : b; }, L[0]), est = null, last = L[L.length - 1];
         L.forEach(function (x) { var e = e1rm(x.kg, x.reps, x.rpe); if (e && (!est || e > est.v)) est = { v: e, x: x }; });
         var set = function (x) { return (x.sets > 1 ? x.sets + ' × ' : '') + (x.kg ? kg(x.kg) + ' × ' : '') + (x.reps ? x.reps + (x.reps === 1 ? ' rep' : ' reps') : x.s + ' s') + (x.rpe ? ' @ RPE ' + x.rpe : ''); };
@@ -5482,8 +5714,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         return '<li><b>' + esc(last.name) + '</b><span>Heaviest: ' + set(heavy) + (est ? ' · estimated max ' + kg(est.v) : '') + '</span><span class="lrec">' + R.slice(0, 4).map(entry).join('<br>') + (R.length > 4 ? '<details><summary>All ' + R.length + ' entries</summary>' + R.slice(4).map(entry).join('<br>') + '</details>' : '') + '</span></li>';
       }).join('') + '</ul></div>';
     }
-    if (bp.length) h += '<div class="card"><h2>Blood pressure</h2><ul class="olist">' + bp.slice(-6).reverse().map(function (n) { return '<li><b>' + n.sys + '/' + n.dia + '</b><span>' + dshort(n.t) + (n.pulse ? ' · pulse ' + n.pulse : '') + '</span></li>'; }).join('') + '</ul></div>';
-    $('progExtras').innerHTML = h;
+    if (bp.length) h += '<div class="card" data-pt="body"><h2>Blood pressure</h2><ul class="olist">' + bp.slice(-6).reverse().map(function (n) { return '<li><b>' + n.sys + '/' + n.dia + '</b><span>' + dshort(n.t) + (n.pulse ? ' · pulse ' + n.pulse : '') + '</span></li>'; }).join('') + '</ul></div>';
+    $('progExtras').innerHTML = h; progTabs();
   }
   (function () {
     var host = document.createElement('div'); host.id = 'progExtras';
@@ -5971,7 +6203,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   renderTools();
   window.__isoholdReady = performance.now();
   // read-only hooks for the automated test suite
-  window.__isoTest = { today: function (l) { return today(l); }, dayStart: function (t) { return dayStart(t); }, suggestWt: function (id, kind) { return suggestWt(id, V(id, kind === 'h' ? 'h' : 'g'), kind); }, localAnswer: function (t) { return localAnswer(t); }, weekTarget: function () { return weekTarget(); }, buildQueue: buildQueue, allDays: allDays, mins: mins, V: V, chooseEq: chooseEq, pickEq: pickEq, store: function () { return store; }, strengthData: strengthData, holdMax: holdMax, repMax: repMax, phaseOf: phaseOf, blocksFor: blocksFor, wLabel: wLabel, weekDone: weekDone, isPB: isPB, parseText: parseText, parsePlayerCmd: parsePlayerCmd, handle: function (t, s) { return handle(t, s || 'text'); }, runCmd: function (t) { return runCmd(t); }, feed: function () { return feed; }, prof: prof, proteinTarget: proteinTarget, foods: FOODS, applyAction: function (a) { return apply(a, 'test'); } };
+  window.__isoTest = { today: function (l) { return today(l); }, dayStart: function (t) { return dayStart(t); }, suggestWt: function (id, kind) { return suggestWt(id, V(id, kind === 'h' ? 'h' : 'g'), kind); }, localAnswer: function (t) { return localAnswer(t); }, weekTarget: function () { return weekTarget(); }, buildQueue: buildQueue, allDays: allDays, mins: mins, V: V, chooseEq: chooseEq, pickEq: pickEq, store: function () { return store; }, strengthData: strengthData, holdMax: holdMax, repMax: repMax, phaseOf: phaseOf, blocksFor: blocksFor, wLabel: wLabel, weekDone: weekDone, isPB: isPB, parseText: parseText, parsePlayerCmd: parsePlayerCmd, handle: function (t, s) { return handle(t, s || 'text'); }, runCmd: function (t) { return runCmd(t); }, feed: function () { return feed; }, prof: prof, proteinTarget: proteinTarget, foods: FOODS, applyAction: function (a) { return apply(a, 'test'); }, dailyIdx: function () { return dailyIdx(); }, strChange: function () { return strChange(); }, epley: epley, loadTime: loadTime };
   requestAnimationFrame(frame);
 })();
 
