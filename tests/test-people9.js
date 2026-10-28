@@ -41,6 +41,7 @@ const T = (page, f, a) => page.evaluate(f, a);
   ok(await page.getAttribute('#pRingBtn', 'aria-label') === 'Close the session' && await T(page, () => document.activeElement.id === 'pClose'), 'finished screen: focus on Close, the ring says what it does');
   await page.click('#pRingBtn'); await page.waitForTimeout(150);
   ok(!(await page.isVisible('#player')), 'the ring closes the finished screen');
+  await page.click('#profBtn'); await page.click('#pfTab-backup');
   ok(await T(page, () => document.getElementById('bkOut').getAttribute('aria-hidden')) === 'true', 'the long backup code isn’t read out');
   await b.close();
 

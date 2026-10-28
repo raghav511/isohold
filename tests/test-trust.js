@@ -73,7 +73,7 @@ const T = (page, f, a) => page.evaluate(f, a);
     // 11 accidental tick that completes a week can be undone; 12-13 dated sessions and labels
     const wk = JSON.parse(JSON.stringify(BASE)); wk.week = 2; wk.done = {}; ['d1', 'd2', 'c1', 'd3', 'd4', 'c2'].forEach(d => ['am', 'pm'].forEach(p => { wk.done['w2' + d + p] = now - 20 * day; })); delete wk.done['w2c2pm'];
     ({ b, page, errs } = await boot(kind, { state: wk }));
-    await page.click('.strip button[data-i="5"]'); await page.click('#sessions [data-done$="pm"]'); await page.waitForTimeout(150);
+    await page.evaluate(() => document.querySelector('.strip button[data-i="5"]').click()); await page.click('#sessions [data-done$="pm"]'); await page.waitForTimeout(150);
     ok((await T(page, () => window.__isoTest.store().week)) === 3, kind + ' completing the week moves on');
     await page.click('#toast .tu'); await page.waitForTimeout(150);
     ok((await T(page, () => [window.__isoTest.store().week, !!window.__isoTest.store().done.w2c2pm].join())) === '2,false', kind + ' Undo puts you back on the week, tick removed');
