@@ -57,7 +57,7 @@ const C = [
   ['goblet squat sixteen kilos thirty seconds', a => a[0].weight === 16 && a[0].seconds === 30],
   ['lateral raises with 3 kilos for 12 reps', a => a[0].exercise === 'lateral-raise' && a[0].weight === 3 && a[0].reps === 12],
   ['lat pulldown 120x10', a => a[0].type === 'log_lift' && a[0].weight === 120 && a[0].reps === 10 && /Lat Pulldown/.test(a[0].name)],
-  ['leg press 3x12 100 kg', a => a[0].exercise === 'wall-sit' && a[0].sets === 3 && a[0].reps === 12 && a[0].weight === 100],
+  ['leg press 3x12 100 kg', a => a[0].type === 'log_lift' && a[0].name === 'Leg Press' && a[0].sets === 3 && a[0].reps === 12 && a[0].weight === 100],
   ['smith machine bench 60 kg 8 reps', a => a[0].type === 'log_lift' && a[0].reps === 8],
   ['blood pressure 138 over 85', a => a[0].type === 'log_bp' && a[0].sys === 138 && a[0].dia === 85],
   ["I weigh 10 stone 4", a => a[0].type === 'log_bodyweight' && Math.abs(a[0].weight - 65.3) < 0.2],
@@ -78,7 +78,7 @@ const C = [
   ['back squat 100 kg 5 reps', a => a[0].type === 'log_lift'],
   ['romanian deadlift 60 kg 8 reps', a => a[0].exercise === 'rdl'],
   ['goblet squat 24 kg 10 reps', a => a[0].exercise === 'goblet-squat' && (a[0].eq === 'k' || a[0].eq === 'd')],
-  ['leg press 140 kg 10 reps', a => a[0].exercise === 'wall-sit' && a[0].eq === 'c'],
+  ['leg press 140 kg 10 reps', a => a[0].type === 'log_lift' && a[0].name === 'Leg Press' && a[0].weight === 140 && a[0].reps === 10], // a typed leg press is its own lift (round 12)
   ['10 stone 2', a => a[0].type === 'log_bodyweight' && Math.abs(a[0].weight - 64.4) < 0.2],
   ['sabzi aur curd, 1 katori', a => a[0].items.length === 2],
   ['a spoon of peanut butter on toast', a => a[0].items.length === 2 && a[0].items[0].g === 15],
