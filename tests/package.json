@@ -3,7 +3,7 @@
   "private": true,
   "description": "Browser tests for Isohold (Chromium = Android, WebKit = iPhone).",
   "scripts": {
-    "test": "node test-parse.js && node test-flows.js && node test-layout.js && node test-boot.js && node test-start.js && node test-timer.js && node test-trust.js && node test-people.js && node test-people2.js && node test-people3.js && node test-people4.js && node test-people5.js && node test-people6.js && node test-people7.js && node test-people8.js && node test-people9.js && node test-lifts.js && node test-foods.js && node test-android.js && node test-stab.js && node test-equip.js && node test-new-ex.js && node test-ui1.js && node test-ui2.js && node test-ui3.js && node test-ui4.js && node test-today.js && node test-profile.js && node test-progress2.js && node test-checks.js"
+    "test": "node test-parse.js && node test-flows.js && node test-layout.js && node test-boot.js && node test-start.js && node test-timer.js && node test-trust.js && node test-people.js && node test-people2.js && node test-people3.js && node test-people4.js && node test-people5.js && node test-people6.js && node test-people7.js && node test-people8.js && node test-people9.js && node test-lifts.js && node test-foods.js && node test-android.js && node test-stab.js && node test-equip.js && node test-new-ex.js && node test-ui1.js && node test-ui2.js && node test-ui3.js && node test-ui4.js && node test-today.js && node test-profile.js && node test-progress2.js && node test-checks.js && node test-fix4.js"
   },
   "devDependencies": {
     "playwright": "1.56.1"
