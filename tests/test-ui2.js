@@ -23,7 +23,7 @@ async function boot(state) { const o = await open('android', { state }); await o
   ok(await page.locator('#bodyCard rect.bm-gap').count() > 0 && await page.locator('#bodyCard rect.bm-on').count() > 0, 'trained parts are filled, gaps are dashed');
   ok(/\d+ gaps?:/.test(await page.textContent('#bodyCard')), 'the gaps line names the gaps');
   await page.click('#bodyCard [data-gapfind]'); await page.waitForTimeout(200);
-  ok(await page.isVisible('#srchIn') && (await page.inputValue('#srchIn')).length > 1 && await page.locator('#srchOut [data-sx]').count() > 0, 'Find exercises searches for the first gap and finds some');
+  ok(await page.isVisible('#coach') && (await page.inputValue('#cIn')).length > 1 && await page.locator('#cSrch [data-sx]').count() > 0, 'Find exercises searches for the first gap and finds some');
   ok(!errs.filter(e => !/Audio/.test(e)).length, 'no errors ' + errs);
   await b.close();
   srv.close(); console.log(pass + ' passed, ' + fail + ' failed'); process.exit(fail ? 1 : 0);

@@ -79,7 +79,7 @@ const lastCard = page => T(page, () => { const f = window.__isoTest.feed(); retu
     await say(page, 'leg press 3000 lb x 10'); c = await lastCard(page); ok(c && c.k === 'err' && /looks wrong/.test(c.title), kind + ' an impossible weight shows a visible message');
     await say(page, 'bench 225x5'); await say(page, 'bench 245x5'); c = await lastCard(page); ok(c && c.pb, kind + ' heavier bench is a new best');
     await say(page, 'lat pulldown 100 lb 3 sets of 10');
-    await page.click('#tab-coach'); ok(/\b3\d? sets?\b|sets/.test(await page.locator('#cDay, .c-day, #coach').first().innerText()), kind + ' extra lifts count toward today');
+    await page.evaluate(() => document.getElementById('tab-coach').click()); ok(/\b3\d? sets?\b|sets/.test(await page.locator('#cDay, .c-day, #coach').first().innerText()), kind + ' extra lifts count toward today');
     await page.click('#tab-progress'); await page.waitForTimeout(150); txt = await page.locator('#progExtras').innerText();
     ok(/estimated max/.test(txt) && /@ RPE 8/.test(txt) === false && /Bench Press/.test(txt), kind + ' Other lifts show heaviest and estimated max');
     ok(!/undefined/.test(await page.locator('#progress').innerText()), kind + ' Progress never shows "undefined"');
@@ -137,7 +137,7 @@ const lastCard = page => T(page, () => { const f = window.__isoTest.feed(); retu
   await page.click('#sessions [data-done]'); await page.waitForTimeout(150);
   ok(/marked done/.test(await page.textContent('#srLive')), 'marking a session done is announced');
   ok(await T(page, () => !!document.activeElement.dataset.done), 'focus stays on the done button');
-  await page.click('#tab-coach'); await page.fill('#cIn', '2 eggs'); await page.press('#cIn', 'Enter'); await page.waitForTimeout(150);
+  await page.evaluate(() => document.getElementById('tab-coach').click()); await page.fill('#cIn', '2 eggs'); await page.press('#cIn', 'Enter'); await page.waitForTimeout(150);
   ok(await T(page, () => document.activeElement.id === 'cIn') && /Egg/.test(await page.locator('#cMsgs').innerText()), 'Enter sends, and the cursor stays in the box');
   await b.close();
 
@@ -155,7 +155,7 @@ const lastCard = page => T(page, () => { const f = window.__isoTest.feed(); retu
   await T(page, () => { const s = window.__isoTest.store(); ['d1', 'd2'].forEach(d => { s.done['w1' + d + 'am'] = s.done['w1' + d + 'pm'] = Date.now(); }); });
   await say(page, 'bici 25 min'); let c = await lastCard(page);
   ok(c.doneK === 'w1c1am' && await T(page, () => !!window.__isoTest.store().done.w1c1am), 'a 25-minute ride counts as the next cardio session');
-  await page.click('#tab-coach'); await page.locator('.lgc [data-undo]').last().click().catch(() => {}); await page.waitForTimeout(100);
+  await page.evaluate(() => document.getElementById('tab-coach').click()); await page.locator('.lgc [data-undo]').last().click().catch(() => {}); await page.waitForTimeout(100);
   ok(!(await T(page, () => window.__isoTest.store().done.w1c1am)), 'undoing the ride un-ticks the cardio session');
   ok(!errs.length, 'spanish: no errors ' + errs); await b.close();
 

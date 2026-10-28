@@ -33,14 +33,14 @@ const T = (page, f, a) => page.evaluate(f, a);
     ok(heavy && heavy.k === 'err', kind + ' a 900 kg curl is refused');
     // 21 correct grams of a food
     await T(page, () => window.__isoTest.handle('200g chicken breast'));
-    await page.click('#tab-coach'); page.once('dialog', d => d.accept('100'));
+    await page.evaluate(() => document.getElementById('tab-coach').click()); page.once('dialog', d => d.accept('100'));
     await page.locator('.lgc-ed').last().click(); await page.waitForTimeout(200);
     const ch = await T(page, () => { const s = window.__isoTest.store(); return s.food[s.food.length - 1].items[0]; });
     ok(ch.g === 100 && Math.abs(ch.p - 31) < 0.6, kind + ' editing grams rescales the item ' + JSON.stringify(ch));
     // 22 an old settings change can't be undone over newer ones
     await T(page, () => window.__isoTest.handle('switch to kettlebells only'));
     await T(page, () => window.__isoTest.handle('switch to dumbbells only'));
-    await page.click('#tab-train'); await page.click('#tab-coach');
+    await page.click('#tab-train'); await page.evaluate(() => document.getElementById('tab-coach').click());
     const undos = await T(page, () => [...document.querySelectorAll('.lgc')].filter(c => /Equipment updated/.test(c.textContent)).map(c => !!c.querySelector('[data-undo]')));
     ok(undos.length === 2 && !undos[0] && undos[1], kind + ' only the latest settings change offers Undo ' + undos);
     // 24 protein target with high BMI

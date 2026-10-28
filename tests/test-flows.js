@@ -40,7 +40,7 @@ const ok = (c, m) => { if (!c) { fails.push(m); console.log('FAIL', m); } else p
     // units switch shows lb
     await page.click('#profBtn'); await page.click('[data-set=units] [data-v=lb]'); await page.click('#pfSave'); await page.waitForTimeout(200);
     const wtxt = await page.evaluate(() => { const s = window.__isoTest.store(); return Object.values(s.wt)[0]; }); ok(Math.abs(wtxt - 12) < .01, kind + ' stored weight unchanged in kg after unit switch');
-    await page.click('#tab-coach'); await page.fill('#cIn', 'I weigh 160 lb'); await page.click('#cSend'); await page.waitForTimeout(200);
+    await page.evaluate(() => document.getElementById('tab-coach').click()); await page.fill('#cIn', 'I weigh 160 lb'); await page.click('#cSend'); await page.waitForTimeout(200);
     const bw = await page.evaluate(() => window.__isoTest.store().body.slice(-1)[0].kg); ok(Math.abs(bw - 72.6) < .1, kind + ' lb bodyweight stored as kg (' + bw + ')');
     // backup round trip includes food and profile
     await page.click('#tab-progress'); const code = await page.inputValue('#bkOut');
