@@ -27,13 +27,13 @@ const lastCard = page => T(page, () => { const f = window.__isoTest.feed(); retu
 
     // ---- knees, blood pressure, pain
     ({ b, page, errs } = await boot(kind, { profile: Object.assign({}, P0, { age: 67, issues: ['knee', 'bp'] }), eq: ['d'] }));
-    await page.click('.strip button[data-i="1"]'); await T(page, () => document.querySelectorAll('#sessions details').forEach(d => d.open = true));
+    await page.evaluate(() => document.querySelector('.strip button[data-i="1"]').click()); await T(page, () => document.querySelectorAll('#sessions details').forEach(d => d.open = true));
     let txt = await page.locator('#sessions').innerText();
     ok(/Reverse Nordic left out for your knees/.test(txt), kind + ' knee flag leaves out kneeling Reverse Nordic');
     ok(/touch a chair/.test(txt) && /about 45°/.test(txt), kind + ' knee flag shortens squat and split-squat depth');
     ok(!(await T(page, () => window.__isoTest.buildQueue(window.__isoTest.allDays()[1], 'pm', window.__isoTest.phaseOf(1)).some(it => it.id === 'wall-sit' && it.wk === 'r'))), kind + ' knee flag: no Reverse Nordic in the session queue');
     await say(page, 'my knee hurts 4 out of 10');
-    await page.click('#tab-train'); await page.click('.strip button[data-i="1"]'); await T(page, () => document.querySelectorAll('#sessions details').forEach(d => d.open = true));
+    await page.click('#tab-train'); await page.evaluate(() => document.querySelector('.strip button[data-i="1"]').click()); await T(page, () => document.querySelectorAll('#sessions details').forEach(d => d.open = true));
     txt = await page.locator('#sessions').innerText();
     ok((txt.match(/Knee 4\/10/g) || []).length >= 3, kind + ' knee pain reaches goblet squat, split squat and wall sit');
     ok(/2\s×\s25\ss/.test(txt), kind + ' knee pain: plan shows the shortened hold');

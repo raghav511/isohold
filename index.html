@@ -914,6 +914,31 @@ button.ring:active { transform: scale(.97); }
 .pf-foot .textbtn { justify-self: start; min-height: 44px; }
 .pf-sw input { min-height: 22px; }
 html.calm *, html.calm *::before, html.calm *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+/* Today: only what you do today. The week plan, program % and equipment live in the week sheet. */
+#train > #band, #train > #overall, #train > #eqddTrain, #train > #fuel { display: none; }
+#train > #extras:empty { display: none; }
+/* the day strip is not shown: the week sheet lists the days (code still uses its buttons to select a day) */
+#train > .strip { display: none; }
+.split { margin-bottom: -2px; }
+.split button { min-height: 44px; font-size: 14.5px; color: var(--ink); }
+.split button[aria-pressed="false"] { color: var(--muted); }
+.bodycard .bm-hatch line { stroke: var(--ink); stroke-width: 1.8; }
+.bodycard .bm-tdy { fill: url(#bmHatch); stroke: none; }
+.bodycard .bm-ring { fill: none; stroke: var(--ink); stroke-width: 2.5; }
+.bm-legend i.tdy { background: repeating-linear-gradient(45deg, var(--ink) 0 1.5px, transparent 1.5px 4px); outline: 2px solid var(--ink); outline-offset: 1px; }
+.bm-today { font-size: 15px; }
+.wk-h { font-family: var(--f-display); font-weight: 700; font-size: 18px; margin-bottom: -6px; }
+.wkdays { display: grid; gap: 6px; }
+.wkdays button { display: grid; grid-template-columns: 40px minmax(0, 1fr); align-items: center; gap: 12px; min-height: 56px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); text-align: left; font: inherit; }
+.wkdays .n { font-family: var(--f-display); font-weight: 700; font-size: 22px; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--sunk); }
+.wkdays .n svg { width: 22px; height: 22px; }
+.wkdays .t { display: grid; gap: 1px; min-width: 0; }
+.wkdays .t b { font-size: 15.5px; font-weight: 700; }
+.wkdays .t small { font-size: 13px; color: var(--muted); font-weight: 600; }
+.wkdays .st { color: var(--ink); }
+.wkdays button.dn .n { background: var(--hold); color: var(--hold-ink); }
+.wkdays button[aria-pressed="true"] { border: 2px solid var(--ink); padding: 5px 11px; }
+.wk-ov { display: grid; gap: 10px; }
 /*@@endcss*/
 </style>
 <style>
@@ -932,8 +957,9 @@ html.calm *, html.calm *::before, html.calm *::after { animation: none !importan
     <div class="band" id="band"></div>
     <div id="extras" class="view" style="gap:12px"></div>
     <div class="overall" id="overall"></div>
-    <div class="strip" id="strip" role="group" aria-label="Day of the week"></div>
+    <div class="strip" id="strip" role="group" aria-label="Day of the week" aria-hidden="true"></div>
     <div class="eqdd-wrap" id="eqddTrain"></div>
+    <div id="splitSeg"></div>
     <div id="sessions" class="view" style="gap:12px"></div>
     <div id="fuel"></div>
     <div id="startBar" class="startbar" hidden></div>
@@ -2745,7 +2771,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function doneKey(day, part) { return 'w' + store.week + day.id + part; }
   function partsOf(part) { part = part.replace(/^short-/, ''); return part === 'all' ? ['am', 'pm'] : [part]; }
   function isDone(day, part) { return partsOf(part).every(function (p) { return store.done[doneKey(day, p)]; }); }
-  function oneADay() { return !!(store.profile && (store.profile.split === 'one' || (store.profile.split == null && daysPerWeek() <= 3))); }
+  function oneADay() { var s = store.profile && store.profile.split != null ? store.profile.split : store.split; return s === 'one' || (s == null && !!store.profile && daysPerWeek() <= 3); }
   // with one session a day, progress counts days (both halves done); otherwise morning and evening sessions
   function unitWord(n) { return oneADay() ? (n === 1 ? 'day' : 'days') : (n === 1 ? 'session' : 'sessions'); }
   function weekTarget() { return allDays().length * (oneADay() ? 1 : 2); }
@@ -2809,24 +2835,40 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     });
     return got;
   }
-  function bmSvg(got) {
-    var n = 0, list = [];
+  // the muscle parts a day's exercises work most (first two tags of each), in body-map order
+  function dayRegions(day) {
+    var got = {};
+    buildQueue(day, 'all', phaseOf(store.week)).forEach(function (it) {
+      if (it.kind === 'cardio' || !it.id || !ALL[it.id]) return;
+      (BM_EXTRA[it.id] || []).concat((ALL[it.id].tags || []).slice(0, 2).map(function (t) { return BM_TAG[t]; })).forEach(function (r) { if (r) got[r] = 1; });
+    });
+    return Object.keys(BM_NAME).filter(function (r) { return got[r]; });
+  }
+  function bmSvg(got, tdy) {
+    var n = 0, list = [], tg = {}; (tdy || []).forEach(function (r) { tg[r] = 1; });
     var sh = BM.map(function (b) {
       var st = b[0] === 'head' ? 'off' : got[b[0]] === 'on' ? 'on' : got[b[0]] === 'part' ? 'part' : 'gap';
       return '<rect class="bm-' + st + '" x="' + b[1] + '" y="' + b[2] + '" width="' + b[3] + '" height="' + b[4] + '" rx="' + b[5] + '"/>';
     }).join('');
+    // today's parts: hatched, with a solid ring outside the shape so the trained/gap look underneath still shows
+    var td = BM.filter(function (b) { return tg[b[0]]; }).map(function (b) {
+      return '<rect class="bm-tdy" x="' + b[1] + '" y="' + b[2] + '" width="' + b[3] + '" height="' + b[4] + '" rx="' + b[5] + '"/><rect class="bm-ring" x="' + (b[1] - 2.5) + '" y="' + (b[2] - 2.5) + '" width="' + (b[3] + 5) + '" height="' + (b[4] + 5) + '" rx="' + (b[5] + 2.5) + '"/>';
+    }).join('');
     var on = Object.keys(BM_NAME).filter(function (r) { return got[r] === 'on'; }).map(function (r) { return BM_NAME[r]; });
     var part = Object.keys(BM_NAME).filter(function (r) { return got[r] === 'part'; }).map(function (r) { return BM_NAME[r]; });
     var gaps = Object.keys(BM_NAME).filter(function (r) { return !got[r]; }).map(function (r) { return BM_NAME[r]; });
-    var lab = 'Body map for program week ' + store.week + '. ' + (on.length ? 'Trained: ' + on.join(', ') + '. ' : 'Nothing trained yet. ') + (part.length ? 'Partly: ' + part.join(', ') + '. ' : '') + (gaps.length ? 'Gaps: ' + gaps.join(', ') + '.' : '');
-    return '<svg viewBox="0 0 358 300" role="img" aria-label="' + esc(lab) + '">' + sh + '<text class="bm-lbl" x="90" y="298" text-anchor="middle">Front</text><text class="bm-lbl" x="268" y="298" text-anchor="middle">Back</text></svg>';
+    var lab = 'Body map for program week ' + store.week + '. ' + (on.length ? 'Trained: ' + on.join(', ') + '. ' : 'Nothing trained yet. ') + (part.length ? 'Partly: ' + part.join(', ') + '. ' : '') + (gaps.length ? 'Gaps: ' + gaps.join(', ') + '.' : '') + (tdy && tdy.length ? ' Today’s session trains: ' + tdy.map(function (r) { return BM_NAME[r]; }).join(', ') + ', marked with hatching and a dark outline.' : '');
+    return '<svg viewBox="0 0 358 300" role="img" aria-label="' + esc(lab) + '"><defs><pattern id="bmHatch" class="bm-hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="5"/></pattern></defs>' + sh + td + '<text class="bm-lbl" x="90" y="298" text-anchor="middle">Front</text><text class="bm-lbl" x="268" y="298" text-anchor="middle">Back</text></svg>';
   }
   function renderBody() {
     var el = $('bodyCard'); if (!el) return;
     var got = bodyWeek(), gaps = Object.keys(BM_NAME).filter(function (r) { return !got[r]; }), any = Object.keys(got).length;
     var pct = Math.round(Object.keys(BM_NAME).filter(function (r) { return got[r] === 'on'; }).length / Object.keys(BM_NAME).length * 100);
-    el.innerHTML = '<h2 class="sr-only">This week, muscle by muscle</h2>' + bmSvg(got) +
-      '<ul class="bm-legend"><li><i style="background:var(--trained)"></i>Trained</li><li><i style="background:var(--partly)"></i>Partly</li><li><i style="background:var(--gap);outline:2px dashed var(--ink);outline-offset:-2px"></i>Gap this week</li><li style="margin-left:auto;font-weight:700;color:var(--ink)">' + pct + '% this week</li></ul>' +
+    var D = allDays(), day = D[selDay] || D[0], tdy = day ? dayRegions(day) : [];
+    var tdTxt = tdy.length ? tdy.map(function (r) { return BM_NAME[r]; }).join(', ') : day && day.cardio ? 'cardio, no strength work' : 'rest';
+    el.innerHTML = '<h2 class="sr-only">This week, muscle by muscle</h2>' + bmSvg(got, tdy) +
+      '<p class="bm-today"><b>Today:</b> ' + esc(tdTxt) + '</p>' +
+      '<ul class="bm-legend"><li><i class="tdy"></i>Today</li><li><i style="background:var(--trained)"></i>Trained</li><li><i style="background:var(--partly)"></i>Partly</li><li><i style="background:var(--gap);outline:2px dashed var(--ink);outline-offset:-2px"></i>Gap this week</li><li style="margin-left:auto;font-weight:700;color:var(--ink)">' + pct + '% this week</li></ul>' +
       (!any ? '<div class="bm-gaps"><p>Your map is empty. Each session fills in the muscles it works.</p></div>'
         : gaps.length ? (function () { var tagOf = function (r) { return Object.keys(BM_TAG).filter(function (t) { return BM_TAG[t] === r; }); }, can = gaps.filter(function (r) { var ts = tagOf(r); return Object.keys(ALL).some(function (id) { return EQV[id] && !(V(id, 'h').missing && V(id, 'g').missing) && (ALL[id].tags || []).some(function (t) { return ts.indexOf(t) > -1; }); }); }); gaps = can.concat(gaps.filter(function (r) { return can.indexOf(r) < 0; })); return ''; })() + '<div class="bm-gaps"><p><b>' + gaps.length + ' gap' + (gaps.length === 1 ? '' : 's') + ':</b> ' + esc(gaps.slice(0, 3).map(function (r) { return BM_NAME[r]; }).join(', ')) + (gaps.length > 3 ? ' and ' + (gaps.length - 3) + ' more' : '') + '.</p><button class="btn quiet" data-gapfind="' + esc(Object.keys(BM_TAG).filter(function (t) { return BM_TAG[t] === gaps[0]; })[0] || BM_NAME[gaps[0]]) + '">Find exercises</button></div>'
         : '<div class="bm-gaps"><p><b>Every muscle part trained this week.</b></p></div>');
@@ -2936,11 +2978,21 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     $('strip').innerHTML = D.map(function (d, i) {
       var a = store.done[doneKey(d, 'am')], b = store.done[doneKey(d, 'pm')], st = a && b ? 'done' : a || b ? (oneADay() ? 'half done' : (a ? 'morning' : 'evening') + ' done') : '';
       var dots = oneADay() ? '<i class="' + (a && b ? 'on' : '') + '"></i>' : '<i class="' + (a ? 'on' : '') + '"></i><i class="' + (b ? 'on' : '') + '"></i>';
-      return '<button data-i="' + i + '" aria-pressed="' + (i === selDay) + '" class="' + (i === nx ? 'today' : '') + (a && b ? ' dn' : '') + '" aria-label="Day ' + (i + 1) + ', ' + d.name + (st ? ', ' + st : '') + (i === nx ? ', up next' : '') + '"><span class="n">' + (a && b ? I_CHECK : i + 1) + '</span><span class="d">' + shortName(d) + '</span><span class="dots">' + dots + '</span></button>';
+      return '<button tabindex="-1" data-i="' + i + '" aria-pressed="' + (i === selDay) + '" class="' + (i === nx ? 'today' : '') + (a && b ? ' dn' : '') + '" aria-label="Day ' + (i + 1) + ', ' + d.name + (st ? ', ' + st : '') + (i === nx ? ', up next' : '') + '"><span class="n">' + (a && b ? I_CHECK : i + 1) + '</span><span class="d">' + shortName(d) + '</span><span class="dots">' + dots + '</span></button>';
     }).join('');
     $('sessions').innerHTML = oneADay() ? sessionCard(day, 'all', ph) : sessionCard(day, 'am', ph) + sessionCard(day, 'pm', ph);
+    var one = oneADay();
+    $('splitSeg').innerHTML = '<div class="seg split" role="group" aria-label="Sessions today"><button data-split="one" aria-pressed="' + one + '">One session</button><button data-split="two" aria-pressed="' + !one + '">Morning + evening</button></div>';
     renderEqDD('eqddTrain', 'Exercises in each session change to match.');
   }
+  // one session or morning + evening: the same setting as "Sessions a day" in the profile
+  $('splitSeg').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-split]'); if (!b || b.getAttribute('aria-pressed') === 'true') return;
+    if (store.profile) store.profile.split = b.dataset.split; else store.split = b.dataset.split;
+    save(); renderTrain();
+    var f = $('splitSeg').querySelector('[data-split="' + b.dataset.split + '"]'); if (f) f.focus();
+    announce(b.dataset.split === 'one' ? 'One session today.' : 'Morning and evening sessions today.');
+  });
   // ---------- equipment dropdown (Train + Exercises) ----------
   var EQ_NAME = { k: 'Kettlebells', d: 'Dumbbells', b: 'Barbell & plates', c: 'Cables & machines', r: 'Resistance bands', w: 'Bodyweight' };
   function renderEqDD(host, note, err) {
@@ -3137,13 +3189,31 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   });
 
   function openWeeks(from) {
-    var h = '<div class="weeks">';
+    var D = allDays(), nx = nextDayIdx();
+    // the phase, and what changes when the next phase starts (this used to sit on Today)
+    var ph0 = phaseOf(store.week), nx0 = store.week < 12 ? phaseOf(store.week + 1) : null;
+    var phTxt = ph0.name + ' phase: holds ' + ph0.sets + ' × ' + ph0.hold + ' s, then ' + ph0.gs + ' × ' + ph0.grt + ' reps.' + (nx0 && nx0.n !== ph0.n ? ' From week ' + (store.week + 1) + ': ' + nx0.name + ' phase, holds of ' + nx0.hold + ' s' + (nx0.gr !== ph0.gr ? ' and ' + nx0.grt + ' reps' : '') + '.' : '');
+    var h = '<p class="fine wk-ph">' + esc(phTxt) + '</p><h3 class="wk-h">This week</h3><div class="wkdays" role="group" aria-label="Days of program week ' + store.week + '">' + D.map(function (d, i) {
+      var a = store.done[doneKey(d, 'am')], b = store.done[doneKey(d, 'pm')], regs = dayRegions(d).map(function (r) { return BM_NAME[r]; });
+      var st = a && b ? 'Done' : (i === nx ? 'Up next' : '') + (a || b ? (i === nx ? ', ' : '') + (oneADay() ? 'half done' : (a ? 'morning' : 'evening') + ' done') : '');
+      st = st.replace(/^./, function (c) { return c.toUpperCase(); });
+      // short: the first four muscle parts, then a count
+      var what = d.cardio ? 'Cardio' + (regs.length ? ', plus back and core work' : '') : (regs.length > 4 ? regs.slice(0, 4).join(', ') + ' and ' + (regs.length - 4) + ' more' : regs.join(', ')).replace(/^./, function (c) { return c.toUpperCase(); });
+      return '<button data-day="' + i + '" class="' + (a && b ? 'dn' : '') + '" aria-pressed="' + (i === selDay) + '" aria-label="Day ' + (i + 1) + (st ? ', ' + st.toLowerCase() : '') + ': ' + esc(d.cardio ? what : regs.join(', ')) + '"><span class="n" aria-hidden="true">' + (a && b ? I_CHECK : i + 1) + '</span><span class="t" aria-hidden="true"><b>' + esc(what) + '</b><small>' + (st ? '<span class="st">' + st + '</span> · ' : '') + esc(d.name) + '</small></span></button>';
+    }).join('') + '</div><div class="wk-ov"><div class="overall">' + $('overall').innerHTML + '</div><div class="eqdd-wrap" id="eqddWeek"></div></div><h3 class="wk-h">Change week</h3><div class="weeks">';
     for (var w = 1; w <= 12; w++) { var ph = phaseOf(w), c = weekDone(w); h += '<button data-w="' + w + '" style="--c:' + KC[ph.kg] + '" aria-pressed="' + (w === store.week) + '"><span class="n">' + w + '</span><span class="p">' + ph.name.replace(' & Test', '') + (c ? ', ' + c + '/12' : '') + '</span></button>'; }
     h += '</div><p class="fine">The program moves to the next week by itself once all ' + weekTarget() + ' ' + unitWord(2) + ' of a week are done, whichever days you do them on. Pick a week here to jump ahead or go back.</p><div class="phases">' + PHASES.map(function (p) {
       var wk = p.weeks.length > 1 ? 'Weeks ' + p.weeks[0] + ' to ' + p.weeks[p.weeks.length - 1] : 'Week ' + p.weeks[0];
       return '<div class="phase" style="--c:' + KC[p.kg] + '"><b>' + p.name + '</b><span class="muted" style="font-size:14px;font-weight:700">' + wk + '. Holds ' + p.sets + ' × ' + p.hold + ' s, reps ' + p.gs + ' × ' + p.grt + '.</span><p>' + esc(p.focus) + '</p></div>';
     }).join('') + '</div>';
     openSheet('Program week', h, false, from);
+    renderEqDD('eqddWeek', 'Exercises in each session change to match.');
+    $('sheetBody').querySelector('.wkdays').addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-day]'); if (!b) return;
+      var sb = document.querySelector('#strip button[data-i="' + b.dataset.day + '"]');
+      closeSheet(); if (sb) sb.click();
+      var d = allDays()[selDay]; if (d) announce('Showing day ' + (selDay + 1) + ', ' + d.name + '.');
+    });
     $('sheetBody').querySelector('.weeks').addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b) return;
       store.week = +b.dataset.w; save(); selDay = nextDayIdx(); closeSheet(); renderAll();
@@ -3792,7 +3862,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // A newer version is online: say so, instead of quietly running the old one until the next launch
   // dates follow the app's language (English), not the device's, so an English screen doesn't show "28 de octubre"
   var UIL = /^en\b/i.test(navigator.language || '') ? undefined : 'en-GB';
-  var APP_VERSION = '36';
+  var APP_VERSION = '38';
   function checkVersion() {
     if (!navigator.onLine || !/^https?:/.test(location.protocol)) return;
     fetch('index.html?v=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
@@ -3837,7 +3907,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function prof() {
     var p = store.profile || {};
     return { name: p.name || '', age: p.age || null, sex: p.sex || '', cm: p.cm || null, bw: p.bw || null, units: p.units || 'kg', diet: p.diet || 'any', where: p.where || 'home',
-      cardio: p.cardio || ['treadmill', 'rower'], issues: p.issues || [], cues: !!p.cues, goal: p.goal || 'build', pace: p.pace || 'auto', split: p.split || 'two', posture: !!p.posture, stab: p.stab !== false, inv: p.inv || {}, nofloor: !!p.nofloor, days: p.days || 6, len: p.len || 0, dayHour: p.dayHour || 0, big: !!p.big };
+      cardio: p.cardio || ['treadmill', 'rower'], issues: p.issues || [], cues: !!p.cues, goal: p.goal || 'build', pace: p.pace || 'auto', split: p.split || store.split || 'two', posture: !!p.posture, stab: p.stab !== false, inv: p.inv || {}, nofloor: !!p.nofloor, days: p.days || 6, len: p.len || 0, dayHour: p.dayHour || 0, big: !!p.big };
   }
   // gentle mode: blood pressure, fragile bones or 65+
   // osteopenia: leave out loaded spinal flexion (crunch, hollow body)

@@ -7,7 +7,7 @@ const STATES = { 'no profile, has history': { week: 2, done: { w2d1am: true }, l
     const { b, page, errs } = await open(kind, { state: st });
     await page.goto('http://localhost:8170/index.html'); await page.waitForFunction(() => window.__isoholdReady);
     for (const di of [0, 1, 2]) {
-      await page.click(`.strip button[data-i="${di}"]`);
+      await page.evaluate(i => document.querySelector('.strip button[data-i="' + i + '"]').click(), di);
       const btns = await page.$$eval('#sessions [data-start]', bs => bs.map(x => x.dataset.part));
       for (const part of btns) {
         n++;
