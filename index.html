@@ -3684,7 +3684,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         var last = i === x.steps.length - 1, lab = isH ? (last ? 'Hold' : String(i + 1)) : (i ? 'End' : 'Start');
         return '<li class="' + (last ? 'final' : '') + '"><div class="sf">' + FIG.svgFor(x, x._r[i], { label: x.name + ', ' + lab }) + '<span>' + lab + '</span></div><p>' + esc(st.txt) + '</p></li>';
       }).join('');
-      var rxTxt = isH ? 'Week ' + store.week + ': ' + rx(x, ph) + ' at RPE ' + ph.rpe : 'Week ' + store.week + ': ' + grx(x, ph) + (x.mode === 'time' ? '' : ', ' + rirTxt(ph).toLowerCase());
+      var rxTxt = isH ? 'Week ' + store.week + ': ' + rx(x, ph) + ' at RPE ' + rpeTxt(id, ph) : 'Week ' + store.week + ': ' + grx(x, ph) + (x.mode === 'time' ? '' : ', ' + rirTxt(ph).toLowerCase());
       var wtBox = noWt(x.eq) ? '' : '<div class="wtbox"><label for="dWt">' + esc(wLabel(x)) + '</label><div class="stepper"><button data-d="-1" aria-label="Less weight">−</button><input id="dWt" type="number" inputmode="decimal" step="0.5" min="0" placeholder="0" value="' + (w == null ? '' : dispW(w)) + '"><span>' + uLab() + '</span><button data-d="1" aria-label="More weight">+</button></div></div>';
       var notes = '<div class="notes"><span class="k">Cues</span><ul>' + x.cues.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('') + '</ul>' +
         (isH ? '<p><span class="k">Avoid: </span>' + esc(BY[id].avoid) + '</p><p><span class="k">Why: </span>' + esc(BY[id].why) + '</p>' : '<p><span class="k">Tempo: </span>' + esc(tempoTxt(x)) + '</p>') + '</div>';
@@ -4730,7 +4730,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // A newer version is online: say so, instead of quietly running the old one until the next launch
   // dates follow the app's language (English), not the device's, so an English screen doesn't show "28 de octubre"
   var UIL = /^en\b/i.test(navigator.language || '') ? undefined : 'en-GB';
-  var APP_VERSION = '46';
+  var APP_VERSION = '47';
   function checkVersion() {
     if (!navigator.onLine || !/^https?:/.test(location.protocol)) return;
     fetch('index.html?v=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
@@ -4799,6 +4799,12 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   var KNEE_MOD = { 'goblet-squat': 'Knees: squat down until you touch a chair, then stop there', 'split-squat': 'Knees: short stance, bend the front knee only to about 45°, a hand on the wall', 'wall-sit': 'Knees: slide down only until the knees are bent about 45°, not 90°', suitcase: 'Knees: bend only as far as is comfortable' };
   var NECK_TXT = 'Neck: push at no more than a third of your effort, and stop if you feel pain, dizziness or tingling into the arm. New or severe neck pain: see a clinician first';
   function modTxt(id, wk) { var is = prof().issues; if (id === 'neck-hold' && wk === 'h' && (is.indexOf('neck') > -1 || gentle())) return NECK_TXT; if (id === 'dip-hold' && gentle()) return 'Gentle: stay near the top with the elbows only slightly bent, or keep your toes on the floor to take some weight'; if (id === 'pushup-plus' && is.indexOf('wrist') > -1) return 'Wrists: do it on your fists, or standing with your hands on a wall'; if (id === 'sl-balance' && (gentle() || is.indexOf('balance') > -1)) return 'Balance: stand next to a wall or chair and touch it whenever you need to'; if (is.indexOf('knee') > -1 && KNEE_MOD[id]) return KNEE_MOD[id]; if (is.indexOf('bones') > -1 && id === 'bird-dog' && wk !== 'h') return 'Bones: the hips do the work and the back stays flat, a safe way to load the spine and hips'; return ''; }
+  // target effort for a hold: the phase RPE ("7–8" in weeks 5–8), capped at 7 in gentle mode; the neck hold is always light
+  function rpeTxt(id, ph) {
+    if (id === 'neck-hold') return '3–4';
+    var r = String(ph.rpe), lo = parseFloat(r);
+    return gentle() && lo >= 7 ? '7' : r;
+  }
   function gentle() { var p = prof(); return p.issues.indexOf('bp') > -1 || p.issues.indexOf('bones') > -1 || (p.age || 0) >= 65; }
   function bwTxt(v) { if (v == null) return ''; if (prof().units !== 'st') return r1(toU(v)) + ' ' + uLab(); if (prof().units === 'st') { var lb = Math.round(v * 2.20462); return Math.floor(lb / 14) + ' st ' + (lb % 14) + ' lb'; } return kg(v); }
   // weights you own: "12, 16, 24" or "2.5-12.5" (step 2.5) -> list in kg
@@ -6781,7 +6787,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       $('pSetLabel').textContent = (showIt.kind === 'hold' ? 'Hold set ' : 'Rep set ') + showIt.set + ' of ' + showIt.sets + (showIt.side ? ', ' + showIt.side.toLowerCase() : '');
       var d = ''; for (var s = 1; s <= showIt.sets; s++) d += '<i class="' + (s < showIt.set ? 'done' : s === showIt.set ? (showIt.kind === 'hold' ? 'on' : 'on r') : '') + '"></i>';
       $('pSets').innerHTML = d;
-      $('pRx').textContent = (showIt.kind === 'hold' ? (showIt.pain ? showIt.dur + ' s (shortened)' : rx(ex, ph)) + ' at RPE ' + Math.min(ph.rpe, gentle() ? 7 : 10) : grx(ex, ph) + (showIt.kind === 'reps' ? ', ' + rirTxt(ph).toLowerCase() : '')) + (showIt.pain ? '. ' + areaName(showIt.pain.area).replace(/^./, function (c) { return c.toUpperCase(); }) + ' ' + showIt.pain.score + '/10: go about 20% lighter, stop above 3/10.' : '') + (showIt.mod ? '. ' + showIt.mod + '.' : '');
+      $('pRx').textContent = (showIt.kind === 'hold' ? (showIt.pain ? showIt.dur + ' s (shortened)' : rx(ex, ph)) + ' at RPE ' + rpeTxt(showIt.id, ph) : grx(ex, ph) + (showIt.kind === 'reps' ? ', ' + rirTxt(ph).toLowerCase() : '')) + (showIt.pain ? '. ' + areaName(showIt.pain.area).replace(/^./, function (c) { return c.toUpperCase(); }) + ' ' + showIt.pain.score + '/10: go about 20% lighter, stop above 3/10.' : '') + (showIt.mod ? '. ' + showIt.mod + '.' : '');
       var ang = $('pAngle');
       if (P.stage === 'rest' || P.stage === 'switch') setCue(P.stage === 'switch' ? 'Switch sides' : 'Rest', 'Next: start position', '');
       else if (showIt.kind === 'hold') setCue(P.stage === 'work' ? (showIt.angle === 'mid' ? 'Hold mid-range' : 'Hold') : 'Get into position', P.stage === 'work' ? 'Keep breathing, stay still' : (showIt.angle === 'mid' ? 'Mid-range hold' : 'Then hold'), P.stage === 'work' ? 'hold' : '');
@@ -6989,7 +6995,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   renderTools();
   window.__isoholdReady = performance.now();
   // read-only hooks for the automated test suite
-  window.__isoTest = { today: function (l) { return today(l); }, dayStart: function (t) { return dayStart(t); }, suggestWt: function (id, kind) { return suggestWt(id, V(id, kind === 'h' ? 'h' : 'g'), kind); }, localAnswer: function (t) { return localAnswer(t); }, weekTarget: function () { return weekTarget(); }, buildQueue: buildQueue, allDays: allDays, mins: mins, V: V, chooseEq: chooseEq, pickEq: pickEq, store: function () { return store; }, strengthData: strengthData, holdMax: holdMax, repMax: repMax, phaseOf: phaseOf, blocksFor: blocksFor, wLabel: wLabel, weekDone: weekDone, isPB: isPB, parseText: parseText, parsePlayerCmd: parsePlayerCmd, handle: function (t, s) { return handle(t, s || 'text'); }, runCmd: function (t) { return runCmd(t); }, feed: function () { return feed; }, prof: prof, proteinTarget: proteinTarget, foods: FOODS, applyAction: function (a) { return apply(a, 'test'); }, dailyIdx: function () { return dailyIdx(); }, strChange: function () { return strChange(); }, epley: epley, loadTime: loadTime, estMax: estMax, liftTags: liftTags, exRegions: exRegions, liftRegions: liftRegions, BM_NAME: BM_NAME, weekStart: function (t) { return weekStart(t); }, bodyWeek: function () { return bodyWeek(); }, covDays: covDays, covDone: covDone, exName: exName };
+  window.__isoTest = { today: function (l) { return today(l); }, dayStart: function (t) { return dayStart(t); }, suggestWt: function (id, kind) { return suggestWt(id, V(id, kind === 'h' ? 'h' : 'g'), kind); }, localAnswer: function (t) { return localAnswer(t); }, weekTarget: function () { return weekTarget(); }, buildQueue: buildQueue, allDays: allDays, mins: mins, V: V, chooseEq: chooseEq, pickEq: pickEq, store: function () { return store; }, strengthData: strengthData, holdMax: holdMax, repMax: repMax, phaseOf: phaseOf, blocksFor: blocksFor, wLabel: wLabel, weekDone: weekDone, isPB: isPB, parseText: parseText, parsePlayerCmd: parsePlayerCmd, handle: function (t, s) { return handle(t, s || 'text'); }, runCmd: function (t) { return runCmd(t); }, feed: function () { return feed; }, prof: prof, proteinTarget: proteinTarget, foods: FOODS, applyAction: function (a) { return apply(a, 'test'); }, dailyIdx: function () { return dailyIdx(); }, strChange: function () { return strChange(); }, epley: epley, loadTime: loadTime, estMax: estMax, liftTags: liftTags, exRegions: exRegions, liftRegions: liftRegions, BM_NAME: BM_NAME, weekStart: function (t) { return weekStart(t); }, bodyWeek: function () { return bodyWeek(); }, covDays: covDays, covDone: covDone, exName: exName, rpeTxt: rpeTxt };
   kickAnim();
 })();
 
