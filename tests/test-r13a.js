@@ -124,6 +124,35 @@ const DAY = 864e5;
   ok(!errs.length, 'no errors (kg) ' + errs);
   await b.close();
 
+  // ---- Chloe: kg, 3 days a week (Full Body A/B/C), gym ----
+  ({ b, page, errs } = await boot({ profile: { units: 'kg', bw: 68, age: 34, sex: 'f', where: 'gym', days: 3 }, eq: ['b', 'c', 'd', 'k'], body: [{ t: Date.now() - DAY, kg: 68 }],
+    notes: [{ t: Date.now() - 5 * DAY, k: 'lift', name: 'Seated Cable Row', kg: 32.5, reps: 10, s: null, sets: 3, rpe: null }] }));
+  const PC = t => T(page, t => window.__isoTest.parseText(t), t);
+  r = await PC('cable row 35kg 12,10,8');
+  ok(r.actions.length === 1 && r.actions[0].name === 'Seated Cable Row' && r.actions[0].weight === 35 && r.actions[0].reps === 12 && J(r.actions[0].more) === '[10,8]', 'cable row 35kg 12,10,8 = Seated Cable Row, three sets: ' + J(r));
+  r = await PC('cable row 35kg 12, 10, 8'); ok(r.actions[0].reps === 12 && J(r.actions[0].more) === '[10,8]', 'with spaces after the commas too: ' + J(r));
+  r = await PC('bench 40kg 8,7'); ok(r.actions[0].reps === 8 && J(r.actions[0].more) === '[7]', 'two sets after a weight: ' + J(r));
+  ok((await PC('peso 73,5')).actions[0].weight === 73.5, 'a decimal comma is still a decimal');
+  await T(page, () => window.__isoTest.handle('cable row 35kg 12,10,8'));
+  L = await lifts(); const rows = L.filter(n => n.name === 'Seated Cable Row');
+  ok(rows.length === 4 && rows.slice(1).map(n => n.reps).join() === '12,10,8' && rows.slice(1).every(n => n.kg === 35), 'saved 35 x 12, 10, 8 under the one Seated Cable Row history: ' + J(rows));
+  // leg press is the machine version of a plan exercise: one history with the session
+  const lg1 = await T(page, () => window.__isoTest.store().log.length);
+  await T(page, () => window.__isoTest.handle('leg press 140kg 10x3'));
+  c = await T(page, () => window.__isoTest.feed().filter(x => x.r === 'card').pop());
+  lg = await T(page, () => window.__isoTest.store().log.slice(-3));
+  ok(lg.length === 3 && lg.every(x => x.id === 'wall-sit' && x.eq === 'c' && x.k === 'r' && x.kg === 140 && x.v === 10) && (await T(page, () => window.__isoTest.store().log.length)) === lg1 + 3, 'typed leg press is saved to the plan’s Leg Press: ' + J(lg));
+  ok(c.title === 'Leg Press' && !/not part of the program/.test((c.sub || '') + c.lines.join(' ')), 'card does not say "not part of the program": ' + c.title + ' | ' + c.sub);
+  // dips with a belt: bodyweight + load
+  await T(page, () => window.__isoTest.handle('dips bw+5 3x8'));
+  c = await T(page, () => window.__isoTest.feed().filter(x => x.r === 'card').pop());
+  L = await lifts(); const dp = L[L.length - 1];
+  ok(dp.name === 'Dip' && dp.add === 1 && dp.kg === 5 && dp.bw === 68, 'dips bw+5: Dip, +5 kg on 68 kg bodyweight: ' + J(dp));
+  const cmd = await T(page, () => window.__isoTest.curMaxLift('Dip'));
+  ok(cmd && Math.abs(cmd.e - 73 * (1 + 8 / 30)) < 0.6 && /bodyweight \+ 5 kg/.test(c.sub), 'estimated max from 73 kg x 8, not 6.3 kg: ' + J(cmd) + ' | ' + c.sub);
+  ok(!errs.length, 'no errors (Chloe) ' + errs);
+  await b.close();
+
   srv.close();
   console.log(pass + ' passed, ' + fail + ' failed');
   process.exit(fail ? 1 : 0);
