@@ -41,12 +41,12 @@ async function boot(st, dark) { const o = await open('android', { state: st, dar
   ok(await page.locator('#dailyCard circle.ms').count() === 3 && await page.locator('#dailyCard rect.me').count() === 3, 'one marker per trained day, none on the rest day');
   ok(await page.locator('#dailyCard svg.dchart[role="img"]').count() === 1 && /100 is your start/.test(await page.getAttribute('#dailyCard svg.dchart', 'aria-label')), 'chart has a role=img summary');
   // calculations
-  const D = await page.evaluate(() => { const d = window.__isoTest.dailyIdx(), s = {}, e = {}; Object.keys(d.s).forEach(k => s[k] = d.s[k]); Object.keys(d.e).forEach(k => e[k] = d.e[k]); const x = d.ex['r|goblet-squat|k']; return { s, e, base: x.base, ep: window.__isoTest.epley(20, 10), lt: window.__isoTest.loadTime(0, 60) }; });
+  const D = await page.evaluate(() => { const d = window.__isoTest.dailyIdx(), s = {}, e = {}; Object.keys(d.s).forEach(k => s[k] = d.s[k]); Object.keys(d.e).forEach(k => e[k] = d.e[k]); const x = d.ex['r|goblet-squat|k'], hm = (kg, v) => window.__isoTest.holdMax({ id: 'wall-sit', kg, v }).est; return { s, e, base: x.base, ep: window.__isoTest.epley(20, 10), lt: window.__isoTest.loadTime(0, 60), h2: hm(10, 45) / hm(10, 30), h3: hm(12, 40) / hm(10, 30) }; });
   const ds = await page.evaluate(ts => ts.map(t => window.__isoTest.dayStart(t)), [ago(10), ago(8), ago(7)]);
   ok(Math.abs(D.base - 20 * (1 + 10 / 30)) < 1e-9 && Math.abs(D.ep - 26.6667) < 1e-3, 'e1RM is Epley: 20 kg × 10 reps = 26.67 kg (best set of the day)');
-  ok(Math.abs(D.s[ds[0]] - 100) < 1e-9 && Math.abs(D.s[ds[1]] - 120) < 1e-6 && Math.abs(D.s[ds[2]] - 24 * 1.4 / (20 * (1 + 1 / 3)) * 100) < 1e-6, 'strength index: 100, 120, 126');
+  ok(Math.abs(D.s[ds[0]] - 100) < 1e-9 && Math.abs(D.s[ds[1]] - (120 + D.h2 * 100) / 2) < 1e-6 && Math.abs(D.s[ds[2]] - (24 * 1.4 / (20 * (1 + 1 / 3)) * 100 + D.h3 * 100) / 2) < 1e-6, 'strength index: mean of goblet squat (100, 120, 126) and the weighted wall-sit hold max: ' + Object.values(D.s).map(Math.round));
   ok(Math.abs(D.e[ds[0]] - 100) < 1e-9 && Math.abs(D.e[ds[1]] - 150) < 1e-6 && Math.abs(D.e[ds[2]] - 160) < 1e-6 && D.lt === 60, 'endurance index uses seconds × kg (300 → 450 → 480), bodyweight counts as 1');
-  ok(/120/.test(await page.locator('#dailyCard table.dtab').textContent()) && /160/.test(await page.locator('#dailyCard table.dtab').textContent()), 'numbers table lists the indices');
+  ok(/160/.test(await page.locator('#dailyCard table.dtab').textContent()), 'numbers table lists the indices');
   // info
   ok(await page.getAttribute('#dlyInfoB', 'aria-expanded') === 'false' && !(await page.isVisible('#dlyInfo')), 'info starts closed');
   const ib = await page.locator('#dlyInfoB').boundingBox(); ok(ib.width >= 44 && ib.height >= 44, 'info button is 44 px');
@@ -54,7 +54,7 @@ async function boot(st, dark) { const o = await open('android', { state: st, dar
   const hrefs = await page.$$eval('#dlyInfo a', a => a.map(x => x.href));
   ok(await page.getAttribute('#dlyInfoB', 'aria-expanded') === 'true' && await page.isVisible('#dlyInfo'), 'info opens');
   ok(hrefs.length === 3 && hrefs.every(h => /^https:\/\/doi\.org\//.test(h)) && !/youtube|youtu\.be/i.test(await page.locator('#dlyInfo').innerHTML()), 'info has 3 DOI links and no YouTube');
-  ok(/1 \+ reps ÷ 30/.test(await page.locator('#dlyInfo').innerText()), 'info shows the Epley formula');
+  ok(/1 \+ \(reps \+ reps in reserve\) ÷ 30/.test(await page.locator('#dlyInfo').innerText()), 'info shows the Epley formula with reps in reserve');
   // strength map
   await page.click('#pt-muscles');
   const lab = await page.getAttribute('#mapCard svg.smap', 'aria-label');
