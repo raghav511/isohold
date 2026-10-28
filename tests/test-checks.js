@@ -55,20 +55,20 @@ const T = (page, f, a) => page.evaluate(f, a);
     if (!dark) {
       const id = optIds[0], logN = await T(page, () => JSON.parse(localStorage.getItem('isohold.v1')).log.length);
       await page.fill('#chkKg', '20'); await page.fill('#chkReps', '10'); await page.waitForTimeout(50);
-      ok(/26\.7 kg/.test(await page.textContent('#chkRes')), '20 kg × 10 reps → 26.7 kg (' + await page.textContent('#chkRes') + ')');
+      ok(/27\.3 kg/.test(await page.textContent('#chkRes')), '20 kg × 10 reps with 1 left (RPE 9) → 27.3 kg (' + await page.textContent('#chkRes') + ')');
       await page.click('#chkSave'); await page.waitForTimeout(200);
       const s = await T(page, () => JSON.parse(localStorage.getItem('isohold.v1')));
       const h = s.tests._str || [], last = h[h.length - 1], l = s.log[s.log.length - 1];
-      ok(last && last.id === id && last.kg === 20 && last.reps === 10 && Math.abs(last.e1 - 26.67) < 0.01, 'result saved to the check history');
+      ok(last && last.id === id && last.kg === 20 && last.reps === 10 && Math.abs(last.e1 - 27.33) < 0.01, 'result saved to the check history');
       ok(s.log.length === logN + 1 && l.id === id && l.k === 'r' && l.kg === 20 && l.v === 10, 'also logged into store.log as a rep set');
-      ok(/26\.7 kg/.test(await page.locator('#chkCard').innerText()), 'card shows the latest result');
+      ok(/27\.3 kg/.test(await page.locator('#chkCard').innerText()), 'card shows the latest result');
       // second check: reps pre-filled, change shown
       await page.click('#chkCard [data-chk="str"]'); await page.waitForTimeout(150);
       ok(await page.inputValue('#chkReps') === '10' && await page.inputValue('#chkKg') === '20', 'reps and weight pre-filled from last time');
       await page.fill('#chkReps', '12'); await page.waitForTimeout(50);
       ok(/\+1\.3 kg vs last time/.test(await page.textContent('#chkRes')), 'change vs last time shown (' + await page.textContent('#chkRes') + ')');
       await page.click('#chkSave'); await page.waitForTimeout(200);
-      ok(/28 kg.*\+1\.3 kg since/.test(await page.locator('#chkCard').innerText()), 'card shows the change since last time');
+      ok(/28\.7 kg.*\+1\.3 kg since/.test(await page.locator('#chkCard').innerText()), 'card shows the change since last time');
     }
     ok(!errs.length, 'no page errors ' + (dark ? 'dark' : 'light') + ': ' + errs.join(' | '));
     await b.close();
