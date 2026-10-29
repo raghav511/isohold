@@ -166,7 +166,7 @@ const lastMsg = p => T(p, () => (window.__isoTest.feed().filter(x => x.r === 'm'
 
   // ---- Chloe: "16s" dumbbells, a weight far off your usual is asked about, plain coffee, chips with your latest numbers ----
   {
-    const now = Date.now(), fd = [3, 2, 1].map((d, i) => ({ t: now - d * DAY, r: 'u', x: i < 2 ? 'lat pulldown 45x10x3' : 'lat pulldown 50x10x3' }));
+    const now = Date.now(), fd = [].concat.apply([], [3, 2, 1].map((d, i) => [{ t: now - d * DAY, r: 'u', x: i < 2 ? 'lat pulldown 45x10x3' : 'lat pulldown 50x10x3' }, { t: now - d * DAY + 1000, r: 'card', k: 'lift' }])); // each message with the card it saved, as in a real history
     const st = { profile: { units: 'kg', bw: 68, age: 34, sex: 'f', where: 'gym', days: 3 }, eq: ['b', 'c', 'd', 'k'], body: [{ t: now - 9 * DAY, kg: 68 }],
       notes: [{ t: now - 5 * DAY, k: 'lift', name: 'Bench Press', kg: 40, reps: 8, s: null, sets: 1, rpe: null }] };
     const o = await boot(st, { before: async ctx => { await ctx.addInitScript(`localStorage.setItem('isohold.coach.feed', ${J(J(fd))})`); } }), p = o.page;
