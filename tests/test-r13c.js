@@ -7,7 +7,10 @@
 const { serve, open, FAKE_SPEECH } = require('./lib');
 let pass = 0, fail = 0; const ok = (c, m) => { if (c) { pass++; if (process.env.V) console.log('ok', m); } else { fail++; console.log('FAIL', m); } };
 const PORT = +(process.env.PORT || 8790), URL = `http://localhost:${PORT}/index.html`;
-const RAVI = require('./fixtures/ravi-r13.json'), FATIMA = require('./fixtures/fatima-r13.json');
+// the saved states carry real timestamps; blood-pressure readings in them would turn "today" into a high-BP day once the real
+// clock reaches them, and none of these checks are about blood pressure, so they are left out
+const noBp = st => Object.assign({}, st, { notes: (st.notes || []).filter(n => n.k !== 'bp') });
+const RAVI = noBp(require('./fixtures/ravi-r13.json')), FATIMA = noBp(require('./fixtures/fatima-r13.json'));
 const clone = o => JSON.parse(JSON.stringify(o));
 const ready = p => p.waitForFunction(() => window.__isoholdReady, null, { polling: 100 });
 async function boot(state, opts = {}) { const o = await open(opts.kind || 'android', Object.assign({ state }, opts)); if (opts.at) await o.page.clock.setFixedTime(new Date(opts.at)); await o.page.goto(URL); await ready(o.page); return o; }
