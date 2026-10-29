@@ -87,7 +87,7 @@ const AUDIT = () => {
     await b.close();
     ({ b, page, errs } = await boot(base({ eq: ['d', 'b', 'c', 'k'], profile: Object.assign({}, CHLOE) })));
     const nb = await T(page, AUDIT);
-    ok(nb.every(x => !x.from && x.v === x.stdSnap), 'beginner: every first weight is the standard start');
+    ok(nb.every(x => !x.from && (x.v === x.stdSnap || (x.eq === 'd' && x.v === 0 && x.std < 1.75))), 'beginner: every first weight is the standard start (under 2 kg dumbbell: bodyweight, round 14)');
     const g2 = (id, k, eq) => nb.find(x => x.id === id && x.k === k && x.eq === eq) || {};
     ok(g2('oh-triceps', 'r', 'b').v === 10 && g2('curl', 'r', 'b').v === 10, 'beginner barbell triceps and curls start on a 10 kg EZ bar (' + g2('oh-triceps', 'r', 'b').v + ', ' + g2('curl', 'r', 'b').v + ')');
     ok(g2('lateral-raise', 'r', 'd').v <= 3 && g2('curl', 'r', 'd').v <= 5, 'beginner dumbbell lateral raise ≤ 3, curl ≤ 5');
