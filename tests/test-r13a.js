@@ -70,7 +70,7 @@ const DAY = 864e5;
     .map((x, i) => ({ t: t0 + i * 1000, k: 'lift', name: x[0], kg: x[1], reps: x[2], s: null, sets: 1, rpe: null }));
   ({ b, page, errs } = await boot({ profile: { units: 'kg', bw: 72, age: 23, sex: 'm', where: 'gym' }, eq: ['k', 'w'], body: [{ t: t0, kg: 72 }], notes: old }));
   L = await lifts();
-  ok(J(L.map(n => n.name)) === J(['Bench Press', 'Seated Row', 'Back Squat', 'Pull-Up', 'Deadlift', 'Overhead Press', 'Mancuernas', 'Safety Bar Squat', 'Bench Press']), 'old names map to their lift on load: ' + J(L.map(n => n.name)));
+  ok(J(L.map(n => n.name)) === J(['Bench Press', 'Seated Row', 'Back Squat', 'Pull-Up', 'Deadlift', 'Overhead Press', 'Unnamed lift (dumbbells)', 'Safety Bar Squat', 'Bench Press']), 'old names map to their lift on load: ' + J(L.map(n => n.name)));
   ok(L[0].was === 'Press Banca' && L[0].kg === 60 && L[0].reps === 8 && L[3].add === 1, 'nothing lost: the typed name is kept, weighted pull-up flagged: ' + J(L[0]) + J(L[3]));
   await page.evaluate(() => document.getElementById('tab-progress').click()); await page.waitForTimeout(150);
   const other = await T(page, () => [...document.querySelectorAll('#progExtras .lifts > li > b')].map(x => x.textContent));
