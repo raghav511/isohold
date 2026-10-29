@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' data: blob:; connect-src 'self' https://generativelanguage.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -2996,7 +2997,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function kg(v) { return v == null ? '' : dispW(v) + ' ' + uLab(); }
   var KC = { 16: 'var(--k16)', 20: 'var(--k20)', 24: 'var(--k24)', 28: 'var(--k28)', 32: 'var(--k32)' };
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 
   // ---------- storage ----------
   var store = { week: 1, done: {}, tests: {}, wt: {}, log: [], eq: ['k', 'd'] };
@@ -3497,7 +3498,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // lifts you logged outside the program ("bench 225 x 5"): Progress > Other lifts
   function liftHits(rx, q) {
     var by = {}, order = [];
-    store.notes.forEach(function (n) { if (n.k !== 'lift' || !n.name || !rx.test(n.name)) return; var k = liftKey(n.name); if (!by[k]) { by[k] = { name: n.name, n: 0, cm: curMaxLift(n.name) }; order.push(k); } by[k].n += n.sets || 1; });
+    store.notes.forEach(function (n) { if (n.k !== 'lift' || !n.name || !rx.test(n.name)) return; var k = liftKey(n.name); if (!by[k]) { by[k] = { name: n.name, n: 0, cm: curMaxLift(n.name) }; order.push(k); } by[k].n += +n.sets || 1; });
     var ex1 = srchExact(q || ''); if (ex1) order.sort(function (a, b) { return (b === ex1.toLowerCase()) - (a === ex1.toLowerCase()); }); // the lift you named first
     return order.slice(0, 3).map(function (k) { return by[k]; });
   }
@@ -3687,7 +3688,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (trimInfo && trimInfo.dropped && trimInfo.dropped.indexOf(id) > -1) sh = sr = 'time (to fit ' + trimInfo.trimmed + ' minutes)';
     else if (trimInfo && trimInfo.partsCut) { if (trimInfo.partsCut.indexOf(id + '|h') > -1) sh = 'time (to fit ' + trimInfo.trimmed + ' minutes)'; if (trimInfo.partsCut.indexOf(id + '|r') > -1) sr = 'time (to fit ' + trimInfo.trimmed + ' minutes)'; }
     if (pn.area) { var ph2 = Object.create(ph); ph2.hold = Math.round(ph.hold * 0.75 / 5) * 5; ph = ph2; if (wh) wh = painWt({ pain: pn, ex: h }, wh); if (wg) wg = painWt({ pain: pn, ex: g }, wg); }
-    return '<div class="rw' + (both ? ' off' : '') + '">' + (pn.area && !pn.skip ? '<span class="s miss">' + esc(areaName(pn.area).replace(/^./, function (c) { return c.toUpperCase(); })) + ' ' + pn.score + '/10: shorter holds, fewer reps, about 20% lighter today</span>' : '') + (md ? '<span class="s mod">' + esc(md) + '</span>' : '') + '<button class="row" data-ex="' + id + '">' + figSvg(h, 2) + '<span><span class="t">' + esc(h.name) + '</span>' +
+    return '<div class="rw' + (both ? ' off' : '') + '">' + (pn.area && !pn.skip ? '<span class="s miss">' + esc(areaName(pn.area).replace(/^./, function (c) { return c.toUpperCase(); })) + ' ' + esc(pn.score) + '/10: shorter holds, fewer reps, about 20% lighter today</span>' : '') + (md ? '<span class="s mod">' + esc(md) + '</span>' : '') + '<button class="row" data-ex="' + id + '">' + figSvg(h, 2) + '<span><span class="t">' + esc(h.name) + '</span>' +
       '<span class="s' + (o.h ? ' x' : '') + '"><span class="h">' + rx(h, ph) + (wh != null ? (wh ? ' at ' + kg(wh) : ', no weight') : '') + '</span></span>' +
       (sr ? '<span class="s miss">' + esc(g.name) + ' left out for ' + esc(sr) + '</span>' : '<span class="s' + (o.r ? ' x' : '') + '">Then <b>' + esc(g.name) + ' ' + (pn.area ? grx(g, ph).replace(/(×\s*)(\d+)/, function (m, x, n) { return x + Math.max(5, Math.round(n * 0.7)); }) : grx(g, ph)) + (wg != null ? (wg ? ' at ' + kg(wg) : ', no weight') : '') + '</b></span>') + (sh ? '<span class="s miss">Hold left out for ' + esc(sh) + '</span>' : '') + (h.missing ? '<span class="s miss">Hold left out: needs ' + esc(needsTxt(id, 'h')) + '</span>' : g.missing ? '<span class="s miss">Reps left out: needs ' + esc(needsTxt(id, 'g')) + '</span>' : '') + '</span></button>' +
       (sk ? '<div class="tg" role="group" aria-label="Include in this session"><button data-tg="h" data-id="' + id + '" data-sk="' + sk + '" aria-pressed="' + !o.h + '">' + (o.h ? 'Hold skipped' : 'Hold') + '</button><button data-tg="r" data-id="' + id + '" data-sk="' + sk + '" aria-pressed="' + !o.r + '">' + (o.r ? 'Reps skipped' : 'Reps') + '</button>' +
@@ -4290,7 +4291,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       }
       var pc = Math.round((now / e.base - 1) * 100);
       var val = function (v) { return e.kind === 's' ? kg(v) : bw ? Math.round(v) + ' s' : Math.round(toU(v)) + ' ' + uLab() + '·s'; };
-      return '<li data-exkey="' + esc(e.key) + '"><b>' + esc(e.name) + '</b><span>' + (e.kind === 's' ? (r.k === 'h' ? 'Max estimate from the hold ' : 'Estimated max ') : bw ? 'Held ' : 'Load × time ') + '<span class="emx">' + val(now) + '</span> (' + (e.kind === 's' ? 'from ' : '') + (r.kg > 0 ? kg(r.kg) + ' × ' : '') + r.v + (r.k === 'h' ? ' s' : r.v === 1 ? ' rep' : ' reps') + (r.rpe ? ' @ RPE ' + r.rpe : '') + ', ' + src + ')' + (e.last > e.first ? ', start ' + val(e.base) + ', ' + (pc >= 0 ? '+' : '') + pc + '%' : ', first time') + '</span></li>';
+      return '<li data-exkey="' + esc(e.key) + '"><b>' + esc(e.name) + '</b><span>' + (e.kind === 's' ? (r.k === 'h' ? 'Max estimate from the hold ' : 'Estimated max ') : bw ? 'Held ' : 'Load × time ') + '<span class="emx">' + val(now) + '</span> (' + (e.kind === 's' ? 'from ' : '') + (r.kg > 0 ? kg(r.kg) + ' × ' : '') + esc(r.v) + (r.k === 'h' ? ' s' : r.v === 1 ? ' rep' : ' reps') + (r.rpe ? ' @ RPE ' + esc(r.rpe) : '') + ', ' + src + ')' + (e.last > e.first ? ', start ' + val(e.base) + ', ' + (pc >= 0 ? '+' : '') + pc + '%' : ', first time') + '</span></li>';
     }).join('') + '</ul>';
     // A flat strength line is a real plateau, not a stale number: say why, so it doesn't look stuck
     var sd = trained.filter(function (d) { return d in D.s; }), flat = 0;
@@ -4456,7 +4457,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (noW) s = s.slice(0, w0); // no weight chart for bodyweight or band work
     s += '<p class="chart-t" aria-hidden="true">' + (unit === ' s' ? 'Seconds held' : 'Reps done') + '</p><svg class="schart" viewBox="0 0 ' + W + ' ' + (H2 + Math.round(fs - 11)) + '" aria-hidden="true" style="--axfs:' + fs.toFixed(1) + 'px">';
     var bw = Math.min(26, (W - L - R) / n - 6);
-    pts.forEach(function (p, i) { var h = p.v / maxV * (H2 - 30), x = xs(i) - bw / 2, y = H2 - 16 - h; s += '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="3" fill="' + (unit === ' s' ? 'var(--hold)' : 'var(--rep)') + '"/><text x="' + xs(i).toFixed(1) + '" y="' + (y - 3).toFixed(1) + '" class="val" text-anchor="middle">' + p.v + '</text><text x="' + xs(i).toFixed(1) + '" y="' + (H2 - 3 + Math.round(fs - 11)) + '" class="ax" text-anchor="middle">' + new Date(p.t).getDate() + '</text>'; });
+    pts.forEach(function (p, i) { var h = p.v / maxV * (H2 - 30), x = xs(i) - bw / 2, y = H2 - 16 - h; s += '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="3" fill="' + (unit === ' s' ? 'var(--hold)' : 'var(--rep)') + '"/><text x="' + xs(i).toFixed(1) + '" y="' + (y - 3).toFixed(1) + '" class="val" text-anchor="middle">' + esc(p.v) + '</text><text x="' + xs(i).toFixed(1) + '" y="' + (H2 - 3 + Math.round(fs - 11)) + '" class="ax" text-anchor="middle">' + new Date(p.t).getDate() + '</text>'; });
     return s + '</svg>';
   }
   $('strCard').addEventListener('change', function (e) { if (e.target.id === 'strSel') { strSel = e.target.value; renderStrength(); } });
@@ -4486,7 +4487,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       var w = !l.x && vv && vv.uni ? 0.5 : 1; // a session logs each side of a one-sided exercise
       exRegions(l.id, l.k, l.eq).on.forEach(function (r) { done[r] = (done[r] || 0) + w; });
     });
-    store.notes.forEach(function (n) { if (n.k !== 'lift' || !n.t || n.t < ws) return; liftRegions(n.name).on.forEach(function (r) { done[r] = (done[r] || 0) + (n.sets || 1); }); });
+    store.notes.forEach(function (n) { if (n.k !== 'lift' || !n.t || n.t < ws) return; liftRegions(n.name).on.forEach(function (r) { done[r] = (done[r] || 0) + (+n.sets || 1); }); });
     return done;
   }
   // the coverage rows are the body map's own muscle groups, so planned, done and the maps always agree
@@ -4840,12 +4841,12 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var out = '<div class="mdet"><b>' + name + '</b>';
     if (e.h) {
       var l = e.h.l, v = ACT[l.id] || 'hold', un = unitNote(l.id, l.eq, 'h'), fh = e.first['h' + l.id + l.eq], tr = fh && fh.t < l.t ? Math.round((e.h.est - fh.est) / fh.est * 100) : null;
-      out += '<div class="mrow"><span class="mk-l">Max ' + VERB[v] + ' (isometric)</span><span class="mv">at least ' + fmtKg(toU(e.h.est)) + ' ' + uLab() + '</span><span class="ms">' + esc(baseName(BY[l.id].name)) + ': you held ' + kg(l.kg) + (un ? ' (' + un + ')' : '') + ' for ' + l.v + ' s, about ' + e.h.r.pct + '% of your max.' + (tr != null && tr !== 0 ? ' <b class="' + (tr > 0 ? 'up' : 'down') + '">' + (tr > 0 ? '+' : '') + tr + '% since first log</b>' : '') + '</span></div>';
+      out += '<div class="mrow"><span class="mk-l">Max ' + VERB[v] + ' (isometric)</span><span class="mv">at least ' + fmtKg(toU(e.h.est)) + ' ' + uLab() + '</span><span class="ms">' + esc(baseName(BY[l.id].name)) + ': you held ' + kg(l.kg) + (un ? ' (' + un + ')' : '') + ' for ' + esc(l.v) + ' s, about ' + e.h.r.pct + '% of your max.' + (tr != null && tr !== 0 ? ' <b class="' + (tr > 0 ? 'up' : 'down') + '">' + (tr > 0 ? '+' : '') + tr + '% since first log</b>' : '') + '</span></div>';
     }
     if (e.r) {
       var l2 = e.r.l, v2 = l2.lift ? 'lift' : ACT[l2.id] || 'lift', un2 = l2.lift ? '' : unitNote(l2.id, l2.eq, 'r');
       var o2 = !l2.lift && parseEq(EQV[l2.id].g).filter(function (q) { return q.eq === l2.eq; })[0];
-      out += '<div class="mrow"><span class="mk-l">Max ' + (v2 === 'hold' ? 'lift' : VERB[v2]) + ', one rep</span><span class="mv">about ' + kg(e.r.est) + '</span><span class="ms">' + esc(l2.lift ? l2.name : o2 ? V(l2.id, 'g', o2).name : baseName(G[l2.id].name)) + ': ' + kg(l2.kg) + (un2 ? ' (' + un2 + ')' : '') + ' for ' + l2.v + (l2.v === 1 ? ' rep' : ' reps') + (l2.rpe ? ' @ RPE ' + l2.rpe : '') + (e.r.r.rir ? ', about ' + e.r.r.rir + ' in reserve' : l2.rpe ? ', to your limit' : ', counted as a set to your limit') + ', ' + dShort(l2.t) + ' (your best in the last 6 weeks).</span></div>';
+      out += '<div class="mrow"><span class="mk-l">Max ' + (v2 === 'hold' ? 'lift' : VERB[v2]) + ', one rep</span><span class="mv">about ' + kg(e.r.est) + '</span><span class="ms">' + esc(l2.lift ? l2.name : o2 ? V(l2.id, 'g', o2).name : baseName(G[l2.id].name)) + ': ' + kg(l2.kg) + (un2 ? ' (' + un2 + ')' : '') + ' for ' + esc(l2.v) + (l2.v === 1 ? ' rep' : ' reps') + (l2.rpe ? ' @ RPE ' + esc(l2.rpe) : '') + (e.r.r.rir ? ', about ' + e.r.r.rir + ' in reserve' : l2.rpe ? ', to your limit' : ', counted as a set to your limit') + ', ' + dShort(l2.t) + ' (your best in the last 6 weeks).</span></div>';
     }
     return out + '</div>';
   }
@@ -5116,10 +5117,13 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // Ask the browser to keep our data (Chrome/Android grant this; Safari keeps data for Home Screen apps)
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persisted().then(function (y) { if (!y) navigator.storage.persist(); }); } catch (e) { }
   // Two copies open (a Safari tab and the Home Screen app, or two tabs): adopt the newer save instead of overwriting it
+  var SYNC_KEYS = ['week', 'done', 'tests', 'wt', 'cust', 'log', 'eq', 'profile', 'food', 'body', 'notes', 'cmin', 'took', 'bkAt', 'split'], SYNC_DEF = { week: 1, done: {}, tests: {}, wt: {}, cust: {}, log: [], eq: ['k', 'd'], food: [], body: [], notes: [] };
   window.addEventListener('storage', function (e) {
     if (e.key === 'isohold.v1' && e.newValue) {
       var n; try { n = JSON.parse(e.newValue); } catch (x) { return; }
       Object.keys(n).forEach(function (k) { store[k] = n[k]; });
+      // a key the other copy no longer has (undone, deleted) goes here too, or this copy's next save would bring it back
+      Object.keys(store).forEach(function (k) { if (k in n || SYNC_KEYS.indexOf(k) < 0) return; if (SYNC_DEF.hasOwnProperty(k)) store[k] = JSON.parse(JSON.stringify(SYNC_DEF[k])); else delete store[k]; });
       if (!P) { selDay = nextDayIdx(); renderAll(); if (current === 'progress') renderProgress(); if (current === 'coach') renderCoach(); }
     } else if (e.key === 'isohold.coach.feed' && e.newValue) { try { feed = JSON.parse(e.newValue) || []; if (current === 'coach') renderCoach(); } catch (x) { } }
   });
@@ -5452,7 +5456,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // a "day" can start later than midnight (shift workers: a 2 am meal still belongs to the evening before)
   function dayStart(t) { var h = (store.profile && store.profile.dayHour) || 0, d = new Date((t == null ? Date.now() : t) - h * 3600e3); d.setHours(0, 0, 0, 0); d.setHours(h); return d.getTime(); }
   // x.d: the day a session started, so a session that runs past midnight stays on one day
-  function today(list) { var s = dayStart(); return list.filter(function (x) { return (x.d != null ? x.d : x.t) >= s; }); }
+  // up to the next day's start, so an entry dated in the future (clock set ahead, a restored backup) isn't "today" every day until then
+  function today(list) { var s = dayStart(), e = dayStart(s + 30 * 3600e3); return list.filter(function (x) { var v = x.d != null ? x.d : x.t; return v >= s && v < e; }); }
   // "Longest session": cut the finisher, then extra sets, then the warm-up, then exercises from the end
   // a minute of heel drops: its own step with a standing-on-toes picture, not a walk
   function heelItem() {
@@ -6646,13 +6651,13 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       (c.undone ? '<p class="lgc-s">Undone.</p>' : c.k === 'err' ? '' : '<div class="lg-acts">' + (c.k === 'food' ? '<span role="group" aria-label="Portion" class="lg-por"><span class="lgc-l" aria-hidden="true">Portion</span>' + [0.5, 1.5, 2].map(function (x) { return '<button class="btn sm quiet" data-scale="' + i + '" data-x="' + x + '" aria-pressed="' + (c.scale === x) + '" aria-label="' + esc(portionName(x, c)) + '">' + (x === 0.5 ? '½×' : x + '×') + '</button>'; }).join('') + '</span>' : '') + ((c.ref || (c.undo && canUndoCfg(c, i))) ? '<button class="btn sm line" data-undo="' + i + '">Undo</button>' : '') + '</div>') + '</div>';
   }
   function renderDay() {
-    var f = sumFood(today(store.food)), tg = proteinTarget(), kt = kcalTarget(), sets = today(store.log).length + today(store.notes).filter(function (n) { return n.k === 'lift'; }).reduce(function (t, n) { return t + (n.sets || 1); }, 0);
+    var f = sumFood(today(store.food)), tg = proteinTarget(), kt = kcalTarget(), sets = today(store.log).length + today(store.notes).filter(function (n) { return n.k === 'lift'; }).reduce(function (t, n) { return t + (+n.sets || 1); }, 0);
     var cm = today(store.notes).filter(function (n) { return n.k === 'cardio'; }).reduce(function (s, n) { return s + (n.min || 0); }, 0) + cardioDoneMins(dayStart());
     var wa = today(store.notes).filter(function (n) { return n.k === 'water'; }).reduce(function (s, n) { return s + n.ml; }, 0);
     var pct = tg ? Math.min(1, f.p / tg) : 0, keto = prof().diet === 'keto';
     var ring = '<svg class="lg-ring" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27" class="bgc"/><circle cx="32" cy="32" r="27" class="fgc" stroke-dasharray="169.6" stroke-dashoffset="' + (169.6 * (1 - pct)).toFixed(1) + '"/></svg>';
     var h = '<div class="lgd-top">' + ring + '<div><span class="lgd-k">Protein today</span><b class="num">' + r0(f.p) + (tg ? '<small> / ' + tg + ' g</small>' : ' g') + '</b>' + (tg ? '' : '<button class="textbtn" data-prof="1">Add your bodyweight for a target</button>') + (tg && f.p >= tg ? '<span class="lgd-ok">Target reached</span>' : '') + '</div></div>' +
-      '<div class="lgd-row"><span><b class="num">' + r0(f.k) + '</b>' + (kt ? ' / ' + kt : '') + ' kcal</span>' + (keto ? '<span><b class="num">' + r0(f.net) + '</b> / 30 g net carbs</span>' : '<span><b class="num">' + r0(f.c) + '</b> g carbs</span>') + '<span><b class="num">' + sets + '</b> ' + plural(sets, 'set') + '</span><span><b class="num">' + cm + '</b> min cardio</span>' + (wa ? '<span><b class="num">' + volTxt(wa) + '</b> water</span>' : '') + '</div>';
+      '<div class="lgd-row"><span><b class="num">' + r0(f.k) + '</b>' + (kt ? ' / ' + kt : '') + ' kcal</span>' + (keto ? '<span><b class="num">' + r0(f.net) + '</b> / 30 g net carbs</span>' : '<span><b class="num">' + r0(f.c) + '</b> g carbs</span>') + '<span><b class="num">' + esc(sets) + '</b> ' + plural(sets, 'set') + '</span><span><b class="num">' + cm + '</b> min cardio</span>' + (wa ? '<span><b class="num">' + volTxt(wa) + '</b> water</span>' : '') + '</div>';
     if (tg && f.p < tg * 0.85 && new Date().getHours() >= 14) h += '<p class="lgd-tip">' + r0(tg - f.p) + ' g of protein to go. Ideas: ' + esc(ideas(tg - f.p).slice(0, 3).join('; ')) + '.</p>';
     $('lgDay').innerHTML = h;
   }
@@ -7095,9 +7100,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     tab = first ? 'you' : PF_TABS.some(function (t) { return t[0] === tab; }) ? tab : 'you';
     function panel(id, cls, inner) { return '<div class="pf-panel' + (cls ? ' ' + cls : '') + '" role="' + (first ? 'group' : 'tabpanel') + '" id="pfP-' + id + '" data-panel="' + id + '"' + (first ? ' aria-label="' + (id === 'you' ? 'About you' : 'Your training') + '"' : ' aria-labelledby="pfTab-' + id + '" tabindex="0"') + (id === tab ? '' : ' hidden') + '>' + inner + '</div>'; }
     var you = '<label><span>Name <span class="muted">(optional)</span></span><input id="pfName" autocomplete="given-name" value="' + esc(p.name) + '"></label>' +
-      '<div class="pf-row"><label><span>Age</span><input id="pfAge" type="number" inputmode="numeric" min="13" max="100" value="' + (p.age || '') + '"></label>' +
-      '<label><span>Bodyweight (<span class="pfU">' + (p.units === 'st' ? 'st lb' : p.units) + '</span>)</span><input id="pfBw" inputmode="decimal" autocomplete="off" placeholder="' + (p.units === 'st' ? '10 st 4' : '') + '" value="' + (bodyKg() ? (p.units === 'st' ? bwTxt(bodyKg()) : bwNum(bodyKg())) : '') + '"></label>' +
-      '<label><span>Height (<span class="pfH">' + (lbU ? 'in' : 'cm') + '</span>)</span><input id="pfCm" type="number" inputmode="numeric" min="40" max="250" value="' + hIn + '"></label></div>' +
+      '<div class="pf-row"><label><span>Age</span><input id="pfAge" type="number" inputmode="numeric" min="13" max="100" value="' + esc(p.age || '') + '"></label>' +
+      '<label><span>Bodyweight (<span class="pfU">' + (p.units === 'st' ? 'st lb' : esc(p.units)) + '</span>)</span><input id="pfBw" inputmode="decimal" autocomplete="off" placeholder="' + (p.units === 'st' ? '10 st 4' : '') + '" value="' + (bodyKg() ? (p.units === 'st' ? bwTxt(bodyKg()) : bwNum(bodyKg())) : '') + '"></label>' +
+      '<label><span>Height (<span class="pfH">' + (lbU ? 'in' : 'cm') + '</span>)</span><input id="pfCm" type="number" inputmode="numeric" min="40" max="250" value="' + esc(hIn) + '"></label></div>' +
       '<span class="pf-l">Sex <span class="muted">(for the calorie estimate)</span></span>' + chipSet('sex', [['f', 'Female'], ['m', 'Male'], ['x', 'Prefer not to say']], p.sex) +
       '<span class="pf-l">Goal</span>' + chipSet('goal', [['build', 'Build muscle'], ['keep', 'Stay as I am'], ['lose', 'Lose fat']], p.goal) +
       '<span class="pf-l">Units</span>' + chipSet('units', [['kg', 'Kilograms'], ['lb', 'Pounds'], ['st', 'Kilograms, stones for me']], p.units) +
@@ -7380,14 +7385,14 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       h += '<div class="card" data-pt="strength"><h2>Other lifts</h2><p>Exercises you logged that aren’t in the program, like your main barbell lifts. Estimated max uses sets of 1 to 12 reps: weight × (1 + (reps + reps in reserve) ÷ 30), with reps in reserve = 10 − RPE. They count on the body map and strength map too.</p><ul class="olist lifts">' + Object.keys(by).map(function (k) {
         var L = by[k], heavy = L.reduce(function (b, x) { return (x.kg || 0) > (b.kg || 0) || ((x.kg || 0) === (b.kg || 0) && (x.reps || 0) > (b.reps || 0)) ? x : b; }, L[0]), est = null, last = L[L.length - 1];
         var cmo = curMaxLift(last.name); if (cmo) est = { v: cmo.e, x: { kg: cmo.kg, reps: cmo.v, rpe: cmo.rpe, t: cmo.t, add: cmo.add, ph: cmo.ph } };
-        var set = function (x) { return (x.sets > 1 ? x.sets + ' × ' : '') + (x.kg ? liftW(x) + ' × ' : '') + (x.reps ? x.reps + (x.reps === 1 ? ' rep' : ' reps') : x.s + ' s') + (x.rpe ? ' @ RPE ' + x.rpe : ''); };
-        var entry = function (x) { return dshort(x.t) + ': ' + set(x) + ' <button class="textbtn" data-dlift="' + x.t + '" aria-label="Delete ' + esc(x.name) + ' ' + esc(set(x)) + ' from ' + dshort(x.t) + '">Delete</button>'; }, R = L.slice().reverse();
+        var set = function (x) { return esc((x.sets > 1 ? x.sets + ' × ' : '') + (x.kg ? liftW(x) + ' × ' : '') + (x.reps ? x.reps + (x.reps === 1 ? ' rep' : ' reps') : x.s + ' s') + (x.rpe ? ' @ RPE ' + x.rpe : '')); };
+        var entry = function (x) { return dshort(x.t) + ': ' + set(x) + ' <button class="textbtn" data-dlift="' + esc(x.t) + '" aria-label="Delete ' + esc(x.name) + ' ' + set(x) + ' from ' + dshort(x.t) + '">Delete</button>'; }, R = L.slice().reverse();
         // the latest 4, then every older entry behind "All N entries", so any one can be deleted
         var unn = /^Unnamed lift/.test(last.name) ? ' <button class="textbtn" data-nlift="' + esc(last.name) + '">Name it</button><span class="fine">Saved with only an equipment word' + (last.was ? ' (“' + esc(last.was) + '”)' : '') + ', so the lift isn’t known.</span>' : '';
-        return '<li><b>' + esc(last.name) + '</b>' + unn + '<span>Heaviest: ' + set(Object.assign({}, heavy, { sets: 1 })) + (est ? ' · estimated max <span class="emx">' + kg(est.v) + '</span> (best of the last 6 weeks, from ' + liftW(est.x) + ' × ' + est.x.reps + (est.x.rpe ? ' @ RPE ' + est.x.rpe : '') + ', ' + dshort(est.x.t) + ')' : '') + '</span><span class="lrec">' + R.slice(0, 4).map(entry).join('<br>') + (R.length > 4 ? '<details><summary>All ' + R.length + ' entries</summary>' + R.slice(4).map(entry).join('<br>') + '</details>' : '') + '</span></li>';
+        return '<li><b>' + esc(last.name) + '</b>' + unn + '<span>Heaviest: ' + set(Object.assign({}, heavy, { sets: 1 })) + (est ? ' · estimated max <span class="emx">' + kg(est.v) + '</span> (best of the last 6 weeks, from ' + esc(liftW(est.x)) + ' × ' + esc(est.x.reps) + (est.x.rpe ? ' @ RPE ' + esc(est.x.rpe) : '') + ', ' + dshort(est.x.t) + ')' : '') + '</span><span class="lrec">' + R.slice(0, 4).map(entry).join('<br>') + (R.length > 4 ? '<details><summary>All ' + R.length + ' entries</summary>' + R.slice(4).map(entry).join('<br>') + '</details>' : '') + '</span></li>';
       }).join('') + '</ul></div>';
     }
-    if (bp.length) h += '<div class="card" data-pt="body"><h2>Blood pressure</h2><ul class="olist">' + bp.slice(-6).reverse().map(function (n) { return '<li><b>' + n.sys + '/' + n.dia + '</b><span>' + dshort(n.t) + (n.pulse ? ' · pulse ' + n.pulse : '') + '</span></li>'; }).join('') + '</ul></div>';
+    if (bp.length) h += '<div class="card" data-pt="body"><h2>Blood pressure</h2><ul class="olist">' + bp.slice(-6).reverse().map(function (n) { return '<li><b>' + esc(n.sys) + '/' + esc(n.dia) + '</b><span>' + dshort(n.t) + (n.pulse ? ' · pulse ' + esc(n.pulse) : '') + '</span></li>'; }).join('') + '</ul></div>';
     $('progExtras').innerHTML = h; progTabs();
   }
   (function () {
@@ -7422,8 +7427,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   renderTrain = function () {
     _rtBP.apply(this, arguments);
     var hb = bpToday(); if (!hb) return;
-    var dose = document.querySelector('#band .dose'); if (dose) dose.innerHTML = '<b>Today: ' + (bpVeryHigh() ? 'rest' : 'walk only') + '</b>, because your blood pressure was ' + hb.sys + '/' + hb.dia + '.';
-    if (bpVeryHigh()) $('sessions').innerHTML = '<article class="sess"><div class="sess-top"><h3>Rest today</h3></div><p class="sum">Blood pressure ' + hb.sys + '/' + hb.dia + ' is very high, so there’s no session today. Your plan waits for you. Measure again after resting; if it stays this high, call your doctor.</p></article>';
+    var dose = document.querySelector('#band .dose'); if (dose) dose.innerHTML = '<b>Today: ' + (bpVeryHigh() ? 'rest' : 'walk only') + '</b>, because your blood pressure was ' + esc(hb.sys) + '/' + esc(hb.dia) + '.';
+    if (bpVeryHigh()) $('sessions').innerHTML = '<article class="sess"><div class="sess-top"><h3>Rest today</h3></div><p class="sum">Blood pressure ' + esc(hb.sys) + '/' + esc(hb.dia) + ' is very high, so there’s no session today. Your plan waits for you. Measure again after resting; if it stays this high, call your doctor.</p></article>';
   };
   var _renderProgress = renderProgress;
   renderProgress = function () { _renderProgress(); progressExtras(); };
@@ -7432,7 +7437,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   var tipsOpen = false;
   function trainExtras() {
     var p = prof(), h = '', run = savedRun(), hb = bpToday();
-    if (hb) h += '<div class="card warnc"><b>Blood pressure ' + hb.sys + '/' + hb.dia + ' today: no strength work</b><p>' + (hb.sys >= 180 || hb.dia >= 110 ? 'That’s very high. Don’t train today. Sit quietly for 5 minutes and measure again; if it’s still this high, or you have a headache, chest pain or blurred vision, call your doctor or emergency services.' : 'Holds and heavy work are left out of today’s sessions. An easy walk is fine and can help. Measure again before your next session.') + '</p></div>';
+    if (hb) h += '<div class="card warnc"><b>Blood pressure ' + esc(hb.sys) + '/' + esc(hb.dia) + ' today: no strength work</b><p>' + (hb.sys >= 180 || hb.dia >= 110 ? 'That’s very high. Don’t train today. Sit quietly for 5 minutes and measure again; if it’s still this high, or you have a headache, chest pain or blurred vision, call your doctor or emergency services.' : 'Holds and heavy work are left out of today’s sessions. An easy walk is fine and can help. Measure again before your next session.') + '</p></div>';
     if (!bpVeryHigh() && (p.issues.indexOf('bp') > -1 || (p.age || 0) >= 65) && store.log.length && weekCardio() < 60 && !cget('nudgeWalk', 0)) h += '<div class="card nudge"><b>Walk on your rest days</b><p>20–30 minutes of brisk walking most days helps blood pressure and heart health as much as the strength work. Log it like “walked 25 min”.</p><div class="bk-row"><button class="btn sm quiet" data-nowalk="1">Got it</button></div></div>';
     if (run && !P) { var rd = allDays().filter(function (d) { return d.id === run.day; })[0], nl = (run.logged || []).filter(Boolean).length;
       h += '<div class="card nudge"><b>Pick up where you left off?</b><p>' + esc(rd.name) + ', ' + ({ am: 'morning', pm: 'evening', all: 'today’s session' }[run.part.replace(/^short-/, '')]) + ': ' + nl + (nl === 1 ? ' set' : ' sets') + ' already saved, stopped ' + Math.max(1, Math.round((Date.now() - run.at) / 60000)) + ' min ago.</p><div class="bk-row"><button class="btn sm go" data-resume="1">Resume session</button><button class="btn sm quiet" data-norun="1">Not now</button></div></div>'; }
@@ -7444,7 +7449,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var lastT = Math.max(0, store.log.length ? store.log[store.log.length - 1].t : 0, (store.notes.filter(function (n) { return n.k === 'cardio' || n.k === 'lift'; }).pop() || {}).t || 0, Math.max.apply(null, [0].concat(Object.keys(store.done).map(function (k) { return typeof store.done[k] === 'number' ? store.done[k] : 0; })))), gap = lastT ? Math.floor((Date.now() - lastT) / 864e5) : 0;
     if (gap >= 5) h += '<div class="card nudge"><b>Welcome back</b><p>It’s been ' + gap + ' days. The plan picks up where you left off.' + (gap >= 10 ? ' After more than a week away, start with the short version or go about 20% lighter for your first two sessions.' : '') + '</p></div>';
     if (!store.profile) h += '<div class="card nudge"><b>Make it yours</b><p>Set your diet, units, equipment (home or gym) and any joints to look after. It takes a minute.</p><button class="btn sm go" data-prof="1">Set up profile</button></div>';
-    activePain().forEach(function (n) { h += '<div class="card warnc"><b>' + esc(areaName(n.area).replace(/^./, function (c) { return c.toUpperCase(); })) + ': ' + n.score + '/10 ' + (Date.now() - n.t < 864e5 ? 'today' : 'yesterday') + '</b><p>' + esc(painAdvice(n)[0]) + '</p></div>'; });
+    activePain().forEach(function (n) { h += '<div class="card warnc"><b>' + esc(areaName(n.area).replace(/^./, function (c) { return c.toUpperCase(); })) + ': ' + esc(n.score) + '/10 ' + (Date.now() - n.t < 864e5 ? 'today' : 'yesterday') + '</b><p>' + esc(painAdvice(n)[0]) + '</p></div>'; });
     var tips = [];
     if (p.issues.indexOf('bp') > -1) tips.push(['Blood pressure', 'Breathe steadily through every hold, never hold your breath, and keep holds at RPE 7 or below (effort 7 of 10: hard but steady, never straining). Stop if you feel dizzy or get a headache. Check heavy isometric work with your doctor.']);
     if (p.issues.indexOf('bones') > -1) tips.push(['Bone health', 'Loading is good for bones: steady holds and slow reps are a safe way to do it. Avoid twisting or rounding your back under load, and build up gradually.']);
@@ -7984,12 +7989,42 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (!m) throw new Error('That does not look like an Isohold code. It should start with ISOHOLD1:');
     var o; try { o = JSON.parse(b64dec(m[1])); } catch (e) { throw new Error('The code is incomplete or damaged. Copy the whole code and try again.'); }
     if (!o || typeof o !== 'object' || !(o.week >= 1 && o.week <= 12) || typeof o.done !== 'object' || typeof o.tests !== 'object') throw new Error('The code is incomplete or damaged. Copy the whole code and try again.');
-    // numbers stay numbers: an edited or damaged code with "20" for 20 g must not add up to "206 g protein"
-    var N = function (v) { var n = +v; return v == null || v === '' || !isFinite(n) ? null : n; }, NUMS = ['t', 'kg', 'min', 'km', 'steps', 'reps', 's', 'sets', 'rpe', 'score', 'ml', 'h', 'sys', 'dia', 'pulse', 'bw'], fix = function (o2, keys) { keys.forEach(function (k) { if (o2[k] != null) o2[k] = N(o2[k]); }); return o2; };
-    var obj = function (v) { return v && typeof v === 'object' && !Array.isArray(v) ? v : null; }, nums = function (o2) { var r = {}; Object.keys(obj(o2) || {}).forEach(function (k) { var n = N(o2[k]); if (n != null) r[k] = n; }); return r; };
-    var log = (Array.isArray(o.log) ? o.log : []).filter(Array.isArray).map(function (l) { var e = { t: N(l[0]), w: N(l[1]), id: l[2], eq: l[3], k: l[4], kg: N(l[5]) || 0, v: N(l[6]) }, x = l[7]; if (x && typeof x === 'object') ['sug', 'rpe', 'x', 'd'].forEach(function (k) { if (x[k]) e[k] = N(x[k]); }); return e; }), known = log.filter(function (l) { return BY[l.id] && l.t != null && l.v != null; });
-    var fd = Array.isArray(o.fd) ? o.fd.filter(function (m) { return obj(m) && N(m.t) != null; }).map(function (m) { return { t: N(m.t), meal: String(m.meal || 'Meal'), items: (Array.isArray(m.items) ? m.items : []).filter(obj).map(function (i) { var c = Object.assign({}, i); ['q', 'g', 'p', 'c', 'f', 'k', 'fb', 'net'].forEach(function (k) { if (c[k] != null) c[k] = N(c[k]) || 0; }); c.n = String(c.n || 'Food'); return c; }), src: m.src }; }) : null;
-    return { week: Math.round(o.week), done: obj(o.done) || {}, tests: obj(o.tests) || {}, wt: nums(o.wt), cust: obj(o.cust) || {}, eq: Array.isArray(o.eq) && o.eq.length ? o.eq : null, log: known, skipped: log.length - known.length, pf: obj(o.pf), fd: fd, bw: Array.isArray(o.bw) ? o.bw.filter(obj).map(function (b) { return { t: N(b.t), kg: N(b.kg) }; }).filter(function (b) { return b.t != null && b.kg > 0; }) : null, nt: Array.isArray(o.nt) ? o.nt.filter(obj).map(function (n) { return fix(Object.assign({}, n), NUMS); }) : null, cmin: obj(o.cmin) ? nums(o.cmin) : null, took: obj(o.took) ? nums(o.took) : null };
+    // A code can come from anywhere (a shared file, an edited code), so every field is rebuilt one by one:
+    // numbers must be real numbers, choices must be ones the app offers, text is cut to length, and anything else is dropped.
+    // Numbers stay numbers too: an edited or damaged code with "20" for 20 g must not add up to "206 g protein".
+    var N = function (v) { if (v == null || v === '' || typeof v === 'boolean' || typeof v === 'object') return null; var n = +v; return isFinite(n) ? n : null; };
+    var S = function (v, len) { return v == null || typeof v === 'object' ? '' : String(v).slice(0, len || 60); };
+    var KEY = /^[A-Za-z0-9_.:|-]{1,80}$/, WORD = /^[a-z]{1,16}$/, EXID = /^[a-z0-9-]{1,40}$/;
+    var one = function (v, list) { return list.indexOf(v) > -1 ? v : undefined; }, ids = function (l) { return l.map(function (x) { return x[0]; }); };
+    var obj = function (v) { return v && typeof v === 'object' && !Array.isArray(v) ? v : null; };
+    var nums = function (o2) { var r = {}; Object.keys(obj(o2) || {}).forEach(function (k) { var n = N(o2[k]); if (n != null && KEY.test(k)) r[k] = n; }); return r; };
+    var put = function (r, k, v) { if (v !== undefined && v !== null && v === v) r[k] = v; return r; };
+    var log = (Array.isArray(o.log) ? o.log : []).filter(Array.isArray).map(function (l) { var e = { t: N(l[0]), w: N(l[1]), id: typeof l[2] === 'string' && EXID.test(l[2]) ? l[2] : null, eq: typeof l[3] === 'string' && WORD.test(l[3]) ? l[3] : null, k: l[4] === 'h' ? 'h' : 'r', kg: N(l[5]) || 0, v: N(l[6]) }, x = l[7]; if (obj(x)) ['sug', 'rpe', 'x', 'd'].forEach(function (k) { var n = N(x[k]); if (n) e[k] = n; }); return e; }), known = log.filter(function (l) { return l.id && BY[l.id] && l.t != null && l.v != null; });
+    var fd = Array.isArray(o.fd) ? o.fd.filter(function (m) { return obj(m) && N(m.t) != null; }).map(function (m) { return { t: N(m.t), meal: S(m.meal || 'Meal', 40), items: (Array.isArray(m.items) ? m.items : []).filter(obj).map(function (i) { var c = { n: S(i.n || 'Food', 60) }; ['q', 'g', 'p', 'c', 'f', 'k', 'fb', 'net'].forEach(function (k) { if (i[k] != null) c[k] = N(i[k]) || 0; }); if (typeof i.u === 'string' && /^[a-z ]{0,16}$/i.test(i.u)) c.u = i.u; if (typeof i.d === 'string' || typeof i.d === 'number') c.d = S(i.d, 20); return c; }), src: typeof m.src === 'string' && WORD.test(m.src) ? m.src : 'text' }; }) : null;
+    var NT = { lift: function (n, r) { r.name = S(n.name || 'Exercise', 40); ['kg', 'reps', 's', 'sets', 'rpe', 'bw'].forEach(function (k) { put(r, k, N(n[k])); }); if (n.add) r.add = 1; if (n.ph) r.ph = 1; if (typeof n.eq === 'string' && WORD.test(n.eq)) r.eq = n.eq; if (n.cue) r.cue = S(n.cue, 60); return r.reps != null || r.s != null; },
+      bp: function (n, r) { ['sys', 'dia', 'pulse'].forEach(function (k) { put(r, k, N(n[k])); }); return r.sys > 0 && r.dia > 0; },
+      cardio: function (n, r) { r.m = S(n.m || 'Walking', 30); ['min', 'km', 'steps'].forEach(function (k) { r[k] = N(n[k]); }); r.hard = !!n.hard; return r.min != null || r.km != null || r.steps != null; },
+      pain: function (n, r) { r.area = typeof n.area === 'string' && WORD.test(n.area) ? n.area : 'general'; var sc = N(n.score); r.score = sc == null ? null : Math.max(0, Math.min(10, Math.round(sc))); r.sharp = !!n.sharp; r.sore = !!n.sore; if (typeof n.ex === 'string' && EXID.test(n.ex)) r.ex = n.ex; return true; },
+      water: function (n, r) { put(r, 'ml', N(n.ml)); return r.ml > 0; },
+      sleep: function (n, r) { put(r, 'h', N(n.h)); return r.h > 0; } };
+    var nt = Array.isArray(o.nt) ? o.nt.filter(obj).map(function (n) { var r = { t: N(n.t), k: typeof n.k === 'string' && NT.hasOwnProperty(n.k) ? n.k : null }; return r.t != null && r.k && NT[r.k](n, r) ? r : null; }).filter(Boolean) : null;
+    var pf = null, p0 = obj(o.pf);
+    if (p0) {
+      pf = {}; var inRange = function (v, lo, hi) { var n = N(v); return n != null && n >= lo && n <= hi ? n : undefined; }, list = function (v, okIds) { return Array.isArray(v) ? v.filter(function (x, i) { return okIds.indexOf(x) > -1 && v.indexOf(x) === i; }) : undefined; };
+      put(pf, 'name', p0.name != null ? S(p0.name, 40) : undefined); put(pf, 'age', inRange(p0.age, 13, 100)); put(pf, 'cm', inRange(p0.cm, 100, 250)); put(pf, 'bw', inRange(p0.bw, 25, 350));
+      put(pf, 'sex', one(p0.sex, ['m', 'f', 'x', ''])); put(pf, 'units', one(p0.units, ['kg', 'lb', 'st'])); put(pf, 'diet', one(p0.diet, ids(DIETS))); put(pf, 'where', one(p0.where, ['home', 'gym', 'both']));
+      put(pf, 'goal', one(p0.goal, ['build', 'keep', 'lose'])); put(pf, 'pace', one(p0.pace, ['auto', 'self'])); put(pf, 'split', one(p0.split, ['one', 'two']));
+      put(pf, 'cardio', list(p0.cardio, ids(CARDIO_OPTS))); put(pf, 'issues', list(p0.issues, ids(ISSUES)));
+      put(pf, 'days', inRange(p0.days, 1, 7)); put(pf, 'len', one(N(p0.len), [0, 15, 25, 45])); put(pf, 'dayHour', inRange(p0.dayHour, 0, 23));
+      ['cues', 'posture', 'stab', 'nofloor', 'big', 'calm'].forEach(function (k) { if (p0[k] != null) pf[k] = !!p0[k]; }); if (p0.skipped) pf.skipped = 1;
+      if (obj(p0.inv)) { pf.inv = {}; ['k', 'd', 'b'].forEach(function (k) { if (p0.inv[k]) pf.inv[k] = S(p0.inv[k], 40); }); }
+      ['age', 'cm', 'days', 'dayHour'].forEach(function (k) { if (pf[k] != null) pf[k] = Math.round(pf[k]); });
+    }
+    var done = {}; Object.keys(obj(o.done) || {}).forEach(function (k) { var v = o.done[k]; if (!KEY.test(k)) return; if (v === true) done[k] = true; else if (N(v) != null) done[k] = N(v); });
+    var tests = {}; Object.keys(obj(o.tests) || {}).forEach(function (k) { var t = obj(o.tests[k]); if (!t || TESTS.indexOf(k) < 0) return; tests[k] = {}; ['load', 'a', 'b'].forEach(function (f) { if (t[f] != null && t[f] !== '') tests[k][f] = S(t[f], 20); }); });
+    var cust = {}; Object.keys(obj(o.cust) || {}).forEach(function (k) { var c = obj(o.cust[k]); if (!c || !KEY.test(k)) return; cust[k] = { add: (Array.isArray(c.add) ? c.add : []).filter(function (id) { return typeof id === 'string' && !!BY[id]; }), off: {} }; Object.keys(obj(c.off) || {}).forEach(function (id) { var x = obj(c.off[id]); if (BY[id] && x && (x.h || x.r)) cust[k].off[id] = { h: !!x.h, r: !!x.r }; }); });
+    var eq = Array.isArray(o.eq) ? o.eq.filter(function (e, i) { return typeof e === 'string' && e.length === 1 && 'kdbcrw'.indexOf(e) > -1 && o.eq.indexOf(e) === i; }) : [];
+    return { week: Math.round(o.week), done: done, tests: tests, wt: nums(o.wt), cust: cust, eq: eq.length ? eq : null, log: known, skipped: log.length - known.length, pf: pf, fd: fd, bw: Array.isArray(o.bw) ? o.bw.filter(obj).map(function (b) { return { t: N(b.t), kg: N(b.kg) }; }).filter(function (b) { return b.t != null && b.kg > 0; }) : null, nt: nt, cmin: obj(o.cmin) ? nums(o.cmin) : null, took: obj(o.took) ? nums(o.took) : null };
   }
   // "1 set", "2 sets": one word for a count
   function plural(n, one, many) { return +n === 1 ? one : many || one + 's'; }
