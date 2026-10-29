@@ -3403,9 +3403,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     [].forEach.call(document.querySelectorAll('.view-head'), function (h) {
       var t = h.querySelector('.tools'); if (!t) { t = document.createElement('div'); t.className = 'tools'; h.appendChild(t); }
       var pb = h.querySelector('#profBtn');
-      // Search & log is the search: one header row there, with Profile at the top right (no second row of Search / Help)
+      // Search & log is the search: one header row there with Help and Profile (a Search button would open the screen you're on)
       var one = !!h.closest('#coach'); h.classList.toggle('onerow', one);
-      t.innerHTML = one ? '' : '<button class="tool" data-tool="search">' + TOOL_SVG.search + 'Search</button><button class="tool" data-tool="help">' + TOOL_SVG.help + 'Help</button>';
+      t.innerHTML = (one ? '' : '<button class="tool" data-tool="search">' + TOOL_SVG.search + 'Search</button>') + '<button class="tool" data-tool="help">' + TOOL_SVG.help + 'Help</button>';
       if (pb) { pb.className = 'tool'; pb.setAttribute('aria-label', 'Profile and settings'); pb.innerHTML = avatarHtml() + 'Profile'; t.appendChild(pb); }
       else t.insertAdjacentHTML('beforeend', '<button class="tool" data-tool="profile" aria-label="Profile and settings">' + avatarHtml() + 'Profile</button>');
     });

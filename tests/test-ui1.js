@@ -11,7 +11,7 @@ const PORT = 8266, URL = `http://localhost:${PORT}/index.html`;
     for (const t of ['train', 'exercises', 'coach', 'progress', 'guide']) {
       await p.evaluate(t => document.getElementById('tab-' + t).click(), t); await p.waitForTimeout(80);
       const labels = await p.evaluate(id => [...document.querySelectorAll('#' + id + ' .view-head .tool:not(.back)')].map(b => b.textContent.trim()), t);
-      ok(labels.length === 3 && labels[0] === 'Search' && labels[1] === 'Help' && /Profile$/.test(labels[2]), kind + ' ' + t + ': top bar has Search, Help, Profile (' + labels + ')');
+      ok(t === 'coach' ? labels.length === 2 && labels[0] === 'Help' && /Profile$/.test(labels[1]) : labels.length === 3 && labels[0] === 'Search' && labels[1] === 'Help' && /Profile$/.test(labels[2]), kind + ' ' + t + ': top bar has ' + (t === 'coach' ? 'Help, Profile (Search & log is the search)' : 'Search, Help, Profile') + ' (' + labels + ')');
       const small = await p.evaluate(id => [...document.querySelectorAll('#' + id + ' .view-head .tool:not(.back)')].filter(b => { const r = b.getBoundingClientRect(); return r.width < 44 || r.height < 44; }).length, t);
       ok(!small, kind + ' ' + t + ': top-bar buttons are at least 44 px');
     }
