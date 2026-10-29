@@ -1,0 +1,3200 @@
+{
+ "app": {
+  "version": "54"
+ },
+ "runs": 5,
+ "when": "2026-10-29T03:12:45.689Z",
+ "node": "v24.21.0",
+ "profiles": {
+  "mid": {
+   "kind": "android",
+   "cpu": 4,
+   "net": {
+    "offline": false,
+    "latency": 150,
+    "downloadThroughput": 200000,
+    "uploadThroughput": 93750
+   }
+  },
+  "budget": {
+   "kind": "android",
+   "cpu": 6,
+   "net": {
+    "offline": false,
+    "latency": 400,
+    "downloadThroughput": 50000,
+    "uploadThroughput": 50000
+   }
+  },
+  "iphone": {
+   "kind": "iphone",
+   "cpu": 1,
+   "net": null
+  }
+ },
+ "bundle": {
+  "indexHtml": {
+   "raw": 986362,
+   "gzip": 334800,
+   "brotli": 283528
+  },
+  "css": {
+   "all": {
+    "raw": 188237,
+    "gzip": 91987,
+    "brotli": 88643
+   },
+   "withoutFonts": {
+    "raw": 90215,
+    "gzip": 18164,
+    "brotli": 15075
+   }
+  },
+  "fonts": {
+   "asBase64InCss": {
+    "raw": 98024,
+    "gzip": 73657,
+    "brotli": 73240
+   },
+   "decodedWoff2Bytes": 73060,
+   "faces": 3
+  },
+  "js": {
+   "all": {
+    "raw": 771548,
+    "gzip": 235532,
+    "brotli": 189916
+   },
+   "mainScript": {
+    "raw": 771249,
+    "gzip": 235365,
+    "brotli": 189701
+   },
+   "dataLiterals": {
+    "raw": 217633,
+    "gzip": 61293,
+    "brotli": 49205
+   },
+   "codeOnly": {
+    "raw": 553614,
+    "gzip": 174962,
+    "brotli": 142980
+   },
+   "svgStringsInJs": {
+    "raw": 65258,
+    "gzip": 20378,
+    "brotli": 17896
+   },
+   "exerciseData": {
+    "raw": 146183,
+    "gzip": 36185,
+    "brotli": 28165
+   },
+   "foods": {
+    "raw": 19438,
+    "gzip": 6508,
+    "brotli": 5868
+   },
+   "topDataBlocks": [
+    {
+     "name": "EX",
+     "raw": 41000,
+     "gzip": 10685
+    },
+    {
+     "name": "EQTX",
+     "raw": 21957,
+     "gzip": 4822
+    },
+    {
+     "name": "REFS",
+     "raw": 18742,
+     "gzip": 6758
+    },
+    {
+     "name": "FOODS",
+     "raw": 16442,
+     "gzip": 5439
+    },
+    {
+     "name": "EQTX_NEW",
+     "raw": 14644,
+     "gzip": 3748
+    },
+    {
+     "name": "GROW",
+     "raw": 14127,
+     "gzip": 4140
+    },
+    {
+     "name": "EVID",
+     "raw": 9956,
+     "gzip": 3211
+    },
+    {
+     "name": "GYM",
+     "raw": 9486,
+     "gzip": 1422
+    },
+    {
+     "name": "EQTX_GYM",
+     "raw": 7697,
+     "gzip": 2532
+    },
+    {
+     "name": "EQV",
+     "raw": 6658,
+     "gzip": 1753
+    },
+    {
+     "name": "SRCH_SYN",
+     "raw": 2477,
+     "gzip": 807
+    },
+    {
+     "name": "CARDIO_FIG",
+     "raw": 2438,
+     "gzip": 922
+    },
+    {
+     "name": "GLOSS",
+     "raw": 2125,
+     "gzip": 1107
+    },
+    {
+     "name": "PRE",
+     "raw": 1907,
+     "gzip": 629
+    },
+    {
+     "name": "BM_REG",
+     "raw": 1891,
+     "gzip": 606
+    }
+   ]
+  },
+  "markup": {
+   "all": {
+    "raw": 26485,
+    "gzip": 7346,
+    "brotli": 6136
+   },
+   "inlineSvg": {
+    "raw": 6817,
+    "gzip": 805,
+    "brotli": 704
+   }
+  },
+  "otherFiles": [
+   {
+    "file": "sw.js",
+    "raw": 1928,
+    "gzip": 825
+   },
+   {
+    "file": "manifest.json",
+    "raw": 1092,
+    "gzip": 445
+   },
+   {
+    "file": "icon-180.png",
+    "raw": 5068,
+    "gzip": 5068
+   },
+   {
+    "file": "icon-192.png",
+    "raw": 5302,
+    "gzip": 5302
+   },
+   {
+    "file": "icon-512.png",
+    "raw": 12861,
+    "gzip": 12861
+   }
+  ],
+  "swPrecache": {
+   "entries": [
+    "./",
+    "index.html",
+    "manifest.json",
+    "icon-180.png",
+    "icon-192.png",
+    "icon-512.png"
+   ],
+   "rawBytes": 1997047,
+   "note": "./ and index.html are cached as two separate entries, so index.html is stored twice"
+  }
+ },
+ "load": {
+  "mid/gzip": {
+   "cold": {
+    "fcp": {
+     "median": 672,
+     "p90": 676.8,
+     "n": 5
+    },
+    "lcp": {
+     "median": 2024,
+     "p90": 2028.8,
+     "n": 5
+    },
+    "domContentLoaded": {
+     "median": 2059.2,
+     "p90": 2065.6,
+     "n": 5
+    },
+    "load": {
+     "median": 2070.6,
+     "p90": 2079.1,
+     "n": 5
+    },
+    "ready": {
+     "median": 1980.3,
+     "p90": 1987.1,
+     "n": 5
+    },
+    "usable": {
+     "median": 2083.1,
+     "p90": 2093.9,
+     "n": 5
+    },
+    "probeTap": {
+     "median": 29.1,
+     "p90": 54.6,
+     "n": 5
+    },
+    "longTasks": {
+     "median": 1,
+     "p90": 1,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 145,
+     "p90": 148.6,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 145,
+     "p90": 148.6,
+     "n": 5
+    },
+    "bytesUntilUsable": {
+     "median": 1028901,
+     "p90": 1028901,
+     "n": 5
+    },
+    "bytesTotal": {
+     "median": 1028901,
+     "p90": 1028901,
+     "n": 5
+    },
+    "requests": {
+     "median": 8,
+     "p90": 8,
+     "n": 5
+    },
+    "requests304": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "indexHtmlDownloads": {
+     "median": 3,
+     "p90": 3,
+     "n": 5
+    },
+    "evaluateScriptMs": {
+     "median": 140.6,
+     "p90": 141.5,
+     "n": 5
+    },
+    "longestEvaluateScriptMs": {
+     "median": 122.3,
+     "p90": 124.4,
+     "n": 5
+    },
+    "v8CompileMs": {
+     "median": 34.8,
+     "p90": 36.4,
+     "n": 5
+    },
+    "v8CompileModuleMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "parseHtmlMs": {
+     "median": 235.5,
+     "p90": 241.6,
+     "n": 5
+    },
+    "parseStylesheetMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "styleRecalcMs": {
+     "median": 18.3,
+     "p90": 23.8,
+     "n": 5
+    },
+    "layoutMs": {
+     "median": 50.9,
+     "p90": 53.7,
+     "n": 5
+    },
+    "paintMs": {
+     "median": 7.8,
+     "p90": 8.1,
+     "n": 5
+    },
+    "bgParseCompileMs": {
+     "median": 3.1,
+     "p90": 4.5,
+     "n": 5
+    },
+    "longTasksTrace": {
+     "median": 1,
+     "p90": 1,
+     "n": 5
+    },
+    "longTasksTraceMs": {
+     "median": 145.1,
+     "p90": 149,
+     "n": 5
+    },
+    "longestTaskTraceMs": {
+     "median": 145.1,
+     "p90": 149,
+     "n": 5
+    }
+   },
+   "warm": {
+    "fcp": {
+     "median": 128,
+     "p90": 130.4,
+     "n": 5
+    },
+    "lcp": {
+     "median": 128,
+     "p90": 130.4,
+     "n": 5
+    },
+    "domContentLoaded": {
+     "median": 383.8,
+     "p90": 390.8,
+     "n": 5
+    },
+    "load": {
+     "median": 385.1,
+     "p90": 391.9,
+     "n": 5
+    },
+    "ready": {
+     "median": 274.2,
+     "p90": 279.4,
+     "n": 5
+    },
+    "usable": {
+     "median": 395.9,
+     "p90": 402.7,
+     "n": 5
+    },
+    "probeTap": {
+     "median": 59.7,
+     "p90": 62.1,
+     "n": 5
+    },
+    "longTasks": {
+     "median": 1,
+     "p90": 1,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 149,
+     "p90": 151.6,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 149,
+     "p90": 151.6,
+     "n": 5
+    },
+    "bytesUntilUsable": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "bytesTotal": {
+     "median": 334800,
+     "p90": 334800,
+     "n": 5
+    },
+    "requests": {
+     "median": 3,
+     "p90": 3,
+     "n": 5
+    },
+    "requests304": {
+     "median": 2,
+     "p90": 2,
+     "n": 5
+    },
+    "indexHtmlDownloads": {
+     "median": 1,
+     "p90": 1,
+     "n": 5
+    },
+    "evaluateScriptMs": {
+     "median": 146.3,
+     "p90": 147.6,
+     "n": 5
+    },
+    "longestEvaluateScriptMs": {
+     "median": 128.1,
+     "p90": 129.5,
+     "n": 5
+    },
+    "v8CompileMs": {
+     "median": 34.5,
+     "p90": 36.4,
+     "n": 5
+    },
+    "v8CompileModuleMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "parseHtmlMs": {
+     "median": 196.6,
+     "p90": 198.9,
+     "n": 5
+    },
+    "parseStylesheetMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "styleRecalcMs": {
+     "median": 16.4,
+     "p90": 18.4,
+     "n": 5
+    },
+    "layoutMs": {
+     "median": 61.2,
+     "p90": 65.6,
+     "n": 5
+    },
+    "paintMs": {
+     "median": 11.9,
+     "p90": 13.7,
+     "n": 5
+    },
+    "bgParseCompileMs": {
+     "median": 5.3,
+     "p90": 6.4,
+     "n": 5
+    },
+    "longTasksTrace": {
+     "median": 1,
+     "p90": 1,
+     "n": 5
+    },
+    "longTasksTraceMs": {
+     "median": 149.2,
+     "p90": 152.3,
+     "n": 5
+    },
+    "longestTaskTraceMs": {
+     "median": 149.2,
+     "p90": 152.3,
+     "n": 5
+    }
+   },
+   "cacheStorage": {
+    "entries": 6,
+    "bytes": 1997047,
+    "storageUsage": 2002198
+   },
+   "swControlledWarm": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "probeOk": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "errors": [],
+   "pageErrors": []
+  },
+  "mid/raw": {
+   "cold": {
+    "fcp": {
+     "median": 1144,
+     "p90": 1148,
+     "n": 5
+    },
+    "lcp": {
+     "median": 5260,
+     "p90": 5273.6,
+     "n": 5
+    },
+    "domContentLoaded": {
+     "median": 5283.7,
+     "p90": 5300,
+     "n": 5
+    },
+    "load": {
+     "median": 5295.1,
+     "p90": 5309.6,
+     "n": 5
+    },
+    "ready": {
+     "median": 5222.6,
+     "p90": 5234.9,
+     "n": 5
+    },
+    "usable": {
+     "median": 5307.2,
+     "p90": 5322.3,
+     "n": 5
+    },
+    "probeTap": {
+     "median": 22.7,
+     "p90": 39.1,
+     "n": 5
+    },
+    "longTasks": {
+     "median": 1,
+     "p90": 1,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 128,
+     "p90": 139.2,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 128,
+     "p90": 139.2,
+     "n": 5
+    },
+    "bytesUntilUsable": {
+     "median": 2985337,
+     "p90": 2985337,
+     "n": 5
+    },
+    "bytesTotal": {
+     "median": 2985337,
+     "p90": 2985337,
+     "n": 5
+    },
+    "requests": {
+     "median": 8,
+     "p90": 8,
+     "n": 5
+    },
+    "requests304": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "indexHtmlDownloads": {
+     "median": 3,
+     "p90": 3,
+     "n": 5
+    },
+    "evaluateScriptMs": {
+     "median": 128.4,
+     "p90": 134.7,
+     "n": 5
+    },
+    "longestEvaluateScriptMs": {
+     "median": 111.7,
+     "p90": 118.1,
+     "n": 5
+    },
+    "v8CompileMs": {
+     "median": 32.4,
+     "p90": 34.2,
+     "n": 5
+    },
+    "v8CompileModuleMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "parseHtmlMs": {
+     "median": 280.8,
+     "p90": 292.4,
+     "n": 5
+    },
+    "parseStylesheetMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "styleRecalcMs": {
+     "median": 18.4,
+     "p90": 18.9,
+     "n": 5
+    },
+    "layoutMs": {
+     "median": 45.7,
+     "p90": 48.6,
+     "n": 5
+    },
+    "paintMs": {
+     "median": 8.4,
+     "p90": 8.9,
+     "n": 5
+    },
+    "bgParseCompileMs": {
+     "median": 2.7,
+     "p90": 4.8,
+     "n": 5
+    },
+    "longTasksTrace": {
+     "median": 1,
+     "p90": 1,
+     "n": 5
+    },
+    "longTasksTraceMs": {
+     "median": 129.2,
+     "p90": 139.8,
+     "n": 5
+    },
+    "longestTaskTraceMs": {
+     "median": 129.2,
+     "p90": 139.8,
+     "n": 5
+    }
+   },
+   "warm": {
+    "fcp": {
+     "median": 108,
+     "p90": 112,
+     "n": 5
+    },
+    "lcp": {
+     "median": 108,
+     "p90": 112,
+     "n": 5
+    },
+    "domContentLoaded": {
+     "median": 332.3,
+     "p90": 343.8,
+     "n": 5
+    },
+    "load": {
+     "median": 333.2,
+     "p90": 345,
+     "n": 5
+    },
+    "ready": {
+     "median": 233.3,
+     "p90": 243.8,
+     "n": 5
+    },
+    "usable": {
+     "median": 342.6,
+     "p90": 355,
+     "n": 5
+    },
+    "probeTap": {
+     "median": 54,
+     "p90": 56.3,
+     "n": 5
+    },
+    "longTasks": {
+     "median": 1,
+     "p90": 1,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 127,
+     "p90": 133,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 127,
+     "p90": 133,
+     "n": 5
+    },
+    "bytesUntilUsable": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "bytesTotal": {
+     "median": 986362,
+     "p90": 986362,
+     "n": 5
+    },
+    "requests": {
+     "median": 3,
+     "p90": 3,
+     "n": 5
+    },
+    "requests304": {
+     "median": 2,
+     "p90": 2,
+     "n": 5
+    },
+    "indexHtmlDownloads": {
+     "median": 1,
+     "p90": 1,
+     "n": 5
+    },
+    "evaluateScriptMs": {
+     "median": 125.2,
+     "p90": 130.9,
+     "n": 5
+    },
+    "longestEvaluateScriptMs": {
+     "median": 108.5,
+     "p90": 114.1,
+     "n": 5
+    },
+    "v8CompileMs": {
+     "median": 31.8,
+     "p90": 32.4,
+     "n": 5
+    },
+    "v8CompileModuleMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "parseHtmlMs": {
+     "median": 168,
+     "p90": 175,
+     "n": 5
+    },
+    "parseStylesheetMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "styleRecalcMs": {
+     "median": 15,
+     "p90": 15.5,
+     "n": 5
+    },
+    "layoutMs": {
+     "median": 55.6,
+     "p90": 58.3,
+     "n": 5
+    },
+    "paintMs": {
+     "median": 11,
+     "p90": 11.9,
+     "n": 5
+    },
+    "bgParseCompileMs": {
+     "median": 5,
+     "p90": 5.3,
+     "n": 5
+    },
+    "longTasksTrace": {
+     "median": 1,
+     "p90": 1,
+     "n": 5
+    },
+    "longTasksTraceMs": {
+     "median": 127.3,
+     "p90": 133.5,
+     "n": 5
+    },
+    "longestTaskTraceMs": {
+     "median": 127.3,
+     "p90": 133.5,
+     "n": 5
+    }
+   },
+   "cacheStorage": {
+    "entries": 6,
+    "bytes": 1997047,
+    "storageUsage": 2001971
+   },
+   "swControlledWarm": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "probeOk": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "errors": [],
+   "pageErrors": []
+  },
+  "budget/gzip": {
+   "cold": {
+    "fcp": {
+     "median": 2356,
+     "p90": 2363.2,
+     "n": 5
+    },
+    "lcp": {
+     "median": 7412,
+     "p90": 7412,
+     "n": 5
+    },
+    "domContentLoaded": {
+     "median": 7461.2,
+     "p90": 7464.2,
+     "n": 5
+    },
+    "load": {
+     "median": 7471,
+     "p90": 7479.4,
+     "n": 5
+    },
+    "ready": {
+     "median": 7351.5,
+     "p90": 7353.7,
+     "n": 5
+    },
+    "usable": {
+     "median": 7491.4,
+     "p90": 7498.9,
+     "n": 5
+    },
+    "probeTap": {
+     "median": 83,
+     "p90": 86.4,
+     "n": 5
+    },
+    "longTasks": {
+     "median": 2,
+     "p90": 2,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 271,
+     "p90": 275.2,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 221,
+     "p90": 225.2,
+     "n": 5
+    },
+    "bytesUntilUsable": {
+     "median": 1028901,
+     "p90": 1028901,
+     "n": 5
+    },
+    "bytesTotal": {
+     "median": 1028901,
+     "p90": 1028901,
+     "n": 5
+    },
+    "requests": {
+     "median": 8,
+     "p90": 8,
+     "n": 5
+    },
+    "requests304": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "indexHtmlDownloads": {
+     "median": 3,
+     "p90": 3,
+     "n": 5
+    },
+    "evaluateScriptMs": {
+     "median": 211.2,
+     "p90": 217.4,
+     "n": 5
+    },
+    "longestEvaluateScriptMs": {
+     "median": 185.1,
+     "p90": 190.1,
+     "n": 5
+    },
+    "v8CompileMs": {
+     "median": 52.5,
+     "p90": 53.1,
+     "n": 5
+    },
+    "v8CompileModuleMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "parseHtmlMs": {
+     "median": 377,
+     "p90": 382.6,
+     "n": 5
+    },
+    "parseStylesheetMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "styleRecalcMs": {
+     "median": 28.6,
+     "p90": 31.1,
+     "n": 5
+    },
+    "layoutMs": {
+     "median": 80.1,
+     "p90": 81,
+     "n": 5
+    },
+    "paintMs": {
+     "median": 12.2,
+     "p90": 13.6,
+     "n": 5
+    },
+    "bgParseCompileMs": {
+     "median": 4.1,
+     "p90": 8.7,
+     "n": 5
+    },
+    "longTasksTrace": {
+     "median": 2,
+     "p90": 2,
+     "n": 5
+    },
+    "longTasksTraceMs": {
+     "median": 272.7,
+     "p90": 276.6,
+     "n": 5
+    },
+    "longestTaskTraceMs": {
+     "median": 221.7,
+     "p90": 226.2,
+     "n": 5
+    }
+   },
+   "warm": {
+    "fcp": {
+     "median": 160,
+     "p90": 171.2,
+     "n": 5
+    },
+    "lcp": {
+     "median": 472,
+     "p90": 493.6,
+     "n": 5
+    },
+    "domContentLoaded": {
+     "median": 534.9,
+     "p90": 599.8,
+     "n": 5
+    },
+    "load": {
+     "median": 537,
+     "p90": 605.3,
+     "n": 5
+    },
+    "ready": {
+     "median": 434,
+     "p90": 485.9,
+     "n": 5
+    },
+    "usable": {
+     "median": 548.4,
+     "p90": 621.6,
+     "n": 5
+    },
+    "probeTap": {
+     "median": 66.4,
+     "p90": 78.7,
+     "n": 5
+    },
+    "longTasks": {
+     "median": 1,
+     "p90": 1.6,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 226,
+     "p90": 309,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 226,
+     "p90": 269.4,
+     "n": 5
+    },
+    "bytesUntilUsable": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "bytesTotal": {
+     "median": 334800,
+     "p90": 334800,
+     "n": 5
+    },
+    "requests": {
+     "median": 3,
+     "p90": 3,
+     "n": 5
+    },
+    "requests304": {
+     "median": 2,
+     "p90": 2,
+     "n": 5
+    },
+    "indexHtmlDownloads": {
+     "median": 1,
+     "p90": 1,
+     "n": 5
+    },
+    "evaluateScriptMs": {
+     "median": 215.8,
+     "p90": 264,
+     "n": 5
+    },
+    "longestEvaluateScriptMs": {
+     "median": 189.2,
+     "p90": 236.1,
+     "n": 5
+    },
+    "v8CompileMs": {
+     "median": 53.1,
+     "p90": 58.9,
+     "n": 5
+    },
+    "v8CompileModuleMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "parseHtmlMs": {
+     "median": 293.7,
+     "p90": 341.6,
+     "n": 5
+    },
+    "parseStylesheetMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "styleRecalcMs": {
+     "median": 26.8,
+     "p90": 28.7,
+     "n": 5
+    },
+    "layoutMs": {
+     "median": 65.6,
+     "p90": 79.2,
+     "n": 5
+    },
+    "paintMs": {
+     "median": 13.9,
+     "p90": 15.6,
+     "n": 5
+    },
+    "bgParseCompileMs": {
+     "median": 5.7,
+     "p90": 6.2,
+     "n": 5
+    },
+    "longTasksTrace": {
+     "median": 2,
+     "p90": 2,
+     "n": 5
+    },
+    "longTasksTraceMs": {
+     "median": 269.6,
+     "p90": 330.1,
+     "n": 5
+    },
+    "longestTaskTraceMs": {
+     "median": 226.9,
+     "p90": 270,
+     "n": 5
+    }
+   },
+   "cacheStorage": {
+    "entries": 6,
+    "bytes": 1997047,
+    "storageUsage": 2002198
+   },
+   "swControlledWarm": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "probeOk": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "errors": [],
+   "pageErrors": []
+  },
+  "budget/raw": {
+   "cold": {
+    "fcp": {
+     "median": 4296,
+     "p90": 4312,
+     "n": 5
+    },
+    "lcp": {
+     "median": 20452,
+     "p90": 20509.6,
+     "n": 5
+    },
+    "domContentLoaded": {
+     "median": 20502.9,
+     "p90": 20569.9,
+     "n": 5
+    },
+    "load": {
+     "median": 20513.8,
+     "p90": 20580.7,
+     "n": 5
+    },
+    "ready": {
+     "median": 20388.5,
+     "p90": 20435.2,
+     "n": 5
+    },
+    "usable": {
+     "median": 20535,
+     "p90": 20604.9,
+     "n": 5
+    },
+    "probeTap": {
+     "median": 91.9,
+     "p90": 103.3,
+     "n": 5
+    },
+    "longTasks": {
+     "median": 2,
+     "p90": 3.6,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 280,
+     "p90": 431.4,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 229,
+     "p90": 276.2,
+     "n": 5
+    },
+    "bytesUntilUsable": {
+     "median": 2985337,
+     "p90": 2985337,
+     "n": 5
+    },
+    "bytesTotal": {
+     "median": 2985337,
+     "p90": 2985337,
+     "n": 5
+    },
+    "requests": {
+     "median": 8,
+     "p90": 8,
+     "n": 5
+    },
+    "requests304": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "indexHtmlDownloads": {
+     "median": 3,
+     "p90": 3,
+     "n": 5
+    },
+    "evaluateScriptMs": {
+     "median": 216,
+     "p90": 267.8,
+     "n": 5
+    },
+    "longestEvaluateScriptMs": {
+     "median": 189.7,
+     "p90": 236.2,
+     "n": 5
+    },
+    "v8CompileMs": {
+     "median": 52,
+     "p90": 64.3,
+     "n": 5
+    },
+    "v8CompileModuleMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "parseHtmlMs": {
+     "median": 511.6,
+     "p90": 684.2,
+     "n": 5
+    },
+    "parseStylesheetMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "styleRecalcMs": {
+     "median": 36.2,
+     "p90": 41.6,
+     "n": 5
+    },
+    "layoutMs": {
+     "median": 81.5,
+     "p90": 104.3,
+     "n": 5
+    },
+    "paintMs": {
+     "median": 15,
+     "p90": 20.1,
+     "n": 5
+    },
+    "bgParseCompileMs": {
+     "median": 4.3,
+     "p90": 7.6,
+     "n": 5
+    },
+    "longTasksTrace": {
+     "median": 2,
+     "p90": 3.6,
+     "n": 5
+    },
+    "longTasksTraceMs": {
+     "median": 282.5,
+     "p90": 433.1,
+     "n": 5
+    },
+    "longestTaskTraceMs": {
+     "median": 229.2,
+     "p90": 276.2,
+     "n": 5
+    }
+   },
+   "warm": {
+    "fcp": {
+     "median": 164,
+     "p90": 188,
+     "n": 5
+    },
+    "lcp": {
+     "median": 216,
+     "p90": 251.2,
+     "n": 5
+    },
+    "domContentLoaded": {
+     "median": 541.8,
+     "p90": 637.6,
+     "n": 5
+    },
+    "load": {
+     "median": 549.9,
+     "p90": 646.1,
+     "n": 5
+    },
+    "ready": {
+     "median": 437.3,
+     "p90": 510.5,
+     "n": 5
+    },
+    "usable": {
+     "median": 569.4,
+     "p90": 669.9,
+     "n": 5
+    },
+    "probeTap": {
+     "median": 82.4,
+     "p90": 98.4,
+     "n": 5
+    },
+    "longTasks": {
+     "median": 1,
+     "p90": 3.2,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 225,
+     "p90": 393.2,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 225,
+     "p90": 263.6,
+     "n": 5
+    },
+    "bytesUntilUsable": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "bytesTotal": {
+     "median": 986362,
+     "p90": 986362,
+     "n": 5
+    },
+    "requests": {
+     "median": 3,
+     "p90": 3,
+     "n": 5
+    },
+    "requests304": {
+     "median": 2,
+     "p90": 2,
+     "n": 5
+    },
+    "indexHtmlDownloads": {
+     "median": 1,
+     "p90": 1,
+     "n": 5
+    },
+    "evaluateScriptMs": {
+     "median": 217.9,
+     "p90": 257.1,
+     "n": 5
+    },
+    "longestEvaluateScriptMs": {
+     "median": 190.6,
+     "p90": 224.4,
+     "n": 5
+    },
+    "v8CompileMs": {
+     "median": 54.1,
+     "p90": 62.9,
+     "n": 5
+    },
+    "v8CompileModuleMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "parseHtmlMs": {
+     "median": 291.3,
+     "p90": 343.9,
+     "n": 5
+    },
+    "parseStylesheetMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "styleRecalcMs": {
+     "median": 27.5,
+     "p90": 32.7,
+     "n": 5
+    },
+    "layoutMs": {
+     "median": 72.8,
+     "p90": 95.4,
+     "n": 5
+    },
+    "paintMs": {
+     "median": 13.3,
+     "p90": 16.4,
+     "n": 5
+    },
+    "bgParseCompileMs": {
+     "median": 5.4,
+     "p90": 5.8,
+     "n": 5
+    },
+    "longTasksTrace": {
+     "median": 2,
+     "p90": 3.2,
+     "n": 5
+    },
+    "longTasksTraceMs": {
+     "median": 276.1,
+     "p90": 397,
+     "n": 5
+    },
+    "longestTaskTraceMs": {
+     "median": 225.3,
+     "p90": 263.8,
+     "n": 5
+    }
+   },
+   "cacheStorage": {
+    "entries": 6,
+    "bytes": 1997047,
+    "storageUsage": 2001971
+   },
+   "swControlledWarm": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "probeOk": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "errors": [],
+   "pageErrors": []
+  },
+  "iphone/gzip": {
+   "cold": {
+    "fcp": {
+     "median": 130,
+     "p90": 145.4,
+     "n": 5
+    },
+    "domContentLoaded": {
+     "median": 68,
+     "p90": 129.6,
+     "n": 5
+    },
+    "load": {
+     "median": 131,
+     "p90": 167.6,
+     "n": 5
+    },
+    "ready": {
+     "median": 68,
+     "p90": 127.8,
+     "n": 5
+    },
+    "usable": {
+     "median": 170,
+     "p90": 211.2,
+     "n": 5
+    },
+    "probeTap": {
+     "median": 60,
+     "p90": 68.2,
+     "n": 5
+    },
+    "longTasks": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "bytesUntilUsable": {
+     "median": 1029346,
+     "p90": 1029346,
+     "n": 5
+    },
+    "bytesTotal": {
+     "median": 1029346,
+     "p90": 1029346,
+     "n": 5
+    },
+    "requests": {
+     "median": 9,
+     "p90": 9,
+     "n": 5
+    },
+    "requests304": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "indexHtmlDownloads": {
+     "median": 3,
+     "p90": 3,
+     "n": 5
+    }
+   },
+   "warm": {
+    "fcp": {
+     "median": 125,
+     "p90": 153,
+     "n": 5
+    },
+    "domContentLoaded": {
+     "median": 56,
+     "p90": 66.2,
+     "n": 5
+    },
+    "load": {
+     "median": 118,
+     "p90": 146.8,
+     "n": 5
+    },
+    "ready": {
+     "median": 56,
+     "p90": 66.2,
+     "n": 5
+    },
+    "usable": {
+     "median": 146,
+     "p90": 184,
+     "n": 5
+    },
+    "probeTap": {
+     "median": 48,
+     "p90": 71,
+     "n": 5
+    },
+    "longTasks": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "bytesUntilUsable": {
+     "median": 335245,
+     "p90": 335245,
+     "n": 5
+    },
+    "bytesTotal": {
+     "median": 336070,
+     "p90": 336070,
+     "n": 5
+    },
+    "requests": {
+     "median": 3,
+     "p90": 3,
+     "n": 5
+    },
+    "requests304": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "indexHtmlDownloads": {
+     "median": 1,
+     "p90": 1,
+     "n": 5
+    }
+   },
+   "cacheStorage": {
+    "entries": 6,
+    "bytes": 1997047,
+    "storageUsage": 1997047
+   },
+   "swControlledWarm": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "probeOk": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "errors": [],
+   "pageErrors": []
+  },
+  "iphone/raw": {
+   "cold": {
+    "fcp": {
+     "median": 143,
+     "p90": 164.6,
+     "n": 5
+    },
+    "domContentLoaded": {
+     "median": 68,
+     "p90": 82.4,
+     "n": 5
+    },
+    "load": {
+     "median": 141,
+     "p90": 154.4,
+     "n": 5
+    },
+    "ready": {
+     "median": 67,
+     "p90": 81.8,
+     "n": 5
+    },
+    "usable": {
+     "median": 184,
+     "p90": 205.2,
+     "n": 5
+    },
+    "probeTap": {
+     "median": 72,
+     "p90": 93.4,
+     "n": 5
+    },
+    "longTasks": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "bytesUntilUsable": {
+     "median": 2986429,
+     "p90": 2986429,
+     "n": 5
+    },
+    "bytesTotal": {
+     "median": 2986429,
+     "p90": 2986429,
+     "n": 5
+    },
+    "requests": {
+     "median": 9,
+     "p90": 9,
+     "n": 5
+    },
+    "requests304": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "indexHtmlDownloads": {
+     "median": 3,
+     "p90": 3,
+     "n": 5
+    }
+   },
+   "warm": {
+    "fcp": {
+     "median": 136,
+     "p90": 160.4,
+     "n": 5
+    },
+    "domContentLoaded": {
+     "median": 60,
+     "p90": 70.6,
+     "n": 5
+    },
+    "load": {
+     "median": 130,
+     "p90": 149,
+     "n": 5
+    },
+    "ready": {
+     "median": 60,
+     "p90": 70,
+     "n": 5
+    },
+    "usable": {
+     "median": 156,
+     "p90": 177.4,
+     "n": 5
+    },
+    "probeTap": {
+     "median": 55,
+     "p90": 60.2,
+     "n": 5
+    },
+    "longTasks": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "bytesUntilUsable": {
+     "median": 987454,
+     "p90": 987454,
+     "n": 5
+    },
+    "bytesTotal": {
+     "median": 989382,
+     "p90": 989382,
+     "n": 5
+    },
+    "requests": {
+     "median": 3,
+     "p90": 3,
+     "n": 5
+    },
+    "requests304": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "indexHtmlDownloads": {
+     "median": 1,
+     "p90": 1,
+     "n": 5
+    }
+   },
+   "cacheStorage": {
+    "entries": 6,
+    "bytes": 1997047,
+    "storageUsage": 1997047
+   },
+   "swControlledWarm": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "probeOk": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "errors": [],
+   "pageErrors": []
+  }
+ },
+ "actions": {
+  "profile": "mid",
+  "all": {
+   "Open Exercises tab (first time)": {
+    "inp": {
+     "median": 121.9,
+     "p90": 134.6,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 128,
+     "p90": 136,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 76,
+     "p90": 80.6,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 76,
+     "p90": 111.2,
+     "n": 5
+    },
+    "errors": []
+   },
+   "Open exercise sheet (Goblet squat)": {
+    "inp": {
+     "median": 62.6,
+     "p90": 66.3,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 72,
+     "p90": 72,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 51,
+     "p90": 53.8,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 51,
+     "p90": 53.8,
+     "n": 5
+    },
+    "errors": []
+   },
+   "Close exercise sheet": {
+    "inp": {
+     "median": 20,
+     "p90": 20.6,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 24,
+     "p90": 24,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "errors": []
+   },
+   "Open Search & log (top-bar Search)": {
+    "inp": {
+     "median": 23.1,
+     "p90": 25.2,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 24,
+     "p90": 28.8,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "errors": []
+   },
+   "Search typing, worst key of \"squat\"": {
+    "inp": {
+     "median": 16.3,
+     "p90": 20.5,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 16,
+     "p90": 20.8,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "errors": []
+   },
+   "Log a set by text (Enter)": {
+    "inp": {
+     "median": 98.1,
+     "p90": 112.1,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 96,
+     "p90": 105.6,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 85,
+     "p90": 97,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 85,
+     "p90": 97,
+     "n": 5
+    },
+    "errors": []
+   },
+   "Log a meal by text (Enter)": {
+    "inp": {
+     "median": 1499.2,
+     "p90": 1708.7,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 1480,
+     "p90": 1683.2,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 1470,
+     "p90": 1673.4,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 1470,
+     "p90": 1673.4,
+     "n": 5
+    },
+    "errors": []
+   },
+   "Open Progress tab (Strength graph)": {
+    "inp": {
+     "median": 176,
+     "p90": 217.6,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 176,
+     "p90": 217.6,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 172,
+     "p90": 213.8,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 172,
+     "p90": 213.8,
+     "n": 5
+    },
+    "errors": []
+   },
+   "Progress: Muscles (coverage map)": {
+    "inp": {
+     "median": 25.4,
+     "p90": 33.2,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 32,
+     "p90": 36.8,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "errors": []
+   },
+   "Progress: Strength graph": {
+    "inp": {
+     "median": 65.8,
+     "p90": 79.1,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 64,
+     "p90": 78.4,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 61,
+     "p90": 71.8,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 61,
+     "p90": 71.8,
+     "n": 5
+    },
+    "errors": []
+   },
+   "Progress: Body": {
+    "inp": {
+     "median": 15.4,
+     "p90": 17.1,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 16,
+     "p90": 16,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "errors": []
+   },
+   "Open Help (Guide)": {
+    "inp": {
+     "median": 17,
+     "p90": 22.4,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 24,
+     "p90": 28.8,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "errors": []
+   },
+   "Open Today tab": {
+    "inp": {
+     "median": 26.9,
+     "p90": 36.8,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 32,
+     "p90": 41.6,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "errors": []
+   },
+   "Open Profile": {
+    "inp": {
+     "median": 18.2,
+     "p90": 22.3,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 24,
+     "p90": 28.8,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "errors": []
+   },
+   "Profile: Backup tab": {
+    "inp": {
+     "median": 31.5,
+     "p90": 36,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 32,
+     "p90": 36.8,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "errors": []
+   },
+   "Restore a backup": {
+    "inp": {
+     "median": 175.7,
+     "p90": 225.4,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 160,
+     "p90": 206.4,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 155,
+     "p90": 198.8,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 155,
+     "p90": 198.8,
+     "n": 5
+    },
+    "errors": []
+   },
+   "Open Today tab (after restore)": {
+    "inp": {
+     "median": 15.1,
+     "p90": 17.1,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 16,
+     "p90": 20.8,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "errors": []
+   },
+   "Start a session": {
+    "inp": {
+     "median": 189.7,
+     "p90": 320.9,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 192,
+     "p90": 324.8,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 182,
+     "p90": 310.2,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 182,
+     "p90": 310.2,
+     "n": 5
+    },
+    "errors": []
+   },
+   "Session: next step (1st)": {
+    "inp": {
+     "median": 19.1,
+     "p90": 24.9,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 24,
+     "p90": 28.8,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "errors": []
+   },
+   "Session: next step (2nd)": {
+    "inp": {
+     "median": 21.8,
+     "p90": 23.2,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 24,
+     "p90": 24,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "errors": []
+   },
+   "Session: next step (3rd)": {
+    "inp": {
+     "median": 16.3,
+     "p90": 20.1,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 16,
+     "p90": 24,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "errors": []
+   },
+   "End session (confirm)": {
+    "inp": {
+     "median": 47.2,
+     "p90": 65.3,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 40,
+     "p90": 49.6,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "errors": []
+   }
+  },
+  "top5": [
+   {
+    "action": "Log a meal by text (Enter)",
+    "inp": {
+     "median": 1499.2,
+     "p90": 1708.7,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 1480,
+     "p90": 1683.2,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 1470,
+     "p90": 1673.4,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 1470,
+     "p90": 1673.4,
+     "n": 5
+    },
+    "errors": []
+   },
+   {
+    "action": "Start a session",
+    "inp": {
+     "median": 189.7,
+     "p90": 320.9,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 192,
+     "p90": 324.8,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 182,
+     "p90": 310.2,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 182,
+     "p90": 310.2,
+     "n": 5
+    },
+    "errors": []
+   },
+   {
+    "action": "Open Progress tab (Strength graph)",
+    "inp": {
+     "median": 176,
+     "p90": 217.6,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 176,
+     "p90": 217.6,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 172,
+     "p90": 213.8,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 172,
+     "p90": 213.8,
+     "n": 5
+    },
+    "errors": []
+   },
+   {
+    "action": "Restore a backup",
+    "inp": {
+     "median": 175.7,
+     "p90": 225.4,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 160,
+     "p90": 206.4,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 155,
+     "p90": 198.8,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 155,
+     "p90": 198.8,
+     "n": 5
+    },
+    "errors": []
+   },
+   {
+    "action": "Open Exercises tab (first time)",
+    "inp": {
+     "median": 121.9,
+     "p90": 134.6,
+     "n": 5
+    },
+    "eventTiming": {
+     "median": 128,
+     "p90": 136,
+     "n": 5
+    },
+    "longestTask": {
+     "median": 76,
+     "p90": 80.6,
+     "n": 5
+    },
+    "longTaskMs": {
+     "median": 76,
+     "p90": 111.2,
+     "n": 5
+    },
+    "errors": []
+   }
+  ],
+  "pageErrors": []
+ },
+ "scale": {
+  "1x": {
+   "data": {
+    "log": 654,
+    "food": 84,
+    "notes": 27,
+    "body": 8,
+    "jsonKB": 66
+   },
+   "quota": null,
+   "restoreMsg": "Restored week 4: 36 sessions, 657 sets, 10 other lifts, 14 cardio logs, 84 meals, 8 weigh-ins.",
+   "metrics": {
+    "ready": {
+     "median": 2017.7,
+     "p90": 2033.5,
+     "n": 5
+    },
+    "bootWall": {
+     "median": 2137,
+     "p90": 2163.2,
+     "n": 5
+    },
+    "storeKB": {
+     "median": 66,
+     "p90": 66,
+     "n": 5
+    },
+    "covDone": {
+     "median": 0.1,
+     "p90": 0.2,
+     "n": 5
+    },
+    "dailyIdx": {
+     "median": 13.9,
+     "p90": 14.4,
+     "n": 5
+    },
+    "open Search & log": {
+     "median": 60.6,
+     "p90": 72.8,
+     "n": 5
+    },
+    "open Search & log longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "search key worst": {
+     "median": 14.6,
+     "p90": 16.6,
+     "n": 5
+    },
+    "search key median": {
+     "median": 9.4,
+     "p90": 11,
+     "n": 5
+    },
+    "search key longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "log text (Enter)": {
+     "median": 113.9,
+     "p90": 142.1,
+     "n": 5
+    },
+    "log text (Enter) longestTask": {
+     "median": 98,
+     "p90": 123,
+     "n": 5
+    },
+    "tab Progress (Strength)": {
+     "median": 204.4,
+     "p90": 250,
+     "n": 5
+    },
+    "tab Progress (Strength) longestTask": {
+     "median": 198,
+     "p90": 243.2,
+     "n": 5
+    },
+    "Progress Muscles (coverage)": {
+     "median": 27.6,
+     "p90": 32.7,
+     "n": 5
+    },
+    "Progress Muscles (coverage) longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "Progress Strength graph": {
+     "median": 78.1,
+     "p90": 85.4,
+     "n": 5
+    },
+    "Progress Strength graph longestTask": {
+     "median": 70,
+     "p90": 77.8,
+     "n": 5
+    },
+    "tab Today": {
+     "median": 30.2,
+     "p90": 33,
+     "n": 5
+    },
+    "tab Today longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "open Profile": {
+     "median": 49.4,
+     "p90": 56.2,
+     "n": 5
+    },
+    "open Profile longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "Profile Backup tab": {
+     "median": 40.8,
+     "p90": 48.1,
+     "n": 5
+    },
+    "Profile Backup tab longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "backupCodeKB": {
+     "median": 62,
+     "p90": 62,
+     "n": 5
+    },
+    "restore backup": {
+     "median": 247.4,
+     "p90": 269.9,
+     "n": 5
+    },
+    "restore backup longestTask": {
+     "median": 217,
+     "p90": 243.6,
+     "n": 5
+    }
+   },
+   "errors": []
+  },
+  "10x": {
+   "data": {
+    "log": 6540,
+    "food": 840,
+    "notes": 270,
+    "body": 80,
+    "jsonKB": 645
+   },
+   "quota": null,
+   "restoreMsg": "Restored week 4: 36 sessions, 6543 sets, 100 other lifts, 140 cardio logs, 840 meals, 80 weigh-ins.",
+   "metrics": {
+    "ready": {
+     "median": 2031.2,
+     "p90": 2111.9,
+     "n": 5
+    },
+    "bootWall": {
+     "median": 2168,
+     "p90": 2315.2,
+     "n": 5
+    },
+    "storeKB": {
+     "median": 645,
+     "p90": 645,
+     "n": 5
+    },
+    "covDone": {
+     "median": 0.7,
+     "p90": 0.9,
+     "n": 5
+    },
+    "dailyIdx": {
+     "median": 130.3,
+     "p90": 199.7,
+     "n": 5
+    },
+    "open Search & log": {
+     "median": 64.1,
+     "p90": 99.8,
+     "n": 5
+    },
+    "open Search & log longestTask": {
+     "median": 0,
+     "p90": 56.6,
+     "n": 5
+    },
+    "search key worst": {
+     "median": 12.3,
+     "p90": 19.9,
+     "n": 5
+    },
+    "search key median": {
+     "median": 9,
+     "p90": 13.7,
+     "n": 5
+    },
+    "search key longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "log text (Enter)": {
+     "median": 144.6,
+     "p90": 225.9,
+     "n": 5
+    },
+    "log text (Enter) longestTask": {
+     "median": 124,
+     "p90": 194.2,
+     "n": 5
+    },
+    "tab Progress (Strength)": {
+     "median": 548.2,
+     "p90": 862.3,
+     "n": 5
+    },
+    "tab Progress (Strength) longestTask": {
+     "median": 541,
+     "p90": 847.8,
+     "n": 5
+    },
+    "Progress Muscles (coverage)": {
+     "median": 26.4,
+     "p90": 45.3,
+     "n": 5
+    },
+    "Progress Muscles (coverage) longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "Progress Strength graph": {
+     "median": 284.7,
+     "p90": 394.1,
+     "n": 5
+    },
+    "Progress Strength graph longestTask": {
+     "median": 278,
+     "p90": 387.4,
+     "n": 5
+    },
+    "tab Today": {
+     "median": 25.1,
+     "p90": 43,
+     "n": 5
+    },
+    "tab Today longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "open Profile": {
+     "median": 44.2,
+     "p90": 62,
+     "n": 5
+    },
+    "open Profile longestTask": {
+     "median": 0,
+     "p90": 56,
+     "n": 5
+    },
+    "Profile Backup tab": {
+     "median": 262,
+     "p90": 347.6,
+     "n": 5
+    },
+    "Profile Backup tab longestTask": {
+     "median": 257,
+     "p90": 338.4,
+     "n": 5
+    },
+    "backupCodeKB": {
+     "median": 596,
+     "p90": 596,
+     "n": 5
+    },
+    "restore backup": {
+     "median": 1068.1,
+     "p90": 1383.5,
+     "n": 5
+    },
+    "restore backup longestTask": {
+     "median": 1018,
+     "p90": 1331,
+     "n": 5
+    }
+   },
+   "errors": []
+  },
+  "100x": {
+   "data": {
+    "log": 65400,
+    "food": 8400,
+    "notes": 2700,
+    "body": 800,
+    "jsonKB": 6432
+   },
+   "quota": "QuotaExceededError",
+   "restoreMsg": "Not saved: this device’s storage is full, so this is lost when you close the app. Restored week 4: 36 sessions, 65403 se",
+   "metrics": {
+    "ready": {
+     "median": 2293.6,
+     "p90": 2403.7,
+     "n": 5
+    },
+    "bootWall": {
+     "median": 2671,
+     "p90": 2900.8,
+     "n": 5
+    },
+    "storeKB": {
+     "median": 6432,
+     "p90": 6432,
+     "n": 5
+    },
+    "covDone": {
+     "median": 6.1,
+     "p90": 8.7,
+     "n": 5
+    },
+    "dailyIdx": {
+     "median": 9024.3,
+     "p90": 10792.7,
+     "n": 5
+    },
+    "open Search & log": {
+     "median": 185.7,
+     "p90": 197.8,
+     "n": 5
+    },
+    "open Search & log longestTask": {
+     "median": 100,
+     "p90": 107.4,
+     "n": 5
+    },
+    "search key worst": {
+     "median": 25.9,
+     "p90": 44.6,
+     "n": 5
+    },
+    "search key median": {
+     "median": 15.9,
+     "p90": 27.3,
+     "n": 5
+    },
+    "search key longestTask": {
+     "median": 0,
+     "p90": 0,
+     "n": 5
+    },
+    "log text (Enter)": {
+     "median": 1141.1,
+     "p90": 1455.4,
+     "n": 5
+    },
+    "log text (Enter) longestTask": {
+     "median": 862,
+     "p90": 1011,
+     "n": 5
+    },
+    "tab Progress (Strength)": {
+     "median": 24426.8,
+     "p90": 27233,
+     "n": 5
+    },
+    "tab Progress (Strength) longestTask": {
+     "median": 24414,
+     "p90": 27153.8,
+     "n": 5
+    },
+    "Progress Muscles (coverage)": {
+     "median": 60.3,
+     "p90": 67.1,
+     "n": 5
+    },
+    "Progress Muscles (coverage) longestTask": {
+     "median": 0,
+     "p90": 55.6,
+     "n": 5
+    },
+    "Progress Strength graph": {
+     "median": 14961.1,
+     "p90": 17058.8,
+     "n": 5
+    },
+    "Progress Strength graph longestTask": {
+     "median": 14953,
+     "p90": 17051,
+     "n": 5
+    },
+    "tab Today": {
+     "median": 58.2,
+     "p90": 92,
+     "n": 5
+    },
+    "tab Today longestTask": {
+     "median": 50,
+     "p90": 77.4,
+     "n": 5
+    },
+    "open Profile": {
+     "median": 82,
+     "p90": 126.2,
+     "n": 5
+    },
+    "open Profile longestTask": {
+     "median": 92,
+     "p90": 155.2,
+     "n": 5
+    },
+    "Profile Backup tab": {
+     "median": 4705.3,
+     "p90": 5477.4,
+     "n": 5
+    },
+    "Profile Backup tab longestTask": {
+     "median": 4571,
+     "p90": 5329.8,
+     "n": 5
+    },
+    "backupCodeKB": {
+     "median": 5936,
+     "p90": 5936,
+     "n": 5
+    },
+    "restore backup": {
+     "median": 25131.1,
+     "p90": 27159.3,
+     "n": 3
+    },
+    "restore backup longestTask": {
+     "median": 24521,
+     "p90": 26689.8,
+     "n": 3
+    }
+   },
+   "errors": []
+  }
+ },
+ "ai": {
+  "profile": "mid",
+  "firstByteDelayMs": 600,
+  "chunkGapMs": 60,
+  "streams": true,
+  "metrics": {
+   "sendPaint": {
+    "median": 114.1,
+    "p90": 192.8,
+    "n": 5
+   },
+   "sendToFetch": {
+    "median": 70.3,
+    "p90": 125.3,
+    "n": 5
+   },
+   "sendToFirstByte": {
+    "median": 672.4,
+    "p90": 730.3,
+    "n": 5
+   },
+   "firstByteToFirstPaint": {
+    "median": 25.4,
+    "p90": 29.4,
+    "n": 5
+   },
+   "sendToFirstWordPainted": {
+    "median": 698,
+    "p90": 759.6,
+    "n": 5
+   },
+   "appOverheadFirstWord": {
+    "median": 98,
+    "p90": 159.6,
+    "n": 5
+   },
+   "lastChunkToLastPaint": {
+    "median": 15,
+    "p90": 20,
+    "n": 5
+   },
+   "sendToAllPainted": {
+    "median": 1597.9,
+    "p90": 1653.8,
+    "n": 5
+   },
+   "streamDuration": {
+    "median": 907.1,
+    "p90": 909.7,
+    "n": 5
+   },
+   "chunks": {
+    "median": 16,
+    "p90": 16,
+    "n": 5
+   },
+   "longTasks": {
+    "median": 1,
+    "p90": 1,
+    "n": 5
+   },
+   "longestTask": {
+    "median": 97,
+    "p90": 171.6,
+    "n": 5
+   }
+  },
+  "calledGemini": [
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  "errors": []
+ },
+ "memory": {
+  "profile": "mid",
+  "minutes": 10,
+  "loops": 70,
+  "clickErrors": 0,
+  "start": {
+   "t": 0,
+   "heapUsedMB": 2.54,
+   "perfMemoryMB": 9.54,
+   "domNodesInDoc": 1722,
+   "domNodesAll": 2381,
+   "listeners": 100,
+   "documents": 1,
+   "storeKB": 49
+  },
+  "endBeforeGc": {
+   "t": 607,
+   "heapUsedMB": 27.18,
+   "perfMemoryMB": 9.54,
+   "domNodesInDoc": 5752,
+   "domNodesAll": 11293,
+   "listeners": 123,
+   "documents": 1,
+   "storeKB": 66
+  },
+  "endAfterGc": {
+   "t": 607,
+   "heapUsedMB": 26.57,
+   "perfMemoryMB": 9.54,
+   "domNodesInDoc": 5752,
+   "domNodesAll": 8453,
+   "listeners": 118,
+   "documents": 1,
+   "storeKB": 66
+  },
+  "samples": [
+   {
+    "t": 0,
+    "heapUsedMB": 2.54,
+    "perfMemoryMB": 9.54,
+    "domNodesInDoc": 1722,
+    "domNodesAll": 2381,
+    "listeners": 100,
+    "documents": 1,
+    "storeKB": 49
+   },
+   {
+    "t": 37,
+    "heapUsedMB": 26.05,
+    "perfMemoryMB": 9.54,
+    "domNodesInDoc": 5287,
+    "domNodesAll": 11285,
+    "listeners": 125,
+    "documents": 1,
+    "storeKB": 50
+   },
+   {
+    "t": 62,
+    "heapUsedMB": 25.83,
+    "perfMemoryMB": 9.54,
+    "domNodesInDoc": 5337,
+    "domNodesAll": 9947,
+    "listeners": 120,
+    "documents": 1,
+    "storeKB": 51
+   },
+   {
+    "t": 96,
+    "heapUsedMB": 26.92,
+    "perfMemoryMB": 9.54,
+    "domNodesInDoc": 5399,
+    "domNodesAll": 11281,
+    "listeners": 125,
+    "documents": 1,
+    "storeKB": 52
+   },
+   {
+    "t": 122,
+    "heapUsedMB": 26.5,
+    "perfMemoryMB": 9.54,
+    "domNodesInDoc": 5442,
+    "domNodesAll": 10455,
+    "listeners": 123,
+    "documents": 1,
+    "storeKB": 53
+   },
+   {
+    "t": 156,
+    "heapUsedMB": 26.45,
+    "perfMemoryMB": 9.54,
+    "domNodesInDoc": 5506,
+    "domNodesAll": 11963,
+    "listeners": 133,
+    "documents": 1,
+    "storeKB": 54
+   },
+   {
+    "t": 182,
+    "heapUsedMB": 26.55,
+    "perfMemoryMB": 9.54,
+    "domNodesInDoc": 5556,
+    "domNodesAll": 10899,
+    "listeners": 129,
+    "documents": 1,
+    "storeKB": 55
+   },
+   {
+    "t": 216,
+    "heapUsedMB": 26.71,
+    "perfMemoryMB": 9.54,
+    "domNodesInDoc": 5618,
+    "domNodesAll": 10554,
+    "listeners": 122,
+    "documents": 1,
+    "storeKB": 55
+   },
+   {
+    "t": 241,
+    "heapUsedMB": 27.13,
+    "perfMemoryMB": 9.54,
+    "domNodesInDoc": 5661,
+    "domNodesAll": 14804,
+    "listeners": 126,
+    "documents": 1,
+    "storeKB": 56
+   },
+   {
+    "t": 275,
+    "heapUsedMB": 26.96,
+    "perfMemoryMB": 9.54,
+    "domNodesInDoc": 5695,
+    "domNodesAll": 10926,
+    "listeners": 123,
+    "documents": 1,
+    "storeKB": 57
+   },
+   {
+    "t": 301,
+    "heapUsedMB": 27.64,
+    "perfMemoryMB": 9.54,
+    "domNodesInDoc": 5698,
+    "domNodesAll": 16115,
+    "listeners": 126,
+    "documents": 1,
+    "storeKB": 58
+   },
+   {
+    "t": 335,
+    "heapUsedMB": 27.8,
+    "perfMemoryMB": 9.54,
+    "domNodesInDoc": 5704,
+    "domNodesAll": 15498,
+    "listeners": 133,
+    "documents": 1,
+    "storeKB": 59
+   },
+   {
+    "t": 361,
+    "heapUsedMB": 27.05,
+    "perfMemoryMB": 9.54,
+    "domNodesInDoc": 5710,
+    "domNodesAll": 10647,
+    "listeners": 127,
+    "documents": 1,
+    "storeKB": 60
+   },
+   {
+    "t": 394,
+    "heapUsedMB": 27.03,
+    "perfMemoryMB": 9.54,
+    "domNodesInDoc": 5716,
+    "domNodesAll": 11404,
+    "listeners": 123,
+    "documents": 1,
+    "storeKB": 61
+   },
+   {
+    "t": 420,
+    "heapUsedMB": 27.34,
+    "perfMemoryMB": 9.54,
+    "domNodesInDoc": 5719,
+    "domNodesAll": 13412,
+    "listeners": 125,
+    "documents": 1,
+    "storeKB": 61
+   },
+   {
+    "t": 454,
+    "heapUsedMB": 29.42,
+    "perfMemoryMB": 9.54,
+    "domNodesInDoc": 5725,
+    "domNodesAll": 58130,
+    "listeners": 180,
+    "documents": 1,
+    "storeKB": 62
+   },
+   {
+    "t": 489,
+    "heapUsedMB": 27.82,
+    "perfMemoryMB": 9.54,
+    "domNodesInDoc": 5731,
+    "domNodesAll": 16740,
+    "listeners": 133,
+    "documents": 1,
+    "storeKB": 63
+   },
+   {
+    "t": 514,
+    "heapUsedMB": 26.96,
+    "perfMemoryMB": 9.54,
+    "domNodesInDoc": 5737,
+    "domNodesAll": 11273,
+    "listeners": 129,
+    "documents": 1,
+    "storeKB": 64
+   },
+   {
+    "t": 548,
+    "heapUsedMB": 27.23,
+    "perfMemoryMB": 9.54,
+    "domNodesInDoc": 5743,
+    "domNodesAll": 16078,
+    "listeners": 126,
+    "documents": 1,
+    "storeKB": 65
+   },
+   {
+    "t": 575,
+    "heapUsedMB": 27.41,
+    "perfMemoryMB": 9.54,
+    "domNodesInDoc": 5746,
+    "domNodesAll": 10007,
+    "listeners": 119,
+    "documents": 1,
+    "storeKB": 66
+   },
+   {
+    "t": 607,
+    "heapUsedMB": 27.93,
+    "perfMemoryMB": 9.54,
+    "domNodesInDoc": 5752,
+    "domNodesAll": 11293,
+    "listeners": 123,
+    "documents": 1,
+    "storeKB": 66
+   }
+  ],
+  "pageErrors": []
+ }
+}
