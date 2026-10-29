@@ -11,7 +11,7 @@ const PORT = 8266, URL = `http://localhost:${PORT}/index.html`;
     for (const t of ['train', 'exercises', 'coach', 'progress', 'guide']) {
       await p.evaluate(t => document.getElementById('tab-' + t).click(), t); await p.waitForTimeout(80);
       const labels = await p.evaluate(id => [...document.querySelectorAll('#' + id + ' .view-head .tool:not(.back)')].map(b => b.textContent.trim()), t);
-      ok(labels.length === 3 && labels[0] === 'Search' && labels[1] === 'Help' && /Profile$/.test(labels[2]), kind + ' ' + t + ': top bar has Search, Help, Profile (' + labels + ')');
+      ok(t === 'coach' ? labels.length === 1 && /Profile$/.test(labels[0]) : labels.length === 3 && labels[0] === 'Search' && labels[1] === 'Help' && /Profile$/.test(labels[2]), kind + ' ' + t + ': top bar has ' + (t === 'coach' ? 'Profile only (Search & log is the search)' : 'Search, Help, Profile') + ' (' + labels + ')');
       const small = await p.evaluate(id => [...document.querySelectorAll('#' + id + ' .view-head .tool:not(.back)')].filter(b => { const r = b.getBoundingClientRect(); return r.width < 44 || r.height < 44; }).length, t);
       ok(!small, kind + ' ' + t + ': top-bar buttons are at least 44 px');
     }
@@ -25,7 +25,8 @@ const PORT = 8266, URL = `http://localhost:${PORT}/index.html`;
     await p.click('#cSrch [data-sx="lateral-raise"]'); await p.waitForTimeout(250);
     ok(await p.isVisible('#sheet') && /Lateral Raise/.test(await p.textContent('#sheetBody')), kind + ': a search result opens that exercise');
     await p.click('#sheetClose'); await p.waitForTimeout(150); await p.fill('#cIn', '');
-    await p.click('#coach .view-head [data-tool="help"]'); await p.waitForTimeout(150);
+    await p.evaluate(() => document.getElementById('tab-train').click()); await p.waitForTimeout(100); // Search & log has no Help button (one header row); Help is on every other tab
+    await p.click('#train .view-head [data-tool="help"]'); await p.waitForTimeout(150);
     ok(await p.locator('#sheetBody details.help-q').count() === 6, kind + ': Help shows 6 offline answers');
     await p.click('#sheetClose');
     ok(!o.errs.filter(e => !/Audio/.test(e)).length, kind + ': no errors ' + o.errs);

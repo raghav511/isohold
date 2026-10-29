@@ -88,7 +88,7 @@ const TABS = ['you', 'train', 'look', 'ai', 'backup'];
     ok(/does not look like/.test(await page.textContent('#bkMsg')), kind + ' a bad code says why');
     await T(page, () => { const s = window.__isoTest.store(); s.log = []; s.week = 2; });
     await page.fill('#bkIn', code); await page.click('#bkRestore'); await page.waitForTimeout(150);
-    ok(/Restored week 1: .*1 sets/.test(await page.textContent('#bkMsg')), kind + ' restore says what came back: ' + await page.textContent('#bkMsg'));
+    ok(/Restored week 1: .*\b1 set\b/.test(await page.textContent('#bkMsg')), kind + ' restore says what came back: ' + await page.textContent('#bkMsg'));
     ok(await T(page, () => window.__isoTest.store().log.length) === 1 && await page.isVisible('#pfP-backup'), kind + ' restore applies and stays on Backup');
     ok(await page.isVisible('#toast .tu'), kind + ' restore offers Undo');
     await page.click('#toast .tu'); await page.waitForTimeout(150);
