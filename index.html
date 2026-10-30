@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="Isohold">
 <meta name="theme-color" content="#f5f7fa" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0f141a" media="(prefers-color-scheme: dark)">
-<script>try { var t0 = localStorage.getItem("isohold.theme"); if (t0 === "light" || t0 === "dark") document.documentElement.setAttribute("data-theme", t0); } catch (e) { }</script>
+<script>try { var t0 = localStorage.getItem("isohold.theme"); if (t0 === "light" || t0 === "dark") document.documentElement.setAttribute("data-theme", t0); } catch (e) { } window.addEventListener("load", function () { setTimeout(function () { document.documentElement.classList.add("booted"); }, 0); });</script>
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="manifest" href="manifest.json">
 <meta name="description" content="Tendon holds plus muscle-building reps, with food, bodyweight and cardio logging by text, voice or photo.">
@@ -1092,6 +1092,18 @@ html.calm *, html.calm *::before, html.calm *::after { animation: none !importan
 .daytot b { color: var(--ink); }
 .tdone .tnext { font-size: 16px; }
 .tdone [data-another] { justify-self: start; min-height: 44px; }
+/* speed: a tap shows at once (pressed look on pointerdown, painted before the tap's work runs); no motion, so it suits reduced motion too */
+.pressing:not(:disabled) { opacity: .62 !important; transition: none !important; }
+/* the pages stay unpainted (the tab bar still shows) until the app has drawn them once, so nothing jumps while loading */
+html:not(.booted) main.app { visibility: hidden; }
+/* offline: a small pill at the top, over the page (fixed, so it never pushes content) */
+.netpill { position: fixed; left: 50%; transform: translateX(-50%); top: calc(env(safe-area-inset-top, 0px) + 4px); z-index: 75; max-width: calc(100vw - 176px); display: inline-flex; align-items: center; gap: 6px; background: var(--ink); color: var(--bg); border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 700; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+.netpill[hidden] { display: none; }
+.netpill i { width: 7px; height: 7px; border-radius: 50%; background: var(--bg); opacity: .7; flex: none; }
+.netpill small { font-weight: 500; font-size: 11px; opacity: .85; overflow: hidden; text-overflow: ellipsis; }
+.msg.qoff { border: 1.5px dashed var(--line); }
+.msg.qoff .lg-acts { margin-top: 6px; }
+.msg.u.echo { opacity: .85; }
 /*@@endcss*/
 </style>
 <style>
@@ -1101,7 +1113,7 @@ html.calm *, html.calm *::before, html.calm *::after { animation: none !importan
 </head>
 <body>
 
-
+<div class="netpill" id="netPill" role="status" hidden></div>
 <main class="app">
   <!-- TRAIN -->
   <section class="view" id="train" aria-labelledby="tab-train">
@@ -3006,9 +3018,13 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   try { var s0 = JSON.parse(localStorage.getItem('isohold.v1') || 'null'); if (s0) store = Object.assign(store, s0); } catch (e) { }
   try { if (window.__ISOHOLD_STATE && typeof window.__ISOHOLD_STATE === 'object') store = Object.assign(store, window.__ISOHOLD_STATE); } catch (e) { }
   // true when it really reached the device's storage, so nothing says "Saved." when it wasn't
+  // lastGood: the last copy that reached storage, so a change that couldn't be saved can be taken back (see keepOrUndo)
+  var lastGood = null, saveFails = 0, savedAt = 0, saveRev = 0;
+  try { lastGood = localStorage.getItem('isohold.v1'); } catch (e) { }
   function save() {
     var txt = JSON.stringify(store), ok = true;
     try { localStorage.setItem('isohold.v1', txt); storageOk(); } catch (e) { ok = storageProblem(e); }
+    saveRev++; if (ok) { lastGood = txt; savedAt = Date.now(); } else saveFails++;
     native({ type: 'save', data: txt });
     return ok;
   }
@@ -4005,12 +4021,16 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       else if (b.id === 'dInfo') { var box = $('dEv'), open = box.hidden; box.hidden = !open; b.setAttribute('aria-expanded', String(open)); }
       else if (b.dataset.d) { var x = cur(), inp = $('dWt'), c0 = fromU(parseFloat(inp.value)); var nv = setWt(xid(), x, state.part === 'hold' ? 'h' : 'r', nextWt(x.eq, isNaN(c0) ? 0 : c0, +b.dataset.d)); inp.value = dispW(nv); }
     });
-    $('sheetBody').addEventListener('input', function (e) { if (e.target.id === 'dWt') { var v = parseFloat(e.target.value); setWt(xid(), cur(), state.part === 'hold' ? 'h' : 'r', isNaN(v) ? null : fromU(v)); } });
-    $('sheetBody').addEventListener('change', function (e) { if (e.target.id === 'dWt') { var v = cleanWt(fromU(parseFloat(e.target.value))); e.target.value = v == null ? '' : dispW(v); } });
+    // typing a weight: it changes at once; the save (which also rebuilds the backup code) runs when typing pauses, so keys never lag
+    $('sheetBody').addEventListener('input', function (e) { if (e.target.id === 'dWt') { var v = parseFloat(e.target.value); setWt(xid(), cur(), state.part === 'hold' ? 'h' : 'r', isNaN(v) ? null : fromU(v), true); } });
+    $('sheetBody').addEventListener('change', function (e) { if (e.target.id === 'dWt') { flushWt(); var v = cleanWt(fromU(parseFloat(e.target.value))); e.target.value = v == null ? '' : dispW(v); } });
   }
   // Weights are kept between 0 and 500 kg; anything unreadable clears the saved weight.
   function cleanWt(v) { return v == null || !isFinite(v) ? null : Math.min(500, Math.max(0, Math.round(v * 100) / 100)); }
-  function setWt(id, ex, kind, v) { var k = wkey(id, ex, kind); v = cleanWt(v); if (v == null) delete store.wt[k]; else store.wt[k] = v; save(); return v; }
+  var wtT = null;
+  function flushWt() { if (wtT) { clearTimeout(wtT); wtT = null; save(); } }
+  function setWt(id, ex, kind, v, later) { var k = wkey(id, ex, kind); v = cleanWt(v); if (v == null) delete store.wt[k]; else store.wt[k] = v; if (later) { clearTimeout(wtT); wtT = setTimeout(flushWt, 400); } else { clearTimeout(wtT); wtT = null; save(); } return v; }
+  window.addEventListener('pagehide', flushWt); document.addEventListener('visibilitychange', function () { if (document.hidden) flushWt(); });
 
   // ---------- exercises ----------
   var filter = 'All';
@@ -4883,6 +4903,62 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function cget(k, d) { try { var v = localStorage.getItem('isohold.coach.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }
   function cput(k, v) { try { if (v == null) localStorage.removeItem('isohold.coach.' + k); else localStorage.setItem('isohold.coach.' + k, JSON.stringify(v)); } catch (e) { } }
   var coach = { key: cget('key', ''), model: cget('model', PREFERRED[0]), models: cget('models', []), chat: cget('chat', []), busy: false, ctl: null };
+
+  // ---------- speed: time limits, a smaller model for logging, a short-lived answer cache ----------
+  // No first byte in 15 s, or no full answer in 45 s: stop waiting and say so, with Try again.
+  var AI_FIRST = 15000, AI_TOTAL = 45000, TIMEOUT_UI = ['Gemini is taking too long', 'No answer came, so I stopped waiting. Nothing was lost: tap Try again, or type it as a log.', true];
+  function aiFetch(url, init, ctl) {
+    ctl = ctl || (window.AbortController ? new AbortController() : null);
+    var st = { timeout: null }, t1, t2;
+    if (ctl) { init.signal = ctl.signal; t1 = setTimeout(function () { st.timeout = 'first'; ctl.abort(); }, AI_FIRST); t2 = setTimeout(function () { st.timeout = 'total'; ctl.abort(); }, AI_TOTAL); }
+    st.done = function () { clearTimeout(t1); clearTimeout(t2); };
+    st.p = fetch(url, init).then(function (r) { clearTimeout(t1); netOk(); return r; }, function (e) {
+      st.done(); if (st.timeout) throw { ui: TIMEOUT_UI, timeout: st.timeout };
+      if (!(e && e.name === 'AbortError')) netFail();
+      throw e;
+    });
+    return st;
+  }
+  // Logging a typed message is a parsing job: a Flash-Lite model does it faster. Only a model this key can list, else the chosen one.
+  var LITE = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-2.5-flash-lite'], liteBad = false;
+  function fastModel() {
+    if (liteBad || /lite/.test(coach.model)) return coach.model;
+    var ids = (coach.models || []).map(function (m) { return m.id; });
+    for (var i = 0; i < LITE.length; i++) if (ids.indexOf(LITE[i]) > -1) return LITE[i];
+    return ids.filter(function (id) { return /flash-lite/.test(id) && !/preview|exp/.test(id); })[0] || coach.model;
+  }
+  // The same question with the same data within 10 minutes gets the same answer at once, from this device only.
+  var CACHE_MS = 10 * 60000, aiCache = null;
+  function hashStr(s) { var h = 5381, g = 52711; for (var i = 0; i < s.length; i++) { var c = s.charCodeAt(i); h = (h * 33) ^ c; g = (g * 31) ^ c; } return s.length.toString(36) + (h >>> 0).toString(36) + (g >>> 0).toString(36); }
+  function cacheAll() { if (!aiCache) { aiCache = cget('cache', {}) || {}; } var now = Date.now(); Object.keys(aiCache).forEach(function (k) { if (!(now - aiCache[k].t < CACHE_MS)) delete aiCache[k]; }); return aiCache; }
+  function cacheGet(k) { var c = cacheAll()[k]; return c ? c.v : null; }
+  function cachePut(k, v) { var c = cacheAll(); c[k] = { t: Date.now(), v: v }; var ks = Object.keys(c).sort(function (a, b) { return c[a].t - c[b].t; }); while (ks.length > 20) delete c[ks.shift()]; cput('cache', c); }
+  function normQ(t) { return String(t || '').toLowerCase().replace(/[\s.!?¿¡]+/g, ' ').trim(); }
+
+  // ---------- connection: a small "Offline" pill on every screen ----------
+  // It shows when the phone says it's offline, or when a request just failed, and goes away when a request gets through or the phone is online again.
+  var netDown = false;
+  function netFail() { if (!netDown) { netDown = true; paintNet(); } }
+  function netOk() { if (netDown) { netDown = false; paintNet(); } }
+  function isOff() { return !navigator.onLine || netDown; }
+  // when this version first opened on this phone ("last updated")
+  var appSeen = null;
+  function seenApp() { if (appSeen) return appSeen; var v = null; try { v = JSON.parse(localStorage.getItem('isohold.appSeen') || 'null'); } catch (e) { } if (!v || v.v !== APP_VERSION) { v = { v: APP_VERSION, t: Date.now() }; try { localStorage.setItem('isohold.appSeen', JSON.stringify(v)); } catch (e) { } } return (appSeen = v); }
+  function shortDate(t) { try { return new Date(t).toLocaleDateString(UIL, { day: 'numeric', month: 'short' }); } catch (e) { return ''; } }
+  function shortTime(t) { try { return new Date(t).toLocaleTimeString(UIL, { hour: 'numeric', minute: '2-digit' }); } catch (e) { return ''; } }
+  function paintNet() {
+    var off = isOff(), b = $('netPill');
+    if (b) {
+      if (off) {
+        var note = 'App v' + APP_VERSION + ', updated ' + shortDate(seenApp().t) + (savedAt ? ' · Saved ' + shortTime(savedAt) : ' · Saves on this phone');
+        b.innerHTML = '<i aria-hidden="true"></i>Offline<small>' + esc(note) + '</small>';
+        b.setAttribute('aria-label', 'Offline. ' + note + '. Typed logs still work; photos, voice notes and questions wait until you’re back online.');
+      }
+      if (b.hidden === off) b.hidden = !off;
+    }
+    var c = $('cOff'); if (c) c.hidden = !off;
+    if (typeof current !== 'undefined' && current === 'coach' && typeof renderCoach === 'function' && $('cMsgs')) renderCoach();
+  }
 
   function md(src) {
     var lines = esc(src).split('\n'), out = '', list = null;
@@ -6564,14 +6640,27 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       'Rules: food or drink -> log_food with one item per food and realistic portion estimates (grams, protein, carbs, fat, kcal). A bathroom scale photo or "I weigh" -> log_bodyweight. A dumbbell, kettlebell, plate or weight stack with a printed number -> set_weight for the exercise on screen (or reply with the number if none). A treadmill, bike or rower display -> log_cardio with minutes and distance. Gym equipment -> set_equipment. A completed set of a listed exercise -> log_set; any other exercise (lat pulldown, leg press, bench press...) -> log_lift with name, weight, reps, sets. A nutrition label -> log_food with the label values for the portion eaten, including fiber_g. Blood pressure -> log_bp. Pain -> log_pain with a 0-10 score. If nothing fits, use no actions and put a helpful short answer in reply. ' +
       (kind === 'audio' ? 'This is a voice note: fill transcript with the exact words.' : kind === 'photo' ? 'This is a photo the user just took.' : '');
   }
+  // typed text goes to the faster Flash-Lite model when the key lists one (falling back to the chosen model if it fails); photos and voice use the chosen model
   function geminiJSON(parts, kind) {
-    var body = { systemInstruction: { parts: [{ text: actionPrompt(kind) }] }, contents: [{ role: 'user', parts: parts }], generationConfig: { responseMimeType: 'application/json', responseSchema: SCHEMA, maxOutputTokens: 2048 } };
-    return fetch(GEM + '/models/' + encodeURIComponent(coach.model) + ':generateContent', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': coach.key }, body: JSON.stringify(body) })
-      .then(function (r) { if (!r.ok) return r.json().catch(function () { return null; }).then(function (b) { throw { ui: errorFor(r.status, b) }; }); return r.json(); })
-      .then(function (j) {
-        var c = j.candidates && j.candidates[0], txt = (c && c.content && c.content.parts || []).filter(function (p) { return p.text && !p.thought; }).map(function (p) { return p.text; }).join('');
-        try { return JSON.parse(txt.replace(/^```(?:json)?|```$/g, '')); } catch (e) { return { reply: txt || 'I didn’t catch that. Try again.', actions: [] }; }
-      });
+    var body = JSON.stringify({ systemInstruction: { parts: [{ text: actionPrompt(kind) }] }, contents: [{ role: 'user', parts: parts }], generationConfig: { responseMimeType: 'application/json', responseSchema: SCHEMA, maxOutputTokens: 2048 } });
+    var textOnly = parts.every(function (p) { return typeof p.text === 'string'; }), model = kind === 'text' ? fastModel() : coach.model;
+    var ck = textOnly ? 'j' + hashStr(body) : null, hit = ck && cacheGet(ck);
+    if (hit) return Promise.resolve(JSON.parse(JSON.stringify(hit)));
+    function call(m) {
+      var st = aiFetch(GEM + '/models/' + encodeURIComponent(m) + ':generateContent', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': coach.key }, body: body });
+      return st.p.then(function (r) { if (!r.ok) return r.json().catch(function () { return null; }).then(function (b) { throw { ui: errorFor(r.status, b), status: r.status }; }); return r.json(); })
+        .then(function (j) { st.done(); return j; }, function (e) { st.done(); throw e; });
+    }
+    return call(model).catch(function (e) {
+      // the smaller model isn't available to this key after all (or is down): use the chosen model, and stop trying the small one
+      if (model !== coach.model && e && (e.status === 404 || e.status === 400 || e.status === 403 || e.status >= 500)) { liteBad = true; return call(coach.model); }
+      throw e;
+    }).then(function (j) {
+      var c = j.candidates && j.candidates[0], txt = (c && c.content && c.content.parts || []).filter(function (p) { return p.text && !p.thought; }).map(function (p) { return p.text; }).join('');
+      var out; try { out = JSON.parse(txt.replace(/^```(?:json)?|```$/g, '')); } catch (e) { return { reply: txt || 'I didn’t catch that. Try again.', actions: [] }; }
+      if (ck && out && typeof out === 'object') cachePut(ck, out);
+      return out;
+    });
   }
 
   // ---------- the Log tab ----------
@@ -6614,7 +6703,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       if (m.r === 'ask') return '<div class="msg m"><p>' + esc(m.x) + '</p><div class="lg-acts">' + m.opts.map(function (o) { return '<button class="btn sm line" data-pick="' + i + '" data-v="' + o[0] + '">' + esc(o[1]) + '</button>'; }).join('') + '</div></div>';
       return '<div class="msg m" data-i="' + i + '">' + (m.x ? md(m.x) : '<span class="typing" aria-label="Working on it"><i></i><i></i><i></i></span>') + '</div>';
     }).join('');
-    $('cMsgs').innerHTML = h;
+    $('cMsgs').innerHTML = h + queueHtml();
     [].forEach.call($('cMsgs').querySelectorAll('img[data-ph]'), function (im) { getPhoto(im.dataset.ph).then(function (d) { if (d) im.src = d; else im.remove(); }); });
     // one-tap logs: what you log most often (twice or more in two weeks), else starter ideas
     var since = Date.now() - 14 * 864e5, cnt = {};
@@ -6733,6 +6822,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (rfa) { feed.push({ t: Date.now(), r: 'm', x: rfa }); saveFeed(); renderCoach(); renderBody(); scrollEnd(); return; }
     var when = whenOf(text), res = parseText(text.replace(/\b(yesterday|last night|this morning|this evening|tonight|today|\d+\s+days?\s+ago)\b/gi, ' ')), cards = [];
     if (res.plan) { feed.push({ t: Date.now(), r: 'm', x: 'That sounds like a plan, so I haven’t logged it. Tell me once you’ve done it, like “had 2 eggs” or “did goblet squat 16 kg 30 s”.' }); saveFeed(); renderCoach(); scrollEnd(); return; }
+    var qa0 = !res.actions.length && quickLocal(text); if (qa0) { feed.push({ t: Date.now(), r: 'm', x: qa0 }); return done(); }
     if (res.unknown.length && coach.key && navigator.onLine && !res.question) { aiText(text, src, when); saveFeed(); renderCoach(); scrollEnd(); return; }
     if (!res.question) res.actions.forEach(function (a) { var c = apply(a, src, null, when); if (c) cards.push(c); });
     if (cards.length) {
@@ -6751,34 +6841,136 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     function done() { saveFeed(); renderCoach(); renderBody(); scrollEnd(); }
   }
   function aiText(text, src, when) { aiRun([{ text: text }], 'text', src, null, when); }
+  // Short replies that need no AI: thanks, hello, okay, and "what did I eat today?" (read from your own log, so it's exact)
+  function quickLocal(raw) {
+    var t = String(raw || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim(), es = /\b(gracias|hola|buenos|buenas|vale|adios|si)\b/.test(t);
+    if (!t) return null;
+    if (/^(thanks?|thank you|thank you so much|thanks a lot|thx|ty|cheers|gracias|muchas gracias)( coach)?$/.test(t)) return es ? '¡De nada!' : 'You’re welcome.';
+    if (/^(hi|hey|hello|hiya|yo|good (morning|afternoon|evening)|hola|buenos dias|buenas( tardes| noches)?)( coach)?$/.test(t)) return es ? '¡Hola! Dime qué comiste o qué entrenaste, o hazme una pregunta.' : 'Hi! Tell me what you ate or did, or ask me a question.';
+    if (/^(ok|okay|k|kk|cool|great|nice|perfect|got it|sounds good|alright|all right|lol|haha|yes|yeah|yep|no|nope|nah|vale|si|bien|genial)$/.test(t)) return es ? 'Vale.' : 'Okay.';
+    if (/^(bye|good ?night|see you|later|adios|hasta luego|buenas noches)$/.test(t)) return es ? '¡Hasta luego!' : 'See you next time.';
+    if (/^what (did|have) i (eat|eaten|had|have)( so far)? today$|^what have i eaten$|^what did i eat$/.test(t)) {
+      var ms = today(store.food), f = sumFood(ms);
+      if (!ms.length) return 'Nothing logged today yet. Tell me what you ate, like “2 eggs and toast”.';
+      return 'Today: ' + ms.map(function (m) { return '**' + m.meal + '**: ' + m.items.map(function (i) { return i.n; }).join(', '); }).join('; ') + '. Total about ' + r0(f.p) + ' g protein and ' + r0(f.k) + ' kcal.';
+    }
+    return null;
+  }
   // when: the day the person said ("yesterday"), so Gemini's entries land on that day too
-  function aiRun(parts, kind, src, photo, when) {
-    if (!navigator.onLine) { feed.push({ t: Date.now(), r: 'err', title: 'You’re offline', x: 'Photos and voice notes need Gemini and an internet connection. Typing works offline.' }); saveFeed(); renderCoach(); return; }
-    var wait = { t: Date.now(), r: 'm', x: '' }; feed.push(wait); busyN++; renderCoach(); scrollEnd();
-    geminiJSON(parts, kind).then(function (j) {
+  function aiRun(parts, kind, src, photo, when, photoP) {
+    var job = { parts: parts, kind: kind, src: src, photo: photo, when: when };
+    if (!navigator.onLine) { queueAI(job); return; }
+    var wait = { t: Date.now(), r: 'm', x: '' }, requeue = false; feed.push(wait); busyN++; renderCoach(); scrollEnd();
+    // the photo is saved on the phone while Gemini reads it (both at once); its entries wait for both
+    Promise.all([geminiJSON(parts, kind), photoP]).then(function (both) {
+      var j = both[0]; if (photoP && !both[1]) photo = null;
       feed.splice(feed.indexOf(wait), 1);
       if (j.transcript) feed.push({ t: Date.now(), r: 'u', x: '🎙 ' + j.transcript, src: 'voice' });
       var n = 0;
-      (j.actions || []).forEach(function (a) { if (a.type && a.type !== 'none' && (!a.exercise || BY[a.exercise])) { var c = apply(a, src, photo, when || undefined); if (c) n++; } });
+      keepOrUndo(function () { (j.actions || []).forEach(function (a) { if (a.type && a.type !== 'none' && (!a.exercise || BY[a.exercise])) { var c = apply(a, src, photo, when || undefined); if (c) n++; } }); });
       if (j.reply && (!n || kind !== 'text')) feed.push({ t: Date.now(), r: 'm', x: j.reply });
       if (!n && !j.reply) feed.push({ t: Date.now(), r: 'm', x: 'Nothing to log there.' });
     }).catch(function (e) {
       if (feed.indexOf(wait) > -1) feed.splice(feed.indexOf(wait), 1);
+      // offline now: keep it for later instead of losing it
+      if (!navigator.onLine && !(e && e.ui)) { requeue = true; return; }
       var ui = e && e.ui ? e.ui : ['Couldn’t reach Gemini', 'Check your internet connection and try again.', true];
-      feed.push({ t: Date.now(), r: 'err', title: ui[0], x: ui[1] });
-    }).then(function () { busyN--; saveFeed(); renderCoach(); scrollEnd(); renderTrain(); });
+      // the "working on it" bubble becomes the error, with Try again when trying again can help
+      feed.push({ t: Date.now(), r: 'err', title: ui[0], x: ui[1], retry: ui[2], job: ui[2] ? job : null });
+    }).then(function () { busyN--; if (requeue) queueAI(job); else { saveFeed(); renderCoach(); scrollEnd(); } renderTrain(); });
+  }
+  // A change that couldn't be saved (storage full) is taken back at once, with a clear message, instead of looking logged.
+  function keepOrUndo(fn) {
+    var f0 = saveFails, n0 = feed.length, snap = lastGood, k0 = Object.keys(store), r = fn();
+    if (saveFails > f0 && snap) {
+      try { var o = JSON.parse(snap); Object.keys(store).forEach(function (k) { if (!(k in o) && k0.indexOf(k) < 0) delete store[k]; }); Object.keys(o).forEach(function (k) { store[k] = o[k]; }); } catch (e) { return r; }
+      feed.slice(n0).forEach(function (c) { if (c.r === 'card' && !c.undone) { c.undone = true; c.notSaved = true; } });
+      feed.push({ t: Date.now(), r: 'err', title: 'Not saved: this device’s storage is full', x: 'So that entry was taken back and nothing changed. Save a backup file (Profile, then Backup), free some space on the phone, then log it again.' });
+      saveFeed(); renderCoach(); renderTrain(); renderBody(); announce('Not saved: storage is full. That entry was taken back.');
+    }
+    return r;
+  }
+  // ---------- requests made while offline wait here until you choose to send them ----------
+  // Photos and voice notes are kept in the photo store on the phone; nothing is sent until you tap Send.
+  var aiQ = cget('queue', []) || [];
+  function saveQ() { cput('queue', aiQ.length ? aiQ : null); }
+  function qWhat(q) { var n = { ask: 0, text: 0, photo: 0, audio: 0 }; q.forEach(function (x) { n[x.k]++; }); return [n.photo ? n.photo + ' ' + plural(n.photo, 'photo') : '', n.audio ? n.audio + ' ' + plural(n.audio, 'voice note') : '', n.ask ? n.ask + ' ' + plural(n.ask, 'question') : '', n.text ? n.text + ' ' + plural(n.text, 'message') : ''].filter(Boolean).join(', '); }
+  function queueAI(job, askAt) {
+    var it = { id: 'q' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), t: Date.now(), k: askAt ? 'ask' : job.kind === 'audio' ? 'audio' : job.kind === 'photo' ? 'photo' : 'text', src: job && job.src, when: job && job.when, ph: job && job.photo };
+    if (askAt) { it.x = askAt.x; it.at = askAt.t; }
+    else {
+      var media = job.parts.filter(function (p) { return p.inline_data; })[0], txt = job.parts.filter(function (p) { return typeof p.text === 'string'; })[0];
+      it.x = txt ? txt.text : '';
+      if (media) { it.mime = media.inline_data.mime_type; putPhoto(it.id, 'data:' + it.mime + ';base64,' + media.inline_data.data); }
+    }
+    aiQ.push(it); saveQ();
+    feed.push({ t: Date.now(), r: 'm', qn: 1, x: 'You’re offline, so I’ve kept this on your phone. When you’re back online, tap **Send** and it goes to Gemini.' });
+    saveFeed(); renderCoach(); scrollEnd(); announce('Offline. Kept to send later.');
+  }
+  function delPhoto(id) { return pdb().then(function (db) { db.transaction('p', 'readwrite').objectStore('p').delete(id); }).catch(function () { }); }
+  function sendQueued() {
+    var q = aiQ.slice(); aiQ = []; saveQ();
+    // independent requests, sent together
+    q.forEach(function (it) {
+      if (it.k === 'ask') return ask({ at: it.at, x: it.x });
+      if (it.k === 'text') return aiRun([{ text: it.x }], 'text', it.src || 'text', null, it.when);
+      busyN++;
+      getPhoto(it.id).then(function (d) {
+        busyN--; delPhoto(it.id);
+        if (!d) { feed.push({ t: Date.now(), r: 'err', title: 'That ' + (it.k === 'photo' ? 'photo' : 'voice note') + ' wasn’t kept', x: 'The phone cleared it while you were offline. Take it again.' }); saveFeed(); renderCoach(); return; }
+        var b64 = String(d).split(',')[1];
+        if (it.k === 'photo') aiRun([{ inline_data: { mime_type: it.mime || 'image/jpeg', data: b64 } }, { text: it.x || 'Log whatever this photo shows.' }], 'photo', 'photo', it.ph || null, it.when || it.t);
+        else aiRun([{ inline_data: { mime_type: it.mime || 'audio/webm', data: b64 } }, { text: it.x || 'Voice note from the user.' }], 'audio', 'voice', null, it.when || it.t);
+      });
+    });
+    renderCoach();
+  }
+  function dropQueued() { aiQ.forEach(function (it) { if (it.k === 'photo' || it.k === 'audio') delPhoto(it.id); }); var n = aiQ.length; aiQ = []; saveQ(); feed.push({ t: Date.now(), r: 'm', x: 'Discarded ' + n + ' waiting ' + plural(n, 'request') + '. Nothing was sent.' }); saveFeed(); renderCoach(); }
+  function queueHtml() {
+    if (!aiQ.length || !coach.key) return '';
+    var what = esc(qWhat(aiQ));
+    if (isOff()) return '<div class="msg m qoff" role="status"><p><b>Waiting for a connection:</b> ' + what + '. Nothing is sent until you tap Send.</p><div class="lg-acts"><button class="btn sm quiet" data-qdrop="1">Discard</button></div></div>';
+    return '<div class="msg m qoff" role="status"><p><b>You’re back online.</b> Send what you kept while offline to Gemini? (' + what + ')</p><div class="lg-acts"><button class="btn sm go" data-qsend="1">Send now</button><button class="btn sm quiet" data-qdrop="1">Discard</button></div></div>';
+  }
+  window.addEventListener('online', function () { netDown = false; paintNet(); if (aiQ.length && coach.key && current !== 'coach') toastGo('Back online. ' + qWhat(aiQ) + ' waiting to send.', 'Review', function () { openLogSearch(); }); });
+  window.addEventListener('offline', paintNet);
+  function toastGo(t, label, fn) {
+    var el = $('toast'); el.innerHTML = '<span>' + esc(t) + '</span><button type="button" class="tu">' + esc(label) + '</button>'; el.hidden = false;
+    el.querySelector('.tu').onclick = function () { el.hidden = true; fn(); };
+    clearTimeout(toastT); toastT = setTimeout(function () { el.hidden = true; }, 8000);
+  }
+  // ---------- a shorter question for Gemini, with nothing it needs left out ----------
+  // History: the last 4 exchanges (older answers shortened); an earlier copy of the same question is left out (its answer is
+  // already known), which also lets a repeated question hit the cache.
+  var HIST_N = 8;
+  function chatContents(base) {
+    var all = base.filter(function (m) { return (m.r === 'u' && m.x) || (m.r === 'm' && m.x && !m.qn); }).map(function (m) { return { role: m.r === 'u' ? 'user' : 'model', text: m.x }; });
+    var q = all.pop(); if (!q || q.role !== 'user') return null;
+    var nq = normQ(q.text), ctx = [];
+    for (var i = 0; i < all.length; i++) { if (all[i].role === 'user' && normQ(all[i].text) === nq) { while (i + 1 < all.length && all[i + 1].role === 'model') i++; continue; } ctx.push(all[i]); }
+    ctx = ctx.slice(-HIST_N); while (ctx.length && ctx[0].role !== 'user') ctx.shift();
+    var lastModel = -1; ctx.forEach(function (m, i) { if (m.role === 'model') lastModel = i; });
+    ctx = ctx.map(function (m, i) { var lim = m.role === 'user' ? 600 : i === lastModel ? 1500 : 400; return { role: m.role, parts: [{ text: m.text.length > lim ? m.text.slice(0, lim).replace(/\s+\S*$/, '') + ' …' : m.text }] }; });
+    ctx.push({ role: 'user', parts: [{ text: q.text }] });
+    return ctx;
   }
   // Free-form chat with the coach (streaming), for questions.
-  function ask() {
-    var history = feed.filter(function (m) { return m.r === 'u' || (m.r === 'm' && m.x); }).slice(-20).map(function (m) { return { role: m.r === 'u' ? 'user' : 'model', parts: [{ text: m.x }] }; });
-    while (history.length && history[0].role !== 'user') history.shift();
+  // opt.at / opt.x: a question kept while offline, answered in its place in the conversation
+  function ask(opt) {
+    var base = feed;
+    if (opt && opt.at) { var qi = -1; feed.forEach(function (m, i) { if (m.r === 'u' && m.t === opt.at && qi < 0) qi = i; }); base = qi > -1 ? feed.slice(0, qi + 1) : feed.concat([{ r: 'u', x: opt.x }]); }
+    if (!navigator.onLine) { var lu = null; for (var li = base.length - 1; li >= 0; li--) if (base[li].r === 'u' && base[li].x) { lu = base[li]; break; } if (lu) { queueAI(null, { t: lu.t, x: lu.x }); return; } }
+    var contents = chatContents(base); if (!contents) return;
+    var sys = systemText(), ck = 'c' + hashStr(coach.model + '\n' + sys + '\n' + JSON.stringify(contents)), hit = cacheGet(ck);
     var reply = { t: Date.now(), r: 'm', x: '' }; feed.push(reply);
-    busyN++; renderCoach(); scrollEnd();
+    if (hit) { reply.x = hit; saveFeed(); renderCoach(); scrollEnd(); return; }
+    busyN++;
     var ctl = coach.ctl = (window.AbortController ? new AbortController() : null);
-    var body = JSON.stringify({ systemInstruction: { parts: [{ text: systemText() }] }, contents: history, generationConfig: { maxOutputTokens: 2048 } });
-    fetch(GEM + '/models/' + encodeURIComponent(coach.model) + ':streamGenerateContent?alt=sse', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': coach.key }, body: body, signal: ctl ? ctl.signal : undefined
-    }).then(function (r) {
+    var body = JSON.stringify({ systemInstruction: { parts: [{ text: sys }] }, contents: contents, generationConfig: { maxOutputTokens: 2048 } });
+    // the request goes out first; the screen is drawn while it travels
+    var st = aiFetch(GEM + '/models/' + encodeURIComponent(coach.model) + ':streamGenerateContent?alt=sse', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': coach.key }, body: body }, ctl);
+    renderCoach(); scrollEnd();
+    st.p.then(function (r) {
       if (!r.ok) return r.json().catch(function () { return null; }).then(function (b) { var e = errorFor(r.status, b); throw { ui: e }; });
       var buf = '';
       function take(chunk) {
@@ -6800,13 +6992,18 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       }
       return r.text().then(function (t) { take(t + '\n\n'); });
     }).then(function () {
-      if (!reply.x) reply.x = 'I didn’t get a reply from Gemini. Try asking again.';
+      st.done();
+      if (!reply.x) reply.x = 'I didn’t get a reply from Gemini. Try asking again.'; else cachePut(ck, reply.x);
       fin();
     }).catch(function (e) {
+      st.done();
+      if (st.timeout) e = { ui: TIMEOUT_UI };
       if (e && e.name === 'AbortError') { if (!reply.x) feed.splice(feed.indexOf(reply), 1); fin(); return; }
       if (!reply.x) feed.splice(feed.indexOf(reply), 1);
+      // dropped offline before the answer started: keep the question for later
+      if (!navigator.onLine && !reply.x && !(e && e.ui)) { fin(); var lu2 = null; for (var lj = base.length - 1; lj >= 0; lj--) if (base[lj].r === 'u') { lu2 = base[lj]; break; } if (lu2) queueAI(null, { t: lu2.t, x: lu2.x }); return; }
       var ui = e && e.ui ? e.ui : ['Couldn’t reach Gemini', 'Check your internet connection and try again.', true];
-      feed.push({ t: Date.now(), r: 'err', title: ui[0], x: ui[1], retry: ui[2] });
+      feed.push({ t: Date.now(), r: 'err', title: ui[0], x: ui[1], retry: ui[2], job: opt && opt.at ? { ask: opt } : null });
       fin();
     });
     function fin() { busyN--; coach.ctl = null; saveFeed(); renderCoach(); }
@@ -6824,21 +7021,31 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function autoGrow() { var t = $('cIn'); t.style.height = 'auto'; t.style.height = Math.min(140, t.scrollHeight) + 'px'; setSendState(); }
   $('cIn').addEventListener('input', autoGrow);
   $('cIn').setAttribute('enterkeyhint', 'send');
-  $('cIn').addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); handle(this.value, 'text'); } });
+  // Sending: your words and a "working on it" bubble are painted in this frame; the work (parsing, the request) runs right after
+  function afterPaint(fn) { var done = false, go = function () { if (!done) { done = true; fn(); } }; requestAnimationFrame(function () { setTimeout(go, 0); }); setTimeout(go, 150); }
+  function sendNow(text, src) {
+    text = (text || '').trim(); if (!text) return;
+    var box = $('cMsgs'), intro = box.querySelector('.c-intro'); if (intro) intro.remove();
+    box.insertAdjacentHTML('beforeend', '<div class="msg u echo">' + esc(text) + '</div><div class="msg m echo"><span class="typing" aria-label="Working on it"><i></i><i></i><i></i></span></div>');
+    $('cIn').value = ''; autoGrow(); $('cSrch').innerHTML = ''; scrollEnd();
+    afterPaint(function () { handle(text, src); if (box.querySelector('.echo')) renderCoach(); });
+  }
+  $('cIn').addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); sendNow(this.value, 'text'); } });
   $('cForm').addEventListener('submit', function (e) {
     e.preventDefault();
     if (busyN > 0 && coach.ctl) { coach.ctl.abort(); return; }
     // after sending, keep the cursor in the box (screen readers and keyboards don't get dropped to the top of the page)
-    if ($('cIn').value.trim()) { handle($('cIn').value, 'text'); $('cIn').focus({ preventScroll: true }); } else toggleMic();
+    if ($('cIn').value.trim()) { sendNow($('cIn').value, 'text'); $('cIn').focus({ preventScroll: true }); } else toggleMic();
   });
   $('cMsgs').addEventListener('click', function (e) { if (e.target.closest('[data-typeit]')) { var t = $('cIn'); t.focus(); t.placeholder = 'Type what you ate, e.g. chicken, rice and salad'; } });
   // a clear offline banner, not a silent failure
-  function paintOffline() { var b = $('cOff'); if (b) b.hidden = navigator.onLine; }
-  window.addEventListener('online', paintOffline); window.addEventListener('offline', paintOffline); paintOffline();
-  $('cSugs').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) handle(b.textContent, 'text'); });
+  paintNet();
+  $('cSugs').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) sendNow(b.textContent, 'text'); });
   $('cMsgs').addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
-    if (b.dataset.retry) { feed.splice(+b.dataset.retry, 1); ask(); return; }
+    if (b.dataset.retry) { var rm0 = feed[+b.dataset.retry], jb = rm0 && rm0.job; feed.splice(+b.dataset.retry, 1); if (jb && jb.parts) aiRun(jb.parts, jb.kind, jb.src, jb.photo, jb.when); else ask(jb && jb.ask); return; }
+    if (b.dataset.qsend) { if (isOff()) { toast('Still offline. Try again when you’re connected.'); return; } sendQueued(); return; }
+    if (b.dataset.qdrop) { dropQueued(); return; }
     if (b.dataset.undo) { var c = feed[+b.dataset.undo]; if (c && !c.undone) { undoCard(c); toast('Undone.'); var cu = $('cMsgs').querySelector('[data-ci="' + b.dataset.undo + '"]'); if (cu) cu.focus({ preventScroll: true }); } return; }
     if (b.dataset.scale) {
       var c2 = feed[+b.dataset.scale], m = c2 && store.food.filter(function (x) { return x.t === c2.ref; })[0]; if (!m) return;
@@ -6872,11 +7079,16 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var f = this.files && this.files[0]; if (!f) return;
     Promise.all([shrink(f, 1024, 0.8), shrink(f, 360, 0.72)]).then(function (r) {
       var id = 'p' + Date.now();
-      return putPhoto(id, r[1]).then(function (ok) {
+      var saved = putPhoto(id, r[1]);
+      if (coach.key) { // saving the thumbnail and asking Gemini run at the same time
+        var note0 = $('cIn').value.trim(); $('cIn').value = ''; autoGrow();
+        feed.push({ t: Date.now(), r: 'u', ph: id, x: note0, src: 'photo' });
+        aiRun([{ inline_data: { mime_type: 'image/jpeg', data: r[0].split(',')[1] } }, { text: note0 || 'Log whatever this photo shows.' }], 'photo', 'photo', id, undefined, saved); return;
+      }
+      return saved.then(function (ok) {
         var pid = ok ? id : null;
         var note = $('cIn').value.trim(); $('cIn').value = ''; autoGrow();
         feed.push({ t: Date.now(), r: 'u', ph: pid, x: note, src: 'photo' });
-        if (coach.key) { aiRun([{ inline_data: { mime_type: 'image/jpeg', data: r[0].split(',')[1] } }, { text: note || 'Log whatever this photo shows.' }], 'photo', 'photo', pid); return; }
         feed.push({ t: Date.now(), r: 'ask', ph: pid, x: 'Photo saved. What is it? (Connect Gemini in settings and photos are read for you.)', opts: [['meal', 'A meal'], ['scale', 'Scale reading'], ['cardio', 'Machine display'], ['other', 'Something else']] });
         saveFeed(); renderCoach(); scrollEnd();
       });
@@ -6900,7 +7112,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       if (fa) { $('cIn').value = ''; feed.push({ t: Date.now(), r: 'u', x: text, src: 'photo' }); apply(fa, 'photo', photoPending); photoPending = null; saveFeed(); renderCoach(); scrollEnd(); renderTrain(); return; }
     }
     photoPending = null;
-    _handle(text, src); renderTrain();
+    var r = keepOrUndo(function () { return _handle(text, src); }); renderTrain(); return r;
   };
 
   // ---------- voice ----------
@@ -6921,7 +7133,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { if (coach.key && window.MediaRecorder) { SR = null; startRecorder(); } else toast('Microphone blocked. Allow it in your browser settings, or tap the mic on your keyboard.'); }
       else if (e.error === 'no-speech') toast('Didn’t hear anything. Tap the mic and speak.');
     };
-    r.onend = function () { rec = null; $('lgListen').hidden = true; setSendState(); if (got.trim()) handle($('cIn').value, 'voice'); };
+    r.onend = function () { rec = null; $('lgListen').hidden = true; setSendState(); if (got.trim()) sendNow($('cIn').value, 'voice'); };
     try { r.start(); rec = r; $('lgListen').hidden = false; $('lgListenT').textContent = 'Listening… say it like you’d tell a friend'; setSendState(); } catch (e) { rec = null; toast('Voice input isn’t available here. Tap the mic on your keyboard instead.'); }
   }
   function startRecorder() {
@@ -7560,7 +7772,11 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
           blocksFor(w.day, pt).map(function (b) { return (b.length > 1 ? 'alternate ' : '') + b.map(function (id) { var h = V(id, 'h'), g = V(id, 'g'), wh = getWt(id, h, 'h'), wg = getWt(id, g, 'r'); return h.name + (wh != null ? ' (' + r1(wh) + ' kg)' : '') + ' then ' + g.name + (wg != null ? ' (' + r1(wg) + ' kg)' : ''); }).join(' / '); }).join('; ') + '.');
       });
     } else if (w.day) lines.push('Today is a cardio day: ' + w.day.name + '.');
-    lines.push('Weekly plan: ' + DAYS.map(function (d) { return d.when + ' ' + d.name + ': ' + d.ex.map(function (id) { return BY[id].name; }).join(', '); }).join(' | ') + '.');
+    // a day that has the same exercises as an earlier day, only started further along the list, is said that way (same facts, fewer words)
+    lines.push('Weekly plan: ' + DAYS.map(function (d, di) {
+      for (var j = 0; j < di; j++) { var a = DAYS[j].ex, b = d.ex; if (a.length !== b.length || !a.length) continue; var k = a.indexOf(b[0]); if (k > 0 && b.every(function (id, i) { return id === a[(k + i) % a.length]; })) return d.when + ' ' + d.name + ': the same exercises as ' + DAYS[j].when + ' in the same order, but starting from ' + BY[b[0]].name + ' and wrapping round'; }
+      return d.when + ' ' + d.name + ': ' + d.ex.map(function (id) { return BY[id].name; }).join(', ');
+    }).join(' | ') + '.');
     var f = sumFood(today(store.food)), tg = proteinTarget();
     lines.push('Food today: ' + r0(f.p) + ' g protein' + (tg ? ' (target ' + tg + ' g)' : '') + ', ' + r0(f.k) + ' kcal' + (kcalTarget() ? ' (estimated need ' + kcalTarget() + ')' : '') + ', ' + r0(f.c) + ' g carbs. Meals: ' + (today(store.food).map(function (m) { return qd(m.meal) + ': ' + m.items.map(function (i) { return qd(i.n); }).join(', '); }).join('; ') || 'none logged') + '.');
     var pn = store.notes.filter(function (n) { return n.k === 'pain' && n.t > Date.now() - 14 * 864e5; }).map(function (n) { return new Date(n.t).toLocaleDateString() + ' ' + n.area + ' ' + (n.score != null ? n.score + '/10' : 'no score given') + (n.sharp ? ' sharp' : ''); });
@@ -7570,11 +7786,35 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (t.length) lines.push('Endurance check (hold time, not max strength): ' + t.join('; ') + '.');
     var sc = strHist().slice(-3).filter(function (c) { return strName(c); }).map(function (c) { return new Date(c.t).toLocaleDateString() + ' ' + strName(c) + (c.bw ? ' ' + c.reps + ' reps' : ' ' + r1(c.kg) + ' kg x ' + c.reps + ' = est. max ' + r1(c.e1) + ' kg'); });
     if (sc.length) lines.push('Strength check (Epley estimated 1-rep max): ' + sc.join('; ') + '.');
-    var recent = store.log.slice(-30).filter(function (l) { return BY[l.id]; }).map(function (l) { return new Date(l.t).toLocaleDateString() + ' ' + baseName(BY[l.id].name) + (l.k === 'h' ? ' hold ' : ' reps ') + (l.kg ? r1(l.kg) + ' kg x ' : '') + l.v + (l.k === 'h' ? ' s' : ''); });
-    if (recent.length) lines.push('Recent logged sets: ' + recent.join('; ') + '.');
+    // the same 30 sets as before, grouped by day and exercise, with repeats counted ("x 10 (3 sets)"), so it reads shorter with nothing lost
+    var days = [], byDay = {};
+    store.log.slice(-30).filter(function (l) { return BY[l.id]; }).forEach(function (l) {
+      var d = new Date(l.t).toLocaleDateString(), nm = baseName(BY[l.id].name) + (l.k === 'h' ? ' hold' : ' reps'), v = (l.kg ? r1(l.kg) + ' kg x ' : '') + l.v + (l.k === 'h' ? ' s' : '');
+      if (!byDay[d]) { byDay[d] = { names: [], sets: {} }; days.push(d); } var g = byDay[d];
+      if (!g.sets[nm]) { g.sets[nm] = { vals: [], n: {} }; g.names.push(nm); } var e = g.sets[nm]; if (!e.n[v]) { e.n[v] = 0; e.vals.push(v); } e.n[v]++;
+    });
+    if (days.length) lines.push('Recent logged sets (last 30, by day): ' + days.map(function (d) { var g = byDay[d]; return d + ': ' + g.names.map(function (nm) { var e = g.sets[nm]; return nm + ' ' + e.vals.map(function (v) { return v + (e.n[v] > 1 ? ' (' + e.n[v] + ' sets)' : ''); }).join(', '); }).join('; '); }).join(' | ') + '.');
     return lines.join('\n');
   }
+  // The coach's briefing only changes when your data does (every change is saved) or the hour turns: build it once, and ahead
+  // of time while you type, so sending a question doesn't wait for it.
+  var sysCache = null;
+  window.addEventListener('storage', function () { sysCache = null; });
   function systemText() {
+    var k = saveRev + '|' + Math.floor(Date.now() / 36e5) + '|' + (P ? 1 : 0);
+    if (sysCache && sysCache.k === k) return sysCache.v;
+    sysCache = { k: k, v: systemText0() }; return sysCache.v;
+  }
+  // when the box gets focus (the keyboard is still opening), the reading of a question is warmed up once, one small idle step at a time
+  var warmT = null, warmed = false, idle = window.requestIdleCallback || function (f) { return setTimeout(f, 1); };
+  function warmSystem() {
+    if (!coach.key || warmT) return;
+    var steps = [function () { systemText(); }];
+    if (!warmed) { warmed = true; steps.push(function () { parseText('why do holds help my knee?'); }, function () { localAnswer('why do holds help my knee?'); }); }
+    (function next() { var f = steps.shift(); if (!f) { warmT = null; return; } warmT = idle(function () { try { f(); } catch (e) { } next(); }, { timeout: 800 }); })();
+  }
+  $('cIn').addEventListener('focus', warmSystem); $('cIn').addEventListener('input', warmSystem);
+  function systemText0() {
     var p = prof();
     return 'You are the coach inside Isohold, a strength app. Be warm, direct and brief: the user reads on a phone between sets. Prefer short paragraphs and short lists; no tables. Use ' + (p.units === 'lb' ? 'pounds' : 'kilograms') + ' for weights. ' +
       'Base answers on the user\'s actual program and profile below. Use its exercise names. When suggesting a swap, pick something doable with the equipment they have, and say which day and slot it replaces. Respect their diet (' + p.diet + ') in any food advice. ' +
@@ -7934,9 +8174,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   $('pWtPlus').addEventListener('click', function () { wtStep(1); });
   $('pWt').addEventListener('input', function () {
     if (!P) return; var it = P.showIt; if (!it || it.kind === 'cardio') return; // the set whose weight is on screen
-    var v = parseFloat(this.value); markWt(it); setWt(it.id, it.ex, it.wk, isNaN(v) ? null : fromU(v));
+    var v = parseFloat(this.value); markWt(it); setWt(it.id, it.ex, it.wk, isNaN(v) ? null : fromU(v), true);
   });
-  $('pWt').addEventListener('change', function () { var v = cleanWt(fromU(parseFloat(this.value))); this.value = v == null ? '' : dispW(v); });
+  $('pWt').addEventListener('change', function () { flushWt(); var v = cleanWt(fromU(parseFloat(this.value))); this.value = v == null ? '' : dispW(v); });
   function logAdj(d) {
     if (!P) return; var it = P.q[P.i]; if (!it || !it.logged) return;
     it.logged.v = Math.max(1, it.logged.v + d * (it.logged.k === 'h' ? 5 : 1)); save();
@@ -8033,8 +8273,25 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   var _save = save;
   save = function () { var ok = _save(); try { refreshBackup(); } catch (e) { } return ok; };
 
+  // ---------- a tap shows at once ----------
+  // pointerdown marks the control as pressed; the browser paints that before the finger lifts and the tap's work (which can take a
+  // moment on a slow phone: opening Progress, starting a session) runs on click.
+  (function () {
+    var on = null, off = function () { var el = on; on = null; if (el) setTimeout(function () { el.classList.remove('pressing'); }, 90); };
+    document.addEventListener('pointerdown', function (e) {
+      if (e.button > 0) return; var el = e.target.closest && e.target.closest('button, [role="tab"], label, summary, a[href], .chip');
+      if (!el || el.disabled) return; off(); on = el; el.classList.add('pressing');
+    }, { capture: true, passive: true });
+    ['pointerup', 'pointercancel', 'dragstart'].forEach(function (t) { document.addEventListener(t, off, { capture: true, passive: true }); });
+    window.addEventListener('scroll', function () { if (on) { on.classList.remove('pressing'); on = null; } }, { passive: true });
+  })();
+
   // ---------- boot ----------
   renderTrain(); refreshBackup();
+  // the body map is drawn in the first frame (renderTrain draws it a moment later), or it pops in and pushes the sessions down
+  if (!$('bodyCard').firstChild) renderBody();
+  document.documentElement.classList.add('booted');
+  seenApp(); paintNet();
   show((location.hash || '').slice(1) || 'train', true);
   if (!store.profile && !store.log.length && !Object.keys(store.done).length && !window.__ISOHOLD_STATE) {
     openProfile(null, true);
