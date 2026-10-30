@@ -3006,9 +3006,12 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   try { var s0 = JSON.parse(localStorage.getItem('isohold.v1') || 'null'); if (s0) store = Object.assign(store, s0); } catch (e) { }
   try { if (window.__ISOHOLD_STATE && typeof window.__ISOHOLD_STATE === 'object') store = Object.assign(store, window.__ISOHOLD_STATE); } catch (e) { }
   // true when it really reached the device's storage, so nothing says "Saved." when it wasn't
+  // storeRev: bumped by every save, so work derived from the log (indexes, the daily strength index) is rebuilt only when the data changed
+  var storeRev = 0;
   function save() {
+    storeRev++; if (typeof warmDaily === 'function') setTimeout(warmDaily, 0);
     var txt = JSON.stringify(store), ok = true;
-    try { localStorage.setItem('isohold.v1', txt); storageOk(); } catch (e) { ok = storageProblem(e); }
+    try { localStorage.setItem('isohold.v1', txt); storageOk(); } catch (e) { ok = storageProblem(e, txt); }
     native({ type: 'save', data: txt });
     return ok;
   }
@@ -4106,8 +4109,14 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var td = totalDone(), n = weekDone(store.week), PT = progTarget(), WT = weekTarget();
     $('allCard').innerHTML = '<h2>Program</h2><div class="wkprog"><span class="big num">' + Math.round(td / PT * 100) + '<small>%</small></span><p class="muted">' + (td ? td + ' of ' + PT + ' ' + unitWord(2) + ' done. You’re on program week ' + store.week + ' with ' + n + ' of ' + WT + ' ' + unitWord(2) + ' done.' : 'Nothing done yet. Your first session is on the Today tab, and this fills in as you go.') + '</p></div>' +
       '<div class="ov-bar big" aria-hidden="true"><i style="width:' + (td / PT * 100).toFixed(1) + '%"></i></div>' + weekChart();
-    renderDaily(); renderMap(); renderStrength(); renderCov(); renderChecks(); renderBodyNow(); progTabs();
+    if (store.log.length <= BIG_LOG) { renderDaily(); renderMap(); renderStrength(); renderCov(); renderChecks(); renderBodyNow(); progTabs(); return; }
+    // years of logs: one card per task, the open section's cards first, so no single step holds the screen for long
+    progTabs();
+    var steps = [['strength', renderDaily], ['muscles', renderMap], ['strength', renderStrength], ['muscles', renderCov], ['strength', renderChecks], ['body', renderBodyNow]], g = ++progGen;
+    steps = steps.filter(function (x) { return x[0] === ptab; }).concat(steps.filter(function (x) { return x[0] !== ptab; }));
+    (function run() { var x = steps.shift(); x[1](); if (steps.length) setTimeout(function () { if (g === progGen) run(); }, 0); })();
   }
+  var progGen = 0;
 
   // ---------- daily strength and endurance index ----------
   // Strength: estMax (Epley with reps in reserve) from rep sets of 1–12 reps with a weight, and holdMax from weighted holds of 10–75 s.
@@ -4147,14 +4156,35 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     return best;
   }
   // a lift logged outside the program (by name: "squat" and "Back Squat" are one lift)
+  // One pass over the log and notes per data change: program sets by exercise id, other lifts by lift key (both in log order).
+  // Rebuilt when save() ran or the arrays changed (new array, or a different length), so every reader sees the same data as a full scan.
+  var logMemo = null;
+  function logIdx() {
+    var M = logMemo, body = store.body || [];
+    if (M && M.rev === storeRev && M.log === store.log && M.nl === store.log.length && M.notes === store.notes && M.nn === (store.notes || []).length && M.body === store.body && M.nb === body.length && M.pf === store.profile && M.dh === ((store.profile && store.profile.dayHour) || 0)) return M;
+    M = logMemo = { rev: storeRev, log: store.log, nl: store.log.length, notes: store.notes, nn: (store.notes || []).length, body: store.body, nb: body.length, pf: store.profile, dh: (store.profile && store.profile.dayHour) || 0, byId: Object.create(null), lifts: null, sets: Object.create(null) };
+    store.log.forEach(function (l) { var a = M.byId[l.id]; if (a) a.push(l); else M.byId[l.id] = [l]; });
+    return M;
+  }
+  function liftIdx() {
+    var M = logIdx(); if (M.lifts) return M.lifts;
+    var L = M.lifts = Object.create(null);
+    (store.notes || []).forEach(function (n) { if (n.k !== 'lift' || !n.t) return; var k = liftKey(n.name), a = L[k]; if (a) a.push(n); else L[k] = [n]; });
+    return L;
+  }
   function liftSetsOf(name) {
     var k = liftKey(name);
-    return store.notes.filter(function (n) { return n.k === 'lift' && n.t && liftKey(n.name) === k; })
+    return (liftIdx()[k] || []).filter(function (n) { return liftKey(n.name) === k; })
       .map(function (n) { return { e: estMax(liftLoad(n), n.reps, n.rpe), t: n.t, kg: n.kg, v: n.reps, rpe: n.rpe, k: 'r', lift: 1, name: n.name, add: n.add, ph: n.ph }; });
   }
   // a program exercise: rep sets (k 'r') or weighted holds of 10–75 s (k 'h'); eq null = any equipment
+  // the same list as a full scan of the log, built once per data change and per exercise/kind/equipment (a fresh array each call)
   function exSetsOf(id, k, eq) {
-    return store.log.filter(function (l) { return !l.sug && l.id === id && l.kg > 0 && (!k || l.k === k) && (eq == null || l.eq === eq); })
+    var M = logIdx(), key = id + '|' + k + '|' + (eq == null ? '*' : 'e' + eq), c = M.sets[key];
+    return (c || (M.sets[key] = exSetsOf0(id, k, eq))).slice();
+  }
+  function exSetsOf0(id, k, eq) {
+    return (logIdx().byId[id] || []).filter(function (l) { return !l.sug && l.id === id && l.kg > 0 && (!k || l.k === k) && (eq == null || l.eq === eq); })
       .map(function (l) { return { e: l.k === 'h' ? (l.v >= 10 && l.v <= 75 ? holdMax(l).est : null) : estMax(l.kg, l.v, l.rpe), t: l.t, kg: l.kg, v: l.v, rpe: l.rpe, k: l.k, l: l }; });
   }
   function curMaxLift(name) { return curMax(liftSetsOf(name)); }
@@ -4162,7 +4192,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // which set it came from: "405 lb × 3 reps @ RPE 8, 14 Dec"
   // a lift's weight as said: "bodyweight + 20 kg" for added load, "12 kg per hand" for a pair of dumbbells
   function liftW(x) { return (x.add ? 'bodyweight + ' : '') + kg(x.kg) + (x.ph ? ' per hand' : ''); }
-  function maxSrc(s) { return (s.kg > 0 ? liftW(s) + ' × ' : '') + s.v + (s.k === 'h' ? ' s' : s.v === 1 ? ' rep' : ' reps') + (s.rpe ? ' @ RPE ' + s.rpe : '') + ', ' + new Date(s.t).toLocaleDateString(UIL, { day: 'numeric', month: 'short' }); }
+  function maxSrc(s) { return (s.kg > 0 ? liftW(s) + ' × ' : '') + s.v + (s.k === 'h' ? ' s' : s.v === 1 ? ' rep' : ' reps') + (s.rpe ? ' @ RPE ' + s.rpe : '') + ', ' + locDate(s.t, { day: 'numeric', month: 'short' }); }
   function loadTime(kgv, sec) { return sec * Math.max(kgv || 0, 1); }
   // the name of the version actually done (leg press is a version of another exercise's slot, so the slot's own name would be wrong)
   function varName(id, k, eq) {
@@ -4172,66 +4202,149 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   function exName(id, k, eq) { var vn = varName(id, k, eq); if (vn) return vn; var x = (k === 'h' ? BY : G)[id] || ALL[id]; return x ? baseName(x.name).replace(/ Hold$/, '') : id; }
   function dayKeys(n) { var out = [], s0 = dayStart(); for (var i = n - 1; i >= 0; i--) out.push(dayStart(s0 - i * 864e5 + 6 * 3600e3)); return out; }
-  function dailyIdx() {
-    var ex = {};
+  // Computed once per data change (logIdx), then shared by the strength line, the strength map and the coach. The work runs
+  // in steps (dailyStep), so years of logs can be worked through a slice at a time between taps (dailyIdxSoon); dailyIdx()
+  // finishes it at once. Same steps, same order, same numbers either way.
+  function dailyIdx() { var M = logIdx(); if (!M.daily) dailyStep(M, Infinity); return M.daily; }
+  // the index in slices of at most ~30 ms, then done(); returns true when it was ready already
+  function dailyIdxSoon(done) {
+    var M = logIdx(); if (M.daily) return true;
+    (M.dWait = M.dWait || []).push(done);
+    if (M.dTimer) return false;
+    var tick = function () {
+      M.dTimer = 0; if (logIdx() !== M) { var w = M.dWait; M.dWait = null; return w.forEach(function (f) { dailyIdxSoon(f); }); } // the data changed: start over on the new data
+      if (!dailyStep(M, performance.now() + 30)) { M.dTimer = setTimeout(tick, 0); return; }
+      var ws = M.dWait; M.dWait = null; ws.forEach(function (f) { setTimeout(function () { try { f(); } catch (e) { } }, 0); }); // each redraw in its own task
+    };
+    M.dTimer = setTimeout(tick, 0);
+    return false;
+  }
+  // a very long log (about 3 years and more) is worked through in idle moments after each change, so Progress is ready when opened
+  var BIG_LOG = 20000, idleDaily = 0;
+  function warmDaily() {
+    if (idleDaily || store.log.length <= BIG_LOG || !window.requestIdleCallback) return; idleDaily = 1;
+    var go = function (dl) {
+      var M = logIdx();
+      if (!M.daily) { dailyStep(M, performance.now() + Math.max(5, Math.min(40, dl.timeRemaining()))); requestIdleCallback(go); return; }
+      idleDaily = 0; if (!M.firstW) strengthData(); // then each exercise's sets (the strength map), in an idle moment of its own
+    };
+    requestIdleCallback(go);
+  }
+  function dailyStep(M, until) {
+    var J = M.dJob || (M.dJob = { st: 0, i: 0, ex: {}, dm: {}, names: {}, dLo: 0, dHi: -1, dCur: 0, S: {}, E: {} }), ex = J.ex, dm = J.dm, cnt = 0;
+    var late = function () { return (++cnt & 255) === 0 && performance.now() > until; };
+    // a log is mostly in time order, so the day of the previous entry is reused while an entry falls inside it. dayStart never
+    // goes down as t goes up, so when both ends of [dLo, dHi) map to dLo, every t between them does too (else no reuse)
+    function day(t) { if (t >= J.dLo && t < J.dHi) return J.dCur; var lo = J.dCur = J.dLo = dayStart(t), hi = J.dHi = dayStart(lo + 30 * 3600e3); if (!(t >= lo && t < hi) || dayStart(lo) !== lo || dayStart(hi - 1) !== lo) J.dHi = -1; return lo; }
+    function nm(id, k, eq) { var key = k + '|' + id + '|' + eq, names = J.names; return Object.prototype.hasOwnProperty.call(names, key) ? names[key] : (names[key] = exName(id, k, eq)); }
+    // each exercise's days in order of first appearance, with the best value and its set (copied into e.days / e.raw at the end)
     function add(kind, key, name, t, v, raw) {
-      var e = ex[key] || (ex[key] = { key: key, kind: kind, name: name, days: {}, raw: {} }), d = dayStart(t);
-      if (!(d in e.days) || v > e.days[d]) { e.days[d] = v; e.raw[d] = raw; }
+      var m = dm[key]; if (!m) { ex[key] = { key: key, kind: kind, name: name, days: {}, raw: {} }; m = dm[key] = { at: new Map(), d: [], v: [], r: [], ld: null, li: -1 }; }
+      var d = day(t), i = d === m.ld ? m.li : m.at.get(d);
+      if (i === undefined) { i = m.d.length; m.at.set(d, i); m.d.push(d); m.v.push(v); m.r.push(raw); }
+      else if (v > m.v[i]) { m.v[i] = v; m.r[i] = raw; }
+      m.ld = d; m.li = i;
     }
-    store.log.forEach(function (l) {
-      if (l.sug || !l.id) return; // suggested weights the user never confirmed aren't counted
-      var t = l.d || l.t;
-      if (l.k === 'r') { var e1 = estMax(l.kg, l.v, l.rpe); if (e1) add('s', 'r|' + l.id + '|' + l.eq, exName(l.id, 'r', l.eq), t, e1, l); }
-      else if (l.k === 'h' && l.v > 0) {
-        add('e', 'h|' + l.id + '|' + l.eq, exName(l.id, 'h', l.eq), t, loadTime(l.kg, l.v), l);
-        // a weighted hold also says something about strength (the same hold-to-max estimate as the strength map)
-        if (l.kg > 0 && l.v >= 10 && l.v <= 75) add('s', 'hs|' + l.id + '|' + l.eq, exName(l.id, 'h', l.eq) + ' hold', t, holdMax(l).est, l);
+    if (J.st === 0) {
+      var log = store.log;
+      for (; J.i < log.length; J.i++) {
+        if (late()) return false;
+        var l = log[J.i];
+        if (l.sug || !l.id) continue; // suggested weights the user never confirmed aren't counted
+        var t = l.d || l.t;
+        if (l.k === 'r') { var e1 = estMax(l.kg, l.v, l.rpe); if (e1) add('s', 'r|' + l.id + '|' + l.eq, nm(l.id, 'r', l.eq), t, e1, l); }
+        else if (l.k === 'h' && l.v > 0) {
+          add('e', 'h|' + l.id + '|' + l.eq, nm(l.id, 'h', l.eq), t, loadTime(l.kg, l.v), l);
+          // a weighted hold also says something about strength (the same hold-to-max estimate as the strength map)
+          if (l.kg > 0 && l.v >= 10 && l.v <= 75) add('s', 'hs|' + l.id + '|' + l.eq, nm(l.id, 'h', l.eq) + ' hold', t, holdMax(l).est, l);
+        }
       }
-    });
-    store.notes.forEach(function (n) { // lifts logged outside the program
-      if (n.k !== 'lift' || !n.t) return; var key = liftKey(n.name);
-      if (n.reps) { var e1 = estMax(liftLoad(n), n.reps, n.rpe); if (e1) add('s', 'n|' + key + (n.add ? '|w' : ''), n.name + (n.add ? ' (weighted)' : ''), n.t, e1, { kg: n.kg, v: n.reps, k: 'r', rpe: n.rpe, add: n.add }); }
-      else if (n.s > 0) {
-        add('e', 'nh|' + key, n.name, n.t, loadTime(n.kg, n.s), { kg: n.kg, v: n.s, k: 'h' });
-        if (n.kg > 0 && n.s >= 10 && n.s <= 75) add('s', 'nhs|' + key, n.name + ' hold', n.t, holdMax({ id: '', kg: n.kg, v: n.s }).est, { kg: n.kg, v: n.s, k: 'h' });
+      J.st = 1;
+    }
+    if (J.st === 1) {
+      store.notes.forEach(function (n) { // lifts logged outside the program
+        if (n.k !== 'lift' || !n.t) return; var key = liftKey(n.name);
+        if (n.reps) { var e1 = estMax(liftLoad(n), n.reps, n.rpe); if (e1) add('s', 'n|' + key + (n.add ? '|w' : ''), n.name + (n.add ? ' (weighted)' : ''), n.t, e1, { kg: n.kg, v: n.reps, k: 'r', rpe: n.rpe, add: n.add }); }
+        else if (n.s > 0) {
+          add('e', 'nh|' + key, n.name, n.t, loadTime(n.kg, n.s), { kg: n.kg, v: n.s, k: 'h' });
+          if (n.kg > 0 && n.s >= 10 && n.s <= 75) add('s', 'nhs|' + key, n.name + ' hold', n.t, holdMax({ id: '', kg: n.kg, v: n.s }).est, { kg: n.kg, v: n.s, k: 'h' });
+        }
+      });
+      J.keys = Object.keys(dm); J.i = 0; J.st = 2;
+    }
+    if (J.st === 2) {
+      for (; J.i < J.keys.length; J.i++) {
+        if (performance.now() > until) return false; // a key can hold thousands of days, so check after each
+        var key = J.keys[J.i], e = ex[key], m = dm[key], i;
+        for (i = 0; i < m.d.length; i++) e.days[m.d[i]] = m.v[i];
+        for (i = 0; i < m.d.length; i++) e.raw[m.d[i]] = m.r[i];
+        var ds = m.d.slice().sort(function (a, b) { return a - b; });
+        e.ds = ds; e.first = ds[0]; e.base = e.days[ds[0]]; e.last = ds[ds.length - 1];
       }
-    });
-    var S = {}, E = {}, all = Object.keys(ex).map(function (key) { return ex[key]; });
-    all.forEach(function (e) {
-      var ds = Object.keys(e.days).map(Number).sort(function (a, b) { return a - b; });
-      e.ds = ds; e.first = ds[0]; e.base = e.days[ds[0]]; e.last = ds[ds.length - 1];
-    });
-    var mean = function (a) { return a.reduce(function (x, y) { return x + y; }, 0) / a.length; };
+      J.all = Object.keys(ex).map(function (key) { return ex[key]; }); J.sr = 0; J.st = 3;
+    }
     // Strength at a day is that exercise's current estimated max as of then: the best of the 6 weeks up to it (curMax's rule),
     // so the line, "Each exercise against its start" and the strength map all use one number. A week of fewer planned reps
     // at the same weight doesn't pull it down. Endurance is the latest day's value.
     // A day's index: every exercise of that kind done in the 4 weeks up to that day, each at its latest value against its
     // first day. An exercise joins from its second day, so a new exercise doesn't pull the line back to 100, and a day of
     // different exercises (or a lighter session type) doesn't make the line jump.
-    [['s', S], ['e', E]].forEach(function (sr) {
-      var mine = all.filter(function (e) { return e.kind === sr[0]; }), days = {};
-      mine.forEach(function (e) { e.ds.forEach(function (d) { days[d] = 1; }); });
-      Object.keys(days).map(Number).sort(function (a, b) { return a - b; }).forEach(function (d) {
-        var r = [];
-        mine.forEach(function (e) {
-          var upto = e.ds.filter(function (x) { return x <= d; }); if (upto.length < 2) return;
-          var ld = upto[upto.length - 1]; if (d - ld > 28 * 864e5) return;
-          r.push(exVal(e, d) / e.base * 100);
-        });
-        sr[1][d] = r.length ? mean(r) : 100;
-      });
-    });
-    return { s: S, e: E, ex: ex };
+    // One pass over the days in order: each exercise keeps how many of its days are up to d, and (strength) a running
+    // maximum of the days inside the 6-week window, so this is linear in the history (exVal gives the same numbers).
+    var mean = function (a) { return a.reduce(function (x, y) { return x + y; }, 0) / a.length; }, MAXGAP = 28 * 864e5;
+    while (J.st === 3 && J.sr < 2) {
+      var kind = J.sr ? 'e' : 's', out = J.sr ? J.E : J.S;
+      if (!J.dl) {
+        var mine = J.all.filter(function (e) { return e.kind === kind; }), days = {};
+        mine.forEach(function (e) { e.ds.forEach(function (d) { days[d] = 1; }); });
+        // per exercise: i = how many of its days are up to d, vs = its values by day in order, q[h..] = running maximum (strength)
+        J.ss = mine.map(function (e) { return { e: e, ds: e.ds, vs: e.ds.map(function (x) { return e.days[x]; }), s: e.kind === 's', i: 0, q: [], h: 0 }; });
+        J.dl = Object.keys(days).map(Number).sort(function (a, b) { return a - b; }); J.di = 0;
+      }
+      var st = J.ss, dl = J.dl;
+      for (; J.di < dl.length; J.di++) {
+        if (late()) return false;
+        var d = dl[J.di], r = [];
+        for (var si = 0; si < st.length; si++) {
+          var o = st[si], ods = o.ds, vs = o.vs, q = o.q, n = ods.length;
+          if (ods[0] > d || (o.i === n && d - ods[n - 1] > MAXGAP)) continue; // not started yet, or finished more than 4 weeks ago
+          while (o.i < n && ods[o.i] <= d) {
+            if (o.s) { var v0 = vs[o.i]; while (q.length > o.h && vs[q[q.length - 1]] <= v0) q.pop(); q.push(o.i); }
+            o.i++;
+          }
+          if (o.i < 2) continue;
+          var ld = ods[o.i - 1]; if (d - ld > MAXGAP) continue;
+          var v;
+          if (!o.s) v = vs[o.i - 1];
+          else { while (o.h < q.length && !(ods[q[o.h]] > d - CUR_WIN)) o.h++; v = o.h < q.length ? vs[q[o.h]] : null; }
+          r.push(v / o.e.base * 100);
+        }
+        out[d] = r.length ? mean(r) : 100;
+      }
+      J.dl = null; J.sr++;
+    }
+    M.daily = { s: J.S, e: J.E, ex: ex }; M.dJob = null;
+    return true;
   }
   // an exercise's value as of day d: strength = best day in the 6 weeks up to d (as curMax); endurance = latest day
   function exVal(e, d) {
     var v = null; e.ds.forEach(function (x) { if (x > d) return; if (e.kind !== 's') { v = e.days[x]; return; } if (x > d - CUR_WIN && (v == null || e.days[x] > v)) v = e.days[x]; });
     return v;
   }
-  function dShort(t) { return new Date(t).toLocaleDateString(UIL, { day: 'numeric', month: 'short' }); }
+  // one Intl.DateTimeFormat per format, reused: toLocaleDateString builds a new one on every call (the same text either way)
+  var LOC_FMT = {};
+  function locDate(t, o) {
+    var d = new Date(t); if (isNaN(d.getTime())) return d.toLocaleDateString(UIL, o);
+    var k = JSON.stringify(o), f = LOC_FMT[k] || (LOC_FMT[k] = new Intl.DateTimeFormat(UIL, o));
+    return f.format(d);
+  }
+  function dShort(t) { return locDate(t, { day: 'numeric', month: 'short' }); }
   var dlyInfoOpen = false;
+  // shown while a very long log is still being worked through (each step is short, so the screen keeps answering)
+  function workingTxt(what) { return '<p class="muted" role="status">Working out ' + what + ' from ' + store.log.length.toLocaleString(UIL) + ' logged sets…</p>'; }
   function renderDaily() {
     var el = $('dailyCard'); if (!el) return;
+    if (store.log.length > BIG_LOG && !dailyIdxSoon(function () { if (current === 'progress') renderDaily(); })) { el.innerHTML = '<div class="c-top"><h2>Strength and endurance</h2></div>' + workingTxt('your strength and endurance'); return; }
     var D = dailyIdx(), days = dayKeys(42), first = Infinity;
     Object.keys(D.ex).forEach(function (k) { if (D.ex[k].first < first) first = D.ex[k].first; });
     var cut = first > days[0] && days.indexOf(first) > -1 ? days.slice(days.indexOf(first)) : days, from = days[0];
@@ -4281,7 +4394,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       '<p class="muted dnote">One mark per training day. Marks on back-to-back days are joined; rest days leave a gap.</p>';
     // numbers behind the chart, and each exercise against its start
     var tbl = '<table class="dtab"><caption class="sr-only">Daily index, 100 = your start</caption><thead><tr><th scope="col">Day</th><th scope="col" class="n">Strength</th><th scope="col" class="n">Endurance</th></tr></thead><tbody>' +
-      trained.slice().reverse().map(function (d) { return '<tr><th scope="row" style="font-weight:400">' + esc(new Date(d).toLocaleDateString(UIL, { weekday: 'short', day: 'numeric', month: 'short' })) + '</th><td class="n">' + (d in D.s ? Math.round(D.s[d]) : '–') + '</td><td class="n">' + (d in D.e ? Math.round(D.e[d]) : '–') + '</td></tr>'; }).join('') + '</tbody></table>';
+      trained.slice().reverse().map(function (d) { return '<tr><th scope="row" style="font-weight:400">' + esc(locDate(d, { weekday: 'short', day: 'numeric', month: 'short' })) + '</th><td class="n">' + (d in D.s ? Math.round(D.s[d]) : '–') + '</td><td class="n">' + (d in D.e ? Math.round(D.e[d]) : '–') + '</td></tr>'; }).join('') + '</tbody></table>';
     var exs = Object.keys(D.ex).map(function (k) { return D.ex[k]; }).filter(function (e) { return e.last >= from; }).sort(function (a, b) { return b.last - a.last || (a.kind < b.kind ? 1 : -1); });
     var exl = '<ul class="olist">' + exs.map(function (e) {
       var r = e.raw[e.last], now = e.days[e.last], bw = e.kind === 'e' && !(r.kg > 0), src = dShort(e.last);
@@ -4322,7 +4435,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // ---------- strength map: how each muscle region's strength changed (the daily line's per-exercise numbers) ----------
   // Rep sets of 1–12 reps: Epley 1-rep estimate. Holds of 10–75 s with a weight: the hold-to-max estimate (holdMax).
   // Per exercise: current estimated max (best of the last 6 weeks) ÷ its first day; a region averages its exercises.
-  function strChange() {
+  function strChange() { var M = logIdx(), now = dayStart(); if (!M.chg || M.chg.now !== now) M.chg = { now: now, v: strChange0() }; return M.chg.v; }
+  function strChange0() {
     // the same per-exercise numbers as the daily strength line: current estimated max (best of the last 6 weeks) against the
     // exercise's first day, for exercises with weighted sets on 2+ days and done in the last 4 weeks; a region averages them
     var D = dailyIdx(), now = dayStart(), reg = {};
@@ -4390,7 +4504,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (Math.max(s, bd) > progSeen) ptab = bd > s ? 'body' : 'strength';
     progSeen = Date.now();
   }
-  function pickPtab(t, focus) { ptab = t; progTabs(); if (t === 'strength') { renderDaily(); renderStrength(); } covCue(); if (focus) $('pt-' + t).focus(); }
+  function pickPtab(t, focus) { ptab = t; progTabs(); if (t === 'strength') { renderDaily(); if (store.log.length > BIG_LOG) setTimeout(renderStrength, 0); else renderStrength(); } covCue(); if (focus) $('pt-' + t).focus(); }
   document.querySelector('#progress .ptabs').addEventListener('click', function (e) { var b = e.target.closest('[data-ptab]'); if (b) pickPtab(b.getAttribute('data-ptab')); });
   document.querySelector('#progress .ptabs').addEventListener('keydown', function (e) {
     var order = ['muscles', 'strength', 'body'], i = order.indexOf(ptab), j = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : e.key === 'Home' ? 0 : e.key === 'End' ? 2 : null;
@@ -4414,11 +4528,12 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var ids = EX.map(function (e) { return e.id; }).filter(function (id) { return logged[id]; });
     if (!ids.length) { $('strCard').innerHTML = '<h2>Exercise history</h2><p>Enter your weight in the timer or on an exercise. After your first session, this chart shows how much you lift and for how long or how many reps.</p>'; return; }
     if (!strSel || ids.indexOf(strSel) < 0) { var last = store.log[store.log.length - 1]; strSel = last ? last.id : ids[0]; if (last) strKind = last.k; }
-    var eqs = []; store.log.forEach(function (l) { if (l.id === strSel && l.k === strKind && eqs.indexOf(l.eq) < 0) eqs.push(l.eq); });
-    if (eqs.indexOf(strEq) < 0) { var lastE = store.log.filter(function (l) { return l.id === strSel && l.k === strKind; }).pop(); strEq = lastE ? lastE.eq : null; }
-    var rows = store.log.filter(function (l) { return l.id === strSel && l.k === strKind && l.eq === strEq && !l.sug; });
+    var byId = logIdx().byId, selLog = byId[strSel] || []; // each exercise's own sets, in log order
+    var eqs = []; selLog.forEach(function (l) { if (l.id === strSel && l.k === strKind && eqs.indexOf(l.eq) < 0) eqs.push(l.eq); });
+    if (eqs.indexOf(strEq) < 0) { var lastE = selLog.filter(function (l) { return l.id === strSel && l.k === strKind; }).pop(); strEq = lastE ? lastE.eq : null; }
+    var rows = selLog.filter(function (l) { return l.id === strSel && l.k === strKind && l.eq === strEq && !l.sug; });
     function doneName(id) {
-      var l = store.log.filter(function (x) { return x.id === id && (id !== strSel || x.k === strKind); }).pop(); if (!l) return baseName(BY[id].name);
+      var l = null, xs = byId[id] || []; for (var di = xs.length - 1; di >= 0; di--) { var x = xs[di]; if (x.id === id && (id !== strSel || x.k === strKind)) { l = x; break; } } if (!l) return baseName(BY[id].name);
       var k = l.k === 'h' ? 'h' : 'g', o = parseEq(EQV[id][k]).filter(function (q) { return q.eq === l.eq; })[0];
       return (o ? V(id, k, o).name : baseName((k === 'h' ? BY : G)[id].name)).replace(/ Hold$/, '');
     }
@@ -4433,7 +4548,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       var best = rows.reduce(function (b, l) { return (l.kg || 0) > (b.kg || 0) || ((l.kg || 0) === (b.kg || 0) && l.v > b.v) ? l : b; }, rows[0]);
       var unit = strKind === 'h' ? ' s' : ' reps';
       var first = pts[0], lastP = pts[pts.length - 1], ch = first.kg ? Math.round(((lastP.kg || 0) - first.kg) / first.kg * 100) : null;
-      h += '<p class="str-sum"><b>Best: ' + (best.kg ? kg(best.kg) + ' for ' : '') + best.v + (best.v === 1 && unit === ' reps' ? ' rep' : unit) + '</b>' + (pts.length > 1 && ch != null ? '<span class="' + (ch >= 0 ? 'up' : 'down') + '">' + (ch >= 0 ? '+' : '') + ch + '% weight since ' + new Date(first.t).toLocaleDateString(UIL, { day: 'numeric', month: 'short' }) + '</span>' : '') + '</p>' + strChart(pts, unit, noWt(strEq));
+      h += '<p class="str-sum"><b>Best: ' + (best.kg ? kg(best.kg) + ' for ' : '') + best.v + (best.v === 1 && unit === ' reps' ? ' rep' : unit) + '</b>' + (pts.length > 1 && ch != null ? '<span class="' + (ch >= 0 ? 'up' : 'down') + '">' + (ch >= 0 ? '+' : '') + ch + '% weight since ' + locDate(first.t, { day: 'numeric', month: 'short' }) + '</span>' : '') + '</p>' + strChart(pts, unit, noWt(strEq));
     }
     $('strCard').innerHTML = h;
   }
@@ -4447,7 +4562,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var xs = function (i) { return n === 1 ? (L + W - R) / 2 : L + 14 + i * (W - L - R - 28) / (n - 1); };
     var y1 = function (v) { return 12 + (1 - (v - lo) / (hi - lo || 1)) * (H1 - 28); };
     // the same numbers in words, for screen readers
-    var say1 = function (p) { return (p.kg ? Math.round(p.kg * 10) / 10 + ' ' + uLab() + ' for ' : '') + p.v + (unit === ' s' ? ' seconds' : ' reps') + (p.t ? ' on ' + new Date(p.t).toLocaleDateString(UIL, { day: 'numeric', month: 'long' }) : ''); };
+    var say1 = function (p) { return (p.kg ? Math.round(p.kg * 10) / 10 + ' ' + uLab() + ' for ' : '') + p.v + (unit === ' s' ? ' seconds' : ' reps') + (p.t ? ' on ' + locDate(p.t, { day: 'numeric', month: 'long' }) : ''); };
     var s = '<p class="sr-only">' + esc(n + (n === 1 ? ' session. ' : ' sessions. ') + (n > 1 ? 'First: ' + say1(pts[0]) + '. ' : '') + 'Latest: ' + say1(pts[n - 1]) + '. ' + (noW ? '' : 'Heaviest: ' + Math.round(maxKg * 10) / 10 + ' ' + uLab() + '. ') + 'Most ' + (unit === ' s' ? 'seconds' : 'reps') + ': ' + maxV + '.') + '</p>';
     var w0 = s.length;
     s += '<p class="chart-t" aria-hidden="true">Weight (' + uLab() + ')</p><svg class="schart" viewBox="0 0 ' + W + ' ' + H1 + '" aria-hidden="true" style="--axfs:' + fs.toFixed(1) + 'px">';
@@ -4578,7 +4693,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function testName(id) { return baseName(BY[id].name); }
   function endDone() { return TESTS.filter(function (id) { var t = store.tests[id]; return t && (+t.a > 0 || +t.b > 0); }); }
   function chkBtn(k, t, s, r) { return '<button class="chk-btn" data-chk="' + k + '"><span class="t">' + t + '</span><span class="s">' + esc(s) + '</span>' + (r ? '<span class="r">' + esc(r) + '</span>' : '') + I_CHEV + '</button>'; }
-  function chkChange(c) { var p = strLast(c.id, c.eq, c.t); if (!p) return ''; var when = new Date(p.t).toLocaleDateString(UIL, { day: 'numeric', month: 'short' });
+  function chkChange(c) { var p = strLast(c.id, c.eq, c.t); if (!p) return ''; var when = locDate(p.t, { day: 'numeric', month: 'short' });
     if (c.bw) { var dr = c.reps - p.reps; return (dr >= 0 ? ' (+' : ' (−') + Math.abs(dr) + ' since ' + when + ')'; }
     var d = toU(c.e1) - toU(p.e1); return (d >= 0 ? ' (+' : ' (−') + Math.abs(Math.round(d * 10) / 10) + ' ' + uLab() + ' since ' + when + ')'; }
   function renderChecks() {
@@ -4780,7 +4895,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       if (!e.first[fk] || first.t < e.first[fk].t) e.first[fk] = first;
       if (!cur || rank < cur.rank || (rank === cur.rank && cm.e > cur.est)) e[slot] = { est: cm.e, l: l, r: r, rank: rank, cm: cm };
     }
-    store.log.forEach(function (l) {
+    // the first weighted set of each exercise/kind/equipment, in log order (found once per data change)
+    var M = logIdx(); if (!M.firstW) { var fw = M.firstW = [], sk = {}; store.log.forEach(function (l) { if (!l.kg || !BY[l.id] || l.sug) return; var key = (l.k === 'h' ? 'h' : 'r') + '|' + l.id + '|' + l.eq; if (!sk[key]) { sk[key] = 1; fw.push(l); } }); }
+    M.firstW.forEach(function (l) {
       if (!l.kg || !BY[l.id] || l.sug) return;
       var isH = l.k === 'h', k = isH ? 'h' : 'r', key = k + '|' + l.id + '|' + l.eq; if (seen[key]) return; seen[key] = 1;
       var sets = exSetsOf(l.id, k, l.eq).filter(function (x) { return x.e > 0; }), cm = curMax(sets); if (!cm) return; // very short or very long holds, and long rep sets, say little about maximum strength
@@ -4852,6 +4969,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     return out + '</div>';
   }
   function renderMap() {
+    if (store.log.length > BIG_LOG && !dailyIdxSoon(function () { if (current === 'progress') renderMap(); })) { $('mapCard').innerHTML = '<h2>Strength map</h2>' + workingTxt('your strength map'); return; }
     var data = strengthData(), names = Object.keys(data).filter(function (k) { return data[k].h || data[k].r; });
     if (!mapSel || !data[mapSel]) mapSel = names[0] || null;
     var h = changeMap() + '<details class="how" id="mapMax"' + (mapMaxOpen ? ' open' : '') + '><summary>Estimated maximum, muscle by muscle</summary><div class="gbody"><p>Your estimated maximum for each muscle group, from the sets you’ve logged with a weight. Each number is the load for the named exercise (a floor press number is a pressing load, not the triceps alone), so compare a muscle with itself over time. Tap a muscle.</p>' +
@@ -5105,11 +5223,11 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   var storageWarn = '';
   function storageOk() { if (storageWarn === 'full') { storageWarn = ''; renderTrain(); } }
   // A full or blocked storage area used to fail silently; now it trims what it safely can, retries, and says so.
-  function storageProblem(e) {
+  function storageProblem(e, txt) { // txt: the state just written (the same text, so it isn't built twice)
     var full = e && (e.name === 'QuotaExceededError' || e.code === 22 || /quota/i.test(e.message || ''));
     if (full) {
       try { cput('feed', (cget('feed', []) || []).slice(-30)); } catch (x) { }
-      try { localStorage.setItem('isohold.v1', JSON.stringify(store)); return true; } catch (x) { }
+      try { localStorage.setItem('isohold.v1', txt || JSON.stringify(store)); return true; } catch (x) { }
     }
     if (storageWarn !== (full ? 'full' : 'blocked')) { storageWarn = full ? 'full' : 'blocked'; setTimeout(renderTrain, 0); }
     return false;
@@ -5220,7 +5338,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // what a health flag or setting changes for one part of an exercise (wk 'h' = hold, 'r' = reps): a reason it's left out, or a note on how to do it
   var FLOOR = { hollow: 'hr', 'dead-bug': 'hr', 'pushup-plus': 'hr', 'rev-nordic': 'hr', crunch: 'hr', 'glute-bridge': 'hr', 'ham-bridge': 'hr', 'floor-press': 'hr', 'plank-db': 'hr', 'prone-y': 'hr', 'ext-rot': 'hr', 'bird-dog': 'h', 'wall-sit': 'r' };
   function bpVeryHigh() { var b = bpToday(); return b && (b.sys >= 180 || b.dia >= 110) ? b : null; }
-  function bpToday() { var b = today(store.notes).filter(function (n) { return n.k === 'bp'; }).pop(); return b && (b.sys >= 160 || b.dia >= 100) ? b : null; }
+  function bpToday() { var M = logIdx(), s0 = dayStart(); if (!M.bp || M.bp.s !== s0) M.bp = { s: s0, v: bpToday0() }; return M.bp.v; }
+  function bpToday0() { var b = today(store.notes).filter(function (n) { return n.k === 'bp'; }).pop(); return b && (b.sys >= 160 || b.dia >= 100) ? b : null; }
   function skipWhy(id, wk) {
     var p = prof(), is = p.issues, hb = bpToday();
     if (hb) return 'your blood pressure today (' + hb.sys + '/' + hb.dia + ')';
@@ -5721,7 +5840,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   function findEx(t) {
     if (NOTEX.test(t.replace(/romanian deadlifts?|stiff[- ]leg deadlifts?|single[- ]leg deadlifts?/g, ''))) return null;
     var A = exAliases();
-    for (var i = 0; i < A.length; i++) { var re = new RegExp('\\b' + A[i][0].replace(/[-]/g, '[- ]?') + '\\b'); var m = t.match(re); if (m) return { id: A[i][1], hint: A[i][2], at: m.index, len: m[0].length }; }
+    for (var i = 0; i < A.length; i++) { var re = A[i].re || (A[i].re = new RegExp('\\b' + A[i][0].replace(/[-]/g, '[- ]?') + '\\b')); var m = t.match(re); if (m) return { id: A[i][1], hint: A[i][2], at: m.index, len: m[0].length }; }
     return null;
   }
   var FOODRE = null;
@@ -5731,7 +5850,10 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     FOODS.forEach(function (f, i) { f[1].split('|').forEach(function (al) { list.push([al, i]); }); });
     list.sort(function (a, b) { return b[0].replace(/[?()|:]/g, '').length - a[0].replace(/[?()|:]/g, '').length; });
     var U = '(g|gm|gms|grams?|ml|l|litres?|liters?|oz|ounces?|cups?|bowls?|katoris?|plates?|slices?|pieces?|pcs|scoops?|tbsp|tablespoons?|tsp|teaspoons?|spoons?|spoonfuls?|glass(?:es)?|handfuls?|servings?|portions?|cans?|tins?|bars?|pots?|fillets?|bottles?|pints?)';
-    FOODRE = list.map(function (x) { return [new RegExp('(?:(\\d+(?:\\.\\d+)?)\\s*' + U + '?\\s*(?:of\\s+)?(?:(?:soft|hard|fried|boiled|scrambled|poached|large|small|big|medium|whole|fresh|grilled|cooked|raw|plain|homemade|sliced|lean|extra)\\s+){0,2})?\\b(' + x[0] + ')\\b(?:\\s+(?:grilled|fried|boiled|steamed|baked|roasted|cooked|raw|scrambled|poached))?(?:\\s*(?:x\\s*)?(\\d+(?:\\.\\d+)?)\\s*(g|gm|grams?|ml|oz|ounces?)\\b)?'), x[1]]; });
+    // Each pattern is compiled only when first needed, and only tried when the text contains the literal start of its food
+    // name (a pattern can't match without it). The first meal of a session then compiles a handful of patterns, not 600.
+    var lit = function (a) { var m = /^[^\\^$.|?*+()[\]{}]*/.exec(a)[0], nx = a.charAt(m.length); if (nx === '?' || nx === '*' || nx === '{') m = m.slice(0, -1); return m || null; };
+    FOODRE = list.map(function (x) { return [null, x[1], lit(x[0]), '(?:(\\d+(?:\\.\\d+)?)\\s*' + U + '?\\s*(?:of\\s+)?(?:(?:soft|hard|fried|boiled|scrambled|poached|large|small|big|medium|whole|fresh|grilled|cooked|raw|plain|homemade|sliced|lean|extra)\\s+){0,2})?\\b(' + x[0] + ')\\b(?:\\s+(?:grilled|fried|boiled|steamed|baked|roasted|cooked|raw|scrambled|poached))?(?:\\s*(?:x\\s*)?(\\d+(?:\\.\\d+)?)\\s*(g|gm|grams?|ml|oz|ounces?)\\b)?']; });
     return FOODRE;
   }
   var GEN = { fillet: 150, fillets: 150, spoon: 15, spoons: 15, spoonful: 15, spoonfuls: 15, tbsp: 15, tablespoon: 15, tablespoons: 15, tsp: 5, teaspoon: 5, teaspoons: 5, handful: 30, handfuls: 30, oz: 28.35 };
@@ -5751,6 +5873,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     t = t.replace(/^\s*([a-z][a-z ]*?[a-z])\s+(\d{1,4}(?:\.\d+)?)\s*(slices?|pieces?|cups?|bowls?|plates?)?\s*$/, function (m, f, n, u) { return u ? n + ' ' + u + ' of ' + f : +n >= 20 ? n + ' g ' + f : n + ' ' + f; }); // "huevos 3" = 3 eggs, "pollo 200" = 200 g
     var items = [], s = t, R = foodIndex();
     for (var j = 0; j < R.length; j++) {
+      if (R[j][2] && s.indexOf(R[j][2]) < 0) continue;
+      if (!R[j][0]) R[j][0] = new RegExp(R[j][3]);
       var m; while ((m = s.match(R[j][0]))) {
         var qty = m[1] ? +m[1] : 1, unit = m[2] || '', grams = m[4] ? +m[4] * (/^o/.test(m[5]) ? 28.35 : 1) : 0, fi = R[j][1], tail = '';
         // "200g chicken 150g rice": the 150 g after chicken belongs to the rice, since chicken already has an amount
@@ -6239,7 +6363,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         if (prevB && dayStart(prevB.t) === dayStart(now) && Math.abs(prevB.kg - bk) < 0.05) { card = { k: 'body', ref: prevB.t, title: 'Already logged: ' + bwTxt(prevB.kg), lines: ['Same weight as earlier today, so nothing new was added.'] }; break; }
         store.body.push({ t: now, kg: Math.round(bk * 1000) / 1000 }); save();
         var tg = proteinTarget();
-        card = { k: 'body', ref: now, title: 'Bodyweight ' + bwTxt(bk), lines: [prevB && Math.abs(bk - prevB.kg) < 0.05 ? 'No change since ' + new Date(prevB.t).toLocaleDateString(UIL, { day: 'numeric', month: 'short' }) : prevB ? (bk >= prevB.kg ? '+' : '−') + (p.units === 'st' ? r1(Math.abs(bk - prevB.kg) * 2.20462) + ' lb' : bwTxt(Math.abs(bk - prevB.kg))) + ' since ' + new Date(prevB.t).toLocaleDateString(UIL, { day: 'numeric', month: 'short' }) : 'First weigh-in logged.'], sub: tg ? 'Protein target is now ' + tg + ' g a day.' : '' };
+        card = { k: 'body', ref: now, title: 'Bodyweight ' + bwTxt(bk), lines: [prevB && Math.abs(bk - prevB.kg) < 0.05 ? 'No change since ' + locDate(prevB.t, { day: 'numeric', month: 'short' }) : prevB ? (bk >= prevB.kg ? '+' : '−') + (p.units === 'st' ? r1(Math.abs(bk - prevB.kg) * 2.20462) + ' lb' : bwTxt(Math.abs(bk - prevB.kg))) + ' since ' + locDate(prevB.t, { day: 'numeric', month: 'short' }) : 'First weigh-in logged.'], sub: tg ? 'Protein target is now ' + tg + ' g a day.' : '' };
         break;
       }
       case 'log_cardio': {
@@ -6334,7 +6458,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       case 'navigate': { var tb = { train: 'train', training: 'train', exercise: 'exercises', exercises: 'exercises', progress: 'progress', guide: 'guide', log: 'coach', settings: 'profile', profile: 'profile' }[a.tab]; if (tb === 'profile') setTimeout(function () { openProfile(null); }, 200); else setTimeout(function () { show(tb); }, 200); return null; }
       default: return null;
     }
-    if (card) { card.src = src; if (when) { card.title += ' (' + (Math.round((dayStart() - dayStart(when)) / 864e5) === 1 ? 'yesterday' : new Date(when).toLocaleDateString(UIL, { weekday: 'long' })) + ')'; } pushCard(card); }
+    if (card) { card.src = src; if (when) { card.title += ' (' + (Math.round((dayStart() - dayStart(when)) / 864e5) === 1 ? 'yesterday' : locDate(when, { weekday: 'long' })) + ')'; } pushCard(card); }
     return card;
   }
   // "How bad, 0–10?" answered (a tapped number, or the next message being just a number)
@@ -7309,9 +7433,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       '<p class="fine">Restoring replaces what’s on this device; you can undo it straight after. Meal photos stay on the device they were taken on.</p>';
     refreshBackup();
     $('bkCopy').addEventListener('click', function () {
-      refreshBackup();
+      refreshBackup(true);
       var txt = $('bkOut').value;
-      function fallback() { $('bkOut').focus(); $('bkOut').select(); try { $('bkOut').setSelectionRange(0, txt.length); } catch (e) { } msg('bkCopyMsg', 'Code selected. Tap Copy to copy it.', ''); }
+      function fallback() { $('bkOut').hidden = false; $('bkOut').focus(); $('bkOut').select(); try { $('bkOut').setSelectionRange(0, txt.length); } catch (e) { } msg('bkCopyMsg', 'Code selected. Tap Copy to copy it.', ''); }
       try {
         if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(function () { bkDone('bkCopyMsg', 'Copied. Paste it into Notes.'); }, fallback);
         else fallback();
@@ -7322,18 +7446,32 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     $('bkRestore').addEventListener('click', function () { restoreCode($('bkIn').value); });
     $('bkFileIn').addEventListener('change', function () { var f = this.files && this.files[0]; if (!f) return; var r = new FileReader(); r.onload = function () { $('bkIn').value = String(r.result); restoreCode($('bkIn').value); }; r.readAsText(f); });
   }
+  // Progress while it's hidden: drawn in the next idle moment (opening the tab draws it anyway), so Restore answers at once
+  var progLater = 0;
+  function renderProgressLater() {
+    if (current === 'progress' || progLater) return; progLater = 1;
+    var go = function () { progLater = 0; if (current !== 'progress') renderProgress(); };
+    if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 2000 }); else setTimeout(go, 50);
+  }
   var BK_KEYS = ['week', 'done', 'tests', 'wt', 'cust', 'log', 'eq', 'profile', 'food', 'body', 'notes', 'cmin', 'took'];
   function restoreCode(raw) {
     var nw; try { nw = parseCode(raw); } catch (e) { msg('bkMsg', e.message, 'err'); return; }
-    var old = {}; BK_KEYS.forEach(function (k) { old[k] = store[k] === undefined ? undefined : JSON.parse(JSON.stringify(store[k])); });
+    // a code of years of logs: reading it and applying it are two steps, so neither holds the screen for long
+    if (String(raw).length > 1e6) { msg('bkMsg', 'Restoring…', ''); setTimeout(function () { restoreParsed(nw); }, 0); return; }
+    restoreParsed(nw);
+  }
+  function restoreParsed(nw) {
+    // for undo: a part the backup replaces is kept as it was (nothing holds it any more); a part it leaves alone is copied
+    var was = {}; BK_KEYS.forEach(function (k) { was[k] = store[k]; });
     store.week = nw.week; store.done = nw.done; store.tests = nw.tests; store.wt = nw.wt; store.cust = cleanCust(nw.cust || {}); store.log = nw.log; if (nw.eq) store.eq = nw.eq; if (nw.pf) store.profile = nw.pf; if (nw.fd) store.food = nw.fd; if (nw.bw) store.body = nw.bw; if (nw.nt) store.notes = nw.nt; if (nw.cmin) store.cmin = nw.cmin; if (nw.took) store.took = nw.took; selDay = nextDayIdx();
-    var kept = save(); applyLook(); renderAll(); renderProgress();
+    var old = {}; BK_KEYS.forEach(function (k) { var v = was[k]; old[k] = v === undefined ? undefined : v !== store[k] && v && typeof v === 'object' ? v : JSON.parse(JSON.stringify(v)); });
+    var kept = save(); applyLook(); renderAll(); renderProgressLater(); // renderAll already drew Progress when it's open
     var said = (kept ? '' : 'Not saved: this device’s storage is ' + (storageWarn === 'full' ? 'full' : 'blocked') + ', so this is lost when you close the app. ') + 'Restored week ' + nw.week + ': ' + bkCount(nw) + '.' + (nw.fd ? '' : ' This backup has no meals, weigh-ins or profile, so those stayed as they were.') + (nw.skipped ? ' ' + nw.skipped + ' ' + plural(nw.skipped, 'set') + ' of exercises this version doesn’t have ' + (nw.skipped === 1 ? 'was' : 'were') + ' left out; update the app and restore again to keep ' + (nw.skipped === 1 ? 'it' : 'them') + '.' : '');
     function again(t) { if ($('sheetWrap').hidden || !$('pfBk')) return; openProfile(null, false, 'backup'); msg('bkMsg', t, 'ok'); $('bkRestore').focus(); }
     again(said);
     toastUndo('Progress restored.', function () {
       BK_KEYS.forEach(function (k) { if (old[k] === undefined) delete store[k]; else store[k] = old[k]; }); selDay = nextDayIdx();
-      save(); applyLook(); renderAll(); renderProgress(); again('Restore undone. Your earlier progress is back.'); toast('Restore undone.');
+      save(); applyLook(); renderAll(); renderProgressLater(); again('Restore undone. Your earlier progress is back.'); toast('Restore undone.');
     });
   }
   function aiHtml() {
@@ -7397,8 +7535,11 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // ---------- Progress extras: other lifts, blood pressure, backup as a file ----------
   // the app's one estimated max (estMax: Epley with reps in reserve, sets of 1–12 reps)
   function e1rm(kgv, reps, rpe) { return estMax(kgv, reps, rpe); }
-  function dshort(t) { return new Date(dayStart(t)).toLocaleDateString(UIL, { day: 'numeric', month: 'short' }); }
+  function dshort(t) { return locDate(dayStart(t), { day: 'numeric', month: 'short' }); }
+  // a long history (hundreds of entries) is built only when its "All N entries" is opened
+  var LZ_MIN = 60, lzFill = {}, lzN = 0;
   function progressExtras() {
+    lzFill = {}; lzN = 0;
     var lifts = store.notes.filter(function (n) { return n.k === 'lift'; }), bp = store.notes.filter(function (n) { return n.k === 'bp'; }), h = '';
     // bodyweight and protein, in words (no chart needed to follow them)
     var bw = store.body.slice(-8), days = [], tg = proteinTarget();
@@ -7408,7 +7549,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       h += '<div class="card" data-pt="body"><h2>Body and food</h2>';
       if (bw.length) { var b0 = bw[0], b1 = bw[bw.length - 1]; h += '<p><b>Bodyweight:</b> ' + bwTxt(b1.kg) + ' on ' + dshort(b1.t) + (bw.length > 1 ? (Math.abs(b1.kg - b0.kg) < 0.05 ? ', no change since ' : ', ' + (b1.kg - b0.kg >= 0 ? 'up ' : 'down ') + bwTxt(Math.abs(b1.kg - b0.kg)) + ' since ') + dshort(b0.t) : '') + '.</p><ul class="olist">' + bw.slice().reverse().map(function (x) { return '<li><b>' + bwTxt(x.kg) + '</b><span>' + dshort(x.t) + '</span></li>'; }).join('') + '</ul>'; }
       if (logged.length) { var avg = logged.reduce(function (t, d) { return t + d.p; }, 0) / logged.length, hit = tg ? logged.filter(function (d) { return d.p >= tg * 0.9; }).length : 0;
-        h += '<p><b>Protein, last 7 days:</b> about ' + r0(avg) + ' g a day on the ' + logged.length + (logged.length === 1 ? ' day' : ' days') + ' you logged food' + (tg ? ', target ' + tg + ' g. On target ' + hit + ' of ' + logged.length + '.' : '.') + '</p><ul class="olist">' + days.slice().reverse().filter(function (d) { return d.n; }).map(function (d) { return '<li><b>' + r0(d.p) + ' g</b><span>' + new Date(d.t).toLocaleDateString(UIL, { weekday: 'short', day: 'numeric', month: 'short' }) + '</span></li>'; }).join('') + '</ul>'; }
+        h += '<p><b>Protein, last 7 days:</b> about ' + r0(avg) + ' g a day on the ' + logged.length + (logged.length === 1 ? ' day' : ' days') + ' you logged food' + (tg ? ', target ' + tg + ' g. On target ' + hit + ' of ' + logged.length + '.' : '.') + '</p><ul class="olist">' + days.slice().reverse().filter(function (d) { return d.n; }).map(function (d) { return '<li><b>' + r0(d.p) + ' g</b><span>' + locDate(d.t, { weekday: 'short', day: 'numeric', month: 'short' }) + '</span></li>'; }).join('') + '</ul>'; }
       h += '</div>';
     }
     if (lifts.length) {
@@ -7420,7 +7561,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
         var entry = function (x) { return dshort(x.t) + ': ' + set(x) + ' <button class="textbtn" data-dlift="' + esc(x.t) + '" aria-label="Delete ' + esc(x.name) + ' ' + set(x) + ' from ' + dshort(x.t) + '">Delete</button>'; }, R = L.slice().reverse();
         // the latest 4, then every older entry behind "All N entries", so any one can be deleted
         var unn = /^Unnamed lift/.test(last.name) ? ' <button class="textbtn" data-nlift="' + esc(last.name) + '">Name it</button><span class="fine">Saved with only an equipment word' + (last.was ? ' (“' + esc(last.was) + '”)' : '') + ', so the lift isn’t known.</span>' : '';
-        return '<li><b>' + esc(last.name) + '</b>' + unn + '<span>Heaviest: ' + set(Object.assign({}, heavy, { sets: 1 })) + (est ? ' · estimated max <span class="emx">' + kg(est.v) + '</span> (best of the last 6 weeks, from ' + esc(liftW(est.x)) + ' × ' + esc(est.x.reps) + (est.x.rpe ? ' @ RPE ' + esc(est.x.rpe) : '') + ', ' + dshort(est.x.t) + ')' : '') + '</span><span class="lrec">' + R.slice(0, 4).map(entry).join('<br>') + (R.length > 4 ? '<details><summary>All ' + R.length + ' entries</summary>' + R.slice(4).map(entry).join('<br>') + '</details>' : '') + '</span></li>';
+        return '<li><b>' + esc(last.name) + '</b>' + unn + '<span>Heaviest: ' + set(Object.assign({}, heavy, { sets: 1 })) + (est ? ' · estimated max <span class="emx">' + kg(est.v) + '</span> (best of the last 6 weeks, from ' + esc(liftW(est.x)) + ' × ' + esc(est.x.reps) + (est.x.rpe ? ' @ RPE ' + esc(est.x.rpe) : '') + ', ' + dshort(est.x.t) + ')' : '') + '</span><span class="lrec">' + R.slice(0, 4).map(entry).join('<br>') + (R.length > 4 ? '<details' + (R.length > LZ_MIN ? ' data-lz="' + lzN + '"' : '') + '><summary>All ' + R.length + ' entries</summary>' + (R.length > LZ_MIN ? (lzFill[lzN++] = function () { return R.slice(4).map(entry).join('<br>'); }, '') : R.slice(4).map(entry).join('<br>')) + '</details>' : '') + '</span></li>';
       }).join('') + '</ul></div>';
     }
     if (bp.length) h += '<div class="card" data-pt="body"><h2>Blood pressure</h2><ul class="olist">' + bp.slice(-6).reverse().map(function (n) { return '<li><b>' + esc(n.sys) + '/' + esc(n.dia) + '</b><span>' + dshort(n.t) + (n.pulse ? ' · pulse ' + esc(n.pulse) : '') + '</span></li>'; }).join('') + '</ul></div>';
@@ -7428,6 +7569,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   (function () {
     var host = document.createElement('div'); host.id = 'progExtras';
+    host.addEventListener('toggle', function (e) { var d = e.target, f = d.open && d.dataset && lzFill[d.dataset.lz]; if (!f) return; delete lzFill[d.dataset.lz]; d.removeAttribute('data-lz'); d.insertAdjacentHTML('beforeend', f()); }, true);
     host.addEventListener('click', function (e) {
       var nb = e.target.closest('[data-nlift]'); if (nb) return nameLift(nb.dataset.nlift, nb);
       var b = e.target.closest('[data-dlift]'); if (!b) return; var t = +b.dataset.dlift, i = store.notes.findIndex(function (n) { return n.k === 'lift' && n.t === t; }); if (i < 0) return; var gone = store.notes.splice(i, 1)[0]; save(); progressExtras(); toastUndo('Deleted ' + gone.name + ' from ' + dshort(gone.t) + '.', function () { store.notes.push(gone); store.notes.sort(function (x, y) { return x.t - y.t; }); save(); progressExtras(); }); }); host.className = 'view'; host.style.gap = '18px';
@@ -7680,7 +7822,10 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     P = { day: day, part: part, ph: ph, q: q, i: 0, stage: 'ready', paused: false, start: Date.now(), day0: dayStart(), pbs: {} }; kickAnim();
     try { if (replaceHist && history.state && history.state.sheet) history.replaceState({ player: 1 }, ''); else history.pushState({ player: 1 }, ''); } catch (e) { }
     $('pConfirm').hidden = true;
-    try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) { }
+    // Sound: Safari and Firefox need it made inside the tap; Chromium lets a page the user has tapped start it a moment later,
+    // so there it's made after the player is on screen (making one can take a long while). The first beep is seconds away.
+    var mkAC = function () { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) { } };
+    if (AC || !navigator.userAgentData) mkAC(); else requestAnimationFrame(function () { setTimeout(mkAC, 0); });
     // iPhone: let beeps play with the silent switch on (Safari 17+), keep the screen on
     try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { }
     keepAwake();
@@ -8010,10 +8155,36 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     else if (e.key === ' ' && e.target.tagName !== 'BUTTON') { e.preventDefault(); $('pPause').click(); }
   });
 
-  function b64enc(t) { return btoa(unescape(encodeURIComponent(t))); }
-  function b64dec(t) { return decodeURIComponent(escape(atob(t))); }
+  // base64 of the UTF-8 bytes. TextEncoder/TextDecoder give the same bytes and text as the escape/unescape idiom, in linear time
+  // (the idiom takes seconds on a large backup); text with a broken surrogate pair still goes the old way, so it still fails the same.
+  function b64enc(t) {
+    if (!window.TextEncoder || !String.prototype.isWellFormed || !t.isWellFormed()) return btoa(unescape(encodeURIComponent(t)));
+    var b = new TextEncoder().encode(t), out = [], CH = 0x6000; // a multiple of 3, so the pieces join into one code
+    for (var i = 0; i < b.length; i += CH) out.push(btoa(String.fromCharCode.apply(null, b.subarray(i, i + CH))));
+    return out.join('');
+  }
+  function b64dec(t) {
+    if (!window.TextDecoder) return decodeURIComponent(escape(atob(t)));
+    var s = atob(t), b = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) b[i] = s.charCodeAt(i);
+    return new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(b);
+  }
   function backupCode() { return 'ISOHOLD1:' + b64enc(JSON.stringify({ week: store.week, done: store.done, tests: store.tests, wt: store.wt, eq: store.eq, cust: store.cust, log: store.log.map(function (l) { var a = [l.t, l.w, l.id, l.eq, l.k, l.kg, l.v]; if (l.sug || l.rpe || l.x || l.d) a.push({ sug: l.sug || 0, rpe: l.rpe || 0, x: l.x || 0, d: l.d || 0 }); return a; }), pf: store.profile || null, fd: store.food.map(function (m) { return { t: m.t, meal: m.meal, items: m.items, src: m.src }; }), bw: store.body, nt: store.notes, cmin: store.cmin || {}, took: store.took || {} })); }
-  function refreshBackup() { var o = $('bkOut'), lp = $('bkLastP'); if (o) o.value = backupCode(); if (lp) lp.textContent = 'Your progress is stored only on this device. ' + bkStatus(); }
+  // the code is built once per saved change; a very long code (years of logs) is kept in a hidden box, since laying out
+  // megabytes of text in a visible box freezes the screen (Copy and Save file still use the whole code)
+  var bkMemo = null, BK_SHOW_MAX = 200000;
+  function bkCode() {
+    var k = [storeRev, store.week, store.log.length, (store.notes || []).length, (store.food || []).length, (store.body || []).length].join();
+    if (!bkMemo || bkMemo.k !== k) bkMemo = { k: k, v: backupCode() };
+    return bkMemo.v;
+  }
+  // now = true when the code is read straight after (Copy); a long log's code is otherwise built in a task of its own
+  var bkT = 0;
+  function bkFill() { var o = $('bkOut'); if (!o) return; var c = bkCode(); o.hidden = c.length > BK_SHOW_MAX; o.value = c; }
+  function refreshBackup(now) {
+    var o = $('bkOut'), lp = $('bkLastP');
+    clearTimeout(bkT);
+    if (o) { if (now || store.log.length <= 2000) bkFill(); else { o.hidden = true; bkT = setTimeout(bkFill, 0); } }
+    if (lp) lp.textContent = 'Your progress is stored only on this device. ' + bkStatus(); }
   function parseCode(raw) {
     var m = String(raw || '').match(/ISOHOLD1:\s*([A-Za-z0-9+/=\s]+)/); // a code wrapped onto several lines by Notes or an email still works
     if (m) m[1] = m[1].replace(/\s+/g, '');
@@ -8076,8 +8247,21 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   }
   renderTools();
   window.__isoholdReady = performance.now();
-  // Build the Exercises screen while the phone is idle after start-up, so opening it the first time is a tab switch
-  setTimeout(function () { (window.requestIdleCallback || function (f) { return setTimeout(f, 1); })(function () { if (!libBuilt && current !== 'exercises') ensureLib(true); }, { timeout: 3000 }); }, 300);
+  // Warm-up in idle time after opening, one small job per idle slot, so the first tap of each kind doesn't pay for it:
+  // the typed-log patterns, the date formats, the strength index and the Exercises screen.
+  (function () {
+    var jobs = [
+      function () { foodIndex(); parseText('2 eggs and a bowl of oatmeal'); },
+      function () { parseText('3 sets of 10 goblet squats at 20 kg'); },
+      function () { locDate(Date.now(), { day: 'numeric', month: 'short' }); locDate(Date.now(), { weekday: 'short', day: 'numeric', month: 'short' }); },
+      function () { if (store.log.length <= BIG_LOG) dailyIdx(); else warmDaily(); },
+      // and the Exercises screen, so opening it the first time is a tab switch
+      function () { if (!libBuilt && current !== 'exercises') ensureLib(true); }
+    ];
+    var ric = window.requestIdleCallback || function (f) { return setTimeout(function () { f({ timeRemaining: function () { return 10; } }); }, 200); };
+    function next() { if (!jobs.length) return; ric(function () { try { jobs.shift()(); } catch (e) { } next(); }, { timeout: 4000 }); }
+    setTimeout(next, 300);
+  })();
   // read-only hooks for the automated test suite
   window.__isoTest = { covPlan: function () { return covPlan(); }, sessPlan: function () { return sessPlan(); }, painHow: function (id, kind, area, score) { var ex = V(id, kind === 'h' ? 'h' : 'g'); return painHow({ id: id, wk: kind === 'h' ? 'h' : 'r', pain: { area: area, score: score } }, ex); }, plural: plural, seq: seq, cFig: cFig, subSeg: subSeg, nextDayIdx: nextDayIdx, progressLine: function (it, hint, mem) { return progressLine(it, hint, mem); }, today: function (l) { return today(l); }, dayStart: function (t) { return dayStart(t); }, suggestWt: function (id, kind) { return suggestWt(id, V(id, kind === 'h' ? 'h' : 'g'), kind); }, localAnswer: function (t) { return localAnswer(t); }, weekTarget: function () { return weekTarget(); }, buildQueue: buildQueue, allDays: allDays, mins: mins, V: V, chooseEq: chooseEq, pickEq: pickEq, store: function () { return store; }, strengthData: strengthData, holdMax: holdMax, repMax: repMax, phaseOf: phaseOf, blocksFor: blocksFor, wLabel: wLabel, weekDone: weekDone, isPB: isPB, parseText: parseText, parsePlayerCmd: parsePlayerCmd, handle: function (t, s) { return handle(t, s || 'text'); }, runCmd: function (t) { return runCmd(t); }, feed: function () { return feed; }, prof: prof, proteinTarget: proteinTarget, foods: FOODS, applyAction: function (a) { return apply(a, 'test'); }, dailyIdx: function () { return dailyIdx(); }, strChange: function () { return strChange(); }, epley: epley, loadTime: loadTime, estMax: estMax, liftTags: liftTags, exRegions: exRegions, liftRegions: liftRegions, BM_NAME: BM_NAME, weekStart: function (t) { return weekStart(t); }, bodyWeek: function () { return bodyWeek(); }, covDays: covDays, covDone: covDone, exName: exName, rpeTxt: rpeTxt, curMax: curMax, curMaxLift: curMaxLift, curMaxEx: curMaxEx, modTxt: modTxt, libNote: libNote, repAlt: repAlt, painAdvice: painAdvice, trainLevel: trainLevel, getWt: function (id, kind, eq) { var kk = kind === 'h' ? 'h' : 'g', o = eq ? parseEq(EQV[id][kk]).filter(function (x) { return x.eq === eq; })[0] : null; return getWt(id, V(id, kk, o || undefined), kind === 'h' ? 'h' : 'r'); }, skipWhy: skipWhy,
     // the first weight for one equipment version, with where it came from (round 13 audit)
