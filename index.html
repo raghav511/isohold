@@ -80,6 +80,7 @@ section.view { display: grid; gap: 18px; }
 .view-head { display: flex; align-items: flex-end; gap: 12px; }
 .view-head { flex-wrap: wrap; row-gap: 6px; }
 .view-head .weekbtn { order: 3; }
+#setupCard:empty { display: none; }
 .bodycard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 12px 14px; display: grid; gap: 8px; }
 .bodycard svg { width: 100%; max-width: 358px; height: auto; justify-self: center; display: block; }
 .bodycard .bm-on { fill: var(--trained); } .bodycard .bm-part { fill: var(--partly); } .bodycard .bm-off { fill: var(--gap); } .bodycard .bm-gap { fill: var(--gap); stroke: var(--ink); stroke-width: 2; stroke-dasharray: 4 3; }
@@ -94,6 +95,7 @@ section.view { display: grid; gap: 18px; }
 .startbar .btn { width: 100%; min-height: 58px; font-size: 18px; box-shadow: 0 6px 20px rgba(20, 33, 61, .18); }
 .view-head .tools { display: flex; gap: 2px; margin-left: auto; }
 nav.tabbar .tabbar-in { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+#sheetTitle:focus { outline: none; }
 .view-head .tool.back { flex-direction: row; gap: 4px; padding: 0 10px 0 4px; margin-left: -8px; font-size: 15px; }
 .c-off { background: var(--ink); color: var(--bg); border-radius: var(--r-md); padding: 10px 12px; font-weight: 700; font-size: 14px; }
 .c-srch:empty { display: none; }
@@ -122,7 +124,7 @@ nav.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; backgrou
 .tabbar button { background: none; border: 0; display: grid; justify-items: center; align-content: center; gap: 3px; font-size: 11.5px; font-weight: 700; color: var(--muted); padding: 0; }
 .tabbar svg { width: 25px; height: 25px; }
 .tabbar button[aria-selected="true"] { color: var(--ink); }
-.tabbar button[aria-selected="true"] svg .fillme { fill: currentColor; }
+.tabbar button[aria-selected="true"] svg .fillme, .tabbar button.home svg .fillme { fill: currentColor; }
 
 /* ---------- buttons ---------- */
 .btn { border: 0; border-radius: 14px; min-height: 52px; padding: 0 20px; font-weight: 700; font-size: 17px; background: var(--ink); color: var(--bg); display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
@@ -130,12 +132,12 @@ nav.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; backgrou
 .btn.go { background: var(--hold); color: var(--hold-ink); }
 .btn.quiet { background: var(--sunk); color: var(--ink); }
 .btn.line { background: transparent; box-shadow: inset 0 0 0 1.5px var(--line); color: var(--ink); }
-.btn.sm { min-height: 40px; font-size: 15px; padding: 0 14px; border-radius: 11px; }
+.btn.sm { min-height: 44px; font-size: 15px; padding: 0 14px; border-radius: 11px; }
 .btn:active { transform: scale(.985); }
 .textbtn { background: none; border: 0; padding: 8px 0; font-weight: 700; color: var(--rep); min-height: 40px; }
 
 /* ---------- train ---------- */
-.weekbtn { background: var(--surface); border: 1.5px solid var(--line); border-radius: 999px; min-height: 40px; padding: 0 14px 0 10px; display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; }
+.weekbtn { background: var(--surface); border: 1.5px solid var(--line); border-radius: 999px; min-height: 44px; padding: 0 14px 0 10px; display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; }
 .weekbtn i { width: 12px; height: 12px; border-radius: 50%; background: var(--c); }
 .band { background: var(--c); color: var(--band-ink); border-radius: var(--r-lg); padding: 18px 18px 16px; display: grid; gap: 10px; position: relative; overflow: hidden; }
 .band .when { font-weight: 700; font-size: 15px; }
@@ -264,7 +266,7 @@ nav.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; backgrou
 /* ---------- exercises ---------- */
 .chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 calc(-1 * max(16px, env(safe-area-inset-right, 0px))) 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))); padding: 2px max(16px, env(safe-area-inset-right, 0px)) 4px max(16px, env(safe-area-inset-left, 0px)); scroll-padding-left: 16px; }
 .chips::-webkit-scrollbar { display: none; }
-.chip { flex: none; border: 1.5px solid var(--line); background: var(--surface); border-radius: 999px; min-height: 40px; padding: 0 14px; font-size: 15px; font-weight: 700; }
+.chip { flex: none; border: 1.5px solid var(--line); background: var(--surface); border-radius: 999px; min-height: 44px; padding: 0 14px; font-size: 15px; font-weight: 700; }
 .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .lib-group { display: grid; gap: 2px; }
 .lib-group h2 { font-size: 15px; font-weight: 700; color: var(--muted); padding: 6px 0 2px; }
@@ -347,7 +349,7 @@ table.cov .cv-dl { display: none; }
 @media (max-width: 440px) {
   table.cov { font-size: 13px; }
   table.cov .cv-long { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } table.cov .cv-short { display: inline; }
-  table.cov thead th { font-size: 12px; } table.cov thead th small { min-width: 0; font-size: 11px; }
+  table.cov thead th { font-size: 12px; } table.cov thead th small { min-width: 0; font-size: 12px; }
   table.cov .mks { max-width: 40px; gap: 2px; }
   table.cov td, table.cov th { padding-left: 2px; padding-right: 2px; }
 }
@@ -534,9 +536,9 @@ table.cov thead th { white-space: nowrap; } table.cov thead th small { white-spa
 .chart-t { font-size: 13px; font-weight: 700; color: var(--muted); margin-top: 4px; }
 svg.wchart, svg.schart { width: 100%; height: auto; display: block; overflow: visible; }
 svg .gl { stroke: var(--line); stroke-width: 1; }
-svg .ax { fill: var(--muted); font: 700 11px var(--f-body); }
+svg .ax { fill: var(--muted); font: 700 12.5px var(--f-body); }
 svg .ax.cur { fill: var(--ink); }
-svg .val { fill: var(--ink); font: 700 11.5px var(--f-body); }
+svg .val { fill: var(--ink); font: 700 12.5px var(--f-body); }
 #strCard select { font: inherit; font-size: 16px; padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); width: 100%; }
 .str-sum { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
 .str-sum .up { color: var(--ok); font-weight: 700; } .str-sum .down { color: var(--danger); font-weight: 700; }
@@ -547,7 +549,7 @@ svg .val { fill: var(--ink); font: 700 11.5px var(--f-body); }
 .rw.off .row { opacity: .45; }
 .row .s.x { text-decoration: line-through; opacity: .6; }
 .tg { display: flex; gap: 6px; flex-wrap: wrap; padding-left: 64px; }
-.tg button { border: 1.5px solid var(--line); background: transparent; border-radius: 999px; min-height: 34px; padding: 0 12px; font-size: 13.5px; font-weight: 700; color: var(--muted); }
+.tg button { border: 1.5px solid var(--line); background: transparent; border-radius: 999px; min-height: 44px; padding: 0 14px; font-size: 13.5px; font-weight: 700; color: var(--muted); }
 .tg button[aria-pressed="true"] { border-color: var(--ink); color: var(--ink); }
 .tg button[aria-pressed="true"]::before { content: "\2713  "; color: var(--ok); }
 .tg button.rm { border-color: transparent; color: var(--danger); }
@@ -624,7 +626,7 @@ details.how .gbody { display: grid; gap: 10px; font-size: 15px; }
 .lgc-l { font-size: 13px; color: var(--muted); font-weight: 700; align-self: center; }
 .lg-acts { display: flex; flex-wrap: wrap; gap: 6px; }
 .lg-por { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.lg-acts .btn.sm { min-height: 36px; padding: 0 12px; font-size: 14px; }
+.lg-acts .btn.sm { min-height: 44px; padding: 0 12px; font-size: 14px; }
 .lg-acts .btn.sm.pn { min-width: 44px; min-height: 44px; padding: 0; }
 .lg-ph { display: block; max-width: 220px; width: 100%; border-radius: 12px; margin-bottom: 6px; }
 .msg.u .lg-ph { margin-left: auto; }
@@ -658,7 +660,7 @@ details.how .gbody { display: grid; gap: 10px; font-size: 15px; }
 .pf-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .pf-l { font-weight: 700; font-size: 14px; margin-top: 6px; }
 .pchips { display: flex; flex-wrap: wrap; gap: 8px; }
-.pchips button { border: 1.5px solid var(--line); background: var(--surface); border-radius: 999px; padding: 8px 14px; min-height: 42px; font-weight: 700; font-size: 15px; }
+.pchips button { border: 1.5px solid var(--line); background: var(--surface); border-radius: 999px; padding: 8px 14px; min-height: 44px; font-weight: 700; font-size: 15px; }
 .pchips button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .pf-sw { display: flex !important; grid-template-columns: none; align-items: center; gap: 10px !important; font-weight: 400 !important; font-size: 15px !important; margin-top: 6px; }
 .pf-sw input { width: 22px; height: 22px; flex: none; }
@@ -675,7 +677,7 @@ details.how .gbody { display: grid; gap: 10px; font-size: 15px; }
 .p-head .xbtn#pMic svg { width: 24px; height: 24px; }
 .pheard { font-size: 14px; color: var(--muted); font-style: italic; }
 body:has(#coach:not([hidden])) .toast { bottom: calc(var(--bar-h) + env(safe-area-inset-bottom, 0px) + 84px); }
-.shortbtn { justify-self: start; font-size: 15px; min-height: 36px; padding: 2px 0; }
+.shortbtn { justify-self: start; font-size: 15px; min-height: 44px; padding: 2px 0; }
 .plan .grp-t.miss, .grp-t.miss { color: var(--danger); }
 .olist { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .olist li { display: grid; gap: 1px; }
@@ -724,7 +726,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 /* tab bar */
 nav.tabbar { background: color-mix(in srgb, var(--surface) 94%, transparent); border-top: 1px solid var(--line); }
 .tabbar button { font-family: var(--f-display); font-weight: 500; font-size: 11.5px; color: var(--muted); gap: 4px; }
-.tabbar button[aria-selected="true"] { color: var(--hold); }
+.tabbar button[aria-selected="true"], .tabbar button.home { color: var(--hold); }
 .tabbar svg { width: 24px; height: 24px; }
 
 /* Train: hero with rings */
@@ -990,8 +992,8 @@ svg.dchart .ds { fill: none; stroke: var(--rep); stroke-width: 2.5; stroke-linej
 svg.dchart .de { fill: none; stroke: var(--hold); stroke-width: 2.5; stroke-dasharray: 7 4; stroke-linejoin: round; }
 svg.dchart .ms { fill: var(--rep); stroke: var(--surface); stroke-width: 1.5; }
 svg.dchart .me { fill: var(--hold); stroke: var(--surface); stroke-width: 1.5; }
-svg.dchart .vs { fill: var(--rep); font: 700 12px var(--f-body); }
-svg.dchart .ve { fill: var(--hold); font: 700 12px var(--f-body); }
+svg.dchart .vs { fill: var(--rep); font: 700 13px var(--f-body); }
+svg.dchart .ve { fill: var(--hold); font: 700 13px var(--f-body); }
 .dleg { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; color: var(--ink); list-style: none; margin: 0; padding: 0; }
 .dleg li { display: inline-flex; align-items: center; gap: 8px; }
 .dleg svg { width: 14px; height: 14px; flex: none; }
@@ -1005,7 +1007,7 @@ svg.smap .sm-off { fill: var(--gap); }
 svg.smap .sm-1, svg.smap .sm-2, svg.smap .sm-3, svg.smap .sm-4 { fill: var(--trained); stroke: var(--trained); stroke-width: 1.5; }
 svg.smap .sm-1 { fill-opacity: .18; } svg.smap .sm-2 { fill-opacity: .45; } svg.smap .sm-3 { fill-opacity: .72; } svg.smap .sm-4 { fill-opacity: 1; }
 svg.smap .sm-none { fill: var(--gap); stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
-svg.smap .bm-lbl { font-size: 12px; fill: var(--muted); }
+svg.smap .bm-lbl { font-size: 13.5px; fill: var(--muted); }
 .smleg i { display: inline-block; width: 14px; height: 14px; border-radius: 3px; margin-right: 6px; vertical-align: -2px; border: 1.5px solid var(--trained); position: relative; overflow: hidden; }
 .smleg i::before { content: ""; position: absolute; inset: 0; background: var(--trained); }
 .smleg .s1::before { opacity: .18; } .smleg .s2::before { opacity: .45; } .smleg .s3::before { opacity: .72; } .smleg .s4::before { opacity: 1; }
@@ -1046,6 +1048,7 @@ svg.smap .sm-ov, svg.smsw .sm-ov { stroke: none; }
 .pf-tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
 .pf-panel { display: grid; gap: 10px; align-content: start; }
 .pf-panel:focus-visible { outline: 3px solid var(--rep); outline-offset: 2px; }
+.pf-note { font-size: 14px; margin: 4px 0 0; }
 .pf-h { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-top: 12px; }
 .pf-panel > .pf-h:first-child { margin-top: 2px; }
 .pf-step { font-weight: 700; font-size: 15px; }
@@ -1118,6 +1121,7 @@ html:not(.booted) main.app { visibility: hidden; }
   <!-- TRAIN -->
   <section class="view" id="train" aria-labelledby="tab-train">
     <div class="view-head"><h1>Today</h1><button class="weekbtn" id="weekBtn" aria-haspopup="dialog"></button><button class="xbtn prof" id="profBtn" aria-label="Your profile and settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="4" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M4.5 20.5c1.2-3.8 4-5.5 7.5-5.5s6.3 1.7 7.5 5.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button></div>
+    <div id="setupCard"></div>
     <div id="bodyCard" class="bodycard"></div>
     <div class="band" id="band"></div>
     <div id="extras" class="view" style="gap:12px"></div>
@@ -1170,7 +1174,7 @@ html:not(.booted) main.app { visibility: hidden; }
 
   <!-- LOG: type, speak or snap a photo; coach answers here too -->
   <section class="view coach" id="coach" aria-labelledby="tab-coach" hidden>
-    <div class="view-head"><button class="tool back" data-back aria-label="Back"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg>Back</button><h1>Search &amp; log</h1><button class="weekbtn" id="cNew" hidden>Clear</button><button class="xbtn" id="cSet" aria-label="Gemini settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button></div>
+    <div class="view-head"><button class="tool back" data-back aria-label="Back"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg></button><h1>Search &amp; log</h1><button class="weekbtn" id="cNew" hidden>Clear</button><button class="xbtn" id="cSet" aria-label="Gemini settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button></div>
     <p class="c-off" id="cOff" role="status" hidden>Offline. Typed logs and search still work and save on this device. Photos wait until you’re back online.</p>
     <div class="card lgday" id="lgDay"></div>
     <div class="msgs" id="cMsgs" aria-live="polite"></div>
@@ -1187,7 +1191,7 @@ html:not(.booted) main.app { visibility: hidden; }
 
   <!-- GUIDE -->
   <section class="view" id="guide" aria-labelledby="tab-guide" hidden>
-    <div class="view-head"><button class="tool back" data-back aria-label="Back"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg>Back</button><h1>Guide</h1></div>
+    <div class="view-head"><button class="tool back" data-back aria-label="Back"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg></button><h1>Guide</h1></div>
     <p class="guide-intro">Each hold is followed by a rep exercise for the same muscles. The hold strengthens the tendon; the reps, taken close to failure, build muscle. Every exercise comes round twice a week. Each day is split into a morning and an evening session of about 20 to 35 minutes, 60 minutes at most.</p>
     <div class="gl" id="gl">
       <details><summary><span class="gh">Tendons like long, heavy tension</span><span class="sr-only">, </span><span class="gb">30–45 s</span><svg class="gc" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div class="gbody"><p>Tendons adapt to how hard and how long they are strained. Holds of 30–45 seconds at about 70% of your best effort raise tendon stiffness more than quick reps. Reviews of training studies find that holds at 70% effort or more make tendons stiffer and stronger, and holds at long muscle lengths build the most muscle. An early 6-person study suggested holds also relieve tendon pain instantly, but larger trials since then found ordinary reps work just as well for pain.</p></div></details>
@@ -3281,7 +3285,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (id === 'program') id = 'train'; if (id === 'method') id = 'guide';
     if (TABS.indexOf(id) < 0) id = 'train';
     current = id; clearToast(); if (typeof renderTools === 'function') { renderTools(); renderStartBar(); }
-    TABS.forEach(function (t) { $(t).hidden = t !== id; $('tab-' + t).setAttribute('aria-selected', String(t === id)); });
+    var home = id === 'coach' || id === 'guide' ? (typeof lastTab === 'string' ? lastTab : 'train') : id;
+    TABS.forEach(function (t) { $(t).hidden = t !== id; $('tab-' + t).setAttribute('aria-selected', String(t === id)); $('tab-' + t).classList.toggle('home', t === home && t !== id); });
     try { history.replaceState(history.state, '', '#' + id); } catch (e) { }
     if (!keepScroll) window.scrollTo(0, 0);
     if (id === 'exercises') ensureLib();
@@ -3717,7 +3722,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     return '<div class="rw' + (both ? ' off' : '') + '">' + (pn.area && !pn.skip ? '<span class="s miss">' + esc(areaName(pn.area).replace(/^./, function (c) { return c.toUpperCase(); })) + ' ' + esc(pn.score) + '/10: shorter holds, fewer reps, about 20% lighter today</span>' : '') + (md ? '<span class="s mod">' + esc(md) + '</span>' : '') + '<button class="row" data-ex="' + id + '">' + figSvg(h, 2) + '<span><span class="t">' + esc(h.name) + '</span>' +
       '<span class="s' + (o.h ? ' x' : '') + '"><span class="h">' + rx(h, ph) + (wh != null ? (wh ? ' at ' + kg(wh) : ', no weight') : '') + '</span></span>' +
       (sr ? '<span class="s miss">' + esc(g.name) + ' left out for ' + esc(sr) + '</span>' : '<span class="s' + (o.r ? ' x' : '') + '">Then <b>' + esc(g.name) + ' ' + (pn.area ? grx(g, ph).replace(/(×\s*)(\d+)/, function (m, x, n) { return x + Math.max(5, Math.round(n * 0.7)); }) : grx(g, ph)) + (wg != null ? (wg ? ' at ' + kg(wg) : ', no weight') : '') + '</b></span>') + (sh ? '<span class="s miss">Hold left out for ' + esc(sh) + '</span>' : '') + (h.missing ? '<span class="s miss">Hold left out: needs ' + esc(needsTxt(id, 'h')) + '</span>' : g.missing ? '<span class="s miss">Reps left out: needs ' + esc(needsTxt(id, 'g')) + '</span>' : '') + '</span></button>' +
-      (sk ? '<div class="tg" role="group" aria-label="Include in this session"><button data-tg="h" data-id="' + id + '" data-sk="' + sk + '" aria-pressed="' + !o.h + '">' + (o.h ? 'Hold skipped' : 'Hold') + '</button><button data-tg="r" data-id="' + id + '" data-sk="' + sk + '" aria-pressed="' + !o.r + '">' + (o.r ? 'Reps skipped' : 'Reps') + '</button>' +
+      (sk ? '<div class="tg" role="group" aria-label="Include in this session: ' + esc(h.name) + '"><button data-tg="h" data-id="' + id + '" data-sk="' + sk + '" aria-pressed="' + !o.h + '">' + (o.h ? 'Hold skipped' : 'Hold') + '</button><button data-tg="r" data-id="' + id + '" data-sk="' + sk + '" aria-pressed="' + !o.r + '">' + (o.r ? 'Reps skipped' : 'Reps') + '</button>' +
         (added ? '<button class="rm" data-rm="' + id + '" data-sk="' + sk + '">Remove</button>' : '') + '</div>' : '') + '</div>';
   }
   function cardioRow(segs, label) {
@@ -3884,7 +3889,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var wasOpen = !$('sheetWrap').hidden;
     $('sheetWrap').hidden = false; document.body.style.overflow = 'hidden';
     if (!wasOpen) { try { history.pushState({ sheet: 1 }, ''); sheetHist = true; } catch (e) { sheetHist = false; } }
-    $('sheetClose').focus();
+    var st = $('sheetTitle'); st.tabIndex = -1; st.focus();
   }
   function hideSheet() {
     if ($('sheetWrap').hidden) return;
@@ -5338,7 +5343,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   // A newer version is online: say so, instead of quietly running the old one until the next launch
   // dates follow the app's language (English), not the device's, so an English screen doesn't show "28 de octubre"
   var UIL = /^en\b/i.test(navigator.language || '') ? undefined : 'en-GB';
-  var APP_VERSION = '56';
+  var APP_VERSION = '57';
   // The saved copy (service worker) tells which version is already on the phone, and its ETag lets the check ask
   // "changed since?": an unchanged app is answered 304 with no body instead of the whole page on every launch.
   var savedVer = {};
@@ -7491,7 +7496,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       '<span class="pf-l">Units</span>' + chipSet('units', [['kg', 'Kilograms'], ['lb', 'Pounds'], ['st', 'Kilograms, stones for me']], p.units) +
       '<span class="pf-l">Diet</span>' + chipSet('diet', DIETS, p.diet);
     var train = '<h3 class="pf-h">Schedule</h3>' +
-      '<span class="pf-l">Days a week you can train</span>' + chipSet('days', [['2', '2'], ['3', '3'], ['4', '4'], ['5', '5'], ['6', '6']], String(p.days)) +
+      '<span class="pf-l">Days a week you can train</span>' + chipSet('days', [['2', '2'], ['3', '3'], ['4', '4'], ['5', '5'], ['6', '6']], String(p.days)) + '<p class="muted pf-note">2 to 6: one day can\u2019t cover every muscle safely, and every muscle needs at least one rest day a week. On other days a walk counts.</p>' +
       '<p class="muted pf-n" id="pfDaysN">' + daysNote(p.days) + '</p>' +
       '<span class="pf-l">Sessions a day</span>' + chipSet('split', [['two', 'Two short ones (morning + evening)'], ['one', 'One session']], split0) +
       '<span class="pf-l">Longest session</span>' + chipSet('len', [['15', '15 min'], ['25', '25 min'], ['45', '45 min'], ['0', 'Up to 60 min']], String(p.len || 0)) +
@@ -7866,7 +7871,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     // the last time you trained: a logged set, logged cardio, an extra lift, or a session you ticked done
     var lastT = Math.max(0, store.log.length ? store.log[store.log.length - 1].t : 0, (store.notes.filter(function (n) { return n.k === 'cardio' || n.k === 'lift'; }).pop() || {}).t || 0, Math.max.apply(null, [0].concat(Object.keys(store.done).map(function (k) { return typeof store.done[k] === 'number' ? store.done[k] : 0; })))), gap = lastT ? Math.floor((Date.now() - lastT) / 864e5) : 0;
     if (gap >= 5) h += '<div class="card nudge"><b>Welcome back</b><p>It’s been ' + gap + ' days. The plan picks up where you left off.' + (gap >= 10 ? ' After more than a week away, start with the short version or go about 20% lighter for your first two sessions.' : '') + '</p></div>';
-    if (!store.profile) h += '<div class="card nudge"><b>Make it yours</b><p>Set your diet, units, equipment (home or gym) and any joints to look after. It takes a minute.</p><button class="btn sm go" data-prof="1">Set up profile</button></div>';
+    $('setupCard').innerHTML = store.profile ? '' : '<div class="card nudge"><b>Make it yours</b><p>Set your diet, units, equipment (home or gym) and any joints to look after. It takes a minute.</p><button class="btn sm go" data-prof="1">Set up profile</button></div>';
     activePain().forEach(function (n) { h += '<div class="card warnc"><b>' + esc(areaName(n.area).replace(/^./, function (c) { return c.toUpperCase(); })) + ': ' + esc(n.score) + '/10 ' + (Date.now() - n.t < 864e5 ? 'today' : 'yesterday') + '</b><p>' + esc(painAdvice(n)[0]) + '</p></div>'; });
     var tips = [];
     if (p.issues.indexOf('bp') > -1) tips.push(['Blood pressure', 'Breathe steadily through every hold, never hold your breath, and keep holds at RPE 7 or below (effort 7 of 10: hard but steady, never straining). Stop if you feel dizzy or get a headache. Check heavy isometric work with your doctor.']);

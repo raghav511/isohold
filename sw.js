@@ -4,7 +4,7 @@
 // The app page is saved once, as "index.html" ("./", "index.html#…" and "index.html?…" are the same page). A new version's
 // install revalidates it (cache: "no-cache"): the server either confirms the copy the browser holds (304) or sends the new
 // one, so a stale copy is never saved and an unchanged page is not downloaded again.
-var C = "isohold-v56", PAGE = "index.html", F = ["manifest.json", "icon-180.png", "icon-192.png", "icon-512.png"];
+var C = "isohold-v57", PAGE = "index.html", F = ["manifest.json", "icon-180.png", "icon-192.png", "icon-512.png"];
 // First install only: the open page has just downloaded index.html, so ask it for that copy (Safari's service worker
 // can't see the page's HTTP cache and would download the whole page a second time). Updates always ask the server.
 function fromPage() {
