@@ -1,0 +1,30 @@
+{
+  "_about": "Speed budgets checked by tests/test-speed.js (Mid Android: Chromium Pixel 7, CPU 4x, Fast 4G). Source: tests/perf/BASELINE.md 'Proposed budgets'. kind=bytes budgets are exact; kind=time and kind=memory fail only when the median of 3 runs (memory: one run) is more than 10% over budget.",
+  "margin": 0.10,
+  "metrics": {
+    "warm":        { "label": "warm",        "budget": 600,  "unit": "ms", "kind": "time",  "how": "Second visit, service worker installed: navigation start to the first tap (Today tab) painted after the app is ready. Median of 3." },
+    "cold":        { "label": "cold",        "budget": 2500, "unit": "ms", "kind": "time",  "how": "New profile, empty cache, gzip server: navigation start to the first tap painted. Median of 3." },
+    "coldFcp":     { "label": "fcp",         "budget": 1000, "unit": "ms", "kind": "time",  "how": "Cold load first-contentful-paint. Median of 3." },
+    "coldLcp":     { "label": "lcp",         "budget": 2500, "unit": "ms", "kind": "time",  "how": "Cold load largest-contentful-paint. Median of 3." },
+    "loadTask":    { "label": "loadTask",    "budget": 200,  "unit": "ms", "kind": "time",  "how": "Longest task (Long Tasks API) during the cold load, up to 500 ms after usable. Median of 3." },
+    "gzip":        { "label": "gzip",        "budget": 358400, "unit": "B", "kind": "bytes", "how": "index.html gzip level 6 (like GitHub Pages), computed from the file. Budget 350 KB." },
+    "firstVisit":  { "label": "1stVisit",    "budget": 409600, "unit": "B", "kind": "bytes", "how": "All response bytes the gzip server sends on a first visit, including the service worker install, until requests are quiet. Budget 400 KB." },
+    "warmBg":      { "label": "warmBg",      "budget": 5120, "unit": "B", "kind": "bytes", "how": "All response bytes on a warm launch, including the background refresh and the version check (waits 7 s). Budget 5 KB." },
+    "tap":         { "label": "tap",         "budget": 100,  "unit": "ms", "kind": "time",  "how": "Simple taps (exercise sheet open/close, Search, Progress Muscles, Today, Profile, Backup tab, session next x2): worst tap per run, median of 3 runs. Tap = pointerdown to next paint after handlers." },
+    "exercises":   { "label": "exercises",   "budget": 200,  "unit": "ms", "kind": "time",  "how": "Open Exercises tab the first time. Median of 3." },
+    "progress":    { "label": "progress",    "budget": 200,  "unit": "ms", "kind": "time",  "how": "Open Progress tab (seed data). Median of 3." },
+    "session":     { "label": "session",     "budget": 200,  "unit": "ms", "kind": "time",  "how": "Today: Start session. Median of 3." },
+    "restore":     { "label": "restore",     "budget": 200,  "unit": "ms", "kind": "time",  "how": "Profile, Backup: Restore the current code (seed data). Median of 3." },
+    "meal":        { "label": "meal",        "budget": 150,  "unit": "ms", "kind": "time",  "how": "Search & log: type '2 eggs and a bowl of oatmeal', Enter (first meal of the page load), key to next paint. Median of 3." },
+    "progress10x": { "label": "progress10x", "budget": 300,  "unit": "ms", "kind": "time",  "how": "Open Progress with 10x data (about 10 months). Median of 3." },
+    "backup10x":   { "label": "backup10x",   "budget": 100,  "unit": "ms", "kind": "time",  "how": "Profile: Backup tab with 10x data. Median of 3." },
+    "restore10x":  { "label": "restore10x",  "budget": 500,  "unit": "ms", "kind": "time",  "how": "Restore with 10x data. Median of 3." },
+    "search100x":  { "label": "search100x",  "budget": 50,   "unit": "ms", "kind": "time",  "how": "Search & log typing 'squat' with 100x data (state over the storage quota, loaded via __ISOHOLD_STATE): worst key per run, median of 3." },
+    "progress100x":{ "label": "progress100x","budget": 1000, "unit": "ms", "kind": "time",  "how": "Open Progress with 100x data (about 8 years). Median of 3." },
+    "ai":          { "label": "ai",          "budget": 100,  "unit": "ms", "kind": "time",  "how": "Coach question with mocked streaming Gemini: Enter to first words painted, minus the measured first-byte delay (600 ms mock). Median of 3." },
+    "aiPaint":     { "label": "aiPaint",     "budget": 50,   "unit": "ms", "kind": "time",  "how": "Same run: first byte to first words painted. Median of 3." },
+    "heap":        { "label": "heap",        "budget": 40,   "unit": "MB", "kind": "memory","how": "JS heap after GC at the end of a short scripted loop (scaled stand-in for the 10-minute session; see the loop count in the output)." },
+    "heapGrowth":  { "label": "heapGrowth",  "budget": 5,    "unit": "MB", "kind": "memory","how": "JS heap after GC: end of the loop minus after the first 2 warm-up loops (stand-in for 'growth after the first minute')." },
+    "dom":         { "label": "dom",         "budget": 8000, "unit": "nodes", "kind": "memory","how": "Elements in the document at the end of the loop." }
+  }
+}
