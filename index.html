@@ -662,6 +662,14 @@ details.how .gbody { display: grid; gap: 10px; font-size: 15px; }
 .pchips button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .pf-sw { display: flex !important; grid-template-columns: none; align-items: center; gap: 10px !important; font-weight: 400 !important; font-size: 15px !important; margin-top: 6px; }
 .pf-sw input { width: 22px; height: 22px; flex: none; }
+.pf-sw { min-height: 44px; }
+.pf-rng { display: grid; gap: 2px; margin-top: 2px; font-size: 15px; }
+.pf-rng span { display: flex; justify-content: space-between; }
+.pf-rng output { color: var(--mut, inherit); font-variant-numeric: tabular-nums; }
+.pf-rng input { width: 100%; min-height: 44px; margin: 0; accent-color: currentColor; }
+.pf-rng input:disabled { opacity: .4; }
+.pf-more { margin-top: 14px; display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: 14px; }
+.pf-more h3 { font-size: 15px; color: var(--muted); }
 /* player voice */
 .p-head .xbtn#pMic[aria-pressed="true"] { background: var(--hold); color: var(--hold-ink); border-radius: 50%; }
 .p-head .xbtn#pMic svg { width: 24px; height: 24px; }
@@ -7099,7 +7107,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
   var pv = { on: false, r: null, speaking: 0 };
   function say(t) {
     if (!window.speechSynthesis || !t) return;
-    try { speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance(t); u.rate = 1.05; u.lang = navigator.language || 'en-US'; pv.said = t.toLowerCase(); pv.speaking = Date.now() + 1500 + t.length * 80; u.onend = function () { pv.speaking = Date.now() + 1200; }; speechSynthesis.speak(u); } catch (e) { }
+    var vv = sndP().voice; if (!vv) return;
+    try { speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance(t); u.volume = vv / 100; u.rate = 1.05; u.lang = navigator.language || 'en-US'; pv.said = t.toLowerCase(); pv.speaking = Date.now() + 1500 + t.length * 80; u.onend = function () { pv.speaking = Date.now() + 1200; }; speechSynthesis.speak(u); } catch (e) { }
   }
   function cuesOn() { return pv.on || prof().cues; }
   // The progression hint, spoken at most once per exercise in a session. "At your heaviest: lower over 4 seconds…" is the same advice for
@@ -7245,6 +7254,13 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) || !!p.calm;
   }
   applyTheme(pfTheme());
+  // Sound: effects volume 0-100 (default 60) or off, spoken-cue volume 0-100 (default 100); kept in the profile and the backup
+  var AC = null, MG = null;
+  try { if (navigator.audioSession) navigator.audioSession.type = 'ambient'; } catch (e) { }
+  function sndP() { var p = store.profile || {}; return { on: !p.sfxOff, vol: p.sfx == null ? 60 : +p.sfx, voice: p.voice == null ? 100 : +p.voice }; }
+  function sndOn() { var s = sndP(); return s.on && s.vol > 0; }
+  function applySnd() { try { if (MG) MG.gain.value = sndOn() ? sndP().vol / 100 : 0; } catch (e) { } }
+  function setSnd(k, v) { var o = {}; o[k] = v; store.profile = Object.assign({}, store.profile || { skipped: 1 }, o); save(); applySnd(); }
   function setLook(k, v) { var o = {}; o[k] = v; store.profile = Object.assign({}, store.profile || { skipped: 1 }, o); save(); applyLook(); renderAll(); }
   var PF_TABS = [['you', 'You'], ['train', 'Training'], ['look', 'Look'], ['ai', 'AI'], ['backup', 'Backup']], pfFrom = null;
   // tab: 'you' (default), 'train', 'look', 'ai' or 'backup'. first: a short guided setup (You, then Training)
@@ -7284,10 +7300,16 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       '<label class="pf-sw"><input type="checkbox" id="pfPost"' + (p.posture || p.stab !== false ? ' checked' : '') + '><span>Back and stabilizer add-on on the two cardio days: rows, rear delts, rotator cuff, lower traps, knee-bend hamstrings and shins (moderate or limited evidence)</span></label>' +
       '<span class="pf-l">Anything to be careful with?</span>' + chipSet('issues', ISSUES, p.issues, true) +
       '<label class="pf-sw"><input type="checkbox" id="pfFloor"' + (p.nofloor ? ' checked' : '') + '><span>Getting down to the floor is hard for me: leave out floor exercises</span></label></div></details>';
-    var look = '<span class="pf-l">Theme</span>' + chipSet('theme', [['auto', 'Match phone'], ['light', 'Light'], ['dark', 'Dark']], pfTheme()) +
+    var snd = sndP(), look = '<span class="pf-l">Theme</span>' + chipSet('theme', [['auto', 'Match phone'], ['light', 'Light'], ['dark', 'Dark']], pfTheme()) +
       '<p class="muted pf-n">Match phone follows your phone’s light or dark setting. The theme is kept on this device only.</p>' +
       '<label class="pf-sw"><input type="checkbox" id="pfBig"' + (p.big ? ' checked' : '') + '><span>Larger text and buttons</span></label>' +
       '<label class="pf-sw"><input type="checkbox" id="pfCalm"' + (store.profile && store.profile.calm ? ' checked' : '') + '><span>Less motion: no animated figures or transitions</span></label>' +
+      '<h3 class="pf-h">Sound</h3><div role="group" aria-label="Sound" class="pf-snd">' +
+      '<label class="pf-sw"><input type="checkbox" id="pfSfx"' + (snd.on ? ' checked' : '') + '><span>Sound effects (timer beeps and rep ticks)</span></label>' +
+      '<label class="pf-rng"><span>Effects volume <output id="pfSfxV" for="pfSfxVol">' + snd.vol + '%</output></span><input type="range" id="pfSfxVol" min="0" max="100" step="5" value="' + snd.vol + '" aria-valuetext="' + snd.vol + '%"' + (snd.on ? '' : ' disabled') + '></label>' +
+      '<label class="pf-sw"><input type="checkbox" id="pfVoice"' + (p.cues ? ' checked' : '') + '><span>Spoken cues</span></label>' +
+      '<label class="pf-rng"><span>Voice volume <output id="pfVoiceV" for="pfVoiceVol">' + snd.voice + '%</output></span><input type="range" id="pfVoiceVol" min="0" max="100" step="5" value="' + snd.voice + '" aria-valuetext="' + snd.voice + '%"></label>' +
+      '<p class="muted pf-n">Your phone’s volume buttons turn these up and down too. On iPhone, the silent switch mutes the beeps and they play alongside your music.</p></div>' +
       '<h3 class="pf-h">App</h3><div class="bk-row"><button class="btn sm line" id="pfInstall">Install on your phone</button></div>';
     var h = (first ? '<p class="muted">A minute of setup so the plan, weights and food tracking fit you. Everything stays on this device. You can change it any time from the profile button at the top right.</p><p class="pf-step" id="pfStep">Step 1 of 2: about you</p>' :
       '<div class="pf-tabs" role="tablist" aria-label="Profile sections">' + PF_TABS.map(function (t) { var on = t[0] === tab; return '<button type="button" role="tab" id="pfTab-' + t[0] + '" data-tab="' + t[0] + '" aria-controls="pfP-' + t[0] + '" aria-selected="' + on + '" tabindex="' + (on ? 0 : -1) + '">' + t[1] + '</button>'; }).join('') + '</div>') +
@@ -7321,10 +7343,20 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       var i = PF_TABS.map(function (t) { return t[0]; }).indexOf(e.target.dataset.tab), n = PF_TABS.length, j = e.key === 'ArrowRight' ? (i + 1) % n : e.key === 'ArrowLeft' ? (i + n - 1) % n : e.key === 'Home' ? 0 : e.key === 'End' ? n - 1 : -1;
       if (i < 0 || j < 0) return; e.preventDefault(); showTab(PF_TABS[j][0], true);
     });
+    body.addEventListener('input', function (e) {
+      var t = e.target, o = t.id === 'pfSfxVol' ? $('pfSfxV') : t.id === 'pfVoiceVol' ? $('pfVoiceV') : null;
+      if (!o) return; o.textContent = t.value + '%'; t.setAttribute('aria-valuetext', t.value + '%');
+      if (t.id === 'pfSfxVol' && MG) try { MG.gain.value = +t.value / 100; } catch (x) { }
+    });
     body.addEventListener('change', function (e) {
       var t = e.target;
       if (t.id === 'pfBig') { setLook('big', t.checked); msg('pfOk', 'Saved.', 'ok'); return; }
       if (t.id === 'pfCalm') { setLook('calm', t.checked); msg('pfOk', 'Saved.', 'ok'); return; }
+      if (t.id === 'pfSfx') { setSnd('sfxOff', !t.checked); $('pfSfxVol').disabled = !t.checked; if (audioUp()) tick(); msg('pfOk', 'Saved.', 'ok'); return; }
+      if (t.id === 'pfSfxVol') { setSnd('sfx', +t.value); if (audioUp()) tick(); msg('pfOk', 'Saved.', 'ok'); return; }
+      if (t.id === 'pfVoiceVol') { setSnd('voice', +t.value); msg('pfOk', 'Saved.', 'ok'); return; }
+      if (t.id === 'pfVoice') { $('pfCues').checked = t.checked; autosave(); return; }
+      if (t.id === 'pfCues' && $('pfVoice')) $('pfVoice').checked = t.checked;
       if (t.closest('[data-panel="you"], [data-panel="train"]')) autosave();
     });
     body.addEventListener('click', function (e) {
@@ -7395,6 +7427,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       var old = store.profile || {};
       store.profile = { name: $('pfName').value.trim().slice(0, 40), age: isNaN(age) ? null : age, sex: state.sex, cm: cm, bw: bwKg ? r1(bwKg) : null, units: state.units, diet: state.diet, where: state.where, cardio: state.cardio.length ? state.cardio : ['outdoors'], issues: state.issues, cues: $('pfCues').checked, split: state.split, goal: state.goal, pace: state.pace, posture: $('pfPost').checked, stab: $('pfPost').checked, days: +state.days, len: +state.len, dayHour: +state.dayHour, nofloor: $('pfFloor').checked, big: !!old.big, inv: { k: $('pfInvK').value.trim(), d: $('pfInvD').value.trim(), b: $('pfInvB').value.trim() } };
       if (old.calm) store.profile.calm = true;
+      ['sfx', 'sfxOff', 'voice'].forEach(function (k) { if (old[k] != null) store.profile[k] = old[k]; });
       ['k', 'd', 'b'].forEach(function (e) { if (!store.profile.inv[e]) delete store.profile.inv[e]; });
       if ($('pfBw').value.trim() === bwShown && bodyKg()) { bwKg = bodyKg(); store.profile.bw = bwKg; }
       else if (bwKg && (!store.body.length || Math.abs(store.body[store.body.length - 1].kg - bwKg) > 0.05)) store.body.push({ t: Date.now(), kg: Math.round(bwKg * 1000) / 1000 });
@@ -7804,16 +7837,30 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     return [R[0], g.lab ? g.lab[1] : g.mode === 'time' ? 'Walk' : 'Reset'];
   }
   // ---------- player ----------
-  var P = null, AC = null, WL = null;
+  var P = null, WL = null;
+  // Sounds: one AudioContext through one master gain, so they play as normal media (the phone's volume buttons scale them,
+  // the iPhone silent switch mutes them via audioSession 'ambient'). Every sound is a soft sine with a short fade in and out.
+  // No AudioContext is made while sound effects are off.
+  function audioUp() {
+    if (!sndOn()) return null;
+    try {
+      if (!AC) { AC = new (window.AudioContext || window.webkitAudioContext)(); MG = AC.createGain(); MG.connect(AC.destination); }
+      if (AC.state === 'suspended') AC.resume();
+      applySnd();
+    } catch (e) { }
+    return AC;
+  }
   function beep(f, d, vol) {
     try {
-      if (!AC) return;
-      var o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime;
+      if (!AC || !MG || !sndOn()) return;
+      var o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime, pk = Math.min(vol || 0.08, 0.1);
       o.type = 'sine'; o.frequency.value = f;
-      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol || 0.3, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
-      o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + d + 0.03);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(pk, t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + d); g.gain.setValueAtTime(0, t + d + 0.005);
+      o.connect(g); g.connect(MG); o.start(t); o.stop(t + d + 0.02);
     } catch (e) { }
   }
+  // a quiet tap, like a keyboard click: very short, high and soft
+  function tick() { beep(1600, 0.03, 0.05); }
   function fmt(s) { s = Math.max(0, Math.ceil(s)); return s >= 100 ? Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2) : String(s); }
   function startSession(dayId, part, replaceHist) {
     var day = allDays().filter(function (d) { return d.id === dayId; })[0], ph = phaseOf(store.week);
@@ -7824,10 +7871,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     $('pConfirm').hidden = true;
     // Sound: Safari and Firefox need it made inside the tap; Chromium lets a page the user has tapped start it a moment later,
     // so there it's made after the player is on screen (making one can take a long while). The first beep is seconds away.
-    var mkAC = function () { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) { } };
-    if (AC || !navigator.userAgentData) mkAC(); else requestAnimationFrame(function () { setTimeout(mkAC, 0); });
-    // iPhone: let beeps play with the silent switch on (Safari 17+), keep the screen on
-    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { }
+    // (The silent switch is honoured: the audio session is set to 'ambient' at start-up.)
+    if (AC || !navigator.userAgentData) audioUp(); else requestAnimationFrame(function () { setTimeout(audioUp, 0); });
     keepAwake();
     $('player').hidden = false; document.body.style.overflow = 'hidden';
     native({ type: 'awake', on: true });
@@ -7841,9 +7886,9 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var it = P.q[P.i];
     P.stage = stage; P.t0 = performance.now(); P.lastSec = null; P.lastRep = 0; if (stage === 'ready') P.pendingV = null;
     P.dur = stage === 'ready' ? readyDur(it) : stage === 'work' ? it.dur : it.after;
-    if (stage === 'work') { beep(it.kind === 'cardio' && it.effort !== 'Hard' ? 700 : 880, 0.35); haptic('medium'); }
+    if (stage === 'work') { beep(it.kind === 'cardio' && it.effort !== 'Hard' ? 660 : 784, 0.3, 0.09); haptic('medium'); }
     if (stage === 'rest' || stage === 'switch') haptic('light');
-    if (stage === 'rest' || stage === 'switch') { beep(660, 0.15); setTimeout(function () { beep(660, 0.15); }, 200); }
+    if (stage === 'rest' || stage === 'switch') { beep(587, 0.14, 0.07); setTimeout(function () { beep(587, 0.14, 0.07); }, 200); }
     paint(); voiceCue(stage); saveRun();
   }
   // where you are in a session, so it can be resumed if the phone kills the tab
@@ -7885,7 +7930,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     unlog(it); store.log.push(e); it.logged = e;
     setTimeout(renderBody, 0); // the Today body map fills in as each set is saved
     if (pv.on) say('Logged ' + setTxt(e).replace(/ × /g, ' for ').replace(/\bkg\b/, 'kilos').replace(/\blb\b/, 'pounds').replace(/(\d+) s\b/, '$1 seconds') + (isPB(e) ? '. New best!' : ''));
-    if (isPB(e) && !P.pbs[it.id + it.wk]) { P.pbs[it.id + it.wk] = 1; haptic('success'); beep(988, .12); setTimeout(function () { beep(1319, .2); }, 130); }
+    if (isPB(e) && !P.pbs[it.id + it.wk]) { P.pbs[it.id + it.wk] = 1; haptic('success'); beep(988, .12, .07); setTimeout(function () { beep(1319, .2, .07); }, 130); }
     if (store.log.length > 4000) store.log.splice(0, store.log.length - 4000);
     save();
   }
@@ -7902,7 +7947,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       // the minutes this session actually took, on its first part (one session covering the whole day: 'am' holds it all)
       dKeys.forEach(function (k, i) { store.done[k] = Date.now(); store.cmin[k] = i ? 0 : Math.round((P.cardioS || 0) / 60); store.took[k] = i ? 0 : took0; }); } save();
     var wk0 = store.week; P.wk0 = wk0; if (anyLogged) { moreDay = 0; checkWeek(dKeys); } if (store.week === wk0) selDay = nextDayIdx();
-    P.stage = 'done'; setTimeout(function () { $('pRingBtn').setAttribute('aria-label', 'Close the session'); $('pClose').focus(); }, 50); beep(523, .2); setTimeout(function () { beep(784, .4); }, 220);
+    P.stage = 'done'; setTimeout(function () { $('pRingBtn').setAttribute('aria-label', 'Close the session'); $('pClose').focus(); }, 50); beep(523, .2, .08); setTimeout(function () { beep(784, .4, .08); }, 220);
     $('pPhase').textContent = 'Done'; $('pPhase').className = 'p-phase rest';
     $('pName').textContent = anyLogged ? 'Session complete' : P.walkLogged ? 'Walk logged' : 'Nothing logged';
     $('pTime').textContent = '✓'; $('pTime').className = ''; $('pRing').style.strokeDashoffset = 0;
@@ -8063,7 +8108,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       var rd = repDur(it.ex), rep = Math.min(it.reps, Math.floor(el / rd) + 1);
       setTxt0($('pTime'), String(rep)); $('pTime').className = '';
       frac = 1 - Math.min(1, el / (it.reps * rd));
-      if (rep !== P.lastRep) { P.lastRep = rep; if (rep > 1) beep(520, 0.08, 0.15); }
+      if (rep !== P.lastRep) { P.lastRep = rep; if (rep > 1) tick(); }
       if ($('pPhase').textContent !== 'Reps') $('pPhase').textContent = 'Reps';
       setCue(P.repLabel || 'Go', tempoShort(it.ex), 'rep');
     } else if (selfPaced() && P.stage !== 'work') {
@@ -8073,7 +8118,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       frac = P.dur ? left / P.dur : 0;
       if (sec !== P.lastSec) {
         P.lastSec = sec;
-        if ((P.stage === 'ready' || P.stage === 'work') && sec <= 3 && sec > 0) beep(P.stage === 'work' ? 520 : 440, 0.12);
+        if ((P.stage === 'ready' || P.stage === 'work') && sec <= 3 && sec > 0) beep(P.stage === 'work' ? 523 : 440, 0.1, 0.06);
         $('pDay').textContent = P.head + ', ' + Math.ceil((qSecs(P.q, P.i + 1) + (P.stage === 'ready' ? it.dur + it.after : P.stage === 'work' ? it.after : 0) + left) / 60) + ' min left';
       }
     }
@@ -8218,7 +8263,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
       put(pf, 'goal', one(p0.goal, ['build', 'keep', 'lose'])); put(pf, 'pace', one(p0.pace, ['auto', 'self'])); put(pf, 'split', one(p0.split, ['one', 'two']));
       put(pf, 'cardio', list(p0.cardio, ids(CARDIO_OPTS))); put(pf, 'issues', list(p0.issues, ids(ISSUES)));
       put(pf, 'days', inRange(p0.days, 1, 7)); put(pf, 'len', one(N(p0.len), [0, 15, 25, 45])); put(pf, 'dayHour', inRange(p0.dayHour, 0, 23));
-      ['cues', 'posture', 'stab', 'nofloor', 'big', 'calm'].forEach(function (k) { if (p0[k] != null) pf[k] = !!p0[k]; }); if (p0.skipped) pf.skipped = 1;
+      ['cues', 'posture', 'stab', 'nofloor', 'big', 'calm', 'sfxOff'].forEach(function (k) { if (p0[k] != null) pf[k] = !!p0[k]; }); if (p0.skipped) pf.skipped = 1;
+      put(pf, 'sfx', inRange(p0.sfx, 0, 100)); put(pf, 'voice', inRange(p0.voice, 0, 100)); ['sfx', 'voice'].forEach(function (k) { if (pf[k] != null) pf[k] = Math.round(pf[k]); });
       if (obj(p0.inv)) { pf.inv = {}; ['k', 'd', 'b'].forEach(function (k) { if (p0.inv[k]) pf.inv[k] = S(p0.inv[k], 40); }); }
       ['age', 'cm', 'days', 'dayHour'].forEach(function (k) { if (pf[k] != null) pf[k] = Math.round(pf[k]); });
     }
