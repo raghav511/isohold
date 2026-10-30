@@ -4611,8 +4611,8 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     // endurance: each hold against the typical hold time for that joint at the same share of your max (100 = typical)
     var end = [], eseen = {};
     log.slice().reverse().forEach(function (l) {
-      if (l.k !== 'h' || !(l.kg > 0) || !(l.v > 0)) return; var key = l.id + '|' + l.eq; if (eseen[key]) return;
-      var mx = curMaxEx(l.id, 'r', l.eq); if (!mx || !mx.e) return; eseen[key] = 1;
+      if (l.k !== 'h' || !(l.kg > 0) || !(l.v > 0)) return; var key = l.id + '|' + l.eq; if (eseen[key]) return; eseen[key] = 1;
+      var mx = curMaxEx(l.id, 'r', l.eq); if (!mx || !mx.e) return;
       var f = l.kg / mx.e; if (f < 0.2 || f > 0.95) return;
       var c = ET[JOINT[l.id] || 'general'], typical = c[0] * Math.pow(f, c[1]);
       end.push({ name: lvName(l.id, 'h', l.eq), pct: Math.round(f * 100), v: l.v, typical: Math.round(typical), score: Math.round(l.v / typical * 100) });
@@ -4626,14 +4626,14 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     if (!rows.length && !end.length) { el.innerHTML = '<h2>Your level</h2><p class="lv-sub">Log a few sets of a squat, deadlift, press, row or curl and your level shows here.</p>'; return; }
     el.innerHTML = '<h2>Your level</h2>' +
       '<div class="lv-sum"><div><small>Strength</small><b>' + (overall != null ? LEVELS[overall] : '—') + '</b><span>for a ' + esc(who) + '</span></div>' +
-      '<div><small>Endurance</small><b>' + (endIdx != null ? endIdx : '—') + '</b><span>100 = typical hold time</span></div></div>' +
+      '<div><small>Endurance</small><b>' + (endIdx != null ? endIdx : '—') + '</b><span>100 = typical hold time</span></div></div>' + '<details class="lv-more"><summary>Each lift and hold</summary>' +
       (rows.length ? '<h3 class="lv-h">Strength by lift</h3><ul class="lv-list" aria-label="Strength level by lift">' + rows.map(function (r) {
         return '<li><div class="lv-row"><b>' + esc(r.name) + '</b><span class="lv-chip">' + LEVELS[r.lv] + '</span></div>' + bar(r) +
           '<span class="lv-sub">Max about ' + kg(Math.round(r.total * 2) / 2) + (r.gain != null ? ', ' + (r.gain >= 0 ? '+' : '') + r.gain + '% since you started' : '') + '</span></li>';
       }).join('') + '</ul>' : '') +
       (end.length ? '<h3 class="lv-h">Endurance by hold</h3><ul class="lv-list" aria-label="Endurance by hold">' + end.slice(0, 5).map(function (e) {
         return '<li><div class="lv-row"><b>' + esc(e.name) + '</b><span class="lv-chip">' + e.score + '</span></div><span class="lv-sub">' + e.v + ' s at ' + e.pct + '% of your max; typical for that joint and effort: ' + e.typical + ' s</span></li>';
-      }).join('') + '</ul>' : '') +
+      }).join('') + '</ul>' : '') + '</details>' +
       '<p class="lv-sub">You’ve trained for ' + weeks + (weeks === 1 ? ' week' : ' weeks') + '. ' + (weeks < 26 ? 'In the first months strength rises fast, mostly from learning the movement; expect it to slow after about six months.' : 'After the first year progress is slower and steadier.') + '</p>' +
       '<details><summary>How this is worked out</summary><ol>' +
       '<li>Your max for each lift comes from your heaviest recent set: weight × (1 + reps ÷ 30), for sets of 12 reps or fewer.</li>' +
