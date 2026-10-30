@@ -3461,7 +3461,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     svg.style.maxHeight = ''; if (bar.hidden || current !== 'train') return;
     var last = card.lastElementChild, lb = last.getBoundingClientRect().bottom + window.scrollY;
     var stuck = window.innerHeight - (parseFloat(getComputedStyle(bar).bottom) || 0) - bar.offsetHeight, over = lb - stuck + 8;
-    if (over > 0) svg.style.maxHeight = Math.max(180, svg.getBoundingClientRect().height - over) + 'px';
+    if (over > 0) svg.style.maxHeight = Math.max(160, svg.getBoundingClientRect().height - over) + 'px';
   }
   window.addEventListener('resize', function () { if (typeof fitMap === 'function') fitMap(); });
   document.addEventListener('click', function (e) {
