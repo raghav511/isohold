@@ -1,0 +1,1407 @@
+{
+ "build": "old",
+ "when": "2026-10-30T10:05:25.197Z",
+ "runs": 3,
+ "ai": {
+  "profile": "mid",
+  "firstByteDelayMs": 600,
+  "open": {
+   "sendPaint": {
+    "median": 281.6,
+    "p90": 402.9,
+    "max": 433.2,
+    "n": 3
+   },
+   "thinkPaint": {
+    "median": 275.4,
+    "p90": 377.2,
+    "max": 402.7,
+    "n": 3
+   },
+   "called": true,
+   "jsonCalled": false,
+   "sendToFetch": {
+    "median": 173.2,
+    "p90": 251.1,
+    "max": 270.6,
+    "n": 3
+   },
+   "firstWord": {
+    "median": 818.9,
+    "p90": 907.1,
+    "max": 929.2,
+    "n": 3
+   },
+   "overhead": {
+    "median": 208.5,
+    "p90": 296.1,
+    "max": 318,
+    "n": 3
+   },
+   "firstByteToPaint": {
+    "median": 35.3,
+    "p90": 45,
+    "max": 47.4,
+    "n": 3
+   },
+   "allPainted": {
+    "median": 1735.7,
+    "p90": 1814.5,
+    "max": 1834.2,
+    "n": 3
+   },
+   "cardPaint": {
+    "median": null,
+    "p90": null,
+    "max": null,
+    "n": 0
+   },
+   "jsonOverhead": {
+    "median": null,
+    "p90": null,
+    "max": null,
+    "n": 0
+   },
+   "body": {
+    "median": 13499,
+    "p90": 13499,
+    "max": 13499,
+    "n": 3
+   },
+   "sys": {
+    "median": 6478,
+    "p90": 6478,
+    "max": 6478,
+    "n": 3
+   },
+   "hist": {
+    "median": 6943,
+    "p90": 6943,
+    "max": 6943,
+    "n": 3
+   },
+   "turns": {
+    "median": 19,
+    "p90": 19,
+    "max": 19,
+    "n": 3
+   },
+   "url": "gemini-3.8-flash:streamGenerateContent",
+   "longest": {
+    "median": 255,
+    "p90": 344.6,
+    "max": 367,
+    "n": 3
+   }
+  },
+  "repeat": {
+   "sendPaint": {
+    "median": 133.3,
+    "p90": 173.5,
+    "max": 183.6,
+    "n": 3
+   },
+   "thinkPaint": {
+    "median": 108.9,
+    "p90": 130.5,
+    "max": 135.9,
+    "n": 3
+   },
+   "called": true,
+   "jsonCalled": false,
+   "sendToFetch": {
+    "median": 13.3,
+    "p90": 13.6,
+    "max": 13.7,
+    "n": 3
+   },
+   "firstWord": {
+    "median": 637.3,
+    "p90": 637.6,
+    "max": 637.7,
+    "n": 3
+   },
+   "overhead": {
+    "median": 33.7,
+    "p90": 35.2,
+    "max": 35.6,
+    "n": 3
+   },
+   "firstByteToPaint": {
+    "median": 20,
+    "p90": 27.8,
+    "max": 29.8,
+    "n": 3
+   },
+   "allPainted": {
+    "median": 1572.7,
+    "p90": 1596.2,
+    "max": 1602.1,
+    "n": 3
+   },
+   "cardPaint": {
+    "median": null,
+    "p90": null,
+    "max": null,
+    "n": 0
+   },
+   "jsonOverhead": {
+    "median": null,
+    "p90": null,
+    "max": null,
+    "n": 0
+   },
+   "body": {
+    "median": 13464,
+    "p90": 13464,
+    "max": 13464,
+    "n": 3
+   },
+   "sys": {
+    "median": 6478,
+    "p90": 6478,
+    "max": 6478,
+    "n": 3
+   },
+   "hist": {
+    "median": 6908,
+    "p90": 6908,
+    "max": 6908,
+    "n": 3
+   },
+   "turns": {
+    "median": 19,
+    "p90": 19,
+    "max": 19,
+    "n": 3
+   },
+   "url": "gemini-3.8-flash:streamGenerateContent",
+   "longest": {
+    "median": 80,
+    "p90": 97.6,
+    "max": 102,
+    "n": 3
+   }
+  },
+  "open2": {
+   "sendPaint": {
+    "median": 113.4,
+    "p90": 143.7,
+    "max": 151.3,
+    "n": 3
+   },
+   "thinkPaint": {
+    "median": 92.7,
+    "p90": 120.2,
+    "max": 127.1,
+    "n": 3
+   },
+   "called": true,
+   "jsonCalled": false,
+   "sendToFetch": {
+    "median": 15.7,
+    "p90": 18.7,
+    "max": 19.4,
+    "n": 3
+   },
+   "firstWord": {
+    "median": 646.3,
+    "p90": 650.4,
+    "max": 651.4,
+    "n": 3
+   },
+   "overhead": {
+    "median": 43,
+    "p90": 48.6,
+    "max": 50,
+    "n": 3
+   },
+   "firstByteToPaint": {
+    "median": 30.9,
+    "p90": 33.6,
+    "max": 34.3,
+    "n": 3
+   },
+   "allPainted": {
+    "median": 1565.7,
+    "p90": 1575,
+    "max": 1577.3,
+    "n": 3
+   },
+   "cardPaint": {
+    "median": null,
+    "p90": null,
+    "max": null,
+    "n": 0
+   },
+   "jsonOverhead": {
+    "median": null,
+    "p90": null,
+    "max": null,
+    "n": 0
+   },
+   "body": {
+    "median": 13453,
+    "p90": 13453,
+    "max": 13453,
+    "n": 3
+   },
+   "sys": {
+    "median": 6478,
+    "p90": 6478,
+    "max": 6478,
+    "n": 3
+   },
+   "hist": {
+    "median": 6897,
+    "p90": 6897,
+    "max": 6897,
+    "n": 3
+   },
+   "turns": {
+    "median": 19,
+    "p90": 19,
+    "max": 19,
+    "n": 3
+   },
+   "url": "gemini-3.8-flash:streamGenerateContent",
+   "longest": {
+    "median": 70,
+    "p90": 89.2,
+    "max": 94,
+    "n": 3
+   }
+  },
+  "log": {
+   "sendPaint": {
+    "median": 1948.6,
+    "p90": 2528.9,
+    "max": 2674,
+    "n": 3
+   },
+   "thinkPaint": {
+    "median": 1939.8,
+    "p90": 2515.2,
+    "max": 2659.1,
+    "n": 3
+   },
+   "called": false,
+   "jsonCalled": true,
+   "sendToFetch": {
+    "median": 1905.8,
+    "p90": 2455.5,
+    "max": 2592.9,
+    "n": 3
+   },
+   "firstWord": {
+    "median": null,
+    "p90": null,
+    "max": null,
+    "n": 0
+   },
+   "overhead": {
+    "median": null,
+    "p90": null,
+    "max": null,
+    "n": 0
+   },
+   "firstByteToPaint": {
+    "median": null,
+    "p90": null,
+    "max": null,
+    "n": 0
+   },
+   "allPainted": {
+    "median": null,
+    "p90": null,
+    "max": null,
+    "n": 0
+   },
+   "cardPaint": {
+    "median": 2610.6,
+    "p90": 3215.6,
+    "max": 3366.9,
+    "n": 3
+   },
+   "jsonOverhead": {
+    "median": 2009.3,
+    "p90": 2611.1,
+    "max": 2761.6,
+    "n": 3
+   },
+   "body": {
+    "median": 4262,
+    "p90": 4262,
+    "max": 4262,
+    "n": 3
+   },
+   "url": "gemini-3.8-flash:generateContent",
+   "longest": {
+    "median": 1928,
+    "p90": 2508,
+    "max": 2653,
+    "n": 3
+   }
+  },
+  "errors": []
+ },
+ "taps": {
+  "profile": "mid",
+  "all": {
+   "load CLS": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "eventTiming": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "longestTask": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "cls": {
+     "median": 0.5,
+     "p90": 0.5,
+     "max": 0.5,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0.5,
+     "p90": 0.5,
+     "max": 0.5,
+     "n": 3
+    },
+    "clsSources": [
+     "bodyCard,weekBtn,H1:0.034 | sessions,extras,splitSeg,#text:0.436",
+     "bodyCard,weekBtn,H1:0.034 | sessions,extras,splitSeg,#text:0.436"
+    ],
+    "errors": []
+   },
+   "Tab: Exercises (first)": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": 343.8,
+     "p90": 422.1,
+     "max": 441.7,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 360,
+     "p90": 462.4,
+     "max": 488,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 193,
+     "p90": 227.4,
+     "max": 236,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Sheet: open exercise": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": 10.7,
+     "p90": 12.1,
+     "max": 12.5,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 20,
+     "p90": 23.2,
+     "max": 24,
+     "n": 2
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Stepper +: exercise sheet weight": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "eventTiming": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "longestTask": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "cls": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "shiftInclInput": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "clsSources": [],
+    "errors": [
+     "TimeoutError: locator.boundingBox: Timeout 30000ms exceeded."
+    ]
+   },
+   "Sheet: close": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "eventTiming": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "longestTask": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "cls": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "shiftInclInput": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "clsSources": [],
+    "errors": [
+     "TypeError: Cannot read properties of null (reading 'x')"
+    ]
+   },
+   "Tab: Progress": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": 582.3,
+     "p90": 600.9,
+     "max": 605.5,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 600,
+     "p90": 619.2,
+     "max": 624,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 567,
+     "p90": 586.2,
+     "max": 591,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Chip: Progress Muscles": {
+    "pressedLook": {
+     "median": 275.5,
+     "p90": 381.5,
+     "max": 408,
+     "n": 3
+    },
+    "tapToPaint": {
+     "median": 97.8,
+     "p90": 104,
+     "max": 105.6,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 104,
+     "p90": 116.8,
+     "max": 120,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 78,
+     "p90": 82,
+     "max": 83,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Chip: Progress Strength": {
+    "pressedLook": {
+     "median": 368,
+     "p90": 375.8,
+     "max": 377.7,
+     "n": 3
+    },
+    "tapToPaint": {
+     "median": 183.6,
+     "p90": 202.4,
+     "max": 207.1,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 200,
+     "p90": 219.2,
+     "max": 224,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 173,
+     "p90": 197.8,
+     "max": 204,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Chip: Progress Body": {
+    "pressedLook": {
+     "median": 195.1,
+     "p90": 254,
+     "max": 268.7,
+     "n": 3
+    },
+    "tapToPaint": {
+     "median": 37.4,
+     "p90": 38.6,
+     "max": 38.9,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 48,
+     "p90": 48,
+     "max": 48,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Tab: Today": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": 96.7,
+     "p90": 116,
+     "max": 120.8,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 112,
+     "p90": 124.8,
+     "max": 128,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 84,
+     "p90": 98.4,
+     "max": 102,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Sheet: open Profile": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": 102.6,
+     "p90": 113.4,
+     "max": 116.1,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 136,
+     "p90": 136,
+     "max": 136,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 97,
+     "p90": 106.6,
+     "max": 109,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Chip: profile goal": {
+    "pressedLook": {
+     "median": 230.1,
+     "p90": 357.1,
+     "max": 388.9,
+     "n": 3
+    },
+    "tapToPaint": {
+     "median": 162.6,
+     "p90": 198,
+     "max": 206.9,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 152,
+     "p90": 177.6,
+     "max": 184,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 117,
+     "p90": 134.6,
+     "max": 139,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Checkbox: spoken cues": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "eventTiming": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "longestTask": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "cls": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "shiftInclInput": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "clsSources": [],
+    "errors": [
+     "TypeError: Cannot read properties of null (reading 'x')"
+    ]
+   },
+   "Sheet: close Profile": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": 30.3,
+     "p90": 35.6,
+     "max": 36.9,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 24,
+     "p90": 36.8,
+     "max": 40,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Open Search & log": {
+    "pressedLook": {
+     "median": 180.9,
+     "p90": 233.4,
+     "max": 246.5,
+     "n": 3
+    },
+    "tapToPaint": {
+     "median": 37.7,
+     "p90": 75.9,
+     "max": 85.4,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 56,
+     "p90": 94.4,
+     "max": 104,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 60,
+     "max": 75,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Chip: one-tap log suggestion": {
+    "pressedLook": {
+     "median": 2629.7,
+     "p90": 2692.1,
+     "max": 2707.7,
+     "n": 3
+    },
+    "tapToPaint": {
+     "median": 2560,
+     "p90": 2565,
+     "max": 2566.3,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 2552,
+     "p90": 2571.2,
+     "max": 2576,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 2536,
+     "p90": 2546.4,
+     "max": 2549,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0.2,
+     "p90": 0.2,
+     "max": 0.2,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Back from Search & log": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": 8,
+     "p90": 8.5,
+     "max": 8.6,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 16,
+     "p90": 16,
+     "max": 16,
+     "n": 2
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Start a session": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "eventTiming": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "longestTask": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "cls": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "shiftInclInput": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "clsSources": [],
+    "errors": [
+     "TypeError: Cannot read properties of null (reading 'x')"
+    ]
+   },
+   "Stepper +: session weight": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "eventTiming": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "longestTask": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "cls": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "shiftInclInput": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "clsSources": [],
+    "errors": [
+     "TypeError: Cannot read properties of null (reading 'x')"
+    ]
+   },
+   "Session: next step": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "eventTiming": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "longestTask": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "cls": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "shiftInclInput": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "clsSources": [],
+    "errors": [
+     "TypeError: Cannot read properties of null (reading 'x')"
+    ]
+   },
+   "Session: close": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "eventTiming": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "longestTask": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "cls": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "shiftInclInput": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "clsSources": [],
+    "errors": [
+     "TypeError: Cannot read properties of null (reading 'x')"
+    ]
+   },
+   "Session: end (confirm)": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "eventTiming": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "longestTask": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "cls": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "shiftInclInput": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "clsSources": [],
+    "errors": [
+     "TypeError: Cannot read properties of null (reading 'x')"
+    ]
+   }
+  },
+  "pageErrors": []
+ },
+ "typing": {
+  "profile": "mid",
+  "searchKey": {
+   "median": 16.1,
+   "p90": 21.1,
+   "max": 49.3,
+   "n": 84
+  },
+  "stepperInputKey": {
+   "median": 40.8,
+   "p90": 61.4,
+   "max": 66.6,
+   "n": 12
+  },
+  "keys": 84
+ },
+ "anim": {
+  "profile": "mid",
+  "normal": [
+   {
+    "sheet": {
+     "fps": 58.3,
+     "worstFrame": 33.4,
+     "framesOver20": 5,
+     "longTasks": 0,
+     "figMoved": true
+    },
+    "session": {
+     "fps": 59.7,
+     "worstFrame": 33.3,
+     "framesOver20": 1,
+     "longTasks": 0
+    },
+    "animatedOrTransitioningElements": 24
+   },
+   {
+    "sheet": {
+     "fps": 57.3,
+     "worstFrame": 33.4,
+     "framesOver20": 8,
+     "longTasks": 0,
+     "figMoved": true
+    },
+    "session": {
+     "fps": 60,
+     "worstFrame": 16.8,
+     "framesOver20": 0,
+     "longTasks": 0
+    },
+    "animatedOrTransitioningElements": 24
+   },
+   {
+    "sheet": {
+     "fps": 55.7,
+     "worstFrame": 33.4,
+     "framesOver20": 13,
+     "longTasks": 0,
+     "figMoved": true
+    },
+    "session": {
+     "fps": 60,
+     "worstFrame": 16.8,
+     "framesOver20": 0,
+     "longTasks": 0
+    },
+    "animatedOrTransitioningElements": 24
+   }
+  ],
+  "reducedMotion": {
+   "sheet": {
+    "fps": 60,
+    "worstFrame": 16.8,
+    "framesOver20": 0,
+    "longTasks": 0,
+    "figMoved": false
+   },
+   "session": {
+    "fps": 59.7,
+    "worstFrame": 33.3,
+    "framesOver20": 1,
+    "longTasks": 0
+   },
+   "animatedOrTransitioningElements": 19
+  }
+ },
+ "offline": {
+  "profile": "budget (6x CPU, Slow 3G), then offline",
+  "runs": [
+   {
+    "bootSlow3G": 8625,
+    "swControlling": true,
+    "indicatorOnline": {
+     "pill": false,
+     "coachBanner": false,
+     "text": ""
+    },
+    "indicatorOffline": {
+     "pill": false,
+     "coachBanner": false,
+     "text": ""
+    },
+    "offlineEventToPaint": 4.1,
+    "typedLogOffline": 4501,
+    "questionWhileOffline": "Holds keep the tendon under steady load.",
+    "queued": null,
+    "indicatorBackOnline": {
+     "pill": false,
+     "coachBanner": false,
+     "text": ""
+    },
+    "sendOffer": null,
+    "offlineReloadBoot": 875,
+    "indicatorAfterOfflineReload": {
+     "pill": false,
+     "coachBanner": true,
+     "text": ""
+    },
+    "typedLogAfterOfflineReload": true,
+    "_errs": []
+   },
+   {
+    "bootSlow3G": 8477,
+    "swControlling": true,
+    "indicatorOnline": {
+     "pill": false,
+     "coachBanner": false,
+     "text": ""
+    },
+    "indicatorOffline": {
+     "pill": false,
+     "coachBanner": false,
+     "text": ""
+    },
+    "offlineEventToPaint": 6,
+    "typedLogOffline": 4715,
+    "questionWhileOffline": "Holds keep the tendon under steady load.",
+    "queued": null,
+    "indicatorBackOnline": {
+     "pill": false,
+     "coachBanner": false,
+     "text": ""
+    },
+    "sendOffer": null,
+    "offlineReloadBoot": 1242,
+    "indicatorAfterOfflineReload": {
+     "pill": false,
+     "coachBanner": true,
+     "text": ""
+    },
+    "typedLogAfterOfflineReload": true,
+    "_errs": []
+   }
+  ]
+ }
+}
