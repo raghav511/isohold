@@ -1,0 +1,901 @@
+{
+ "build": "old",
+ "when": "2026-10-30T10:23:57.084Z",
+ "runs": 3,
+ "taps": {
+  "profile": "mid",
+  "all": {
+   "load CLS": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "eventTiming": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "longestTask": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "cls": {
+     "median": 0.5,
+     "p90": 0.5,
+     "max": 0.5,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0.5,
+     "p90": 0.5,
+     "max": 0.5,
+     "n": 3
+    },
+    "clsSources": [
+     "bodyCard,weekBtn,H1:0.034 | sessions,extras,splitSeg:0.436",
+     "bodyCard,weekBtn,H1:0.034 | sessions,extras,splitSeg,#text:0.436"
+    ],
+    "errors": []
+   },
+   "Tab: Exercises (first)": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": 350.8,
+     "p90": 360.6,
+     "max": 363.1,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 384,
+     "p90": 403.2,
+     "max": 408,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 218,
+     "p90": 225.2,
+     "max": 227,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Sheet: open exercise": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": 152.3,
+     "p90": 178.5,
+     "max": 185,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 176,
+     "p90": 214.4,
+     "max": 224,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 114,
+     "p90": 154.8,
+     "max": 165,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Stepper +: exercise sheet weight": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": 22.7,
+     "p90": 24.6,
+     "max": 25.1,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 32,
+     "p90": 51.2,
+     "max": 56,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Sheet: close": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": 17.4,
+     "p90": 27.7,
+     "max": 30.3,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 40,
+     "p90": 40,
+     "max": 40,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Tab: Progress": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": 566.4,
+     "p90": 569,
+     "max": 569.6,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 576,
+     "p90": 582.4,
+     "max": 584,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 553,
+     "p90": 553.8,
+     "max": 554,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Chip: Progress Muscles": {
+    "pressedLook": {
+     "median": 179.7,
+     "p90": 212.5,
+     "max": 220.7,
+     "n": 3
+    },
+    "tapToPaint": {
+     "median": 85.3,
+     "p90": 100.9,
+     "max": 104.8,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 104,
+     "p90": 116.8,
+     "max": 120,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 69,
+     "p90": 75.4,
+     "max": 77,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Chip: Progress Strength": {
+    "pressedLook": {
+     "median": 368.5,
+     "p90": 426.3,
+     "max": 440.8,
+     "n": 3
+    },
+    "tapToPaint": {
+     "median": 186.6,
+     "p90": 210.2,
+     "max": 216.1,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 192,
+     "p90": 217.6,
+     "max": 224,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 176,
+     "p90": 197.6,
+     "max": 203,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Chip: Progress Body": {
+    "pressedLook": {
+     "median": 237.6,
+     "p90": 322,
+     "max": 343.1,
+     "n": 3
+    },
+    "tapToPaint": {
+     "median": 34.4,
+     "p90": 34.5,
+     "max": 34.5,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 40,
+     "p90": 46.4,
+     "max": 48,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Tab: Today": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": 51.6,
+     "p90": 82.5,
+     "max": 90.2,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 96,
+     "p90": 115.2,
+     "max": 120,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 57.6,
+     "max": 72,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Sheet: open Profile": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": 28.2,
+     "p90": 48.4,
+     "max": 53.4,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 56,
+     "p90": 62.4,
+     "max": 64,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Chip: profile goal": {
+    "pressedLook": {
+     "median": 294.1,
+     "p90": 305.2,
+     "max": 308,
+     "n": 2
+    },
+    "tapToPaint": {
+     "median": 76.6,
+     "p90": 151.8,
+     "max": 170.6,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 112,
+     "p90": 124.8,
+     "max": 128,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 57,
+     "p90": 106.6,
+     "max": 119,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Checkbox: spoken cues": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "eventTiming": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "longestTask": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "cls": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "shiftInclInput": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "clsSources": [],
+    "errors": [
+     "TimeoutError: page.click: Timeout 10000ms exceeded."
+    ]
+   },
+   "Sheet: close Profile": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": 30.4,
+     "p90": 34.2,
+     "max": 35.2,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 48,
+     "p90": 54.4,
+     "max": 56,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Open Search & log": {
+    "pressedLook": {
+     "median": 234.5,
+     "p90": 248.9,
+     "max": 252.5,
+     "n": 3
+    },
+    "tapToPaint": {
+     "median": 44.2,
+     "p90": 67.5,
+     "max": 73.3,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 56,
+     "p90": 75.2,
+     "max": 80,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 52.8,
+     "max": 66,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Chip: one-tap log suggestion": {
+    "pressedLook": {
+     "median": 2821.8,
+     "p90": 3004.7,
+     "max": 3050.4,
+     "n": 3
+    },
+    "tapToPaint": {
+     "median": 2603.7,
+     "p90": 2773.5,
+     "max": 2815.9,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 2624,
+     "p90": 2803.2,
+     "max": 2848,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 2589,
+     "p90": 2761,
+     "max": 2804,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0.2,
+     "p90": 0.2,
+     "max": 0.2,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Back from Search & log": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": 72.2,
+     "p90": 94.1,
+     "max": 99.6,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 80,
+     "p90": 105.6,
+     "max": 112,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 60,
+     "p90": 76,
+     "max": 80,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Start a session": {
+    "pressedLook": {
+     "median": 7694.4,
+     "p90": 8767.3,
+     "max": 9035.5,
+     "n": 2
+    },
+    "tapToPaint": {
+     "median": 6224.7,
+     "p90": 8087.9,
+     "max": 8553.7,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 6248,
+     "p90": 8168,
+     "max": 8648,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 6209,
+     "p90": 8077.8,
+     "max": 8545,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Stepper +: session weight": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "eventTiming": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "longestTask": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "cls": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "shiftInclInput": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "clsSources": [],
+    "errors": [
+     "TimeoutError: page.click: Timeout 10000ms exceeded."
+    ]
+   },
+   "Session: next step": {
+    "pressedLook": {
+     "median": 188,
+     "p90": 234.3,
+     "max": 245.9,
+     "n": 3
+    },
+    "tapToPaint": {
+     "median": 43.5,
+     "p90": 54.4,
+     "max": 57.1,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 64,
+     "p90": 64,
+     "max": 64,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 76,
+     "max": 95,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0.1,
+     "p90": 0.1,
+     "max": 0.1,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   },
+   "Session: close": {
+    "pressedLook": {
+     "median": null,
+     "p90": null,
+     "max": null,
+     "n": 0
+    },
+    "tapToPaint": {
+     "median": 23.2,
+     "p90": 27.3,
+     "max": 28.3,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 40,
+     "p90": 46.4,
+     "max": 48,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 0,
+     "p90": 40,
+     "max": 50,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [
+     "pAngle",
+     "pAngle"
+    ],
+    "errors": []
+   },
+   "Session: end (confirm)": {
+    "pressedLook": {
+     "median": 213.7,
+     "p90": 255.8,
+     "max": 266.3,
+     "n": 3
+    },
+    "tapToPaint": {
+     "median": 109.9,
+     "p90": 130.7,
+     "max": 135.9,
+     "n": 3
+    },
+    "eventTiming": {
+     "median": 128,
+     "p90": 134.4,
+     "max": 136,
+     "n": 3
+    },
+    "longestTask": {
+     "median": 92,
+     "p90": 101.6,
+     "max": 104,
+     "n": 3
+    },
+    "cls": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "shiftInclInput": {
+     "median": 0,
+     "p90": 0,
+     "max": 0,
+     "n": 3
+    },
+    "clsSources": [],
+    "errors": []
+   }
+  },
+  "pageErrors": []
+ }
+}
