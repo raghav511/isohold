@@ -596,6 +596,29 @@ details.how .gbody { display: grid; gap: 10px; font-size: 15px; }
 @media (min-width: 600px) and (orientation: portrait) and (min-height: 900px) { .p-fig svg { max-height: 42vh; } }
 @media (max-height: 700px) { .p-fig svg { max-height: 28vh; } .ring { width: 104px; height: 104px; } .ring b { font-size: 46px; } }
 @media (prefers-reduced-motion: reduce) { .holding [data-glow] { animation: none; } .sheet { animation: none; } .btn:active { transform: none; } }
+/* Your level card (Progress > Strength) */
+#levelCard { display: grid; gap: 12px; }
+#levelCard h2 { margin: 0; }
+.lv-sum { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.lv-sum div { background: color-mix(in srgb, var(--ink) 5%, transparent); border-radius: 14px; padding: 10px 12px; display: grid; gap: 2px; }
+.lv-sum small { color: var(--muted); font-size: 13px; font-weight: 700; }
+.lv-sum b { font-family: var(--f-display); font-size: 22px; font-weight: 600; }
+.lv-sum span { color: var(--muted); font-size: 13px; }
+.lv-h { margin: 4px 0 -4px; font-size: 16px; }
+.lv-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.lv-list li { display: grid; gap: 4px; }
+.lv-row { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.lv-row b { font-size: 15px; min-width: 0; }
+.lv-chip { flex: none; font-size: 13px; font-weight: 700; border-radius: 999px; padding: 2px 10px; background: color-mix(in srgb, var(--hold) 16%, transparent); color: var(--ink); }
+.lv-bar { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; height: 8px; }
+.lv-bar i { background: color-mix(in srgb, var(--ink) 10%, transparent); border-radius: 2px; }
+.lv-bar i.on { background: var(--hold); }
+.lv-bar em { position: absolute; top: -3px; width: 4px; height: 14px; border-radius: 2px; background: var(--ink); transform: translateX(-2px); }
+.lv-sub { color: var(--muted); font-size: 13.5px; }
+#levelCard details summary { min-height: 44px; display: flex; align-items: center; font-weight: 700; cursor: pointer; color: var(--ink); }
+#levelCard details ol, #levelCard details p { margin: 6px 0; padding-left: 20px; color: var(--muted); font-size: 14px; line-height: 1.45; }
+#levelCard details p { padding-left: 0; }
+#levelCard a { color: inherit; }
 /*@@css*/
 /* ---------- log: type, speak or snap ---------- */
 .view-head .xbtn.prof { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--surface); }
@@ -1122,7 +1145,6 @@ html:not(.booted) main.app { visibility: hidden; }
   <section class="view" id="train" aria-labelledby="tab-train">
     <div class="view-head"><h1>Today</h1><button class="weekbtn" id="weekBtn" aria-haspopup="dialog"></button><button class="xbtn prof" id="profBtn" aria-label="Your profile and settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="4" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M4.5 20.5c1.2-3.8 4-5.5 7.5-5.5s6.3 1.7 7.5 5.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button></div>
     <div id="setupCard"></div>
-    <div id="bodyCard" class="bodycard"></div>
     <div class="band" id="band"></div>
     <div id="extras" class="view" style="gap:12px"></div>
     <div class="overall" id="overall"></div>
@@ -1130,6 +1152,7 @@ html:not(.booted) main.app { visibility: hidden; }
     <div class="eqdd-wrap" id="eqddTrain"></div>
     <div id="splitSeg"></div>
     <div id="sessions" class="view" style="gap:12px"></div>
+    <div id="bodyCard" class="bodycard"></div>
     <div id="fuel"></div>
     <div id="startBar" class="startbar" hidden></div>
   </section>
@@ -1151,6 +1174,7 @@ html:not(.booted) main.app { visibility: hidden; }
       <button role="tab" id="pt-body" data-ptab="body" aria-controls="progPanel" aria-selected="false" tabindex="-1">Body</button>
     </div>
     <div id="progPanel" role="tabpanel" aria-labelledby="pt-strength" tabindex="0">
+    <div class="card" id="levelCard"></div>
     <div class="card" id="dailyCard"></div>
     <div class="card" id="bodyNow"></div>
     <div class="card" id="allCard"></div>
@@ -3453,17 +3477,7 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     var card = btn.closest('article'), h = card && card.querySelector('h3'), m = card && card.querySelector('.mins');
     bar.hidden = false;
     bar.innerHTML = '<button class="btn go" data-startbar="1">Start ' + esc(((h && h.textContent) || 'session').toLowerCase()) + (m ? ', ' + esc(m.textContent) : '') + '</button>';
-    fitMap();
   }
-  // on a short screen the pinned Start would cover the end of the body-map card at the top of the page: shrink the map to keep its last line clear
-  function fitMap() {
-    var card = $('bodyCard'), svg = card && card.querySelector('svg'), bar = $('startBar'); if (!svg) return;
-    svg.style.maxHeight = ''; if (bar.hidden || current !== 'train') return;
-    var last = card.lastElementChild, lb = last.getBoundingClientRect().bottom + window.scrollY;
-    var stuck = window.innerHeight - (parseFloat(getComputedStyle(bar).bottom) || 0) - bar.offsetHeight, over = lb - stuck + 8;
-    if (over > 0) svg.style.maxHeight = Math.max(160, svg.getBoundingClientRect().height - over) + 'px';
-  }
-  window.addEventListener('resize', function () { if (typeof fitMap === 'function') fitMap(); });
   document.addEventListener('click', function (e) {
     if (!e.target.closest('[data-startbar]')) return;
     var btn = [].filter.call(document.querySelectorAll('#sessions [data-start]'), function (b) { return /\bgo\b/.test(b.className); })[0];
@@ -4556,7 +4570,83 @@ var PRE = {"lateral-raise":["H",[-114.6,-161.9,229.2,171.9]],"oh-triceps":["An",
     return '<p class="chart-t">' + unitWord(2).replace(/^./, function (c) { return c.toUpperCase(); }) + ' done per program week, out of ' + WT + '</p>' + s + '</svg>';
   }
   var strSel = null, strKind = 'h', strEq = null;
+  // Your level (Progress > Strength): each main lift's estimated max against strength levels, adjusted for bodyweight, age and sex; each hold's time against the typical time for that joint
+  function lvName(id, k, eq) { try { var kk = k === 'h' ? 'h' : 'g', o = parseEq(EQV[id][kk]).filter(function (q) { return q.eq === eq; })[0]; return V(id, kk, o).name; } catch (e) { return id; } }
+  function renderLevels() {
+    var el = $('levelCard'); if (!el) return;
+    var p = prof(), log = store.log, bw = bodyKg();
+    if (!(bw > 0)) { el.innerHTML = '<h2>Your level</h2><p class="lv-sub">Add your bodyweight in Profile to see your strength level.</p>'; return; }
+    var LEVELS = ['Beginner', 'Novice', 'Intermediate', 'Advanced', 'Elite'];
+    // Thresholds for Novice, Intermediate, Advanced, Elite as multiples of bodyweight (estimated 1-rep max, total load), men under 40.
+    // Rough values in the range of common strength-standards tables; dumbbell and kettlebell versions have their own.
+    var STD = {
+      'squat|b': [0.75, 1.25, 1.75, 2.5], 'goblet-squat|*': [0.25, 0.4, 0.6, 0.8], 'split-squat|*': [0.35, 0.6, 0.9, 1.2],
+      'rdl|b': [1.0, 1.5, 2.0, 2.75], 'rdl|*': [0.5, 0.8, 1.1, 1.5], 'sl-rdl|*': [0.25, 0.45, 0.7, 0.95], 'deadlift|b': [1.0, 1.5, 2.0, 2.75],
+      'floor-press|b': [0.5, 0.75, 1.25, 1.75], 'floor-press|*': [0.4, 0.65, 1.0, 1.4], 'bench|b': [0.5, 0.75, 1.25, 1.75],
+      'oh-press|b': [0.4, 0.55, 0.8, 1.1], 'oh-press|*': [0.3, 0.45, 0.65, 0.9], 'row|b': [0.5, 0.75, 1.0, 1.5], 'row|*': [0.4, 0.6, 0.85, 1.2],
+      'curl|b': [0.3, 0.5, 0.75, 1.0], 'curl|*': [0.4, 0.65, 0.95, 1.3]
+    };
+    var TWO = { 'floor-press': 1, 'curl': 1, 'rdl': 1, 'split-squat': 1, 'oh-press': 1, 'row': 1 }; // dumbbell or kettlebell weight is per hand
+    var LOWER = { squat: 1, 'goblet-squat': 1, 'split-squat': 1, rdl: 1, 'sl-rdl': 1, deadlift: 1 };
+    var female = p.sex === 'f', age = p.age || 30;
+    // masters age coefficients (as used to compare older lifters): a 60-year-old's lift counts about 1.3 times
+    var AGE = [[40, 1], [45, 1.06], [50, 1.13], [55, 1.21], [60, 1.3], [65, 1.41], [70, 1.53], [75, 1.68], [80, 1.84], [90, 2.2]];
+    function ageCoef(a) { if (a <= 40) return 1; for (var i = 1; i < AGE.length; i++) if (a <= AGE[i][0]) { var x = AGE[i - 1], y = AGE[i]; return x[1] + (y[1] - x[1]) * (a - x[0]) / (y[0] - x[0]); } return 2.2; }
+    var ac = ageCoef(age), ref = female ? 62 : 80;
+    var rows = [], seen = {};
+    log.forEach(function (l) {
+      if (l.k !== 'r' || !(l.kg > 0)) return; var key = l.id + '|' + l.eq; if (seen[key]) return; seen[key] = 1;
+      var std = STD[l.id + '|' + (l.eq === 'b' ? 'b' : '*')]; if (!std) return;
+      var best = curMaxEx(l.id, 'r', l.eq); if (!best || !best.e) return;
+      var total = best.e * (l.eq !== 'b' && TWO[l.id] ? 2 : 1);
+      var sexF = female ? (LOWER[l.id] ? 0.75 : 0.6) : 1;
+      // bodyweight scaled to the power 2/3, so lighter and heavier people compare fairly; then age; then sex
+      var ratio = total / bw * Math.pow(bw / ref, 1 / 3) * ac / sexF;
+      var lv = 0; std.forEach(function (s, i) { if (ratio >= s) lv = i + 1; });
+      var lo = lv ? std[lv - 1] : 0, hi = lv < 4 ? std[lv] : std[3] * 1.3, pos = Math.min(1, (lv + Math.min(1, (ratio - lo) / (hi - lo))) / 5);
+      var first = exSetsOf(l.id, 'r', l.eq).filter(function (s) { return s.e; })[0];
+      rows.push({ name: lvName(l.id, 'r', l.eq), total: total, ratio: ratio, lv: lv, pos: pos, gain: first && first.e ? Math.round((best.e / first.e - 1) * 100) : null });
+    });
+    rows.sort(function (a, b) { return b.ratio - a.ratio; });
+    // endurance: each hold against the typical hold time for that joint at the same share of your max (100 = typical)
+    var end = [], eseen = {};
+    log.slice().reverse().forEach(function (l) {
+      if (l.k !== 'h' || !(l.kg > 0) || !(l.v > 0)) return; var key = l.id + '|' + l.eq; if (eseen[key]) return;
+      var mx = curMaxEx(l.id, 'r', l.eq); if (!mx || !mx.e) return; eseen[key] = 1;
+      var f = l.kg / mx.e; if (f < 0.2 || f > 0.95) return;
+      var c = ET[JOINT[l.id] || 'general'], typical = c[0] * Math.pow(f, c[1]);
+      end.push({ name: lvName(l.id, 'h', l.eq), pct: Math.round(f * 100), v: l.v, typical: Math.round(typical), score: Math.round(l.v / typical * 100) });
+    });
+    end.sort(function (a, b) { return b.score - a.score; });
+    var firstT = log.length ? Math.min.apply(null, log.map(function (l) { return l.t; })) : Date.now(), weeks = Math.max(1, Math.round((Date.now() - firstT) / 6048e5));
+    var median = function (a) { if (!a.length) return null; var s = a.slice().sort(function (x, y) { return x - y; }); return s[Math.floor(s.length / 2)]; };
+    var overall = median(rows.map(function (r) { return r.lv; })), endIdx = median(end.map(function (e) { return e.score; }));
+    var who = (p.age ? p.age + '-year-old ' : '') + (female ? 'woman' : p.sex === 'm' ? 'man' : 'adult') + ', ' + kg(bw);
+    var bar = function (r) { var h = ''; for (var i = 0; i < 5; i++) h += '<i' + (i < r.lv ? ' class="on"' : '') + '></i>'; return '<div class="lv-bar" aria-hidden="true">' + h + '<em style="left:' + (r.pos * 100).toFixed(1) + '%"></em></div>'; };
+    if (!rows.length && !end.length) { el.innerHTML = '<h2>Your level</h2><p class="lv-sub">Log a few sets of a squat, deadlift, press, row or curl and your level shows here.</p>'; return; }
+    el.innerHTML = '<h2>Your level</h2>' +
+      '<div class="lv-sum"><div><small>Strength</small><b>' + (overall != null ? LEVELS[overall] : '—') + '</b><span>for a ' + esc(who) + '</span></div>' +
+      '<div><small>Endurance</small><b>' + (endIdx != null ? endIdx : '—') + '</b><span>100 = typical hold time</span></div></div>' +
+      (rows.length ? '<h3 class="lv-h">Strength by lift</h3><ul class="lv-list" aria-label="Strength level by lift">' + rows.map(function (r) {
+        return '<li><div class="lv-row"><b>' + esc(r.name) + '</b><span class="lv-chip">' + LEVELS[r.lv] + '</span></div>' + bar(r) +
+          '<span class="lv-sub">Max about ' + kg(Math.round(r.total * 2) / 2) + (r.gain != null ? ', ' + (r.gain >= 0 ? '+' : '') + r.gain + '% since you started' : '') + '</span></li>';
+      }).join('') + '</ul>' : '') +
+      (end.length ? '<h3 class="lv-h">Endurance by hold</h3><ul class="lv-list" aria-label="Endurance by hold">' + end.slice(0, 5).map(function (e) {
+        return '<li><div class="lv-row"><b>' + esc(e.name) + '</b><span class="lv-chip">' + e.score + '</span></div><span class="lv-sub">' + e.v + ' s at ' + e.pct + '% of your max; typical for that joint and effort: ' + e.typical + ' s</span></li>';
+      }).join('') + '</ul>' : '') +
+      '<p class="lv-sub">You’ve trained for ' + weeks + (weeks === 1 ? ' week' : ' weeks') + '. ' + (weeks < 26 ? 'In the first months strength rises fast, mostly from learning the movement; expect it to slow after about six months.' : 'After the first year progress is slower and steadier.') + '</p>' +
+      '<details><summary>How this is worked out</summary><ol>' +
+      '<li>Your max for each lift comes from your heaviest recent set: weight × (1 + reps ÷ 30), for sets of 12 reps or fewer.</li>' +
+      '<li>It’s divided by your bodyweight, scaled so lighter and heavier people compare fairly (bodyweight to the power ⅔).</li>' +
+      '<li>Over 40, it’s raised by the masters age coefficient (' + ac.toFixed(2) + ' for you), as used to compare older lifters with younger ones.</li>' +
+      '<li>Women are compared with women’s levels (about 60% of men’s for upper body, 75% for lower body).</li>' +
+      '<li>The levels are rough bodyweight multiples in the range of common strength-standards tables, not a peer-reviewed norm. Dumbbell and kettlebell lifts have their own, lower levels.</li>' +
+      '<li>Endurance compares each hold with the typical hold time for that joint at the same share of your max, from a meta-analysis of 194 studies (Frey Law & Avin 2010).</li>' +
+      '<li>Height isn’t used: once bodyweight is known it adds little.</li></ol>' +
+      '<p>Sources: <a href="https://doi.org/10.1080/00140130903389068" target="_blank" rel="noopener">hold times by joint</a>, <a href="https://doi.org/10.1519/JSC.0b013e31817b02ad" target="_blank" rel="noopener">max from reps</a>, <a href="https://doi.org/10.1519/R-18905.1" target="_blank" rel="noopener">max from reps in women aged about 57</a>, <a href="https://doi.org/10.1002/jcsm.13731" target="_blank" rel="noopener">strength by age</a>.</p></details>';
+  }
   function renderStrength() {
+    renderLevels();
     var logged = {}; store.log.forEach(function (l) { logged[l.id] = 1; });
     var ids = EX.map(function (e) { return e.id; }).filter(function (id) { return logged[id]; });
     if (!ids.length) { $('strCard').innerHTML = '<h2>Exercise history</h2><p>Enter your weight in the timer or on an exercise. After your first session, this chart shows how much you lift and for how long or how many reps.</p>'; return; }
